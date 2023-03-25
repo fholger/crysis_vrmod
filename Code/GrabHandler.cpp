@@ -11,6 +11,9 @@
 
 *************************************************************************/
 #include "StdAfx.h"
+
+#include <functional>
+
 #include "Game.h"
 #include "Actor.h"
 #include "ScriptBind_Actor.h"

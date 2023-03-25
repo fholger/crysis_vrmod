@@ -1,0 +1,633 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Interfaces_h">
+      <UniqueIdentifier>{98948f35-3692-4689-871e-fbd8ca86622e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common_h">
+      <UniqueIdentifier>{8fc3bc68-621b-4c26-bde0-debb1b1b0206}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common_h\RenderElements">
+      <UniqueIdentifier>{64b29e19-f239-410b-8f19-1e91d90ae354}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MathLib">
+      <UniqueIdentifier>{0b2b0161-f728-4127-a9cd-920ff9e940c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform_h">
+      <UniqueIdentifier>{822e02a3-7d8f-4ad0-9543-40969fed3f6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AgentParams.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="I3DEngine.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="I3DSampler.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAgent.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAIAction.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAIGroup.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAIRecorder.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAISystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAnimationGraphSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IBitStream.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IBudgetingSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IChunkFile.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ICmdLine.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IConsole.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ICryAnimation.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ICryPak.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IDataProbe.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IDebugHistory.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IDialogSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEdgeConnectivityBuilder.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEditorGame.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntity.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntityClass.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntityProxy.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntityRenderState.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntitySerialize.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IEntitySystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IFacialAnimation.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IFlashPlayer.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IFlowSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IFont.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGame.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameFramework.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameRef.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameStartup.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameTokens.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IGlobalTaskScheduler.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IHardwareMouse.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IIndexedMesh.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IInput.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IInterestSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IJoystick.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ILipSync.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ILMSerializationManager.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ILog.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IMaterial.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IMaterialEffects.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IMiniLog.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IMovieSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IMusicSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="INetwork.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="INetworkService.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IPhysics.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IProcess.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IReadWriteXMLSink.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IRemoteControl.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderAuxGeom.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderer.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IRendererD3D9.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IRenderMesh.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IResourceCollector.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IReverbManager.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IScriptSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISerialize.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISimpleHttpServer.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISound.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISoundMoodManager.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISplines.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IStatObj.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IStreamEngine.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IStreamPersist.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISurfaceType.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ISystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ITestSystem.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ITextModeConsole.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IThreadTask.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ITimer.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IValidator.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IVideoPlayer.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IXml.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="LMCompStructures.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleParams.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="physinterface.h">
+      <Filter>Interfaces_h</Filter>
+    </ClInclude>
+    <ClInclude Include="AIFormationDescriptor.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="AITrackPatternDescriptor.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimKey.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="BitFiddling.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="BitmapDilation.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CGFContent.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CoherentValue.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurableVariant.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="COWArray.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="crc32.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CrtDebugStats.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryAnimationScriptCommands.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryArray.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryAssert.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryCharAnimationParams.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryCharMorphParams.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryCompiledFile.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngineDecalInfo.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryFile.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryFixedString.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryHeaders.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryMemoryAllocator.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryMemoryManager.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryName.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryParticleSpawnInfo.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryPath.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryPodArray.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CrySizer.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryString.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryStructPack.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThreadImpl.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryTypeInfo.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryVersion.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryVertexBinding.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityDesc.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Force.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameProfiler.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="functor.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="GameUtils.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IAVI_Reader.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="IDirectBee.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="InterpolationHelpers.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="MiniQueue.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="MTPseudoRandom.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiThread.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="NetHelpers.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleParams_info.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipe.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="PNoise3.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolAllocator.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolAllocatorSynchronization.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="primitives.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectDefines.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceCompilerHelper.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopedVariableSetter.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptHelpers.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializationTypes.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializeBuffer.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializeFwd.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleSerialize.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="smartptr.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="StlDbgAlloc.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="STLPoolAllocator.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="STLPoolAllocator_ManyElems.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="StlUtils.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="StringUtils.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TArray.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeValue.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeInfo.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeInfo_impl.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Typelist.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="TypelistUtils.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorMap.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorSet.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBufferSource.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexFormats.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLBinaryHeaders.h">
+      <Filter>Common_h</Filter>
+    </ClInclude>
+    <ClInclude Include="RendElement.h">
+      <Filter>Common_h\RenderElements</Filter>
+    </ClInclude>
+    <ClInclude Include="AABBSV.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Camera.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Color.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Geo.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_GeoDistance.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_GeoIntersect.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_GeoOverlap.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Math.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Matrix.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Quat.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_ValidNumber.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Vector2.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_Vector3.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Cry_XOptimise.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="GeomQuery.h">
+      <Filter>MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="CryAssert_impl.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryLibrary.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryMemoryManager_impl.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread_pthreads.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread_ptw32.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread_windows.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread_wingc.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThread_winthread.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThreadImpl_pthreads.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="CryThreadImpl_windows.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Endian.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Linux32Specific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Linux64Specific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Linux_Win32Wrapper.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxSpecific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="MSVCspecific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="platform_impl.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32specific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+    <ClInclude Include="Win64specific.h">
+      <Filter>Platform_h</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CryCommon.cpp">
+      <Filter>Interfaces_h</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleParamsTypeInfo.cpp">
+      <Filter>Common_h</Filter>
+    </ClCompile>
+    <ClCompile Include="CryStructPack.cpp">
+      <Filter>Platform_h</Filter>
+    </ClCompile>
+    <ClCompile Include="WinBase.cpp">
+      <Filter>Platform_h</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

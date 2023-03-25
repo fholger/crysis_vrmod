@@ -544,7 +544,7 @@ bool CWeaponSystem::ScanXML(XmlNodeRef &root, const char *xmlFile)
 		desc.params=pAmmoParams;
 	}
 	else
-		desc.configurations.insert(std::make_pair<string, const SAmmoParams*>(configName, pAmmoParams));
+		desc.configurations.insert(std::make_pair(configName, pAmmoParams));
 
 	return true;
 }

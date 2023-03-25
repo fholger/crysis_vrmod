@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|Win32">
+      <Configuration>Profile</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|x64">
+      <Configuration>Profile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectName>CrysisMod</ProjectName>
+    <ProjectGuid>{2EB52047-0A81-4343-B703-DF221CA5CC2A}</ProjectGuid>
+    <RootNamespace>CrysisMod</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.33122.133</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\Bin32\</OutDir>
+    <IntDir>$(SolutionDir)..\BinTemp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)..\Bin64\</OutDir>
+    <IntDir>$(SolutionDir)..\BinTemp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <OutDir>$(SolutionDir)..\Bin32\</OutDir>
+    <IntDir>$(SolutionDir)..\BinTemp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <OutDir>$(SolutionDir)..\Bin64\</OutDir>
+    <IntDir>$(SolutionDir)..\BinTemp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;..\..\..\Code\CryEngine\CryCommon;..\..\..\Code\CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GAMEDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling />
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.\;..\..\..\Code\CryEngine\CryCommon;..\..\..\Code\CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GAMEDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling />
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <LargeAddressAware>true</LargeAddressAware>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <BaseAddress>0x39000000</BaseAddress>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <BaseAddress>0x39000000</BaseAddress>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="Alien.cpp" />
+    <ClCompile Include="AmmoParams.cpp" />
+    <ClCompile Include="AmmoPickup.cpp" />
+    <ClCompile Include="Automatic.cpp" />
+    <ClCompile Include="AVMine.cpp" />
+    <ClCompile Include="Beam.cpp" />
+    <ClCompile Include="Binocular.cpp" />
+    <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletTime.cpp" />
+    <ClCompile Include="Burst.cpp" />
+    <ClCompile Include="C4.cpp" />
+    <ClCompile Include="C4Detonator.cpp" />
+    <ClCompile Include="C4Projectile.cpp" />
+    <ClCompile Include="Charge.cpp" />
+    <ClCompile Include="Claymore.cpp" />
+    <ClCompile Include="ClientSynchedStorage.cpp" />
+    <ClCompile Include="CompatibilityAlienMovementController.cpp" />
+    <ClCompile Include="DebugGun.cpp" />
+    <ClCompile Include="Detonate.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="EMPField.cpp" />
+    <ClCompile Include="Environment\BattleDust.cpp" />
+    <ClCompile Include="Environment\FlowTornado.cpp" />
+    <ClCompile Include="Environment\Shake.cpp" />
+    <ClCompile Include="Environment\Tornado.cpp" />
+    <ClCompile Include="Fists.cpp" />
+    <ClCompile Include="FlashAnimation.cpp" />
+    <ClCompile Include="FlowItemAnimation.cpp" />
+    <ClCompile Include="FlowVehicleNodes.cpp" />
+    <ClCompile Include="FreezingBeam.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameActions.cpp" />
+    <ClCompile Include="GameCVars.cpp" />
+    <ClCompile Include="GameDll.cpp" />
+    <ClCompile Include="GameFactory.cpp" />
+    <ClCompile Include="GameRules.cpp" />
+    <ClCompile Include="GameRulesClientServer.cpp" />
+    <ClCompile Include="GrabHandler.cpp" />
+    <ClCompile Include="GunTurret.cpp" />
+    <ClCompile Include="HomingMissile.cpp" />
+    <ClCompile Include="Hud\GameFlashAnimation.cpp" />
+    <ClCompile Include="HUD\GameFlashLogic.cpp" />
+    <ClCompile Include="Hud\HUD.cpp" />
+    <ClCompile Include="HUD\HUDAirStrike.cpp" />
+    <ClCompile Include="HUD\HUDCommon.cpp" />
+    <ClCompile Include="HUD\HUDCrosshair.cpp" />
+    <ClCompile Include="HUD\HUDInterfaceEffects.cpp" />
+    <ClCompile Include="HUD\HUDMissionObjectiveSystem.cpp" />
+    <ClCompile Include="HUD\HUDObituary.cpp" />
+    <ClCompile Include="Hud\HUDObject.cpp" />
+    <ClCompile Include="HUD\HUDPDA.cpp" />
+    <ClCompile Include="HUD\HUDPowerStruggle.cpp" />
+    <ClCompile Include="Hud\HUDRadar.cpp" />
+    <ClCompile Include="HUD\HUDScopes.cpp" />
+    <ClCompile Include="HUD\HUDScore.cpp" />
+    <ClCompile Include="HUD\HUDSilhouettes.cpp" />
+    <ClCompile Include="HUD\HUDSoundImpl.cpp" />
+    <ClCompile Include="HUD\HUDTagNames.cpp" />
+    <ClCompile Include="HUD\HUDTextArea.cpp" />
+    <ClCompile Include="HUD\HUDTextChat.cpp" />
+    <ClCompile Include="HUD\HUDTextEvents.cpp" />
+    <ClCompile Include="HUD\HUDVehicleInterface.cpp" />
+    <ClCompile Include="HUD\HUDWeaponAccessories.cpp" />
+    <ClCompile Include="HUD\ScriptBind_HUD.cpp" />
+    <ClCompile Include="HUD\Tweaks\HUDTweakMenu.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakCommon.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakMenu.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakMetadata.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakMetadataCVAR.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakMetadataLUA.cpp" />
+    <ClCompile Include="HUD\Tweaks\TweakTraverser.cpp" />
+    <ClCompile Include="Hunter.cpp" />
+    <ClCompile Include="IronSight.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="ItemAccessory.cpp" />
+    <ClCompile Include="ItemClientServer.cpp" />
+    <ClCompile Include="ItemDualWield.cpp" />
+    <ClCompile Include="ItemEffect.cpp" />
+    <ClCompile Include="ItemEvents.cpp" />
+    <ClCompile Include="ItemParams.cpp" />
+    <ClCompile Include="ItemResource.cpp" />
+    <ClCompile Include="ItemScheduler.cpp" />
+    <ClCompile Include="ItemSharedParams.cpp" />
+    <ClCompile Include="ItemView.cpp" />
+    <ClCompile Include="Lam.cpp" />
+    <ClCompile Include="LaptopUtil.cpp" />
+    <ClCompile Include="Melee.cpp" />
+    <ClCompile Include="Menus\CreateGame.cpp" />
+    <ClCompile Include="Menus\FlashMenuObject.cpp" />
+    <ClCompile Include="Menus\FlashMenuObjectOptions.cpp" />
+    <ClCompile Include="Menus\FlashMenuObjectProfiles.cpp" />
+    <ClCompile Include="Menus\FlashMenuObjectSingleplayer.cpp" />
+    <ClCompile Include="Menus\FlashMenuScreen.cpp" />
+    <ClCompile Include="Menus\GameNetworkProfile.cpp" />
+    <ClCompile Include="Menus\MPHub.cpp" />
+    <ClCompile Include="Menus\MPLobbyUI.cpp" />
+    <ClCompile Include="Menus\MultiplayerMenu.cpp" />
+    <ClCompile Include="Menus\OptionsManager.cpp" />
+    <ClCompile Include="Menus\QuickGame.cpp" />
+    <ClCompile Include="MPTutorial.cpp" />
+    <ClCompile Include="NanoSuit.cpp" />
+    <ClCompile Include="NetInputChainDebug.cpp" />
+    <ClCompile Include="NetPlayerInput.cpp" />
+    <ClCompile Include="Nodes\FlowActorSensor.cpp" />
+    <ClCompile Include="Nodes\FlowFadeNode.cpp" />
+    <ClCompile Include="Nodes\FlowHitInfoNode.cpp" />
+    <ClCompile Include="Nodes\FlowNanoSuitNodes.cpp" />
+    <ClCompile Include="Nodes\FlowPlayerStagingNode.cpp" />
+    <ClCompile Include="Nodes\FlowPostFXNodes.cpp" />
+    <ClCompile Include="Nodes\HUDNodes.cpp" />
+    <ClCompile Include="Nodes\MPNodes.cpp" />
+    <ClCompile Include="Nodes\WeaponNodes.cpp" />
+    <ClCompile Include="Observer.cpp" />
+    <ClCompile Include="OffHand.cpp" />
+    <ClCompile Include="Plant.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerFeature.cpp" />
+    <ClCompile Include="PlayerInput.cpp" />
+    <ClCompile Include="PlayerMovement.cpp" />
+    <ClCompile Include="PlayerMovementController.cpp" />
+    <ClCompile Include="PlayerRotation.cpp" />
+    <ClCompile Include="PlayerView.cpp" />
+    <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="Radio.cpp" />
+    <ClCompile Include="Rapid.cpp" />
+    <ClCompile Include="ReferenceWeapon.cpp" />
+    <ClCompile Include="Rock.cpp" />
+    <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="RocketLauncher.cpp" />
+    <ClCompile Include="Scan.cpp" />
+    <ClCompile Include="Scope.cpp" />
+    <ClCompile Include="Scout.cpp" />
+    <ClCompile Include="ScreenEffects.cpp" />
+    <ClCompile Include="ScriptBind_Actor.cpp" />
+    <ClCompile Include="ScriptBind_Game.cpp" />
+    <ClCompile Include="ScriptBind_GameRules.cpp" />
+    <ClCompile Include="ScriptBind_Item.cpp" />
+    <ClCompile Include="ScriptBind_Weapon.cpp" />
+    <ClCompile Include="ScriptControlledPhysics.cpp" />
+    <ClCompile Include="ScriptUtils.cpp" />
+    <ClCompile Include="ServerSynchedStorage.cpp" />
+    <ClCompile Include="Shark.cpp" />
+    <ClCompile Include="SharkMovementController.cpp" />
+    <ClCompile Include="Shotgun.cpp" />
+    <ClCompile Include="ShotValidator.cpp" />
+    <ClCompile Include="Single.cpp" />
+    <ClCompile Include="SingleTG.cpp" />
+    <ClCompile Include="SoundMoods.cpp" />
+    <ClCompile Include="SPAnalyst.cpp" />
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SynchedStorage.cpp" />
+    <ClCompile Include="TacBullet.cpp" />
+    <ClCompile Include="TagBullet.cpp" />
+    <ClCompile Include="Throw.cpp" />
+    <ClCompile Include="ThrowableWeapon.cpp" />
+    <ClCompile Include="TracerManager.cpp" />
+    <ClCompile Include="Trooper.cpp" />
+    <ClCompile Include="VehicleActionAutomaticDoor.cpp" />
+    <ClCompile Include="VehicleActionDeployRope.cpp" />
+    <ClCompile Include="VehicleActionEntityAttachment.cpp" />
+    <ClCompile Include="VehicleActionLandingGears.cpp" />
+    <ClCompile Include="VehicleClient.cpp" />
+    <ClCompile Include="VehicleDamageBehaviorBurn.cpp" />
+    <ClCompile Include="VehicleDamageBehaviorCameraShake.cpp" />
+    <ClCompile Include="VehicleDamageBehaviorCollisionEx.cpp" />
+    <ClCompile Include="VehicleDamageBehaviorExplosion.cpp" />
+    <ClCompile Include="VehicleDamageBehaviorTire.cpp" />
+    <ClCompile Include="VehicleMovementAmphibious.cpp" />
+    <ClCompile Include="VehicleMovementBase.cpp" />
+    <ClCompile Include="VehicleMovementHelicopter.cpp" />
+    <ClCompile Include="VehicleMovementHovercraft.cpp" />
+    <ClCompile Include="VehicleMovementStdBoat.cpp" />
+    <ClCompile Include="VehicleMovementStdWheeled.cpp" />
+    <ClCompile Include="VehicleMovementTank.cpp" />
+    <ClCompile Include="VehicleMovementTweaks.cpp" />
+    <ClCompile Include="VehicleMovementVTOL.cpp" />
+    <ClCompile Include="VehicleMovementWarrior.cpp" />
+    <ClCompile Include="VehicleWeapon.cpp" />
+    <ClCompile Include="Voting.cpp" />
+    <ClCompile Include="Weapon.cpp" />
+    <ClCompile Include="WeaponAttachmentManager.cpp" />
+    <ClCompile Include="WeaponClientServer.cpp" />
+    <ClCompile Include="WeaponEvent.cpp" />
+    <ClCompile Include="WeaponInput.cpp" />
+    <ClCompile Include="WeaponSystem.cpp" />
+    <ClCompile Include="WorkOnTarget.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Actor.h" />
+    <ClInclude Include="AIDemoInput.h" />
+    <CustomBuild Include="Alien.h" />
+    <ClInclude Include="AmmoParams.h" />
+    <ClInclude Include="AmmoPickup.h" />
+    <ClInclude Include="Automatic.h" />
+    <ClInclude Include="AVMine.h" />
+    <ClInclude Include="Beam.h" />
+    <ClInclude Include="Binocular.h" />
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletTime.h" />
+    <ClInclude Include="Burst.h" />
+    <ClInclude Include="C4.h" />
+    <ClInclude Include="C4Detonator.h" />
+    <ClInclude Include="C4Projectile.h" />
+    <ClInclude Include="Charge.h" />
+    <ClInclude Include="Claymore.h" />
+    <ClInclude Include="ClientSynchedStorage.h" />
+    <ClInclude Include="CompatibilityAlienMovementController.h" />
+    <ClInclude Include="DebugGun.h" />
+    <ClInclude Include="Detonate.h" />
+    <ClInclude Include="EMPField.h" />
+    <ClInclude Include="Environment\BattleDust.h" />
+    <ClInclude Include="Environment\FlowTornado.h" />
+    <ClInclude Include="Environment\Shake.h" />
+    <ClInclude Include="Environment\Tornado.h" />
+    <ClInclude Include="Fists.h" />
+    <ClInclude Include="FlashAnimation.h" />
+    <ClInclude Include="FlowItemAnimation.h" />
+    <ClInclude Include="FreezingBeam.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameActions.h" />
+    <ClInclude Include="GameCVars.h" />
+    <ClInclude Include="GameFactory.h" />
+    <ClInclude Include="GameRules.h" />
+    <ClInclude Include="GrabHandler.h" />
+    <ClInclude Include="GunTurret.h" />
+    <ClInclude Include="HomingMissile.h" />
+    <ClInclude Include="HUD\FlashPlayerNULL.h" />
+    <ClInclude Include="Hud\GameFlashAnimation.h" />
+    <ClInclude Include="HUD\GameFlashLogic.h" />
+    <ClInclude Include="Hud\HUD.h" />
+    <ClInclude Include="HUD\HUDCommon.h" />
+    <ClInclude Include="HUD\HUDCrosshair.h" />
+    <ClInclude Include="HUD\HUDEnums.h" />
+    <ClInclude Include="HUD\HUDMissionObjectiveSystem.h" />
+    <ClInclude Include="HUD\HUDObituary.h" />
+    <ClInclude Include="Hud\HUDObject.h" />
+    <ClInclude Include="HUD\HUDPowerStruggle.h" />
+    <ClInclude Include="Hud\HUDRadar.h" />
+    <ClInclude Include="HUD\HUDScopes.h" />
+    <ClInclude Include="HUD\HUDScore.h" />
+    <ClInclude Include="HUD\HUDSilhouettes.h" />
+    <ClInclude Include="HUD\HUDTagNames.h" />
+    <ClInclude Include="HUD\HUDTextArea.h" />
+    <ClInclude Include="HUD\HUDTextChat.h" />
+    <ClInclude Include="HUD\HUDVehicleInterface.h" />
+    <ClInclude Include="HUD\ScriptBind_HUD.h" />
+    <ClInclude Include="HUD\Tweaks\HUDTweakMenu.h" />
+    <ClInclude Include="HUD\Tweaks\TweakCommon.h" />
+    <ClInclude Include="HUD\Tweaks\TweakMenu.h" />
+    <ClInclude Include="HUD\Tweaks\TweakMetadata.h" />
+    <ClInclude Include="HUD\Tweaks\TweakMetadataCVAR.h" />
+    <ClInclude Include="HUD\Tweaks\TweakMetadataLUA.h" />
+    <ClInclude Include="HUD\Tweaks\TweakTraverser.h" />
+    <ClInclude Include="Hunter.h" />
+    <ClInclude Include="IPlayerInput.h" />
+    <ClInclude Include="IronSight.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="ItemParamReader.h" />
+    <ClInclude Include="ItemScheduler.h" />
+    <ClInclude Include="ItemSharedParams.h" />
+    <ClInclude Include="ItemString.h" />
+    <ClInclude Include="Lam.h" />
+    <ClInclude Include="LaptopUtil.h" />
+    <ClInclude Include="LCD\ILCD.h" />
+    <ClInclude Include="LCD\LCDWrapper.h" />
+    <ClInclude Include="Melee.h" />
+    <ClInclude Include="Menus\CreateGame.h" />
+    <ClInclude Include="Menus\FlashMenuObject.h" />
+    <ClInclude Include="Menus\FlashMenuScreen.h" />
+    <ClInclude Include="Menus\GameNetworkProfile.h" />
+    <ClInclude Include="Menus\MPHub.h" />
+    <ClInclude Include="Menus\MPLobbyUI.h" />
+    <ClInclude Include="Menus\MultiplayerMenu.h" />
+    <ClInclude Include="Menus\OptionsManager.h" />
+    <ClInclude Include="Menus\QuickGame.h" />
+    <ClInclude Include="MPTutorial.h" />
+    <ClInclude Include="NanoSuit.h" />
+    <ClInclude Include="NetInputChainDebug.h" />
+    <ClInclude Include="NetPlayerInput.h" />
+    <ClInclude Include="Nodes\G2FlowBaseNode.h" />
+    <ClInclude Include="Observer.h" />
+    <ClInclude Include="OffHand.h" />
+    <ClInclude Include="Plant.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerFeature.h" />
+    <ClInclude Include="PlayerInput.h" />
+    <ClInclude Include="PlayerMovement.h" />
+    <ClInclude Include="PlayerMovementController.h" />
+    <ClInclude Include="PlayerRotation.h" />
+    <ClInclude Include="PlayerView.h" />
+    <ClInclude Include="Projectile.h" />
+    <ClInclude Include="Radio.h" />
+    <ClInclude Include="Rapid.h" />
+    <ClInclude Include="ReferenceWeapon.h" />
+    <ClInclude Include="Rock.h" />
+    <ClInclude Include="Rocket.h" />
+    <ClInclude Include="RocketLauncher.h" />
+    <ClInclude Include="Scan.h" />
+    <ClInclude Include="Scope.h" />
+    <ClInclude Include="Scout.h" />
+    <ClInclude Include="ScreenEffects.h" />
+    <ClInclude Include="ScriptBind_Actor.h" />
+    <ClInclude Include="ScriptBind_Game.h" />
+    <ClInclude Include="ScriptBind_GameRules.h" />
+    <ClInclude Include="ScriptBind_Item.h" />
+    <ClInclude Include="ScriptBind_Weapon.h" />
+    <ClInclude Include="ScriptControlledPhysics.h" />
+    <ClInclude Include="ScriptUtils.h" />
+    <ClInclude Include="ServerSynchedStorage.h" />
+    <ClInclude Include="Shark.h" />
+    <ClInclude Include="SharkMovementController.h" />
+    <ClInclude Include="Shotgun.h" />
+    <ClInclude Include="ShotValidator.h" />
+    <ClInclude Include="Single.h" />
+    <ClInclude Include="SingleTG.h" />
+    <ClInclude Include="SoundMoods.h" />
+    <ClInclude Include="SPAnalyst.h" />
+    <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="SynchedStorage.h" />
+    <ClInclude Include="TacBullet.h" />
+    <ClInclude Include="TagBullet.h" />
+    <ClInclude Include="Throw.h" />
+    <ClInclude Include="ThrowableWeapon.h" />
+    <ClInclude Include="TracerManager.h" />
+    <ClInclude Include="Trooper.h" />
+    <ClInclude Include="VehicleActionAutomaticDoor.h" />
+    <ClInclude Include="VehicleActionDeployRope.h" />
+    <ClInclude Include="VehicleActionEntityAttachment.h" />
+    <ClInclude Include="VehicleActionLandingGears.h" />
+    <ClInclude Include="VehicleClient.h" />
+    <ClInclude Include="VehicleDamageBehaviorBurn.h" />
+    <ClInclude Include="VehicleDamageBehaviorCameraShake.h" />
+    <ClInclude Include="VehicleDamageBehaviorCollisionEx.h" />
+    <ClInclude Include="VehicleDamageBehaviorExplosion.h" />
+    <ClInclude Include="VehicleDamageBehaviorTire.h" />
+    <ClInclude Include="VehicleMovementAmphibious.h" />
+    <ClInclude Include="VehicleMovementBase.h" />
+    <ClInclude Include="VehicleMovementHelicopter.h" />
+    <ClInclude Include="VehicleMovementHovercraft.h" />
+    <ClInclude Include="VehicleMovementStdBoat.h" />
+    <ClInclude Include="VehicleMovementStdWheeled.h" />
+    <ClInclude Include="VehicleMovementTank.h" />
+    <ClInclude Include="VehicleMovementTweaks.h" />
+    <ClInclude Include="VehicleMovementVTOL.h" />
+    <ClInclude Include="VehicleMovementWarrior.h" />
+    <ClInclude Include="VehicleWeapon.h" />
+    <ClInclude Include="Voting.h" />
+    <ClInclude Include="Weapon.h" />
+    <ClInclude Include="WeaponAttachmentManager.h" />
+    <ClInclude Include="WeaponSystem.h" />
+    <ClInclude Include="WorkOnTarget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Launcher\Cursor_White.cur" />
+    <None Include="GameActions.actions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Launcher\CrysisMod.ico" />
+    <Image Include="CrysisMod.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GameDll.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
