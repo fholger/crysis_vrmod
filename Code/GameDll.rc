@@ -1,0 +1,194 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// German (Germany) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+#ifdef _WIN32
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000904b0"
+        BEGIN
+            VALUE "CompanyName", "Crytek GmbH"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "LegalCopyright", "(C) 2007 Crytek GmbH"
+            VALUE "ProductName", "CryEngine2"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x9, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR1             CURSOR                  "Cursor_White.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "Crysis.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+#ifdef USE_G15_LCD
+IDB_HEALTH              BITMAP                  "G15\\health.bmp"
+IDB_ENERGY              BITMAP                  "G15\\energy.bmp"
+IDB_GRENADE_SMOKE       BITMAP                  "G15\\Grenades\\smoke.bmp"
+IDB_GRENADE_EXPLOSIVE   BITMAP                  "G15\\Grenades\\explosive.bmp"
+IDB_GRENADE_FLASHBANG   BITMAP                  "G15\\Grenades\\flashbang.bmp"
+IDB_GRENADE_NANO        BITMAP                  "G15\\Grenades\\nano.bmp"
+IDB_GRENADE_SELECT      BITMAP                  "G15\\Grenades\\select.bmp"
+IDB_ITEM_LAW            BITMAP                  "G15\\Items\\law.bmp"
+IDB_ITEM_FY71           BITMAP                  "G15\\Items\\fy71.bmp"
+IDB_ITEM_DSG1           BITMAP                  "G15\\Items\\dsg1.bmp"
+IDB_ITEM_GAUSS          BITMAP                  "G15\\Items\\gauss.bmp"
+IDB_ITEM_HURRICANE      BITMAP                  "G15\\Items\\hurricane.bmp"
+IDB_ITEM_SCAR           BITMAP                  "G15\\Items\\scar.bmp"
+IDB_ITEM_SHOTGUN        BITMAP                  "G15\\Items\\shotgun.bmp"
+IDB_ITEM_TACGUN         BITMAP                  "G15\\Items\\tacgun.bmp"
+IDB_ITEM_SMG            BITMAP                  "G15\\Items\\smg.bmp"
+IDB_ITEM_SOCOM          BITMAP                  "G15\\Items\\socom.bmp"
+IDB_SUIT_STRENGTH       BITMAP                  "G15\\Suit\\strength20x20.bmp"
+IDB_SUIT_ARMOR          BITMAP                  "G15\\Suit\\armor20x20.bmp"
+IDB_SUIT_CLOAK          BITMAP                  "G15\\Suit\\cloak20x20.bmp"
+IDB_SUIT_SPEED          BITMAP                  "G15\\Suit\\speed20x20.bmp"
+IDB_OBJECTIVE           BITMAP                  "G15\\objective.bmp"
+IDB_ITEM_DUALSOCOM      BITMAP                  "G15\\Items\\Double_Socom.bmp"
+IDB_ITEM_FISTS          BITMAP                  "G15\\Items\\fists.bmp"
+IDB_ITEM_MOAC           BITMAP                  "G15\\Items\\moac.bmp"
+IDB_ITEM_MOAR           BITMAP                  "G15\\Items\\moar.bmp"
+IDB_ITEM_RADARKIT       BITMAP                  "G15\\Items\\Icon_radar.bmp"
+IDB_ITEM_C4BLOCK        BITMAP                  "G15\\Items\\Icon_c4.bmp"
+IDB_ITEM_LOCKPICKKIT    BITMAP                  "G15\\Items\\Icon_lockpick.bmp"
+IDB_ITEM_REPAIRTOOL     BITMAP                  "G15\\Items\\Icon_repair.bmp"
+IDB_ITEM_CLAY_MORE      BITMAP                  "G15\\Items\\Icon_claymore.bmp"
+IDB_ITEM_MINE           BITMAP                  "G15\\Items\\mine.BMP"
+IDB_VEHICLE_LTVUS       BITMAP                  "G15\\Vehicles\\light4wd.bmp"
+IDB_VEHICLE_TANK        BITMAP                  "G15\\Vehicles\\ustank.bmp"
+IDB_VEHICLE_TRUCK       BITMAP                  "G15\\Vehicles\\nktruck.bmp"
+IDB_VEHICLE_APC         BITMAP                  "G15\\Vehicles\\nkapc.bmp"
+IDB_VEHICLE_BOAT        BITMAP                  "G15\\Vehicles\\usboat.bmp"
+IDB_VEHICLE_HELICOPTER  BITMAP                  "G15\\Vehicles\\nkhelicopter.bmp"
+#endif
+
+#endif    // German (Germany) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral (Sys. Default) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUSD)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+#ifdef USE_G15_LCD
+IDB_CRYSIS              BITMAP                  "G15\\crysis.bmp"
+#endif
+
+#endif    // Neutral (Sys. Default) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
