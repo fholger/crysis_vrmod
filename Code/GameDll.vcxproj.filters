@@ -85,6 +85,18 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{a247315d-c6bf-405b-8b16-6901137af9e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="CryEngine Headers">
+      <UniqueIdentifier>{91baa141-7756-416d-a258-06143f8a5e8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CryEngine Headers\CryCommon">
+      <UniqueIdentifier>{32decc48-6009-4020-acd9-3832fac54d4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CryEngine Headers\CryAction">
+      <UniqueIdentifier>{1d19d014-f25e-4f33-9779-9890e3ae9d0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CryEngine Headers\CryAction\Network">
+      <UniqueIdentifier>{26613969-536d-456b-89d3-9e25159d3907}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -1130,6 +1142,687 @@
       <Filter>Flash</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="CryEngine\CryCommon\AABBSV.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\AgentParams.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\AIFormationDescriptor.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\AITrackPatternDescriptor.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\AnimKey.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\BitFiddling.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\BitmapDilation.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CGFContent.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CoherentValue.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ConfigurableVariant.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\COWArray.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\crc32.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CrtDebugStats.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Camera.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Color.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Geo.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_GeoDistance.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_GeoIntersect.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_GeoOverlap.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Math.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Matrix.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Quat.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_ValidNumber.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Vector2.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_Vector3.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Cry_XOptimise.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryAnimationScriptCommands.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryArray.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryAssert.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryAssert_impl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryCharAnimationParams.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryCharMorphParams.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryCompiledFile.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryEngineDecalInfo.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryFile.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryFixedString.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryHeaders.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryLibrary.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryMemoryAllocator.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryMemoryManager.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryMemoryManager_impl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryModuleDefs.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryName.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryParticleSpawnInfo.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryPath.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryPodArray.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CrySizer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryString.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryStructPack.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread_pthreads.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread_ptw32.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread_windows.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread_wingc.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThread_winthread.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThreadImpl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThreadImpl_pthreads.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryThreadImpl_windows.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryTypeInfo.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryVersion.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\CryVertexBinding.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Endian.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\EntityDesc.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Force.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\FrameProfiler.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\functor.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\GameUtils.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\GeomQuery.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\I3DEngine.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\I3DSampler.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAgent.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAIAction.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAIGroup.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAIRecorder.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAISystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAnimationGraphSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IAVI_Reader.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IBitStream.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IBudgetingSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IChunkFile.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ICmdLine.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IConsole.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ICryAnimation.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ICryPak.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IDataProbe.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IDebugHistory.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IDialogSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IDirectBee.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEdgeConnectivityBuilder.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEditorGame.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntity.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntityClass.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntityProxy.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntityRenderState.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntitySerialize.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IEntitySystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IFacialAnimation.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IFlashPlayer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IFlowSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IFont.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGame.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGameFramework.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGameRef.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGameStartup.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGameTokens.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IGlobalTaskScheduler.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IHardwareMouse.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IIndexedMesh.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IInput.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IInterestSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IJoystick.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ILipSync.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ILMSerializationManager.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ILog.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IMaterial.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IMaterialEffects.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IMiniLog.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IMovieSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IMusicSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\INetwork.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\INetworkService.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\InterpolationHelpers.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IPhysics.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IProcess.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IReadWriteXMLSink.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IRemoteControl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IRenderAuxGeom.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IRenderer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IRendererD3D9.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IRenderMesh.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IResourceCollector.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IReverbManager.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IScriptSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISerialize.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IShader.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISimpleHttpServer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISound.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISoundMoodManager.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISplines.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IStatObj.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IStreamEngine.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IStreamPersist.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISurfaceType.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ISystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ITestSystem.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ITextModeConsole.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IThreadTask.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ITimer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IValidator.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IVideoPlayer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\IXml.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Linux_Win32Wrapper.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Linux32Specific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Linux64Specific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\LinuxSpecific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\LMCompStructures.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\MiniQueue.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\MSVCspecific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\MTPseudoRandom.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\MultiThread.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\NetHelpers.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ParticleParams.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ParticleParams_info.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\physinterface.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Pipe.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\platform.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\platform_impl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\PNoise3.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\PoolAllocator.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\PoolAllocatorSynchronization.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\primitives.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ProjectDefines.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ProjectDefinesInclude.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Range.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\RendElement.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ResourceCompilerHelper.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ScopedVariableSetter.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\ScriptHelpers.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\SerializationTypes.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\SerializeBuffer.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\SerializeFwd.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\SimpleSerialize.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\smartptr.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\StlDbgAlloc.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\STLPoolAllocator.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\STLPoolAllocator_ManyElems.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\StlUtils.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\StringUtils.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\TArray.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\TimeValue.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\TypeInfo.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\TypeInfo_impl.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Typelist.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\TypelistUtils.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\VectorMap.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\VectorSet.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\VertexBufferSource.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\VertexFormats.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Win32specific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\Win64specific.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryCommon\XMLBinaryHeaders.h">
+      <Filter>CryEngine Headers\CryCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IActionMapManager.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IActorSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IAnimatedCharacter.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IAnimationGraph.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IAnimationStateNode.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IDebrisMgr.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IEffectSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IGameObject.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IGameObjectSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IGameplayRecorder.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IGameRulesSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IInteractor.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IItem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IItemSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\ILevelSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\ILoadGame.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IMovementController.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IPlayerProfiles.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\ISaveGame.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\ISubtitleManager.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IUIDraw.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IVehicleSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IViewSystem.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IWeapon.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\IWorldQuery.h">
+      <Filter>CryEngine Headers\CryAction</Filter>
+    </ClInclude>
+    <ClInclude Include="CryEngine\CryAction\Network\NetActionSync.h">
+      <Filter>CryEngine Headers\CryAction\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GameActions.actions">
