@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectName>CrysisMod</ProjectName>
+    <ProjectName>VRMod</ProjectName>
     <ProjectGuid>{2EB52047-0A81-4343-B703-DF221CA5CC2A}</ProjectGuid>
     <RootNamespace>CrysisMod</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -125,7 +125,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -141,13 +141,15 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <OutputFile>$(OutDir)VRMod.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)VRMod.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
@@ -194,7 +196,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -210,14 +212,16 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)CrysisMod.dll</OutputFile>
+      <OutputFile>$(OutDir)VRMod.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)CrysisMod.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)VRMod.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>openvr_api.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
