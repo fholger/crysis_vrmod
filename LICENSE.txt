@@ -1,0 +1,119 @@
+LIMITED LICENSE AGREEMENT for the use of the CryENGINE 2 Modification Software Development Kit for the software game CRYSIS ("CryENGINE 2 MOD SDK for CRYSIS")
+
+
+1. Subject of the Agreement
+
+This Limited License Agreement for the use of the CryENGINE 2 Modification Software Development Kit for the computer game CRYSIS (this "Agreement") is entered between Crytek GmbH ("CRYTEK") and you, the end-user (the "Licensee" or "You").
+
+The Agreement is made effective beginning on the date on which you, the Licensee, first download, install, load or otherwise use the CryENGINE 2 MOD SDK for CRYSIS.. 
+
+The CryENGINE 2 MOD SDK for CRYSIS shall generally refer to the compiled version of the computer software program known as CryENGINE 2, CryENGINE 2 Sandbox Editor and also to, if any, certain computer software program and/or source codes commonly known as CryENGINE 2 Tools.
+
+By downloading, installing, loading or otherwise using the CryENGINE 2 MOD SDK for CRYSIS you, the Licensee, agree to all terms and conditions laid down in this Agreement or in accompanying documentation. You should read this Agreement carefully before downloading, installing, loading or otherwise using the CryENGINE 2 MOD SDK for CRYSIS. If you do not agree with the terms and conditions laid down in this Agreement you are not authorized to use the CryENGINE 2 MOD SDK for CRYSIS.
+
+2. Grant of Limited License
+
+Subject to your agreement to, and full compliance with, the terms and provisions of this Agreement, CRYTEK hereby grants to Licensee a limited, personal, non-transferable and non-exclusive right (the "License") during the Term, as defined below, to:
+
+a) use the CryENGINE 2 MOD SDK for CRYSIS for the creation of your own modifications which shall operate only with the full version of CRYSIS (the "Software Game"), but not any demo, test or other version of the Software Game or with any other game or interactive or non-interactive product or with any kind of simulation or visualization, such modifications referred to as "New Creations";
+
+b) to make modifications to the CryENGINE 2 MOD SDK for CRYSIS (your "Modifications") for use in your own New Creations;
+
+c) incorporate all or a portion of the CryENGINE 2 MOD SDK for CRYSIS within your own New Creations; and
+
+d) electronically distribute, free of charge, at no cost and without any commercial intention, copies of the CryENGINE 2 MOD SDK for CRYSIS and/or your own New Creations and/or Modifications, so long as this Agreement accompanies each copy you make of the CryENGINE 2 MOD SDK for CRYSIS and/or your own New Creations and/or Modifications; provided, however, that the recipient of the CryENGINE 2 MOD SDK for CRYSIS and/or your own New Creations and/or Modifications must agree to be bound by the terms of this Agreement and by the license for the full version of the Software Game (the "CRYSIS License") and that all such distribution of copies of the CryENGINE 2 MOD SDK for CRYSIS and/or your own New Creations and/or Modifications must be by electronic means only. You must refer to the CRYSIS License in determining your limited rights as to any New Creations which you may create.
+
+You may include your own New Creations and/or Modifications created with the CryENGINE 2 MOD SDK for CRYSIS on your personal noncommercial website for the noncommercial benefit of the fan community and provided that if you do so, you must also post the following notice on your site on the same web page(s) where those materials are located:  “This site is not endorsed by or affiliated with Crytek or Electronic Arts.  Trademarks are the property of their respective owners.  Game content copyright Crytek." You will not represent that your site is endorsed or approved by or affiliated with Crytek or Electronic Arts, or that any other content on your site is endorsed or approved by or affiliated with Crytek or Electronic Arts. 
+
+3. Intellectual Property Rights
+
+The CryENGINE 2 MOD SDK for CRYSIS and all copyrights, trademarks, and all other conceivable intellectual property rights related thereto are owned by CRYTEK and are protected by German and international copyright law and other applicable law. Licensee shall have no ownership or intellectual property rights in or to the Software Game or the CryENGINE 2 MOD SDK for CRYSIS, including, without limitation, all copyrights related thereto.
+
+Licensee agrees to use its best efforts to ensure that any recipient of the CryENGINE 2 MOD SDK for CRYSIS and/or its New Creations and/or Modifications fully complies with this Agreement.
+
+4. Reservation of Rights
+
+CRYTEK expressly reserves all rights not granted in this Agreement. You are not receiving any right or license hereunder to copy, distribute, publicly perform, display or make any other use of the Software Game, or any element thereof, or the trademarks CRYTEK, CRYSIS or any other trademark of CRYTEK,  or any other company.
+
+5. Software Use Restrictions
+
+Any use by Licensee of the CryENGINE 2 MOD SDK for CRYSIS not expressly permitted in Section 2 above is expressly prohibited and any such unauthorized use shall constitute a material breach of this Agreement by Licensee.
+
+Any distribution of your New Creations and/or the CryENGINE 2 MOD SDK for CRYSIS must be by electronic means only.
+
+You shall not create any New Creations and/or Modifications which infringe any third party right or which are libelous, defamatory, obscene, false, misleading or otherwise illegal or unlawful. You shall not rent, sell, lease, lend, offer on a pay-for-play basis or otherwise commercially exploit or commercially distribute the CryENGINE 2 MOD SDK for CRYSIS and/or your New Creations and/or Modifications. You shall not copy, distribute, publicly perform, display or make any other use of the CryENGINE 2 MOD SDK for CRYSIS and/or your New Creations and/or Modifications in any infringing manner or in any manner which violates any law or third party right and you shall not distribute or include with the CryENGINE 2 MOD SDK for CRYSIS and/or your New Creations and/or Modifications any material which infringes any third party right or which is libelous, defamatory, obscene, false, misleading or otherwise illegal or unlawful.
+
+You shall conspicuously mark or label your New Creations and your Modifications as your own creations and shall not mark or label either of them, in any manner, as the creation of CRYTEK or Electronic Arts.
+
+Licensee shall not copy, reproduce, manufacture or distribute (free of charge or otherwise) the CryENGINE 2 MOD SDK for CRYSIS and/or your New Creations and/or Modifications, in whole or in part, in any tangible media, including, without limitation, CD-ROMs and DVDs.
+
+Licensee shall not alter or remove any legal notices, such as trademark and copyright notices, affixed by CRYTEK on or within the CryENGINE 2 MOD SDK for CRYSIS.
+
+Licensee may not charge a fee, nor solicit donations, contributions or any other voluntary or involuntary form of payment, for access to these New Creations and/or Modifications.  Except for editorial purposes such as promoting the game CRYSIS and/or your free New Creations and Modifications, you may not publicly or privately broadcast via television, commercial streaming video or other means, interactive or non-interactive performances or renderings of these New Creations and/or Modifications.  Licensee may not display, distribute, perform, or show these New Creations and/or Modifications in any commercial setting, such as a trade show, private or public business or sales meeting, or other commercial presentations. You may not use the CryENGINE 2 MOD SDK to create any television program, commercial video program, create commercial or industrial film and/or movie content, nor use it to create any architectural or industrial visualization, or any industrial or military simulation or training program. You may not use this CryENGINE 2 MOD SDK for CRYSIS in any educational or institutional setting; it is provided strictly for non-commercial at-home use to modify and/or extend the game CRYSIS only.
+
+In exercising Licensee's limited rights hereunder, Licensee acknowledges that you are solely responsible for knowing and complying with all applicable federal, state, and local laws, regulations, ordinances and statutes that may apply to your use of CryENGINE 2 MOD SDK for CRYSIS in your own locale. By downloading the CryENGINE 2 MOD SDK for CRYSIS, you warrant that you are not located in any country, or exporting the CryENGINE 2 MOD SDK for CRYSIS to any person or place, to which the United States and/or Canada and/or European Union or its member countries has embargoed goods.
+
+6. Term and Termination
+
+The term of this Agreement and the license granted herein begin on the date on which you first download, install, load or otherwise use the CryENGINE 2 MOD SDK for CRYSIS and shall expire, without notice to you or any other notice, when the Software Game is removed from the market. 
+
+Licensor may revoke or terminate this License at any time, for any reason or no reason, in its sole discretion.  Notwithstanding anything to the contrary herein this Agreement and the License granted to you herein shall immediately terminate, without the requirement of any notice from CRYTEK to Licensee, upon Licensee's failure to comply with or breach of any term or provision of this Agreement or the CRYSIS License.
+
+Upon the termination or expiration of this Agreement or your CRYSIS License, any and all rights of Licensee hereunder shall terminate without prejudice to any rights or claims CRYTEK may have, Licensee shall have no right to use the CryENGINE 2 MOD SDK for CRYSIS and/or its New Creations and/or Modifications in any manner, Licensee shall immediately destroy all copies of the CryENGINE 2 MOD SDK for CRYSIS and/or its New Creations and/or Modifications in its possession, custody or control, and all rights granted hereunder shall revert, without notice, to and be vested in CRYTEK.
+
+Termination or expiration of this Agreement shall not create any liability against CRYTEK and shall not relieve Licensee from any liability which arises prior to termination or expiration.
+
+7. Exclusion and Limitation of Liability
+
+As the License granted to the Licensee under this Agreement is a free-of-charge-license CRYTEK's liability is excluded and limited to the largest extent legally possible.
+
+CRYTEK INDEMNIFICATION DISCLAIMER. IN NO EVENT SHALL CRYTEK BE LIABLE FOR ANY DAMAGES, BE THEY DIRECT, INDIRECT, INCIDENTAL, SPECIAL OR CONSEQUENTIAL DAMAGES, OR DAMAGES FOR LOSS OF PROFITS, REVENUE, DATA OR USE, INCURRED BY LICENSEE OR ANY THIRD PARTY, WHETHER IN AN ACTION IN CONTRACT OR TORT (INCLUDING NEGLIGENCE) OR OTHERWISE, EVEN IF CRYTEK HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE FOREGOING ALLOCATION OF RISK IS REFLECTED IN THE AMOUNT OF THE COMPENSATION (NONE) CONTEMPLATED UNDER THIS AGREEMENT.
+
+8. Disclaimer of Warranties
+
+CRYTEK provides the CryENGINE 2 MOD SDK for CRYSIS to the Licensee "as is" and without warranty of any kind, express, statutory, implied, or otherwise, including without limitation any warranty of merchantability, fitness for a particular purpose or non-infringement. CRYTEK does not warrant that the CryENGINE 2 MOD SDK for CRYSIS or the operation thereof will be free of error or that the CryENGINE 2 MOD SDK for CRYSIS will meet special requirements of the Licensee. No oral or written information or advice given to the Licensee by CRYTEK and/or any CRYTEK employee, representative or distributor will create a warranty for the CryENGINE 2 MOD SDK for CRYSIS, and the Licensee may not rely on any such information or advice.
+
+9. Support
+
+Neither Crytek nor Electronic Arts will provide any support for the CryENGINE 2 MOD SDK for CRYSIS.  Please do not call or send email to Crytek or Electronic Arts regarding the CryENGINE 2 MOD SDK for Crysis, as neither party will be able to respond or answer these inquiries.
+
+10. Licensee's Warranties and Indemnification
+
+Licensee warrants and represents that:
+
+a) Licensee has full legal rights and authority to enter into and become bound by the terms of this Agreement;
+
+b) Licensee has full legal rights and authority to exercise Licensee's rights granted herein and to comply with Licensee's obligations hereunder;
+
+c) Licensee will comply, at all times during the Term, with all applicable laws.
+
+Licensee hereby agrees to indemnify, defend, and hold harmless CRYTEK and/or their successors, assigns, officers, directors, employees, agents, representatives and licensees (but not including Licensee) from and against all damages, claims, losses, causes of action and lawsuits arising from and/or relating to a breach of this Agreement by Licensee and/or Licensee's distribution or other use or non-use of the CryENGINE 2 MOD SDK for CRYSIS and/or your New Creations and/or Modifications.
+
+11. Breach of the Agreement
+
+In the event of a breach of this Agreement by CRYTEK, Licensee's sole remedy shall be to terminate this Agreement by delivering written notice of termination to CRYTEK.
+
+In the event of a breach by Licensee of this Agreement, CRYTEK may pursue all remedies to which CRYTEK is entitled under applicable law and/or this Agreement.
+
+Licensee agrees that Licensee's unauthorized use of the CryENGINE 2 MOD SDK for CRYSIS and/or its New Creations and/or Modifications, or any part thereof, may immediately and irreparably damage CRYTEK such that CRYTEK could not be adequately compensated by a monetary award, and in such event, and at CRYTEK's option, CRYTEK shall be entitled to an injunctive order, in addition to all other remedies available including a monetary award, to prohibit such unauthorized use, without the necessity of CRYTEK posting bond or other security.
+
+
+12. General Provisions
+
+This Agreement, along with the CRYSIS License, constitutes the entire understanding between Licensee and CRYTEK regarding the subject matter hereof.
+
+This Agreement does not constitute and shall not be construed as constituting a partnership or joint venture between CRYTEK and Licensee. Neither party hereto shall have any right to obligate or bind the other party in any manner whatsoever, and nothing herein contained shall give, or is intended to give, any rights of any kind to any third persons.
+
+CRYTEK may at any time revise and alter the version of the CryENGINE 2 MOD SDK for CRYSIS.
+
+This Agreement supersedes all eventual prior agreements and understanding to the subject matter hereof. Any modifications of and supplements to this Agreement must be made in writing. This provision applies also if the prerequisite of writing is ceded.
+
+If any provision of this Agreement shall be found to be invalid or unenforceable for legal or factual reasons the invalidity or unenforceability of such provisions shall not affect the other provisions of this Agreement and all provisions of this Agreement not affected by such invalidity or unenforceability shall remain in full force and effect. The parties hereby agree to attempt to substitute for any invalid or unenforceable provision a valid or enforceable provision which achieves to the greatest extent possible the economic and legal objective of the Agreement. This applies as well in case of an omission or invalidity of the whole Agreement.
+
+This Agreement shall bind and inure to the benefit of CRYTEK, its successors and assigns, and CRYTEK may assign its rights hereunder, in CRYTEK's sole discretion. This Agreement is personal to Licensee, and Licensee shall not sublicense, assign, transfer, convey nor franchise its rights granted hereunder.
+
+Place of performance of this Agreement is Frankfurt a.M. (Germany).
+
+If the Licensee is defendant, CRYTEK might, if admissible, determine as court of jurisdiction the court where the Licensee is resident or the court competent for the corporate domicile of CRYTEK which currently is in Frankfurt a.M. (Germany). If CRYTEK is the defendant the parties expressively agree on the exclusive jurisdiction of the district courts of Frankfurt a.M. This Agreement on jurisdiction applies to all claims, be they based on contract, on tort or on any other legal basis, arising under or in connection with this agreement.
+
+The provisions of this Agreement shall survive cancellation, expiration or termination of this Agreement.
