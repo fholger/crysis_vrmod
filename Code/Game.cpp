@@ -56,6 +56,8 @@
 
 #include "ISaveGame.h"
 #include "ILoadGame.h"
+#include "VR/Hooks.h"
+#include "VR/VR3DEngine.h"
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -365,6 +367,14 @@ bool CGame::Init(IGameFramework *pFramework)
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init end");
 #endif
+
+	// --------------------------------
+	// REGISTER HOOKS FOR VR RENDERING
+	// --------------------------------
+
+	CryLogAlways("VR: Initializing engine hooks...");
+	hooks::Init();
+	VR_Init3DEngineHooks(gEnv->p3DEngine);
 
 	return true;
 }

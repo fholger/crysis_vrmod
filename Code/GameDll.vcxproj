@@ -125,7 +125,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\openvr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\openvr\include;ThirdParty\minhook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -140,6 +140,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/OPT:NOICF</AdditionalOptions>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VRMod.dll</OutputFile>
@@ -203,7 +204,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\openvr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\openvr\include;ThirdParty\minhook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -218,6 +219,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/OPT:NOICF</AdditionalOptions>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VRMod.dll</OutputFile>
@@ -440,6 +442,8 @@
     <ClCompile Include="VehicleMovementWarrior.cpp" />
     <ClCompile Include="VehicleWeapon.cpp" />
     <ClCompile Include="Voting.cpp" />
+    <ClCompile Include="VR\Hooks.cpp" />
+    <ClCompile Include="VR\VR3DEngine.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="WeaponClientServer.cpp" />
@@ -842,6 +846,8 @@
     <ClInclude Include="VehicleMovementWarrior.h" />
     <ClInclude Include="VehicleWeapon.h" />
     <ClInclude Include="Voting.h" />
+    <ClInclude Include="VR\Hooks.h" />
+    <ClInclude Include="VR\VR3DEngine.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="WeaponSystem.h" />

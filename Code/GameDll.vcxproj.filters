@@ -106,6 +106,9 @@
     <Filter Include="ThirdParty\MinHook">
       <UniqueIdentifier>{7c889be8-bb9f-498f-ad19-e55afc939549}</UniqueIdentifier>
     </Filter>
+    <Filter Include="VR Mod">
+      <UniqueIdentifier>{bf94d4ab-3695-4814-98b1-c16bd6070fdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -676,6 +679,12 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\minhook\src\hde\hde64.c">
       <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="VR\Hooks.cpp">
+      <Filter>VR Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="VR\VR3DEngine.cpp">
+      <Filter>VR Mod</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1864,6 +1873,12 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\minhook\src\hde\table64.h">
       <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\Hooks.h">
+      <Filter>VR Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\VR3DEngine.h">
+      <Filter>VR Mod</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
