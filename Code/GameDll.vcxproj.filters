@@ -97,6 +97,15 @@
     <Filter Include="CryEngine Headers\CryAction\Network">
       <UniqueIdentifier>{26613969-536d-456b-89d3-9e25159d3907}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{96a85344-e3e6-419d-9792-077c8021645a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\OpenVR">
+      <UniqueIdentifier>{79ab463c-e2b7-429e-ad65-b6f81d12b0e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\MinHook">
+      <UniqueIdentifier>{7c889be8-bb9f-498f-ad19-e55afc939549}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -656,6 +665,18 @@
     </ClCompile>
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="ThirdParty\minhook\src\buffer.c">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\hook.c">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\trampoline.c">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\hde\hde64.c">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1822,6 +1843,27 @@
     </ClInclude>
     <ClInclude Include="CryEngine\CryAction\Network\NetActionSync.h">
       <Filter>CryEngine Headers\CryAction\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\openvr\include\openvr.h">
+      <Filter>ThirdParty\OpenVR</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\include\MinHook.h">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\buffer.h">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\trampoline.h">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\hde\hde64.h">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\hde\pstdint.h">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\hde\table64.h">
+      <Filter>ThirdParty\MinHook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -398,6 +398,22 @@
     <ClCompile Include="SynchedStorage.cpp" />
     <ClCompile Include="TacBullet.cpp" />
     <ClCompile Include="TagBullet.cpp" />
+    <ClCompile Include="ThirdParty\minhook\src\buffer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\hde\hde64.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\hook.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\trampoline.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Throw.cpp" />
     <ClCompile Include="ThrowableWeapon.cpp" />
     <ClCompile Include="TracerManager.cpp" />
@@ -793,6 +809,13 @@
     <ClInclude Include="SynchedStorage.h" />
     <ClInclude Include="TacBullet.h" />
     <ClInclude Include="TagBullet.h" />
+    <ClInclude Include="ThirdParty\minhook\include\MinHook.h" />
+    <ClInclude Include="ThirdParty\minhook\src\buffer.h" />
+    <ClInclude Include="ThirdParty\minhook\src\hde\hde64.h" />
+    <ClInclude Include="ThirdParty\minhook\src\hde\pstdint.h" />
+    <ClInclude Include="ThirdParty\minhook\src\hde\table64.h" />
+    <ClInclude Include="ThirdParty\minhook\src\trampoline.h" />
+    <ClInclude Include="ThirdParty\openvr\include\openvr.h" />
     <ClInclude Include="Throw.h" />
     <ClInclude Include="ThrowableWeapon.h" />
     <ClInclude Include="TracerManager.h" />
