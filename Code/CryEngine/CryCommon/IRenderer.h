@@ -1210,7 +1210,7 @@ struct IRenderer//: public IRendererCallbackServer
 	virtual void RenderDebug()=0;
 
 	//! Should be called at the end of every frame
-	virtual void  EndFrame()=0;
+	virtual void  EndFrame()=0; // 19
 
   virtual void  GetViewport(int *x, int *y, int *width, int *height)=0;
   virtual void  SetViewport(int x, int y, int width, int height)=0;
@@ -1288,7 +1288,7 @@ struct IRenderer//: public IRendererCallbackServer
   virtual bool  SaveTga(unsigned char *sourcedata,int sourceformat,int w,int h,const char *filename,bool flip)=0;
 
   //! Set the current binded texture
-  virtual void  SetTexture(int tnum)=0; 
+  virtual void  SetTexture(int tnum)=0; // 50
 
   //! Set the white texture
   virtual void  SetWhiteTexture()=0;
@@ -1419,7 +1419,7 @@ struct IRenderer//: public IRendererCallbackServer
   // Load shader item for name (name)
   virtual SShaderItem   EF_LoadShaderItem (const char *szName, bool bShare, int flags=0, SInputShaderResources *Res=NULL, uint nMaskGen=0)=0;
   // reload file
-  virtual bool          EF_ReloadFile (const char *szFileName)=0;
+  virtual bool          EF_ReloadFile (const char *szFileName)=0; // 100
   // Reinit all shader files (build hash tables)
   virtual void          EF_ReloadShaderFiles (int nCategory)=0;
   // Reload all texturer files
@@ -1579,7 +1579,7 @@ struct IRenderer//: public IRendererCallbackServer
 
   virtual int CreateRenderTarget (int nWidth, int nHeight, ETEX_Format eTF)=0;
   virtual bool DestroyRenderTarget (int nHandle)=0;
-  virtual bool SetRenderTarget (int nHandle)=0;
+  virtual bool SetRenderTarget (int nHandle)=0; // 179
   virtual float EF_GetWaterZElevation(float fX, float fY)=0;
 
   //! Used for pausing timer related stuff (eg: for texture animations, and shader 'time' parameter)

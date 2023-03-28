@@ -56,6 +56,7 @@
 
 #include "ISaveGame.h"
 #include "ILoadGame.h"
+#include "VR/D3D10Hooks.h"
 #include "VR/Hooks.h"
 #include "VR/VR3DEngine.h"
 
@@ -374,6 +375,8 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
+	InitD3D10Hooks();
+	VR_InitRendererHooks(gEnv->pRenderer);
 	VR_Init3DEngineHooks(gEnv->p3DEngine);
 
 	return true;
