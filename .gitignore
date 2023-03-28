@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+*.exp
+*.pdb
 
 .vs
 *.user

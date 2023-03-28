@@ -547,7 +547,7 @@ string CGame::InitMapReloading()
 
 void CGame::Shutdown()
 {
-	gVR->Shutdown();
+	//gVR->Shutdown();
 
 	if (m_pPlayerProfileManager)
 	{

@@ -126,6 +126,12 @@
       <OutputFile>$(OutDir)dxgi.dll</OutputFile>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>..\..\install.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy VRMod files to Crysis installation</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <ClCompile>
@@ -147,6 +153,12 @@
       <OutputFile>$(OutDir)dxgi.dll</OutputFile>
       <ModuleDefinitionFile>Exports.def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>..\..\install.bat</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy VRMod files to Crysis installation</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

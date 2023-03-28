@@ -1,0 +1,31 @@
+LIBRARY 
+EXPORTS
+  D3D10CompileEffectFromMemory=D3D10CompileEffectFromMemory_wrapper @1
+  D3D10CompileShader=D3D10CompileShader_wrapper @2
+  D3D10CreateBlob=D3D10CreateBlob_wrapper @3
+  D3D10CreateDevice=D3D10CreateDevice_wrapper @4
+  D3D10CreateDeviceAndSwapChain=D3D10CreateDeviceAndSwapChain_wrapper @5
+  D3D10CreateEffectFromMemory=D3D10CreateEffectFromMemory_wrapper @6
+  D3D10CreateEffectPoolFromMemory=D3D10CreateEffectPoolFromMemory_wrapper @7
+  D3D10CreateStateBlock=D3D10CreateStateBlock_wrapper @8
+  D3D10DisassembleEffect=D3D10DisassembleEffect_wrapper @9
+  D3D10DisassembleShader=D3D10DisassembleShader_wrapper @10
+  D3D10GetGeometryShaderProfile=D3D10GetGeometryShaderProfile_wrapper @11
+  D3D10GetInputAndOutputSignatureBlob=D3D10GetInputAndOutputSignatureBlob_wrapper @12
+  D3D10GetInputSignatureBlob=D3D10GetInputSignatureBlob_wrapper @13
+  D3D10GetOutputSignatureBlob=D3D10GetOutputSignatureBlob_wrapper @14
+  D3D10GetPixelShaderProfile=D3D10GetPixelShaderProfile_wrapper @15
+  D3D10GetShaderDebugInfo=D3D10GetShaderDebugInfo_wrapper @16
+  D3D10GetVersion=D3D10GetVersion_wrapper @17
+  D3D10GetVertexShaderProfile=D3D10GetVertexShaderProfile_wrapper @18
+  D3D10PreprocessShader=D3D10PreprocessShader_wrapper @19
+  D3D10ReflectShader=D3D10ReflectShader_wrapper @20
+  D3D10RegisterLayers=D3D10RegisterLayers_wrapper @21
+  D3D10StateBlockMaskDifference=D3D10StateBlockMaskDifference_wrapper @22
+  D3D10StateBlockMaskDisableAll=D3D10StateBlockMaskDisableAll_wrapper @23
+  D3D10StateBlockMaskDisableCapture=D3D10StateBlockMaskDisableCapture_wrapper @24
+  D3D10StateBlockMaskEnableAll=D3D10StateBlockMaskEnableAll_wrapper @25
+  D3D10StateBlockMaskEnableCapture=D3D10StateBlockMaskEnableCapture_wrapper @26
+  D3D10StateBlockMaskGetSetting=D3D10StateBlockMaskGetSetting_wrapper @27
+  D3D10StateBlockMaskIntersect=D3D10StateBlockMaskIntersect_wrapper @28
+  D3D10StateBlockMaskUnion=D3D10StateBlockMaskUnion_wrapper @29

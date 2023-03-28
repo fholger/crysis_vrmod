@@ -62,7 +62,7 @@ extern "C" {
 	HRESULT __stdcall CreateDXGIFactory(REFIID riid, void **ppFactory)
 	{
 		// redirect to CreateDXGIFactory1
-		return CreateDXGIFactory1(riid, ppFactory);
+		return CreateDXGIFactory1(__uuidof(IDXGIFactory1), ppFactory);
 	}
 
 	HRESULT __stdcall DXGIDeclareAdapterRemovalSupport()
