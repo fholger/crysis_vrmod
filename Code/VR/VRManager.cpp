@@ -90,14 +90,16 @@ void VRManager::CaptureEye(int eye)
 	else
 	{
 		CryLogAlways("Copying back buffer...");
-		m_device->CopyResource(m_eyeTextures[eye].Get(), rt.Get());
+		m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, rt.Get(), 0, nullptr);
 	}
+	m_device->Flush();
+	m_context->Flush();
 
 	CryLogAlways("Submitting VR eye texture...");
 	vr::Texture_t vrTexData;
 	vrTexData.eType = vr::TextureType_DirectX;
 	vrTexData.eColorSpace = vr::ColorSpace_Auto;
-	vrTexData.handle = m_eyeTextures[eye].Get();
+	vrTexData.handle = m_eyeTextures11[eye].Get();
 	auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData);
 	if (error != vr::VRCompositorError_None)
 	{
@@ -113,7 +115,24 @@ void VRManager::FinishFrame(IDXGISwapChain* swapchain)
 	if (!m_device)
 	{
 		CryLogAlways("Acquiring device...");
-		swapchain->GetDevice(__uuidof(ID3D10Device), (void**)m_device.GetAddressOf());
+		swapchain->GetDevice(__uuidof(ID3D10Device1), (void**)m_device.GetAddressOf());
+		if (m_device)
+		{
+			CryLogAlways("Successfully acquired a D3D 10.1 interface");
+		}
+
+		ComPtr<IDXGIDevice> dxgiDevice;
+		m_device->QueryInterface(_uuidof(IDXGIDevice), (void**)dxgiDevice.GetAddressOf());
+		if (dxgiDevice)
+		{
+			CryLogAlways("Found DXGI device interface");
+			ComPtr<IDXGIAdapter> dxgiAdapter;
+			dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
+			if (!dxgiAdapter)
+				CryLogAlways("Could not acquire DXGI adapter");
+			HRESULT hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, m_device11.ReleaseAndGetAddressOf(), nullptr, m_context.ReleaseAndGetAddressOf());
+			CryLogAlways("D3D11 creation result: %i", hr);
+		}
 	}
 
 	vr::VRCompositor()->PostPresentHandoff();
@@ -138,16 +157,24 @@ void VRManager::CreateEyeTexture(int eye)
 	vr::VRSystem()->GetRecommendedRenderTargetSize(&width, &height);
 	CryLogAlways("Creating eye texture %i: %d x %d", eye, width, height);
 
-	D3D10_TEXTURE2D_DESC desc = {};
-	desc.Width = width;
-	desc.Height = height;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
-	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED_KEYEDMUTEX;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_eyeTextures[eye].ReleaseAndGetAddressOf());
+	D3D11_TEXTURE2D_DESC desc11 = {};
+	desc11.Width = width;
+	desc11.Height = height;
+	desc11.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc11.SampleDesc.Count = 1;
+	desc11.ArraySize = 1;
+	desc11.MipLevels = 1;
+	desc11.Usage = D3D11_USAGE_DEFAULT;
+	desc11.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	desc11.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
+	HRESULT hr = m_device11->CreateTexture2D(&desc11, nullptr, m_eyeTextures11[eye].ReleaseAndGetAddressOf());
+	CryLogAlways("D3D11 CreateTexture2D return code: %i", hr);
+
+	ComPtr<IDXGIResource> dxgiRes;
+	m_eyeTextures11[eye]->QueryInterface(__uuidof(IDXGIResource), (void**)dxgiRes.GetAddressOf());
+
+	HANDLE handle;
+	dxgiRes->GetSharedHandle(&handle);
+	hr = m_device->OpenSharedResource(handle, __uuidof(ID3D10Texture2D), (void**)m_eyeTextures[eye].ReleaseAndGetAddressOf());
 	CryLogAlways("CreateTexture2D return code: %i", hr);
 }

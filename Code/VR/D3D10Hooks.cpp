@@ -1,10 +1,10 @@
 #include "StdAfx.h"
+#include "Hooks.h"
+#include "VRManager.h"
 #include <d3d10misc.h>
 #include <dxgi.h>
 #include <wrl/client.h>
 #include <WinUser.h>
-#include "Hooks.h"
-#include "VRManager.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -36,10 +36,10 @@ BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx,
 void InitD3D10Hooks()
 {
 	ComPtr<ID3D10Device> device;
-	D3D10CreateDevice(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, device.GetAddressOf());
+	HRESULT hr = D3D10CreateDevice(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, device.GetAddressOf());
 	if (!device)
 	{
-		CryError("Failed to create D3D10 device to hook");
+		CryLogAlways("Failed to create D3D10 device to hook: %i", hr);
 		return;
 	}
 
