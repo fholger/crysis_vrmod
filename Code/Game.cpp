@@ -59,6 +59,7 @@
 #include "VR/D3D10Hooks.h"
 #include "VR/Hooks.h"
 #include "VR/VR3DEngine.h"
+#include "VR/VRManager.h"
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -379,6 +380,9 @@ bool CGame::Init(IGameFramework *pFramework)
 	VR_InitRendererHooks(gEnv->pRenderer);
 	VR_Init3DEngineHooks(gEnv->p3DEngine);
 
+	if (!gVR->Init())
+		return false;
+
 	return true;
 }
 
@@ -405,8 +409,17 @@ bool CGame::CompleteInit()
 
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
+	Vec2i targetRenderSize = gVR->GetRenderSize();
+	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
+	{
+		gEnv->pRenderer->ChangeResolution(targetRenderSize.x, targetRenderSize.y, 8, 0, false);
+		gEnv->pRenderer->EnableVSync(false);
+	}
+
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
 	float frameTime = gEnv->pTimer->GetFrameTime();
+
+	gVR->AwaitFrame();
 
 	if (m_pFramework->IsGamePaused() == false)
 	{
@@ -534,6 +547,8 @@ string CGame::InitMapReloading()
 
 void CGame::Shutdown()
 {
+	gVR->Shutdown();
+
 	if (m_pPlayerProfileManager)
 	{
 		m_pPlayerProfileManager->LogoutUser(m_pPlayerProfileManager->GetCurrentUser());

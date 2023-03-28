@@ -445,6 +445,7 @@
     <ClCompile Include="VR\D3D10Hooks.cpp" />
     <ClCompile Include="VR\Hooks.cpp" />
     <ClCompile Include="VR\VR3DEngine.cpp" />
+    <ClCompile Include="VR\VRManager.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="WeaponClientServer.cpp" />
@@ -850,6 +851,7 @@
     <ClInclude Include="VR\D3D10Hooks.h" />
     <ClInclude Include="VR\Hooks.h" />
     <ClInclude Include="VR\VR3DEngine.h" />
+    <ClInclude Include="VR\VRManager.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="WeaponSystem.h" />

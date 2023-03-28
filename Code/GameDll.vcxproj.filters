@@ -689,6 +689,9 @@
     <ClCompile Include="VR\D3D10Hooks.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
+    <ClCompile Include="VR\VRManager.cpp">
+      <Filter>VR Mod</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1884,6 +1887,9 @@
       <Filter>VR Mod</Filter>
     </ClInclude>
     <ClInclude Include="VR\D3D10Hooks.h">
+      <Filter>VR Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\VRManager.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
   </ItemGroup>

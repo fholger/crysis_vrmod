@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "VR3DEngine.h"
 #include "Hooks.h"
+#include "VRManager.h"
 
 struct VR3DEngine
 {
@@ -15,39 +16,18 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 	CryLogAlways("I3DEngine::RenderWorld called: %s", szDebugName);
 	bool mainPass = (strstr(szDebugName, "3DEngine") != nullptr);
 
-	/*
-	int origWidth = gEnv->pRenderer->GetWidth();
-	int origHeight = gEnv->pRenderer->GetHeight();
-	int origBpp = gEnv->pRenderer->GetColorBpp();
-
 	if (mainPass)
 	{
-		gEnv->pRenderer->SetRenderTarget(gVR3D.m_renderTarget);
-		gEnv->pRenderer->ChangeDisplay(2048, 2048, 8);
-		gEnv->pRenderer->SetViewport(0, 0, 2048, 2048);
-		gEnv->pRenderer->SetScissor(0, 0, 2048, 2048);
-		CryLogAlways("VR custom rendertarget set, renderer size: %i x %i", gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
-	}
-	*/
-
-	hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-
-	/*
-	if (mainPass)
-	{
-		gEnv->pRenderer->SetRenderTarget(0);
-		gEnv->pRenderer->ChangeDisplay(origWidth, origHeight, origBpp);
-		gEnv->pRenderer->SetViewport(0, 0, origWidth, origHeight);
-		gEnv->pRenderer->SetScissor(0, 0, origWidth, origHeight);
+		CryLogAlways("Main 3D render pass");
+		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
+		gVR->CaptureEye(0);
+		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
+		gVR->CaptureEye(1);
 	}
 	else
 	{
-		gEnv->pRenderer->SetRenderTarget(gVR3D.m_renderTarget);
-		gEnv->pRenderer->ChangeDisplay(2048, 2048, 8);
-		gEnv->pRenderer->SetViewport(0, 0, 2048, 2048);
-		gEnv->pRenderer->SetScissor(0, 0, 2048, 2048);
+		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
 	}
-	*/
 }
 
 void VR_Init3DEngineHooks(I3DEngine* p3DEngine)
@@ -77,7 +57,7 @@ bool VR_IRenderer_SetRenderTarget(IRenderer *pSelf, int nHandle)
 
 void VR_InitRendererHooks(IRenderer* pRenderer)
 {
-	hooks::InstallVirtualFunctionHook("IRenderer::BeginFrame", pRenderer, 17, (void*)&VR_IRenderer_BeginFrame);
-	hooks::InstallVirtualFunctionHook("IRenderer::EndFrame", pRenderer, 19, (void*)&VR_IRenderer_EndFrame);
-	hooks::InstallVirtualFunctionHook("IRenderer::SetRenderTarget", pRenderer, 179, (void*)&VR_IRenderer_SetRenderTarget);
+	//hooks::InstallVirtualFunctionHook("IRenderer::BeginFrame", pRenderer, 17, (void*)&VR_IRenderer_BeginFrame);
+	//hooks::InstallVirtualFunctionHook("IRenderer::EndFrame", pRenderer, 19, (void*)&VR_IRenderer_EndFrame);
+	//hooks::InstallVirtualFunctionHook("IRenderer::SetRenderTarget", pRenderer, 179, (void*)&VR_IRenderer_SetRenderTarget);
 }

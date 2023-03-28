@@ -4,13 +4,15 @@
 #include <wrl/client.h>
 #include <WinUser.h>
 #include "Hooks.h"
+#include "VRManager.h"
 
 using Microsoft::WRL::ComPtr;
 
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
-	CryLogAlways("D3D10: Present called for %ul", pSelf);
-	return hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+	HRESULT hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+	gVR->FinishFrame(pSelf);
+	return hr;
 }
 
 HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
@@ -28,7 +30,7 @@ HRESULT IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UI
 BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
 {
 	CryLogAlways("SetWindowPos called for %ul: (%i, %i) -> (%i, %i)", hWnd, X, Y, cx, cy);
-	return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, 1926, 1400, uFlags);
+	return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
 }
 
 void InitD3D10Hooks()
@@ -71,6 +73,4 @@ void InitD3D10Hooks()
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapchain.Get(), 13, &IDXGISwapChain_ResizeBuffers);
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapchain.Get(), 14, &IDXGISwapChain_ResizeTarget);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
-
-	gEnv->pRenderer->ChangeResolution(2048, 2048, 8, 0, false);
 }
