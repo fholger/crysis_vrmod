@@ -3,13 +3,6 @@
 #include "Hooks.h"
 #include "VRManager.h"
 
-struct VR3DEngine
-{
-	int m_renderTarget;
-	int m_depthTarget;
-};
-
-VR3DEngine gVR3D;
 
 void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CCamera &cam, const char *szDebugName, const int dwDrawFlags = -1, const int nFilterFlags=-1)
 {
@@ -20,9 +13,9 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 	{
 		CryLogAlways("Main 3D render pass");
 		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-		gVR->CaptureEye(0);
+		//gVR->CaptureEye(0);
 		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-		gVR->CaptureEye(1);
+		//gVR->CaptureEye(1);
 	}
 	else
 	{
@@ -32,8 +25,7 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 
 void VR_Init3DEngineHooks(I3DEngine* p3DEngine)
 {
-	hooks::InstallVirtualFunctionHook("I3DEngine::RenderWorld", p3DEngine, 2, (void*)&VR_I3DEngine_RenderWorld);
-	gVR3D.m_renderTarget = gEnv->pRenderer->CreateRenderTarget(2048, 2048, eTF_A8R8G8B8);
+	//hooks::InstallVirtualFunctionHook("I3DEngine::RenderWorld", p3DEngine, 2, (void*)&VR_I3DEngine_RenderWorld);
 }
 
 

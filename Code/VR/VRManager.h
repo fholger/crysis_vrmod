@@ -16,11 +16,13 @@ public:
 
 	void AwaitFrame();
 
-	void CaptureEye(int eye);
+	void CaptureEye(IDXGISwapChain *swapchain);
 
-	void FinishFrame(IDXGISwapChain* swapchain);
+	void FinishFrame();
 
 	Vec2i GetRenderSize() const;
+
+	void SetCurrentEyeTarget(int eye);
 
 private:
 	bool m_initialized = false;
@@ -29,6 +31,7 @@ private:
 	ComPtr<ID3D11DeviceContext> m_context;
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
+	int m_currentEye = 0;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);

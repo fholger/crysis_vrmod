@@ -284,6 +284,10 @@ protected:
 
 	typedef std::map<string, string, stl::less_stricmp<string> > TLevelMapMap;
 	TLevelMapMap m_mapNames;
+
+private:
+	uint32_t m_frameCount = 0;
+	bool m_previouslyPaused = false;
 };
 
 extern CGame *g_pGame;

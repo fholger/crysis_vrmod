@@ -8,10 +8,19 @@
 
 using Microsoft::WRL::ComPtr;
 
+namespace
+{
+	bool presentEnabled = true;
+}
+
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
-	HRESULT hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
-	gVR->FinishFrame(pSelf);
+	gVR->CaptureEye(pSelf);
+	HRESULT hr = 0;
+
+	if (presentEnabled)
+		hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+
 	return hr;
 }
 
@@ -33,7 +42,7 @@ BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx,
 	return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
 }
 
-void InitD3D10Hooks()
+void VR_InitD3D10Hooks()
 {
 	ComPtr<ID3D10Device> device;
 	HRESULT hr = D3D10CreateDevice(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, device.GetAddressOf());
@@ -73,4 +82,9 @@ void InitD3D10Hooks()
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapchain.Get(), 13, &IDXGISwapChain_ResizeBuffers);
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapchain.Get(), 14, &IDXGISwapChain_ResizeTarget);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
+}
+
+void VR_EnablePresent(bool enabled)
+{
+	presentEnabled = enabled;
 }

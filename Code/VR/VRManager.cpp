@@ -45,78 +45,66 @@ void VRManager::AwaitFrame()
 	vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
 }
 
-void VRManager::CaptureEye(int eye)
+void VRManager::CaptureEye(IDXGISwapChain *swapchain)
 {
-	if (!m_initialized || !m_device)
-		return;
+	if (!m_device)
+		InitDevice(swapchain);
 
-	if (!m_eyeTextures[eye])
+	if (!m_eyeTextures[m_currentEye])
 	{
-		CreateEyeTexture(eye);
-		if (!m_eyeTextures[eye])
+		CreateEyeTexture(m_currentEye);
+		if (!m_eyeTextures[m_currentEye])
 			return;
 	}
 
 	D3D10_TEXTURE2D_DESC desc;
-	m_eyeTextures[eye]->GetDesc(&desc);
+	m_eyeTextures[m_currentEye]->GetDesc(&desc);
 	Vec2i expectedSize = GetRenderSize();
 	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
 	{
 		// recreate with new resolution
-		CreateEyeTexture(eye);
-		if (!m_eyeTextures[eye])
+		CreateEyeTexture(m_currentEye);
+		if (!m_eyeTextures[m_currentEye])
 			return;
 	}
 
-	// acquire and copy the current render target to the eye texture
-	ComPtr<ID3D10RenderTargetView> rtv;
-	m_device->OMGetRenderTargets(1, rtv.GetAddressOf(), nullptr);
-	if (!rtv)
+	// acquire and copy the current swap chain buffer to the eye texture
+	ComPtr<ID3D10Texture2D> texture;
+	swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
+	if (!texture)
 	{
-		CryError("Failed getting current render target view");
+		CryLogAlways("Error: failed to acquire current swapchain buffer");
 		return;
 	}
-	ComPtr<ID3D10Resource> rt;
-	rtv->GetResource(rt.GetAddressOf());
-	if (!rt)
-	{
-		CryError("Failed getting current render target texture");
-		return;
-	}
+
 	D3D10_TEXTURE2D_DESC rtDesc;
-	((ID3D10Texture2D*)rt.Get())->GetDesc(&rtDesc);
+	texture->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
 	{
 		CryLogAlways("Resolving back buffer...");
-		m_device->ResolveSubresource(m_eyeTextures[eye].Get(), 0, rt.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_device->ResolveSubresource(m_eyeTextures[m_currentEye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	else
 	{
 		CryLogAlways("Copying back buffer...");
-		m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, rt.Get(), 0, nullptr);
+		m_device->CopySubresourceRegion(m_eyeTextures[m_currentEye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
 	}
 	m_device->Flush();
-	m_context->Flush();
 
 	CryLogAlways("Submitting VR eye texture...");
 	vr::Texture_t vrTexData;
 	vrTexData.eType = vr::TextureType_DirectX;
 	vrTexData.eColorSpace = vr::ColorSpace_Auto;
-	vrTexData.handle = m_eyeTextures11[eye].Get();
-	auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData);
+	vrTexData.handle = m_eyeTextures11[m_currentEye].Get();
+	auto error = vr::VRCompositor()->Submit(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData);
 	if (error != vr::VRCompositorError_None)
 	{
 		CryLogAlways("Submitting eye texture failed: %i", error);
 	}
 }
 
-void VRManager::FinishFrame(IDXGISwapChain* swapchain)
+void VRManager::FinishFrame()
 {
-	if (!m_device)
-	{
-		InitDevice(swapchain);
-	}
-
 	if (!m_initialized)
 		return;
 
@@ -131,6 +119,11 @@ Vec2i VRManager::GetRenderSize() const
 	uint32_t width, height;
 	vr::VRSystem()->GetRecommendedRenderTargetSize(&width, &height);
 	return Vec2i(width, height);
+}
+
+void VRManager::SetCurrentEyeTarget(int eye)
+{
+	m_currentEye = eye;
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
