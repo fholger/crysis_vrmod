@@ -30,6 +30,7 @@ private:
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
 
+	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
 };
 
