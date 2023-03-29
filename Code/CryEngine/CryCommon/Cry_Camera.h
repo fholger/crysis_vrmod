@@ -181,6 +181,8 @@ public:
 	void GetFrustumVertices(Vec3 * pVerts) const;
 	void GetFrustumVerticesCam(Vec3 * pVerts) const;
 
+	void UpdateFrustumFromVRRaw(float left, float right, float top, float bottom);
+
 private:		
 	void UpdateFrustum();
 	bool AdditionalCheck( const AABB& aabb ) const; 

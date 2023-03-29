@@ -131,7 +131,20 @@ void VRManager::CaptureEye(IDXGISwapChain *swapchain)
 	vrTexData.eType = vr::TextureType_DirectX;
 	vrTexData.eColorSpace = vr::ColorSpace_Auto;
 	vrTexData.handle = m_eyeTextures11[m_currentEye].Get();
-	auto error = vr::VRCompositor()->Submit(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData);
+
+	// game is currently using symmetric projection, we need to cut off the texture accordingly
+	float left, right, top, bottom;
+	vr::VRSystem()->GetProjectionRaw(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
+	float vertFov = max(fabsf(top), fabsf(bottom));
+	float horzFov = vertFov * expectedSize.x / expectedSize.y;
+	vr::VRTextureBounds_t bounds;
+	bounds.uMin = 0.5f + 0.5f * left / horzFov;
+	bounds.uMax = 0.5f + 0.5f * right / horzFov;
+	bounds.vMin = 0.5f + 0.5f * top / vertFov;
+	bounds.vMax = 0.5f + 0.5f * bottom / vertFov;
+	CryLogAlways("Submission bounds: (%.2f, %.2f) - (%.2f, %.2f)", bounds.uMin, bounds.vMin, bounds.uMax, bounds.vMax);
+
+	auto error = vr::VRCompositor()->Submit(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 	if (error != vr::VRCompositorError_None)
 	{
 		CryLogAlways("Submitting eye texture failed: %i", error);
@@ -184,6 +197,15 @@ void VRManager::ModifyViewCamera(CCamera& cam)
 	viewMat = viewMat * headMat * eyeMat;
 
 	cam.SetMatrix(viewMat);
+
+	// we don't have obvious access to the projection matrix, and the camera code is written with symmetric projection in mind
+	// it does set up frustum planes that we could calculate properly for our asymmetric projection, but it is unclear if that
+	// would result in the correct projection matrix to be calculated.
+	// for now, set up a symmetric FOV and cut off parts of the image during submission
+	float left, right, top, bottom;
+	vr::VRSystem()->GetProjectionRaw(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
+	float vertFov = atanf(max(fabsf(top), fabsf(bottom))) * 2;
+	cam.SetFrustum(cam.GetViewSurfaceX(), cam.GetViewSurfaceZ(), vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
