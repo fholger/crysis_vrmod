@@ -18,7 +18,6 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 
 void VR_ISystem_SetViewCamera(ISystem *pSelf, CCamera &cam)
 {
-	CryLogAlways("SetViewCamera called");
 	gVR->ModifyViewCamera(cam);
 	hooks::CallOriginal(VR_ISystem_SetViewCamera)(pSelf, cam);
 }

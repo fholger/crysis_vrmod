@@ -116,17 +116,14 @@ void VRManager::CaptureEye(IDXGISwapChain *swapchain)
 	texture->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
 	{
-		CryLogAlways("Resolving back buffer...");
 		m_device->ResolveSubresource(m_eyeTextures[m_currentEye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	else
 	{
-		CryLogAlways("Copying back buffer...");
 		m_device->CopySubresourceRegion(m_eyeTextures[m_currentEye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
 	}
 	m_device->Flush();
 
-	CryLogAlways("Submitting VR eye texture...");
 	vr::Texture_t vrTexData;
 	vrTexData.eType = vr::TextureType_DirectX;
 	vrTexData.eColorSpace = vr::ColorSpace_Auto;
@@ -142,7 +139,6 @@ void VRManager::CaptureEye(IDXGISwapChain *swapchain)
 	bounds.uMax = 0.5f + 0.5f * right / horzFov;
 	bounds.vMin = 0.5f + 0.5f * top / vertFov;
 	bounds.vMax = 0.5f + 0.5f * bottom / vertFov;
-	CryLogAlways("Submission bounds: (%.2f, %.2f) - (%.2f, %.2f)", bounds.uMin, bounds.vMin, bounds.uMax, bounds.vMax);
 
 	auto error = vr::VRCompositor()->Submit(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 	if (error != vr::VRCompositorError_None)
@@ -166,6 +162,7 @@ Vec2i VRManager::GetRenderSize() const
 
 	uint32_t width, height;
 	vr::VRSystem()->GetRecommendedRenderTargetSize(&width, &height);
+	width *= 1.2;
 	return Vec2i(width, height);
 }
 
