@@ -644,7 +644,7 @@ struct ISystem
 	// Retrieve access to XML utilities interface.
 	virtual IXmlUtils* GetXmlUtils() = 0;
 
-	virtual void SetViewCamera(class CCamera &Camera) = 0;
+	virtual void SetViewCamera(class CCamera &Camera) = 0;  // 79
 	virtual CCamera& GetViewCamera() = 0;
 
 	// When ignore update sets to true, system will ignore and updates and render calls.

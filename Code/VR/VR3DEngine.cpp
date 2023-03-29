@@ -12,20 +12,21 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 	if (mainPass)
 	{
 		CryLogAlways("Main 3D render pass");
-		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-		//gVR->CaptureEye(0);
-		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-		//gVR->CaptureEye(1);
 	}
-	else
-	{
-		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
-	}
+	hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
 }
 
-void VR_Init3DEngineHooks(I3DEngine* p3DEngine)
+void VR_ISystem_SetViewCamera(ISystem *pSelf, CCamera &cam)
 {
-	//hooks::InstallVirtualFunctionHook("I3DEngine::RenderWorld", p3DEngine, 2, (void*)&VR_I3DEngine_RenderWorld);
+	CryLogAlways("SetViewCamera called");
+	gVR->ModifyViewCamera(cam);
+	hooks::CallOriginal(VR_ISystem_SetViewCamera)(pSelf, cam);
+}
+
+void VR_Init3DEngineHooks()
+{
+	//hooks::InstallVirtualFunctionHook("I3DEngine::RenderWorld", gEnv->p3DEngine, 2, (void*)&VR_I3DEngine_RenderWorld);
+	hooks::InstallVirtualFunctionHook("ISystem::SetViewCamera", gEnv->pSystem, 79, (void*)&VR_ISystem_SetViewCamera);
 }
 
 
@@ -47,7 +48,7 @@ bool VR_IRenderer_SetRenderTarget(IRenderer *pSelf, int nHandle)
 	return hooks::CallOriginal(VR_IRenderer_SetRenderTarget)(pSelf, nHandle);
 }
 
-void VR_InitRendererHooks(IRenderer* pRenderer)
+void VR_InitRendererHooks()
 {
 	//hooks::InstallVirtualFunctionHook("IRenderer::BeginFrame", pRenderer, 17, (void*)&VR_IRenderer_BeginFrame);
 	//hooks::InstallVirtualFunctionHook("IRenderer::EndFrame", pRenderer, 19, (void*)&VR_IRenderer_EndFrame);

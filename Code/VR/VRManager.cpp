@@ -2,8 +2,30 @@
 #include "VRManager.h"
 #include <openvr.h>
 
+#include "Cry_Camera.h"
+
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
+
+// OpenVR: x = right, y = up, -z = forward
+// Crysis: x = right, y = forward, z = up
+Matrix34 OpenVRToCrysis(const vr::HmdMatrix34_t &mat)
+{
+	Matrix34 m;
+	m.m00 = mat.m[0][0];
+	m.m01 = -mat.m[0][2];
+	m.m02 = mat.m[0][1];
+	m.m03 = mat.m[0][3];
+	m.m10 = -mat.m[2][0];
+	m.m11 = mat.m[2][2];
+	m.m12 = -mat.m[2][1];
+	m.m13 = -mat.m[2][3];
+	m.m20 = mat.m[1][0];
+	m.m21 = -mat.m[1][2];
+	m.m22 = mat.m[1][1];
+	m.m23 = mat.m[1][3];
+	return m;
+}
 
 VRManager::~VRManager()
 {
@@ -55,7 +77,7 @@ void VRManager::AwaitFrame()
 	if (!m_initialized)
 		return;
 
-	vr::VRCompositor()->WaitGetPoses(nullptr, 0, nullptr, 0);
+	vr::VRCompositor()->WaitGetPoses(&m_headPose, 1, nullptr, 0);
 }
 
 void VRManager::CaptureEye(IDXGISwapChain *swapchain)
@@ -137,6 +159,31 @@ Vec2i VRManager::GetRenderSize() const
 void VRManager::SetCurrentEyeTarget(int eye)
 {
 	m_currentEye = eye;
+}
+
+void VRManager::ModifyViewCamera(CCamera& cam)
+{
+	if (!m_initialized)
+		return;
+
+	Ang3 angles = cam.GetAngles();
+	Vec3 position = cam.GetPosition();
+
+	// eliminate pitch and roll
+	// switch around, because these functions do not agree on which angle is what...
+	angles.z = angles.x;
+	angles.y = 0;
+	angles.x = 0;
+
+	Matrix34 viewMat;
+	viewMat.SetRotationXYZ(angles, position);
+
+	vr::HmdMatrix34_t eyeMatVR = vr::VRSystem()->GetEyeToHeadTransform(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right);
+	Matrix34 eyeMat = OpenVRToCrysis(eyeMatVR);
+	Matrix34 headMat = OpenVRToCrysis(m_headPose.mDeviceToAbsoluteTracking);
+	viewMat = viewMat * headMat * eyeMat;
+
+	cam.SetMatrix(viewMat);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

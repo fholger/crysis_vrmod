@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <wrl/client.h>
+#include <openvr.h>
 
 #undef GetUserName
 
@@ -26,6 +27,8 @@ public:
 
 	void SetCurrentEyeTarget(int eye);
 
+	void ModifyViewCamera(CCamera& cam);
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -34,6 +37,7 @@ private:
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
 	int m_currentEye = 0;
+	vr::TrackedDevicePose_t m_headPose;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
