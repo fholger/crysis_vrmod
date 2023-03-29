@@ -5,6 +5,19 @@
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
 
+VRManager::~VRManager()
+{
+	// if Shutdown isn't properly called, we will get an infinite hang when trying to dispose of our D3D resources after
+	// the game already shut down. So just let go here to avoid that
+	m_eyeTextures11[0].Detach();
+	m_eyeTextures11[1].Detach();
+	m_eyeTextures[0].Detach();
+	m_eyeTextures[1].Detach();
+	m_context.Detach();
+	m_device11.Detach();
+	m_device.Detach();
+}
+
 bool VRManager::Init()
 {
 	if (m_initialized)

@@ -11,6 +11,8 @@ using Microsoft::WRL::ComPtr;
 class VRManager
 {
 public:
+	~VRManager();
+
 	bool Init();
 	void Shutdown();
 
