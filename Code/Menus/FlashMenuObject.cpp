@@ -43,6 +43,7 @@ History:
 #include "LaptopUtil.h"
 #include "GameNetworkProfile.h"
 #include "SPAnalyst.h"
+#include "VR/D3D10Hooks.h"
 
 //both are defined again in FlashMenuObjectOptions
 static const char* scuiControlCodePrefix = "@cc_"; // "@cc_"; // AlexL 03/04/2007: enable this when keys/controls are fully localized
@@ -1622,6 +1623,11 @@ bool CFlashMenuObject::IsOnScreen(EMENUSCREEN screen)
 
 void CFlashMenuObject::OnHardwareMouseEvent(int iX,int iY,EHARDWAREMOUSEEVENT eHardwareMouseEvent)
 {
+	float scaleX = ((float)gEnv->pRenderer->GetWidth()) / VR_GetCurrentWindowWidth();
+	float scaleY = ((float)gEnv->pRenderer->GetHeight()) / VR_GetCurrentWindowHeight();
+	iX *= scaleX;
+	iY *= scaleY;
+
 	if(HARDWAREMOUSEEVENT_LBUTTONDOUBLECLICK == eHardwareMouseEvent)
 	{
 		if(m_pCurrentFlashMenuScreen && m_pCurrentFlashMenuScreen->GetFlashPlayer())

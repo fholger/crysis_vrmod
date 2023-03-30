@@ -11,6 +11,9 @@ using Microsoft::WRL::ComPtr;
 namespace
 {
 	bool presentEnabled = true;
+	bool ignoreWindowSizeChange = false;
+	int currentWindowWidth = 0;
+	int currentWindowHeight = 0;
 }
 
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
@@ -26,20 +29,29 @@ HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Fl
 
 HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
 {
-	CryLogAlways("ResizeTarget called for %ul", pSelf);
-	return hooks::CallOriginal(IDXGISwapChain_ResizeTarget)(pSelf, pNewTargetParameters);
+	if (!ignoreWindowSizeChange)
+	{
+		currentWindowWidth = pNewTargetParameters->Width;
+		currentWindowHeight = pNewTargetParameters->Height;
+		return hooks::CallOriginal(IDXGISwapChain_ResizeTarget)(pSelf, pNewTargetParameters);
+	}
+
+	return 0;
 }
 
 HRESULT IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
-	CryLogAlways("ResizeBuffers called for %ul: %d x %d", pSelf, Width, Height);
 	return hooks::CallOriginal(IDXGISwapChain_ResizeBuffers)(pSelf, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
 BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
 {
-	CryLogAlways("SetWindowPos called for %ul: (%i, %i) -> (%i, %i)", hWnd, X, Y, cx, cy);
-	return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
+	if (!ignoreWindowSizeChange)
+	{
+		return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
+	}
+
+	return TRUE;
 }
 
 void VR_InitD3D10Hooks()
@@ -87,4 +99,25 @@ void VR_InitD3D10Hooks()
 void VR_EnablePresent(bool enabled)
 {
 	presentEnabled = enabled;
+}
+
+void VR_IgnoreWindowSizeChange(bool ignore)
+{
+	ignoreWindowSizeChange = ignore;
+}
+
+int VR_GetCurrentWindowWidth()
+{
+	return currentWindowWidth;
+}
+
+int VR_GetCurrentWindowHeight()
+{
+	return currentWindowHeight;
+}
+
+void VR_SetCurrentWindowSize(int width, int height)
+{
+	currentWindowWidth = width;
+	currentWindowHeight = height;
 }

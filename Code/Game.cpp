@@ -383,6 +383,8 @@ bool CGame::Init(IGameFramework *pFramework)
 	if (!gVR->Init())
 		return false;
 
+	VR_SetCurrentWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
+
 	return true;
 }
 
@@ -417,8 +419,10 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 	Vec2i targetRenderSize = gVR->GetRenderSize();
 	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
 	{
+		VR_IgnoreWindowSizeChange(true);
 		gEnv->pRenderer->ChangeResolution(targetRenderSize.x, targetRenderSize.y, 8, 0, false);
 		gEnv->pRenderer->EnableVSync(false);
+		VR_IgnoreWindowSizeChange(false);
 	}
 
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
