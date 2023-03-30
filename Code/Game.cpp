@@ -378,6 +378,7 @@ bool CGame::Init(IGameFramework *pFramework)
 	hooks::Init();
 	VR_InitD3D10Hooks();
 	VR_Init3DEngineHooks();
+	VR_InitRendererHooks();
 
 	if (!gVR->Init())
 		return false;
