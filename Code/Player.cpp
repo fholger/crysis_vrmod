@@ -6497,8 +6497,6 @@ void CPlayer::ResetScreenFX()
 void CPlayer::ResetFPView()
 {
 	float defaultFov = 60.0f;
-	defaultFov = gEnv->pSystem->GetViewCamera().GetFov() * 180.f / gf_PI;
-	CryLogAlways("Setting near FOV to %.2f", defaultFov);
 	gEnv->pRenderer->EF_Query(EFQ_DrawNearFov,(INT_PTR)&defaultFov);
 	g_pGameCVars->i_offset_front = g_pGameCVars->i_offset_right = g_pGameCVars->i_offset_up = 0.0f;
 }

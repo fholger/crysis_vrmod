@@ -35,6 +35,9 @@ VRManager::~VRManager()
 	m_eyeTextures11[1].Detach();
 	m_eyeTextures[0].Detach();
 	m_eyeTextures[1].Detach();
+	m_hudTexture.Detach();
+	m_hudTexture11.Detach();
+	m_swapchain.Detach();
 	m_context.Detach();
 	m_device11.Detach();
 	m_device.Detach();
@@ -55,6 +58,17 @@ bool VRManager::Init()
 
 	vr::VRCompositor()->SetTrackingSpace(vr::TrackingUniverseSeated);
 
+	vr::VROverlay()->CreateOverlay("CrysisHud", "Crysis HUD", &m_hudOverlay);
+	vr::VROverlay()->SetOverlayWidthInMeters(m_hudOverlay, 2.f);
+	vr::HmdMatrix34_t transform;
+	memset(&transform, 0, sizeof(vr::HmdMatrix34_t));
+	transform.m[0][0] = transform.m[1][1] = transform.m[2][2] = 1;
+	transform.m[0][3] = 0;
+	transform.m[1][3] = 0.5f;
+	transform.m[2][3] = -2.f;
+	vr::VROverlay()->SetOverlayTransformAbsolute(m_hudOverlay, vr::TrackingUniverseSeated, &transform);
+	vr::VROverlay()->ShowOverlay(m_hudOverlay);
+
 	m_initialized = true;
 	return true;
 }
@@ -63,11 +77,19 @@ void VRManager::Shutdown()
 {
 	m_eyeTextures[0].Reset();
 	m_eyeTextures[1].Reset();
+	m_eyeTextures11[0].Reset();
+	m_eyeTextures[111].Reset();
+	m_hudTexture.Reset();
+	m_hudTexture11.Reset();
+	m_swapchain.Reset();
+	m_context.Reset();
+	m_device11.Reset();
 	m_device.Reset();
 
 	if (!m_initialized)
 		return;
 
+	vr::VROverlay()->DestroyOverlay(m_hudOverlay);
 	vr::VR_Shutdown();
 	m_initialized = false;
 }
@@ -125,6 +147,62 @@ void VRManager::CaptureEye(int eye)
 	{
 		m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
 	}
+}
+
+void VRManager::CaptureHUD()
+{
+	if (!m_swapchain)
+		return;
+
+	if (!m_device)
+		InitDevice(m_swapchain.Get());
+
+	if (!m_hudTexture)
+	{
+		CreateHUDTexture();
+		if (!m_hudTexture)
+			return;
+	}
+
+	D3D10_TEXTURE2D_DESC desc;
+	m_hudTexture->GetDesc(&desc);
+	Vec2i expectedSize = GetRenderSize();
+	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
+	{
+		// recreate with new resolution
+		CreateHUDTexture();
+		if (!m_hudTexture)
+			return;
+	}
+
+	// acquire and copy the current swap chain buffer to the HUD texture
+	ComPtr<ID3D10Texture2D> texture;
+	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
+	if (!texture)
+	{
+		CryLogAlways("Error: failed to acquire current swapchain buffer");
+		return;
+	}
+
+	D3D10_TEXTURE2D_DESC rtDesc;
+	texture->GetDesc(&rtDesc);
+	if (rtDesc.SampleDesc.Count > 1)
+	{
+		m_device->ResolveSubresource(m_hudTexture.Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+	}
+	else
+	{
+		m_device->CopySubresourceRegion(m_hudTexture.Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
+	}
+
+	if (!m_initialized)
+		return;
+
+	vr::Texture_t texInfo;
+	texInfo.eColorSpace = vr::ColorSpace_Auto;
+	texInfo.eType = vr::TextureType_DirectX;
+	texInfo.handle = (void*)m_hudTexture11.Get();
+	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
 }
 
 void VRManager::FinishFrame(IDXGISwapChain *swapchain)
@@ -298,5 +376,38 @@ void VRManager::CreateEyeTexture(int eye)
 	HANDLE handle;
 	dxgiRes->GetSharedHandle(&handle);
 	hr = m_device11->OpenSharedResource(handle, __uuidof(ID3D11Texture2D), (void**)m_eyeTextures11[eye].ReleaseAndGetAddressOf());
+	CryLogAlways("OpenSharedResource return code: %i", hr);
+}
+
+void VRManager::CreateHUDTexture()
+{
+	if (!m_device)
+		return;
+
+	Vec2i size = GetRenderSize();
+	CryLogAlways("Creating HUD texture: %i x %i", size.x, size.y);
+
+	D3D10_TEXTURE2D_DESC desc = {};
+	desc.Width = size.x;
+	desc.Height = size.y;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.ArraySize = 1;
+	desc.MipLevels = 1;
+	desc.Usage = D3D10_USAGE_DEFAULT;
+	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
+	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED;
+	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_hudTexture.ReleaseAndGetAddressOf());
+	CryLogAlways("CreateTexture2D return code: %i", hr);
+
+	if (!m_initialized || !m_device11)
+		return;
+
+	ComPtr<IDXGIResource> dxgiRes;
+	m_hudTexture->QueryInterface(__uuidof(IDXGIResource), (void**)dxgiRes.GetAddressOf());
+
+	HANDLE handle;
+	dxgiRes->GetSharedHandle(&handle);
+	hr = m_device11->OpenSharedResource(handle, __uuidof(ID3D11Texture2D), (void**)m_hudTexture11.ReleaseAndGetAddressOf());
 	CryLogAlways("OpenSharedResource return code: %i", hr);
 }

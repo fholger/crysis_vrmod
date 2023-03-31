@@ -20,6 +20,7 @@ public:
 	void AwaitFrame();
 
 	void CaptureEye(int eye);
+	void CaptureHUD();
 
 	void FinishFrame(IDXGISwapChain *swapchain);
 
@@ -34,11 +35,15 @@ private:
 	ComPtr<ID3D11DeviceContext> m_context;
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
+	ComPtr<ID3D10Texture2D> m_hudTexture;
+	ComPtr<ID3D11Texture2D> m_hudTexture11;
 	ComPtr<IDXGISwapChain> m_swapchain;
 	vr::TrackedDevicePose_t m_headPose;
+	vr::VROverlayHandle_t m_hudOverlay;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
+	void CreateHUDTexture();
 };
 
 extern VRManager* gVR;

@@ -6,6 +6,17 @@
 #include "VRManager.h"
 #include <d3d9.h>
 
+#include "IEntitySystem.h"
+#include "IFlowSystem.h"
+
+
+void LogCamera(const char *name, const CCamera &cam)
+{
+	Vec3 pos = cam.GetPosition();
+	Ang3 ang = cam.GetAngles();
+	CryLogAlways("Camera %s: vfov - %.4f  hfov - %.4f  pos (%.4f, %.4f, %.4f)  ang (%.4f, %.4f, %.4f)", name, cam.GetFov(), cam.ComputeHorizontalFov(), pos.x, pos.y, pos.z, ang.x, ang.y, ang.z);
+}
+
 
 void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CCamera &cam, const char *szDebugName, const int dwDrawFlags = -1, const int nFilterFlags=-1)
 {
@@ -70,7 +81,7 @@ bool VR_IRenderer_SetRenderTarget(IRenderer *pSelf, int nHandle)
 
 void VR_IRenderer_SetCamera(IRenderer *pSelf, const CCamera &cam)
 {
-	CryLogAlways("Renderer camera set");
+	LogCamera("Renderer", cam);
 	hooks::CallOriginal(VR_IRenderer_SetCamera)(pSelf, cam);
 }
 
@@ -82,27 +93,38 @@ void VR_ISystem_RenderBegin(ISystem *pSelf)
 
 void VR_ISystem_Render(ISystem *pSelf)
 {
+	CCamera origCam = pSelf->GetViewCamera();
 	CCamera leftEyeCam = pSelf->GetViewCamera();
 	CCamera rightEyeCam = pSelf->GetViewCamera();
 
 	gVR->AwaitFrame();
 
+	ColorF black(0, 0, 0, 1);
 	D3DPERF_BeginEvent(D3DCOLOR_RGBA(0, 255, 0, 255), L"LeftEye");
 	gVR->ModifyViewCamera(0, leftEyeCam);
 	pSelf->SetViewCamera(leftEyeCam);
+	LogCamera("LeftEye", leftEyeCam);
 	CryLogAlways("Left eye frame count: %i", gEnv->pRenderer->GetFrameID());
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(0);
 	D3DPERF_EndEvent();
+	pSelf->SetViewCamera(origCam);
 
 	D3DPERF_BeginEvent(D3DCOLOR_RGBA(0, 255, 0, 255), L"RightEye");
 	hooks::CallOriginal(VR_ISystem_RenderBegin)(pSelf);
 	gVR->ModifyViewCamera(1, rightEyeCam);
+	LogCamera("RightEye", rightEyeCam);
 	pSelf->SetViewCamera(rightEyeCam);
 	CryLogAlways("Right eye frame count: %i", gEnv->pRenderer->GetFrameID());
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(1);
 	D3DPERF_EndEvent();
+
+	// clear render target to fully transparent for HUD render
+	ColorF transparent(0, 0, 0, 0);
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
 }
 
 void VR_ISystem_RenderEnd(ISystem *pSelf)
