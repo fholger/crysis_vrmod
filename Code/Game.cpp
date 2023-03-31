@@ -412,9 +412,7 @@ bool CGame::CompleteInit()
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
 	++m_frameCount;
-	int currentEye = (m_frameCount & 1);
-	gVR->SetCurrentEyeTarget(currentEye);
-	VR_EnablePresent(currentEye == 1);
+	//gVR->AwaitFrame();
 
 	Vec2i targetRenderSize = gVR->GetRenderSize();
 	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
@@ -427,9 +425,6 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
 	float frameTime = gEnv->pTimer->GetFrameTime();
-
-	if (currentEye == 0)
-		gVR->AwaitFrame();
 
 	if (m_pFramework->IsGamePaused() == false)
 	{

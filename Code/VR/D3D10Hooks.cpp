@@ -18,11 +18,10 @@ namespace
 
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
-	gVR->CaptureEye(pSelf);
 	HRESULT hr = 0;
 
-	if (presentEnabled)
-		hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+	hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+	gVR->FinishFrame(pSelf);
 
 	return hr;
 }

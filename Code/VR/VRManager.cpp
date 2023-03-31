@@ -80,32 +80,35 @@ void VRManager::AwaitFrame()
 	vr::VRCompositor()->WaitGetPoses(&m_headPose, 1, nullptr, 0);
 }
 
-void VRManager::CaptureEye(IDXGISwapChain *swapchain)
+void VRManager::CaptureEye(int eye)
 {
-	if (!m_device)
-		InitDevice(swapchain);
+	if (!m_swapchain)
+		return;
 
-	if (!m_eyeTextures[m_currentEye])
+	if (!m_device)
+		InitDevice(m_swapchain.Get());
+
+	if (!m_eyeTextures[eye])
 	{
-		CreateEyeTexture(m_currentEye);
-		if (!m_eyeTextures[m_currentEye])
+		CreateEyeTexture(eye);
+		if (!m_eyeTextures[eye])
 			return;
 	}
 
 	D3D10_TEXTURE2D_DESC desc;
-	m_eyeTextures[m_currentEye]->GetDesc(&desc);
+	m_eyeTextures[eye]->GetDesc(&desc);
 	Vec2i expectedSize = GetRenderSize();
 	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
 	{
 		// recreate with new resolution
-		CreateEyeTexture(m_currentEye);
-		if (!m_eyeTextures[m_currentEye])
+		CreateEyeTexture(eye);
+		if (!m_eyeTextures[eye])
 			return;
 	}
 
 	// acquire and copy the current swap chain buffer to the eye texture
 	ComPtr<ID3D10Texture2D> texture;
-	swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
+	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
 	if (!texture)
 	{
 		CryLogAlways("Error: failed to acquire current swapchain buffer");
@@ -116,41 +119,46 @@ void VRManager::CaptureEye(IDXGISwapChain *swapchain)
 	texture->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
 	{
-		m_device->ResolveSubresource(m_eyeTextures[m_currentEye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_device->ResolveSubresource(m_eyeTextures[eye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	else
 	{
-		m_device->CopySubresourceRegion(m_eyeTextures[m_currentEye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
-	}
-	m_device->Flush();
-
-	vr::Texture_t vrTexData;
-	vrTexData.eType = vr::TextureType_DirectX;
-	vrTexData.eColorSpace = vr::ColorSpace_Auto;
-	vrTexData.handle = m_eyeTextures11[m_currentEye].Get();
-
-	// game is currently using symmetric projection, we need to cut off the texture accordingly
-	float left, right, top, bottom;
-	vr::VRSystem()->GetProjectionRaw(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
-	float vertFov = max(fabsf(top), fabsf(bottom));
-	float horzFov = vertFov * expectedSize.x / expectedSize.y;
-	vr::VRTextureBounds_t bounds;
-	bounds.uMin = 0.5f + 0.5f * left / horzFov;
-	bounds.uMax = 0.5f + 0.5f * right / horzFov;
-	bounds.vMin = 0.5f + 0.5f * top / vertFov;
-	bounds.vMax = 0.5f + 0.5f * bottom / vertFov;
-
-	auto error = vr::VRCompositor()->Submit(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
-	if (error != vr::VRCompositorError_None)
-	{
-		CryLogAlways("Submitting eye texture failed: %i", error);
+		m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
 	}
 }
 
-void VRManager::FinishFrame()
+void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 {
+	m_swapchain = swapchain;
 	if (!m_initialized)
 		return;
+
+	Vec2i renderSize = GetRenderSize();
+
+	for (int eye = 0; eye < 2; ++eye)
+	{
+		vr::Texture_t vrTexData;
+		vrTexData.eType = vr::TextureType_DirectX;
+		vrTexData.eColorSpace = vr::ColorSpace_Auto;
+		vrTexData.handle = m_eyeTextures11[eye].Get();
+
+		// game is currently using symmetric projection, we need to cut off the texture accordingly
+		float left, right, top, bottom;
+		vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
+		float vertFov = max(fabsf(top), fabsf(bottom));
+		float horzFov = vertFov * renderSize.x / renderSize.y;
+		vr::VRTextureBounds_t bounds;
+		bounds.uMin = 0.5f + 0.5f * left / horzFov;
+		bounds.uMax = 0.5f + 0.5f * right / horzFov;
+		bounds.vMin = 0.5f + 0.5f * top / vertFov;
+		bounds.vMax = 0.5f + 0.5f * bottom / vertFov;
+
+		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
+		if (error != vr::VRCompositorError_None)
+		{
+			CryLogAlways("Submitting eye texture failed: %i", error);
+		}
+	}
 
 	vr::VRCompositor()->PostPresentHandoff();
 }
@@ -166,12 +174,7 @@ Vec2i VRManager::GetRenderSize() const
 	return Vec2i(width, height);
 }
 
-void VRManager::SetCurrentEyeTarget(int eye)
-{
-	m_currentEye = eye;
-}
-
-void VRManager::ModifyViewCamera(CCamera& cam)
+void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 {
 	if (!m_initialized)
 		return;
@@ -188,7 +191,7 @@ void VRManager::ModifyViewCamera(CCamera& cam)
 	Matrix34 viewMat;
 	viewMat.SetRotationXYZ(angles, position);
 
-	vr::HmdMatrix34_t eyeMatVR = vr::VRSystem()->GetEyeToHeadTransform(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right);
+	vr::HmdMatrix34_t eyeMatVR = vr::VRSystem()->GetEyeToHeadTransform(eye == 0 ? vr::Eye_Left : vr::Eye_Right);
 	Matrix34 eyeMat = OpenVRToCrysis(eyeMatVR);
 	Matrix34 headMat = OpenVRToCrysis(m_headPose.mDeviceToAbsoluteTracking);
 	viewMat = viewMat * headMat * eyeMat;
@@ -200,7 +203,7 @@ void VRManager::ModifyViewCamera(CCamera& cam)
 	// would result in the correct projection matrix to be calculated.
 	// for now, set up a symmetric FOV and cut off parts of the image during submission
 	float left, right, top, bottom;
-	vr::VRSystem()->GetProjectionRaw(m_currentEye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
+	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
 	float vertFov = atanf(max(fabsf(top), fabsf(bottom))) * 2;
 	cam.SetFrustum(cam.GetViewSurfaceX(), cam.GetViewSurfaceZ(), vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 }

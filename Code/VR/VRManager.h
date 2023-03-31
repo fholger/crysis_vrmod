@@ -19,15 +19,13 @@ public:
 
 	void AwaitFrame();
 
-	void CaptureEye(IDXGISwapChain *swapchain);
+	void CaptureEye(int eye);
 
-	void FinishFrame();
+	void FinishFrame(IDXGISwapChain *swapchain);
 
 	Vec2i GetRenderSize() const;
 
-	void SetCurrentEyeTarget(int eye);
-
-	void ModifyViewCamera(CCamera& cam);
+	void ModifyViewCamera(int eye, CCamera& cam);
 
 private:
 	bool m_initialized = false;
@@ -36,7 +34,7 @@ private:
 	ComPtr<ID3D11DeviceContext> m_context;
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
-	int m_currentEye = 0;
+	ComPtr<IDXGISwapChain> m_swapchain;
 	vr::TrackedDevicePose_t m_headPose;
 
 	void InitDevice(IDXGISwapChain* swapchain);
