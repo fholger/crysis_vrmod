@@ -377,7 +377,6 @@ bool CGame::Init(IGameFramework *pFramework)
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
 	VR_InitD3D10Hooks();
-	VR_Init3DEngineHooks();
 	VR_InitRendererHooks();
 
 	if (!gVR->Init())

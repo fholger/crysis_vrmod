@@ -342,7 +342,6 @@ void VRManager::CreateHUDTexture()
 	desc.MipLevels = 1;
 	desc.Usage = D3D10_USAGE_DEFAULT;
 	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED;
 	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_hudTexture.ReleaseAndGetAddressOf());
 	CryLogAlways("CreateTexture2D return code: %i", hr);
 }
