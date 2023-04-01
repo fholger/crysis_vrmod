@@ -183,7 +183,6 @@ public:
 
 	void UpdateFrustumFromVRRaw(float left, float right, float top, float bottom);
 
-private:		
 	void UpdateFrustum();
 	bool AdditionalCheck( const AABB& aabb ) const; 
 	bool AdditionalCheck( const Vec3& wpos, const OBB& obb, f32 uscale ) const; 

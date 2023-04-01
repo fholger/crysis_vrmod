@@ -35,6 +35,10 @@ private:
 	ComPtr<IDXGISwapChain> m_swapchain;
 	vr::TrackedDevicePose_t m_headPose;
 	vr::VROverlayHandle_t m_hudOverlay;
+	float m_verticalFov;
+	float m_horizontalFov;
+	float m_vertRenderScale;
+	float m_horzRenderScale;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
