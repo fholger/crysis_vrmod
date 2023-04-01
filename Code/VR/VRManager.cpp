@@ -145,7 +145,8 @@ void VRManager::CaptureEye(int eye)
 	}
 	else
 	{
-		m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
+		//m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
+		m_device->CopyResource(m_eyeTextures[eye].Get(), texture.Get());
 	}
 }
 
@@ -208,10 +209,12 @@ void VRManager::CaptureHUD()
 void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 {
 	m_swapchain = swapchain;
-	if (!m_initialized)
+	if (!m_initialized || !m_device)
 		return;
 
 	Vec2i renderSize = GetRenderSize();
+
+	m_device->Flush();
 
 	for (int eye = 0; eye < 2; ++eye)
 	{
@@ -239,6 +242,7 @@ void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 	}
 
 	vr::VRCompositor()->PostPresentHandoff();
+	m_context->Flush();
 }
 
 Vec2i VRManager::GetRenderSize() const
@@ -255,7 +259,15 @@ Vec2i VRManager::GetRenderSize() const
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 {
 	if (!m_initialized)
+	{
+		if (eye == 1)
+		{
+			Vec3 pos = cam.GetPosition();
+			pos.x += 0.1f;
+			cam.SetPosition(pos);
+		}
 		return;
+	}
 
 	Ang3 angles = cam.GetAngles();
 	Vec3 position = cam.GetPosition();

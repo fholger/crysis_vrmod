@@ -20,9 +20,12 @@ HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Fl
 {
 	HRESULT hr = 0;
 
-	gVR->CaptureHUD();
-	hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
-	gVR->FinishFrame(pSelf);
+	if (presentEnabled)
+	{
+		gVR->CaptureHUD();
+		hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+		gVR->FinishFrame(pSelf);
+	}
 
 	return hr;
 }

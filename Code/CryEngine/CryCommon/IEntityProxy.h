@@ -370,7 +370,7 @@ struct IEntitySoundProxy : public IEntityProxy
 enum EEntitySlotFlags
 {
 	ENTITY_SLOT_RENDER = 0x0001,  // Draw this slot.
-	ENTITY_SLOT_RENDER_NEAREST = 0x0002,  // Draw this slot as nearest.
+	ENTITY_SLOT_RENDER_NEAREST = 0x0001,  // Draw this slot as nearest.
 	ENTITY_SLOT_RENDER_WITH_CUSTOM_CAMERA = 0x0004,  // Draw this slot using custom camera passed as a Public ShaderParameter to the entity.
 	ENTITY_SLOT_IGNORE_PHYSICS = 0x0010,  // This slot will ignore physics events sent to it.
 	ENTITY_SLOT_BREAK_AS_ENTITY = 0x020

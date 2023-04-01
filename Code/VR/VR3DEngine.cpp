@@ -6,9 +6,11 @@
 #include "VRManager.h"
 #include <d3d9.h>
 
+#include "D3D10Hooks.h"
 #include "IEntitySystem.h"
 #include "IFlowSystem.h"
-
+#include "IGame.h"
+#include "IGameFramework.h"
 
 void LogCamera(const char *name, const CCamera &cam)
 {
@@ -27,21 +29,25 @@ void VR_I3DEngine_RenderWorld(I3DEngine *pSelf, const int nRenderFlags, const CC
 	if (mainPass)
 	{
 		CryLogAlways("Main 3D render pass");
-		hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
 	}
+	hooks::CallOriginal(VR_I3DEngine_RenderWorld)(pSelf, nRenderFlags, cam, szDebugName, dwDrawFlags, nFilterFlags);
 	D3DPERF_EndEvent();
 }
 
 void VR_I3DEngine_OnFrameStart(I3DEngine *pSelf)
 {
 	CryLogAlways("I3DEngine::OnFrameStart called");
+	D3DPERF_BeginEvent(D3DCOLOR_RGBA(255, 0, 0, 255), L"OnFrameStart");
 	hooks::CallOriginal(VR_I3DEngine_OnFrameStart)(pSelf);
+	D3DPERF_EndEvent();
 }
 
 void VR_I3DEngine_Update(I3DEngine *pSelf)
 {
 	CryLogAlways("I3DEngine::Update called");
+	D3DPERF_BeginEvent(D3DCOLOR_RGBA(255, 0, 0, 255), L"Update");
 	hooks::CallOriginal(VR_I3DEngine_Update)(pSelf);
+	D3DPERF_EndEvent();
 	CryLogAlways("I3DEngine::Update ended");
 }
 
@@ -64,13 +70,17 @@ void VR_Init3DEngineHooks()
 void VR_IRenderer_BeginFrame(IRenderer *pSelf)
 {
 	CryLogAlways("IRenderer::BeginFrame called");
+	D3DPERF_BeginEvent(D3DCOLOR_RGBA(255, 0, 0, 255), L"BeginFrame");
 	hooks::CallOriginal(VR_IRenderer_BeginFrame)(pSelf);
+	D3DPERF_EndEvent();
 }
 
 void VR_IRenderer_EndFrame(IRenderer *pSelf)
 {
 	CryLogAlways("IRenderer::EndFrame called");
+	D3DPERF_BeginEvent(D3DCOLOR_RGBA(255, 0, 0, 255), L"EndFrame");
 	hooks::CallOriginal(VR_IRenderer_EndFrame)(pSelf);
+	D3DPERF_EndEvent();
 }
 
 bool VR_IRenderer_SetRenderTarget(IRenderer *pSelf, int nHandle)
@@ -82,6 +92,7 @@ bool VR_IRenderer_SetRenderTarget(IRenderer *pSelf, int nHandle)
 void VR_IRenderer_SetCamera(IRenderer *pSelf, const CCamera &cam)
 {
 	LogCamera("Renderer", cam);
+	D3DPERF_SetMarker(D3DCOLOR_RGBA(255, 0, 0, 255), L"SetCamera");
 	hooks::CallOriginal(VR_IRenderer_SetCamera)(pSelf, cam);
 }
 
@@ -96,6 +107,7 @@ void VR_ISystem_Render(ISystem *pSelf)
 	CCamera origCam = pSelf->GetViewCamera();
 	CCamera leftEyeCam = pSelf->GetViewCamera();
 	CCamera rightEyeCam = pSelf->GetViewCamera();
+	Vec2i renderSize = gVR->GetRenderSize();
 
 	gVR->AwaitFrame();
 
@@ -109,15 +121,20 @@ void VR_ISystem_Render(ISystem *pSelf)
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(0);
 	D3DPERF_EndEvent();
-	pSelf->SetViewCamera(origCam);
+	//pSelf->SetViewCamera(origCam);
 
 	D3DPERF_BeginEvent(D3DCOLOR_RGBA(0, 255, 0, 255), L"RightEye");
-	hooks::CallOriginal(VR_ISystem_RenderBegin)(pSelf);
+	pSelf->IgnoreUpdates(false);
+	pSelf->RenderBegin();
 	gVR->ModifyViewCamera(1, rightEyeCam);
 	LogCamera("RightEye", rightEyeCam);
 	pSelf->SetViewCamera(rightEyeCam);
 	CryLogAlways("Right eye frame count: %i", gEnv->pRenderer->GetFrameID());
+	gEnv->pRenderer->SetRenderTarget(0);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
+	gEnv->pRenderer->SetViewport(0, 0, renderSize.x, renderSize.y);
+	gEnv->pRenderer->SetScissor(0, 0, renderSize.x, renderSize.y);
+	pSelf->IgnoreUpdates(false);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(1);
 	D3DPERF_EndEvent();
