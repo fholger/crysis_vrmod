@@ -1,6 +1,8 @@
 #include <string>
 #include <windows.h>
 #include <d3d10_1.h>
+#include <MinHook.h>
+#include <wrl/client.h>
 
 HINSTANCE mHinst = 0, mHinstDLL = 0;
 
@@ -38,30 +40,44 @@ LPCSTR mImportNames[] = {
   "D3D10StateBlockMaskUnion",
 };
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-  mHinst = hinstDLL;
-  if (fdwReason == DLL_PROCESS_ATTACH) {
-	wchar_t buf[MAX_PATH + 1];
-	GetSystemDirectory(buf, sizeof(buf));
-	std::wstring dllPath = buf;
-	dllPath += L"\\d3d10.dll";
-    mHinstDLL = LoadLibrary(dllPath.c_str());
-    if (!mHinstDLL) {
-      return FALSE;
+LPVOID d3d10CreateDevice_orig;
+LPVOID d3d10CreateDeviceAndSwapChain_orig;
+
+void FindAdapter(IDXGIAdapter *adapter, IDXGIAdapter1 **replacement)
+{
+    if (!adapter)
+    {
+        *replacement = nullptr;
+        return;
     }
-    for (int i = 0; i < 29; ++i) {
-      mProcs[i] = (UINT_PTR)GetProcAddress(mHinstDLL, mImportNames[i]);
-    }
-  } else if (fdwReason == DLL_PROCESS_DETACH) {
-    FreeLibrary(mHinstDLL);
-  }
-  return TRUE;
+
+	DXGI_ADAPTER_DESC refDesc;
+	adapter->GetDesc(&refDesc);
+
+	Microsoft::WRL::ComPtr<IDXGIFactory1> factory;
+	CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)factory.GetAddressOf());
+	UINT idx = 0;
+	while (factory->EnumAdapters1(idx, replacement) != DXGI_ERROR_NOT_FOUND)
+	{
+		++idx;
+		DXGI_ADAPTER_DESC desc;
+		(*replacement)->GetDesc(&desc);
+		if (desc.AdapterLuid.HighPart == refDesc.AdapterLuid.HighPart && desc.AdapterLuid.LowPart == refDesc.AdapterLuid.LowPart)
+		{
+            return;
+		}
+        (*replacement)->Release();
+        *replacement = nullptr;
+	}
 }
 
 extern "C" HRESULT WINAPI D3D10CreateDevice_wrapper(IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion, ID3D10Device **ppDevice)
 {
     ID3D10Device1* device;
-    HRESULT hr = D3D10CreateDevice1(pAdapter, DriverType, Software, Flags | D3D10_CREATE_DEVICE_BGRA_SUPPORT, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &device);
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+    FindAdapter(pAdapter, adapter.GetAddressOf());
+    HRESULT hr = D3D10CreateDevice1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &device);
+    auto featureLevel = device->GetFeatureLevel();
     *ppDevice = device;
     return hr;
 }
@@ -69,7 +85,9 @@ extern "C" HRESULT WINAPI D3D10CreateDevice_wrapper(IDXGIAdapter *pAdapter, D3D1
 extern "C" HRESULT WINAPI D3D10CreateDeviceAndSwapChain_wrapper(IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion, DXGI_SWAP_CHAIN_DESC *pSwapChainDesc, IDXGISwapChain **ppSwapChain, ID3D10Device **ppDevice)
 {
     ID3D10Device1* device;
-    HRESULT hr = D3D10CreateDeviceAndSwapChain1(pAdapter, DriverType, Software, Flags | D3D10_CREATE_DEVICE_BGRA_SUPPORT, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, pSwapChainDesc, ppSwapChain, &device);
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+    FindAdapter(pAdapter, adapter.GetAddressOf());
+    HRESULT hr = D3D10CreateDeviceAndSwapChain1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, pSwapChainDesc, ppSwapChain, &device);
     *ppDevice = device;
     return hr;
 }
@@ -101,3 +119,28 @@ extern "C" void D3D10StateBlockMaskEnableCapture_wrapper();
 extern "C" void D3D10StateBlockMaskGetSetting_wrapper();
 extern "C" void D3D10StateBlockMaskIntersect_wrapper();
 extern "C" void D3D10StateBlockMaskUnion_wrapper();
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+  mHinst = hinstDLL;
+  if (fdwReason == DLL_PROCESS_ATTACH) {
+	wchar_t buf[MAX_PATH + 1];
+	GetSystemDirectory(buf, sizeof(buf));
+	std::wstring dllPath = buf;
+	dllPath += L"\\d3d10.dll";
+    mHinstDLL = LoadLibrary(dllPath.c_str());
+    if (!mHinstDLL) {
+      return FALSE;
+    }
+    for (int i = 0; i < 29; ++i) {
+      mProcs[i] = (UINT_PTR)GetProcAddress(mHinstDLL, mImportNames[i]);
+    }
+    MH_Initialize();
+    MH_CreateHook((LPVOID)mProcs[3], &D3D10CreateDevice_wrapper, &d3d10CreateDevice_orig);
+    MH_EnableHook((LPVOID)mProcs[3]);
+    MH_CreateHook((LPVOID)mProcs[4], &D3D10CreateDeviceAndSwapChain_wrapper, &d3d10CreateDeviceAndSwapChain_orig);
+    MH_EnableHook((LPVOID)mProcs[4]);
+  } else if (fdwReason == DLL_PROCESS_DETACH) {
+    FreeLibrary(mHinstDLL);
+  }
+  return TRUE;
+}

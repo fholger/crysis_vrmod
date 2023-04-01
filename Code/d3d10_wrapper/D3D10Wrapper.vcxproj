@@ -56,13 +56,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\ThirdParty\MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)d3d10.dll</OutputFile>
       <ModuleDefinitionFile>d3d10.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d10_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d10_1.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
@@ -80,6 +81,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\ThirdParty\MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -88,7 +90,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(OutDir)d3d10.dll</OutputFile>
       <ModuleDefinitionFile>d3d10.def</ModuleDefinitionFile>
-      <AdditionalDependencies>d3d10_1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d10_1.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <MASM>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
@@ -102,6 +104,10 @@
     <None Include="d3d10.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ThirdParty\minhook\src\buffer.c" />
+    <ClCompile Include="..\ThirdParty\minhook\src\hde\hde64.c" />
+    <ClCompile Include="..\ThirdParty\minhook\src\hook.c" />
+    <ClCompile Include="..\ThirdParty\minhook\src\trampoline.c" />
     <ClCompile Include="d3d10.cpp" />
     <MASM Include="d3d10_asm.asm" />
   </ItemGroup>
