@@ -31,10 +31,14 @@ VRManager::~VRManager()
 {
 	// if Shutdown isn't properly called, we will get an infinite hang when trying to dispose of our D3D resources after
 	// the game already shut down. So just let go here to avoid that
-	m_eyeTextures11[0].Detach();
-	m_eyeTextures11[1].Detach();
-	m_eyeTextures[0].Detach();
-	m_eyeTextures[1].Detach();
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int eye = 0; eye < 2; ++eye)
+		{
+			m_eyeTextures[eye][i].Detach();
+			m_eyeTextures11[eye][i].Detach();
+		}
+	}
 	m_hudTexture.Detach();
 	m_hudTexture11.Detach();
 	m_swapchain.Detach();
@@ -75,10 +79,14 @@ bool VRManager::Init()
 
 void VRManager::Shutdown()
 {
-	m_eyeTextures[0].Reset();
-	m_eyeTextures[1].Reset();
-	m_eyeTextures11[0].Reset();
-	m_eyeTextures[111].Reset();
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int eye = 0; eye < 2; ++eye)
+		{
+			m_eyeTextures[eye][i].Reset();
+			m_eyeTextures11[eye][i].Reset();
+		}
+	}
 	m_hudTexture.Reset();
 	m_hudTexture11.Reset();
 	m_swapchain.Reset();
@@ -100,6 +108,7 @@ void VRManager::AwaitFrame()
 		return;
 
 	vr::VRCompositor()->WaitGetPoses(&m_headPose, 1, nullptr, 0);
+	m_curCaptureIndex = (m_curCaptureIndex + 1) % 3;
 }
 
 void VRManager::CaptureEye(int eye)
@@ -110,7 +119,7 @@ void VRManager::CaptureEye(int eye)
 	if (!m_device)
 		InitDevice(m_swapchain.Get());
 
-	if (!m_eyeTextures[eye])
+	if (!m_eyeTextures[eye][m_curCaptureIndex])
 	{
 		CreateEyeTexture(eye);
 		if (!m_eyeTextures[eye])
@@ -118,7 +127,7 @@ void VRManager::CaptureEye(int eye)
 	}
 
 	D3D10_TEXTURE2D_DESC desc;
-	m_eyeTextures[eye]->GetDesc(&desc);
+	m_eyeTextures[eye][m_curCaptureIndex]->GetDesc(&desc);
 	Vec2i expectedSize = GetRenderSize();
 	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
 	{
@@ -141,12 +150,12 @@ void VRManager::CaptureEye(int eye)
 	texture->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
 	{
-		m_device->ResolveSubresource(m_eyeTextures[eye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_device->ResolveSubresource(m_eyeTextures[eye][m_curCaptureIndex].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 	}
 	else
 	{
 		//m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
-		m_device->CopyResource(m_eyeTextures[eye].Get(), texture.Get());
+		m_device->CopyResource(m_eyeTextures[eye][m_curCaptureIndex].Get(), texture.Get());
 	}
 }
 
@@ -214,14 +223,22 @@ void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 
 	Vec2i renderSize = GetRenderSize();
 
+	ComPtr<ID3D10Query> query;
+	D3D10_QUERY_DESC desc;
+	desc.Query = D3D10_QUERY_EVENT;
+	desc.MiscFlags = 0;
+	m_device->CreateQuery(&desc, query.GetAddressOf());
 	m_device->Flush();
+	query->End();
+
+	while (S_FALSE == query->GetData(nullptr, 0, 0));
 
 	for (int eye = 0; eye < 2; ++eye)
 	{
 		vr::Texture_t vrTexData;
 		vrTexData.eType = vr::TextureType_DirectX;
 		vrTexData.eColorSpace = vr::ColorSpace_Auto;
-		vrTexData.handle = m_eyeTextures11[eye].Get();
+		vrTexData.handle = m_eyeTextures11[eye][m_curCaptureIndex].Get();
 
 		// game is currently using symmetric projection, we need to cut off the texture accordingly
 		float left, right, top, bottom;
@@ -376,18 +393,18 @@ void VRManager::CreateEyeTexture(int eye)
 	desc.Usage = D3D10_USAGE_DEFAULT;
 	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
 	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_eyeTextures[eye].ReleaseAndGetAddressOf());
+	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_eyeTextures[eye][m_curCaptureIndex].ReleaseAndGetAddressOf());
 	CryLogAlways("CreateTexture2D return code: %i", hr);
 
 	if (!m_initialized || !m_device11)
 		return;
 
 	ComPtr<IDXGIResource> dxgiRes;
-	m_eyeTextures[eye]->QueryInterface(__uuidof(IDXGIResource), (void**)dxgiRes.GetAddressOf());
+	m_eyeTextures[eye][m_curCaptureIndex]->QueryInterface(__uuidof(IDXGIResource), (void**)dxgiRes.GetAddressOf());
 
 	HANDLE handle;
 	dxgiRes->GetSharedHandle(&handle);
-	hr = m_device11->OpenSharedResource(handle, __uuidof(ID3D11Texture2D), (void**)m_eyeTextures11[eye].ReleaseAndGetAddressOf());
+	hr = m_device11->OpenSharedResource(handle, __uuidof(ID3D11Texture2D), (void**)m_eyeTextures11[eye][m_curCaptureIndex].ReleaseAndGetAddressOf());
 	CryLogAlways("OpenSharedResource return code: %i", hr);
 }
 
