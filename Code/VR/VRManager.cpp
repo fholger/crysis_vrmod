@@ -61,7 +61,7 @@ bool VRManager::Init()
 	memset(&transform, 0, sizeof(vr::HmdMatrix34_t));
 	transform.m[0][0] = transform.m[1][1] = transform.m[2][2] = 1;
 	transform.m[0][3] = 0;
-	transform.m[1][3] = 0.5f;
+	transform.m[1][3] = 0;
 	transform.m[2][3] = -2.f;
 	vr::VROverlay()->SetOverlayTransformAbsolute(m_hudOverlay, vr::TrackingUniverseSeated, &transform);
 	vr::VROverlay()->ShowOverlay(m_hudOverlay);
@@ -249,6 +249,12 @@ Vec2i VRManager::GetRenderSize() const
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 {
+	if (IsEquivalent(cam.GetPosition(), Vec3(0, 0, 0), VEC_EPSILON))
+	{
+		// no valid camera set, leave it
+		return;
+	}
+
 	if (!m_initialized)
 	{
 		if (eye == 1)

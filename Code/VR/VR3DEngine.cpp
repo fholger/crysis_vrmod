@@ -12,19 +12,20 @@ void VR_ISystem_Render(ISystem *pSelf)
 	CCamera origCam = pSelf->GetViewCamera();
 	CCamera leftEyeCam = pSelf->GetViewCamera();
 	CCamera rightEyeCam = pSelf->GetViewCamera();
-	Vec2i renderSize = gVR->GetRenderSize();
 
 	gVR->AwaitFrame();
 
 	ColorF black(0, 0, 0, 1);
 	gVR->ModifyViewCamera(0, leftEyeCam);
 	pSelf->SetViewCamera(leftEyeCam);
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(0);
 
 	pSelf->RenderBegin();
 	gVR->ModifyViewCamera(1, rightEyeCam);
 	pSelf->SetViewCamera(rightEyeCam);
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(1);
 
