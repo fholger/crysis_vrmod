@@ -19,6 +19,7 @@ History:
 #include "FlashMenuScreen.h"
 #include "Game.h"
 #include "HUD/HUD.h"
+#include "VR/D3D10Hooks.h"
 
 //-----------------------------------------------------------------------------------------------------
 
@@ -858,6 +859,16 @@ void COptionsManager::CCVarSink::OnElementFound(ICVar *pCVar)
 
 	CryFixedStringT<128> szLine = pCVar->GetName();
 	CryFixedStringT<128> szValue = pCVar->GetString();
+
+	// overwrite render size parameters with VR window settings, otherwise we would persist the SteamVR resolution here
+	if (szLine.MakeLower() == "r_width" && VR_GetCurrentWindowWidth() != 0)
+	{
+		szValue.Format("%i", VR_GetCurrentWindowWidth());
+	}
+	if (szLine.MakeLower() == "r_height" && VR_GetCurrentWindowHeight() != 0)
+	{
+		szValue.Format("%i", VR_GetCurrentWindowHeight());
+	}
 
 	// only save if we have an option to it
 	std::map<string, SOptionEntry>::const_iterator iter = m_pOptionsManager->m_profileOptions.find(CONST_TEMP_STRING(pCVar->GetName()));
