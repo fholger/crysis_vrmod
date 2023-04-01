@@ -1221,7 +1221,7 @@ void CHUD::FadeCinematicBars(int targetVal)
 {
 	m_animCinematicBar.Reload();
 
-	m_animCinematicBar.SetVisible(true);
+	m_animCinematicBar.SetVisible(false);
 	m_animCinematicBar.Invoke("setBarPos", targetVal<<1); // *2, because in flash its percentage of half size!
 	m_cineState = eHCS_Fading;
 }
