@@ -903,7 +903,7 @@ void CLam::AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos)
 
 	CActor *pActor = parent->GetOwnerActor();
 	IMovementController * pMC = pActor ? pActor->GetMovementController() : NULL;
-	if (pMC)
+	if (false && pMC)
 	{ 
 		SMovementState info;
 		pMC->GetMovementState(info);

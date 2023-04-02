@@ -18,6 +18,8 @@ void VR_ISystem_Render(ISystem *pSelf)
 	ColorF black(0, 0, 0, 1);
 	gVR->ModifyViewCamera(0, leftEyeCam);
 	pSelf->SetViewCamera(leftEyeCam);
+	float fov = leftEyeCam.GetFov();
+	gEnv->pRenderer->EF_Query(EFQ_DrawNearFov, (INT_PTR)&fov);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(0);
@@ -25,6 +27,8 @@ void VR_ISystem_Render(ISystem *pSelf)
 	pSelf->RenderBegin();
 	gVR->ModifyViewCamera(1, rightEyeCam);
 	pSelf->SetViewCamera(rightEyeCam);
+	fov = rightEyeCam.GetFov();
+	gEnv->pRenderer->EF_Query(EFQ_DrawNearFov, (INT_PTR)&fov);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 	hooks::CallOriginal(VR_ISystem_Render)(pSelf);
 	gVR->CaptureEye(1);

@@ -216,8 +216,6 @@ void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 	if (!m_initialized || !m_device)
 		return;
 
-	Vec2i renderSize = GetRenderSize();
-
 	for (int eye = 0; eye < 2; ++eye)
 	{
 		vr::Texture_t vrTexData;
