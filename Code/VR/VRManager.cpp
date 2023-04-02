@@ -289,12 +289,15 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	cam.SetMatrix(viewMat);
 
 	// we don't have obvious access to the projection matrix, and the camera code is written with symmetric projection in mind
-	// it does set up frustum planes that we could calculate properly for our asymmetric projection, but it is unclear if that
-	// would result in the correct projection matrix to be calculated.
 	// for now, set up a symmetric FOV and cut off parts of the image during submission
 	float vertFov = atanf(m_verticalFov) * 2;
 	Vec2i renderSize = GetRenderSize();
 	cam.SetFrustum(renderSize.x, renderSize.y, vertFov, cam.GetNearPlane(), cam.GetFarPlane());
+
+	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
+	float tanl, tanr, tant, tanb;
+	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &tanl, &tanr, &tant, &tanb);
+	cam.UpdateFrustumFromVRRaw(tanl, tanr, tant, tanb);
 }
 
 void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom)

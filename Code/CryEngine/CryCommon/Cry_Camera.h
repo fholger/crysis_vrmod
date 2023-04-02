@@ -181,9 +181,9 @@ public:
 	void GetFrustumVertices(Vec3 * pVerts) const;
 	void GetFrustumVerticesCam(Vec3 * pVerts) const;
 
+	void UpdateFrustum();
 	void UpdateFrustumFromVRRaw(float left, float right, float top, float bottom);
 
-	void UpdateFrustum();
 	bool AdditionalCheck( const AABB& aabb ) const; 
 	bool AdditionalCheck( const Vec3& wpos, const OBB& obb, f32 uscale ) const; 
 
@@ -442,6 +442,60 @@ inline void CCamera::UpdateFrustum()
 	}
 
  m_OccPosition=GetPosition();
+}
+
+inline void CCamera::UpdateFrustumFromVRRaw(float tanl, float tanr, float tant, float tanb)
+{
+	//-------------------------------------------------------------------
+	//--- calculate frustum-edges of projection-plane in CAMERA-SPACE ---
+	//-------------------------------------------------------------------
+	Matrix33 m33 = Matrix33(m_Matrix);
+	m_cltp = m33 * Vec3(tanl * m_edge_plt.y, m_edge_plt.y, -tant * m_edge_plt.y);
+	m_crtp = m33 * Vec3(tanr * m_edge_plt.y, m_edge_plt.y, -tant * m_edge_plt.y);
+	m_clbp = m33 * Vec3(tanl * m_edge_plt.y, m_edge_plt.y, -tanb * m_edge_plt.y);
+	m_crbp = m33 * Vec3(tanr * m_edge_plt.y, m_edge_plt.y, -tanb * m_edge_plt.y);
+
+	m_cltn = m33 * Vec3(tanl * m_edge_nlt.y, m_edge_nlt.y, -tant * m_edge_nlt.y);
+	m_crtn = m33 * Vec3(tanr * m_edge_nlt.y, m_edge_nlt.y, -tant * m_edge_nlt.y);
+	m_clbn = m33 * Vec3(tanl * m_edge_nlt.y, m_edge_nlt.y, -tanb * m_edge_nlt.y);
+	m_crbn = m33 * Vec3(tanr * m_edge_nlt.y, m_edge_nlt.y, -tanb * m_edge_nlt.y);
+
+	m_cltf = m33 * Vec3(tanl * m_edge_flt.y, m_edge_flt.y, -tant * m_edge_flt.y);
+	m_crtf = m33 * Vec3(tanr * m_edge_flt.y, m_edge_flt.y, -tant * m_edge_flt.y);
+	m_clbf = m33 * Vec3(tanl * m_edge_flt.y, m_edge_flt.y, -tanb * m_edge_flt.y);
+	m_crbf = m33 * Vec3(tanr * m_edge_flt.y, m_edge_flt.y, -tanb * m_edge_flt.y);
+
+	//-------------------------------------------------------------------------------
+	//---  calculate the six frustum-planes using the fustum edges in world-space ---
+	//-------------------------------------------------------------------------------
+	m_fp[FR_PLANE_NEAR  ]	=	Plane::CreatePlane( m_crtn+GetPosition(),m_cltn+GetPosition(),m_crbn+GetPosition() );
+	m_fp[FR_PLANE_RIGHT ]	=	Plane::CreatePlane( m_crbf+GetPosition(),m_crtf+GetPosition(),GetPosition() );
+	m_fp[FR_PLANE_LEFT  ]	=	Plane::CreatePlane( m_cltf+GetPosition(),m_clbf+GetPosition(),GetPosition() );
+	m_fp[FR_PLANE_TOP   ]	=	Plane::CreatePlane( m_crtf+GetPosition(),m_cltf+GetPosition(),GetPosition() );
+	m_fp[FR_PLANE_BOTTOM]	=	Plane::CreatePlane( m_clbf+GetPosition(),m_crbf+GetPosition(),GetPosition() );
+	m_fp[FR_PLANE_FAR   ]	=	Plane::CreatePlane( m_crtf+GetPosition(),m_crbf+GetPosition(),m_cltf+GetPosition() );  //clip-plane
+
+	uint32 rh = m_Matrix.IsOrthonormalRH();
+	if (rh==0)
+	{
+		m_fp[FR_PLANE_NEAR  ]=-m_fp[FR_PLANE_NEAR  ];
+		m_fp[FR_PLANE_RIGHT ]=-m_fp[FR_PLANE_RIGHT ];
+		m_fp[FR_PLANE_LEFT  ]=-m_fp[FR_PLANE_LEFT  ];
+		m_fp[FR_PLANE_TOP   ]=-m_fp[FR_PLANE_TOP   ];
+		m_fp[FR_PLANE_BOTTOM]=-m_fp[FR_PLANE_BOTTOM];
+		m_fp[FR_PLANE_FAR   ]=-m_fp[FR_PLANE_FAR   ];  //clip-plane
+	}
+
+	for (int i=0;i<FRUSTUM_PLANES;i++) {
+		uint32 bitX	=	*((uint32*)&m_fp[i].n.x)>>31;
+		uint32 bitY	=	*((uint32*)&m_fp[i].n.y)>>31;
+		uint32 bitZ	=	*((uint32*)&m_fp[i].n.z)>>31;
+		m_idx1[i]=bitX*3+0; m_idx2[i]=(1-bitX)*3+0;
+		m_idy1[i]=bitY*3+1;	m_idy2[i]=(1-bitY)*3+1;
+		m_idz1[i]=bitZ*3+2;	m_idz2[i]=(1-bitZ)*3+2;
+	}
+
+	m_OccPosition = GetPosition();
 }
 
 // Summary
