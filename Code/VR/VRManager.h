@@ -27,6 +27,8 @@ public:
 
 	void ModifyViewCamera(int eye, CCamera& cam);
 
+	void GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom);
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;

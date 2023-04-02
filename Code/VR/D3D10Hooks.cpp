@@ -14,6 +14,12 @@ namespace
 	bool ignoreWindowSizeChange = false;
 	int currentWindowWidth = 0;
 	int currentWindowHeight = 0;
+
+	bool scissorRestricted = false;
+	int scissorX1Limit = 0;
+	int scissorY1Limit = 0;
+	int scissorX2Limit = 0;
+	int scissorY2Limit = 0;
 }
 
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
@@ -55,6 +61,49 @@ BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx,
 	}
 
 	return TRUE;
+}
+
+void ID3D10Device_RSSetScissorRects(ID3D10Device *pSelf, UINT NumRects, const D3D10_RECT *pRects)
+{
+	CryLogAlways("RSSetScissorRects called");
+	ComPtr<ID3D10RasterizerState> state;
+	pSelf->RSGetState(state.GetAddressOf());
+	D3D10_RASTERIZER_DESC stateDesc;
+	state->GetDesc(&stateDesc);
+	CryLogAlways("Scissor test enabled: %i", stateDesc.ScissorEnable);
+
+	if (scissorRestricted)
+	{
+		ID3D10RenderTargetView* rts[D3D10_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+		pSelf->OMGetRenderTargets(NumRects, rts, nullptr);
+		static D3D10_RECT scissors[D3D10_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+		Vec2i renderSize = gVR->GetRenderSize();
+		for (UINT i = 0; i < NumRects; ++i)
+		{
+			scissors[i] = pRects[i];
+			if (!rts[i])
+				continue;
+
+			ComPtr<ID3D10Texture2D> texture;
+			rts[i]->GetResource((ID3D10Resource**)texture.GetAddressOf());
+			rts[i]->Release();
+
+			D3D10_TEXTURE2D_DESC desc;
+			texture->GetDesc(&desc);
+			if (desc.Width != renderSize.x || desc.Height != renderSize.y)
+				continue;
+
+			scissors[i].left = max(scissors[i].left, scissorX1Limit);
+			scissors[i].right = min(scissors[i].right, scissorX2Limit);
+			scissors[i].top = max(scissors[i].top, scissorY1Limit);
+			scissors[i].bottom = min(scissors[i].bottom, scissorY2Limit);
+			CryLogAlways("Modified scissor rect %i to (%i, %i, %i, %i)", i, scissors[i].left, scissors[i].top, scissors[i].right, scissors[i].bottom);
+		}
+
+		pRects = scissors;
+	}
+
+	hooks::CallOriginal(ID3D10Device_RSSetScissorRects)(pSelf, NumRects, pRects);
 }
 
 void VR_InitD3D10Hooks()
@@ -99,6 +148,11 @@ void VR_InitD3D10Hooks()
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 }
 
+void VR_InitD3D10DeviceHooks(ID3D10Device *device)
+{
+	hooks::InstallVirtualFunctionHook("ID3D10Device::RSSetScissorRects", device, &ID3D10Device::RSSetScissorRects, &ID3D10Device_RSSetScissorRects);
+}
+
 void VR_EnablePresent(bool enabled)
 {
 	presentEnabled = enabled;
@@ -123,4 +177,13 @@ void VR_SetCurrentWindowSize(int width, int height)
 {
 	currentWindowWidth = width;
 	currentWindowHeight = height;
+}
+
+void VR_RestrictScissor(bool restrict, int x1 = 0, int y1 = 0, int x2 = 0, int y2 = 0)
+{
+	scissorRestricted = restrict;
+	scissorX1Limit = x1;
+	scissorY1Limit = y1;
+	scissorX2Limit = x2;
+	scissorY2Limit = y2;
 }

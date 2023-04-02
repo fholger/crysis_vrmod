@@ -3,6 +3,7 @@
 #include <openvr.h>
 
 #include "Cry_Camera.h"
+#include "D3D10Hooks.h"
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
@@ -224,13 +225,8 @@ void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 		vrTexData.handle = m_eyeTextures[eye].Get();
 
 		// game is currently using symmetric projection, we need to cut off the texture accordingly
-		float left, right, top, bottom;
-		vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &left, &right, &top, &bottom);
 		vr::VRTextureBounds_t bounds;
-		bounds.uMin = 0.5f + 0.5f * left / m_horizontalFov;
-		bounds.uMax = 0.5f + 0.5f * right / m_horizontalFov;
-		bounds.vMin = 0.5f - 0.5f * bottom / m_verticalFov;
-		bounds.vMax = 0.5f - 0.5f * top / m_verticalFov;
+		GetEffectiveRenderLimits(eye, &bounds.uMin, &bounds.uMax, &bounds.vMin, &bounds.vMax);
 
 		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 		if (error != vr::VRCompositorError_None)
@@ -301,6 +297,16 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	cam.SetFrustum(renderSize.x, renderSize.y, vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
+void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom)
+{
+	float l, r, t, b;
+	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &l, &r, &t, &b);
+	*left = 0.5f + 0.5f * l / m_horizontalFov;
+	*right = 0.5f + 0.5f * r / m_horizontalFov;
+	*top = 0.5f - 0.5f * b / m_verticalFov;
+	*bottom = 0.5f - 0.5f * t / m_verticalFov;
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	CryLogAlways("Acquiring device...");
@@ -314,6 +320,8 @@ void VRManager::InitDevice(IDXGISwapChain* swapchain)
 	{
 		CryLogAlways("Device only has feature level %i", m_device->GetFeatureLevel());
 	}
+
+	//VR_InitD3D10DeviceHooks(m_device.Get());
 }
 
 void VRManager::CreateEyeTexture(int eye)
