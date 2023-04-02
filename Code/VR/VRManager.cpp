@@ -69,11 +69,12 @@ bool VRManager::Init()
 	float ll, lr, lt, lb, rl, rr, rt, rb;
 	vr::VRSystem()->GetProjectionRaw(vr::Eye_Left, &ll, &lr, &lt, &lb);
 	vr::VRSystem()->GetProjectionRaw(vr::Eye_Right, &rl, &rr, &rt, &rb);
+	CryLogAlways(" Left eye - l: %.2f  r: %.2f  t: %.2f  b: %.2f", ll, lr, lt, lb);
+	CryLogAlways("Right eye - l: %.2f  r: %.2f  t: %.2f  b: %.2f", rl, rr, rt, rb);
 	m_verticalFov = max(max(fabsf(lt), fabsf(lb)), max(fabsf(rt), fabsf(rb)));
 	m_horizontalFov = max(max(fabsf(ll), fabsf(lr)), max(fabsf(rl), fabsf(rr)));
-	m_vertRenderScale = 0.5f * m_verticalFov * max(1.f / fabsf(lt) + 1.f / fabsf(lb), 1.f / fabsf(rt) + 1.f / fabsf(rb));
-	m_horzRenderScale = 0.5f * m_horizontalFov * max(1.f / fabsf(ll) + 1.f / fabsf(lr), 1.f / fabsf(rl) + 1.f / fabsf(rr));
-	CryLogAlways("VR vert fov: %.2f  horz fov: %.2f  vert scale: %.2f  horz scale: %.2f", m_verticalFov, m_horizontalFov, m_vertRenderScale, m_horzRenderScale);
+	m_vertRenderScale = 2.f * m_verticalFov / min(fabsf(lt) + fabsf(lb), fabsf(rt) + fabsf(rb));
+	CryLogAlways("VR vert fov: %.2f  horz fov: %.2f  vert scale: %.2f", m_verticalFov, m_horizontalFov, m_vertRenderScale);
 
 	m_initialized = true;
 	return true;
@@ -230,8 +231,8 @@ void VRManager::FinishFrame(IDXGISwapChain *swapchain)
 		vr::VRTextureBounds_t bounds;
 		bounds.uMin = 0.5f + 0.5f * left / m_horizontalFov;
 		bounds.uMax = 0.5f + 0.5f * right / m_horizontalFov;
-		bounds.vMin = 0.5f + 0.5f * top / m_verticalFov;
-		bounds.vMax = 0.5f + 0.5f * bottom / m_verticalFov;
+		bounds.vMin = 0.5f - 0.5f * bottom / m_verticalFov;
+		bounds.vMax = 0.5f - 0.5f * top / m_verticalFov;
 
 		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 		if (error != vr::VRCompositorError_None)
@@ -250,8 +251,8 @@ Vec2i VRManager::GetRenderSize() const
 
 	uint32_t width, height;
 	vr::VRSystem()->GetRecommendedRenderTargetSize(&width, &height);
-	width *= m_horzRenderScale;
 	height *= m_vertRenderScale;
+	width = height * m_horizontalFov / m_verticalFov;
 	return Vec2i(width, height);
 }
 
@@ -298,8 +299,8 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	// would result in the correct projection matrix to be calculated.
 	// for now, set up a symmetric FOV and cut off parts of the image during submission
 	float vertFov = atanf(m_verticalFov) * 2;
-	cam.SetFrustum(cam.GetViewSurfaceX(), cam.GetViewSurfaceZ(), vertFov, cam.GetNearPlane(), cam.GetFarPlane());
-	cam.m_ProjectionRatio = m_horizontalFov / m_verticalFov;
+	Vec2i renderSize = GetRenderSize();
+	cam.SetFrustum(renderSize.x, renderSize.y, vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
