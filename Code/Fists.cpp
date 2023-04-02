@@ -33,7 +33,7 @@ CFists::CFists()
 ,m_inFreeFall(false)
 ,m_timeOut(0.0f)
 {
-	m_useFPCamSpacePP = true; //Overwritten by OffHand
+	m_useFPCamSpacePP = false; //Overwritten by OffHand
 
 	if (s_actionHandler.GetNumHandlers() == 0)
 	{

@@ -99,7 +99,7 @@ CItem::CItem()
 	m_enableAnimations(true),
 	m_noDrop(false),
 	m_constraintId(0),
-	m_useFPCamSpacePP(true),
+	m_useFPCamSpacePP(false),
 	m_serializeActivePhysics(0),
 	m_serializeDestroyed(false),
 	m_bPostPostSerialize(false)
