@@ -235,10 +235,7 @@ CFlashMenuObject::CFlashMenuObject()
 	//m_pAVIReader = g_pISystem->CreateAVIReader();
 	//m_pAVIReader->OpenFile("Crysis_main_menu_background.avi");
 
-
-
-
-
+	m_nCursorTexID = gEnv->pRenderer->EF_LoadTexture("Textures/Gui/mouse.dds",0,eTT_2D)->GetTextureID();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3364,6 +3361,14 @@ void CFlashMenuObject::OnPostUpdate(float fDeltaTime)
 		if (show)
 			gEnv->pRenderer->Draw2dLabel( 10, 750, 1, white, false, "Connection State: %s", status );
 	}*/
+
+	// display a simple mouse cursor since the Windows cursor is not visible in VR
+	float x, y;
+	SAFE_HARDWARE_MOUSE_FUNC(GetHardwareMouseClientPosition(&x, &y));
+	x *= 800.f / VR_GetCurrentWindowWidth();
+	y *= 600.f / VR_GetCurrentWindowHeight();
+	gEnv->pRenderer->SetState(GS_BLSRC_SRCALPHA | GS_BLDST_ONEMINUSSRCALPHA | GS_NODEPTHTEST);			
+	gEnv->pRenderer->Draw2dImage(x,y,20,20,m_nCursorTexID,0,1,1,0,0,1,1,1,1);
 }
 
 //-----------------------------------------------------------------------------------------------------
