@@ -8,7 +8,21 @@
 #include "VRManager.h"
 #include "Menus/FlashMenuObject.h"
 
+namespace
+{
+	bool viewCamOverridden = false;
+	CCamera originalViewCamera;
+}
+
 void VR_ISystem_Render(ISystem* pSelf);
+
+const CCamera &VR_GetCurrentViewCamera()
+{
+	if (viewCamOverridden)
+		return originalViewCamera;
+
+	return gEnv->pSystem->GetViewCamera();
+}
 
 
 void VR_RenderSingleEye(ISystem *pSystem, int eye, const CCamera &originalCam)
@@ -39,14 +53,15 @@ void VR_RenderSingleEye(ISystem *pSystem, int eye, const CCamera &originalCam)
 
 void VR_ISystem_Render(ISystem *pSelf)
 {
-	CCamera origCam = pSelf->GetViewCamera();
+	originalViewCamera = pSelf->GetViewCamera();
+	viewCamOverridden = true;
 
 	gVR->AwaitFrame();
 
-	VR_RenderSingleEye(pSelf, 0, origCam);
+	VR_RenderSingleEye(pSelf, 0, originalViewCamera);
 	// need to call RenderBegin to reset state, otherwise we get messed up object culling and other issues
 	pSelf->RenderBegin();
-	VR_RenderSingleEye(pSelf, 1, origCam);
+	VR_RenderSingleEye(pSelf, 1, originalViewCamera);
 
 	VR_RestrictScissor(false);
 	Vec2i renderSize = gVR->GetRenderSize();
@@ -54,6 +69,9 @@ void VR_ISystem_Render(ISystem *pSelf)
 	// clear render target to fully transparent for HUD render
 	ColorF transparent(0, 0, 0, 0);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
+
+	pSelf->SetViewCamera(originalViewCamera);
+	viewCamOverridden = false;
 }
 
 void VR_InitRendererHooks()
