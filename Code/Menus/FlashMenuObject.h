@@ -138,6 +138,7 @@ public:
 	void InitStartMenu();
 	void InitIngameMenu();
 	void DestroyMenusAtNextFrame();
+	bool IsMenuActive();
 
 	ILINE bool WaitingForStart() const { return m_bLoadingDone; }
 

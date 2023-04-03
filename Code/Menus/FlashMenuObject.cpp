@@ -2888,6 +2888,11 @@ void CFlashMenuObject::DestroyMenusAtNextFrame()
 	m_bDestroyInGameMenuPending		= true;
 }
 
+bool CFlashMenuObject::IsMenuActive()
+{
+	return m_pCurrentFlashMenuScreen && m_bUpdate;
+}
+
 //-----------------------------------------------------------------------------------------------------
 
 void CFlashMenuObject::HardwareEvaluation()
