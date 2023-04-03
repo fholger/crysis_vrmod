@@ -986,7 +986,6 @@ void CWeapon::UpdateFPView(float frameTime)
 		m_fm->UpdateFPView(frameTime);
 	if (m_zm)
 		m_zm->UpdateFPView(frameTime);
-
 }
 
 //------------------------------------------------------------------------
