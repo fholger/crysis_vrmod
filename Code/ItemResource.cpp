@@ -22,6 +22,7 @@ History:
 #include "Game.h"
 #include "GameCVars.h"
 #include "Player.h"
+#include "VR/VR3DEngine.h"
 
 
 //------------------------------------------------------------------------
@@ -528,7 +529,7 @@ void CItem::ForceSkinning(bool always)
 			Vec3 CharOffset = GetEntity()->GetSlotLocalTM(slot,false).GetTranslation();
 
 			pCharacter->GetISkeletonPose()->SetForceSkeletonUpdate(7);
-			pCharacter->SkeletonPreProcess(renderLocation, renderLocation, GetISystem()->GetViewCamera(),0x55 );
+			pCharacter->SkeletonPreProcess(renderLocation, renderLocation, VR_GetCurrentViewCamera(), 0x55);
 			pCharacter->SkeletonPostProcess(renderLocation, renderLocation, 0, 0.0f, 0x55 );
 			if (!always)
 				pCharacter->GetISkeletonPose()->SetForceSkeletonUpdate(0);

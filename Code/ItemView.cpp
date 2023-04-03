@@ -18,6 +18,8 @@ History:
 #include "GameCVars.h"
 #include <IViewSystem.h>
 
+#include "VR/VR3DEngine.h"
+
 
 //------------------------------------------------------------------------
 void CItem::UpdateFPView(float frameTime)
@@ -112,7 +114,7 @@ void CItem::UpdateFPCharacter(float frameTime)
 				Matrix34 m34=GetEntity()->GetWorldTM()*mloc;
 				QuatT renderLocation = QuatT(m34);
 				pCharacter->GetISkeletonPose()->SetForceSkeletonUpdate(8);
-				pCharacter->SkeletonPreProcess(renderLocation, renderLocation, GetISystem()->GetViewCamera(),0x55 );
+				pCharacter->SkeletonPreProcess(renderLocation, renderLocation, VR_GetCurrentViewCamera(), 0x55);
 				pCharacter->SkeletonPostProcess(renderLocation, renderLocation, 0, 1.0f, 0x55 );
 			}
 		}
@@ -236,7 +238,7 @@ void CItem::UpdateMounted(float frameTime)
 					Matrix34 m34 = GetEntity()->GetWorldTM()*mloc;
 					QuatT renderLocation = QuatT(m34);
 					pCharacter->GetISkeletonPose()->SetForceSkeletonUpdate(9);
-					pCharacter->SkeletonPreProcess(renderLocation, renderLocation, GetISystem()->GetViewCamera(),0x55 );
+					pCharacter->SkeletonPreProcess(renderLocation, renderLocation, VR_GetCurrentViewCamera(),0x55 );
 					pCharacter->SkeletonPostProcess(renderLocation, renderLocation, 0, 0.0f, 0x55 );		
 				}
 			}

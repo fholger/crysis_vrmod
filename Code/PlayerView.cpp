@@ -43,6 +43,7 @@ History:
 #include <IGameTokens.h>
 
 #include "HUD/HUD.h"
+#include "VR/VR3DEngine.h"
 
 
 //CPlayerView::SViewStateIn CPlayerView::m_in;
@@ -1295,7 +1296,7 @@ void CPlayerView::HandsPostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 		{
 			QuatT renderLocation = QuatT(handsMtx);
 			pHands->GetISkeletonPose()->SetForceSkeletonUpdate(5);
-			pHands->SkeletonPreProcess(renderLocation, renderLocation, GetISystem()->GetViewCamera(),0x55);
+			pHands->SkeletonPreProcess(renderLocation, renderLocation, VR_GetCurrentViewCamera(), 0x55);
 			pHands->SkeletonPostProcess(renderLocation, renderLocation, 0, 0.0f, 0x55);
 		}
 	}

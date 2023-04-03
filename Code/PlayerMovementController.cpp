@@ -12,6 +12,7 @@
 #include "GameCVars.h"
 #include "NetInputChainDebug.h"
 #include "Item.h"
+#include "VR/VR3DEngine.h"
 
 #define ENABLE_NAN_CHECK
 
@@ -1361,12 +1362,12 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 
 		// E3HAX E3HAX E3HAX
 		if (((SPlayerStats *)m_pPlayer->GetActorStats())->mountedWeaponID)
-			state.eyePosition = GetISystem()->GetViewCamera().GetPosition();
+			state.eyePosition = VR_GetCurrentViewCamera().GetPosition();
 
 		if (!m_pPlayer->IsClient()) // marcio: fixes the eye direction for remote players
 			state.eyeDirection = (m_lookTarget-state.eyePosition).GetNormalizedSafe(state.eyeDirection);
 		else if(((SPlayerStats *)m_pPlayer->GetActorStats())->FPWeaponSwayOn) // Beni - Fixes aim direction when zoom sway applies
-			state.eyeDirection = GetISystem()->GetViewCamera().GetViewdir();
+			state.eyeDirection = VR_GetCurrentViewCamera().GetViewdir();
 		else
 			state.eyeDirection = m_pPlayer->GetViewQuatFinal().GetColumn1();
 

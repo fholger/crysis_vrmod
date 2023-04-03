@@ -18,6 +18,7 @@ History:
 #include "HUD/HUD.h"
 #include "HUD/HUDCrosshair.h"
 #include "GameRules.h"
+#include "VR/VR3DEngine.h"
 
 #define RL_LASER_RANGE 150.0f
 #define RL_LASER_TP_RANGE 8.0f
@@ -374,7 +375,7 @@ void CRocketLauncher::UpdateDotEffect(float frameTime)
 
 		if(dir.Dot(info.fireDirection)>0.985f)
 		{
-			CCamera& camera = gEnv->pSystem->GetViewCamera();
+			const CCamera& camera = VR_GetCurrentViewCamera();
 			laserPos = camera.GetPosition();
 			dir = camera.GetMatrix().GetColumn1();
 			dir.Normalize();
