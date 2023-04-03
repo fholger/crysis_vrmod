@@ -1873,10 +1873,8 @@ void CFlashMenuObject::GetButtonClientPos(ButtonPosMap::iterator button, Vec2 &p
 	pos.x+=offsetX;
 	pos.y+=offsetY;
 
-
-
-
-
+	pos.x *= (float)VR_GetCurrentWindowWidth() / pRenderer->GetWidth();
+	pos.y *= (float)VR_GetCurrentWindowHeight() / pRenderer->GetHeight();
 }
 
 //-----------------------------------------------------------------------------------------------------
