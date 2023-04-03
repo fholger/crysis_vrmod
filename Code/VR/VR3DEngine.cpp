@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "Hooks.h"
 #include "IRenderAuxGeom.h"
+#include "IVehicleSystem.h"
 #include "Player.h"
 #include "VRManager.h"
 #include "Weapon.h"
@@ -44,19 +45,26 @@ void VR_DrawCrosshair()
 	Vec3 crosshairPos = cam.GetPosition();
 	Vec3 dir = cam.GetViewdir();
 	dir.Normalize();
+	float maxDistance = 10.f;
 
-	IPhysicalEntity* pSkipEntity = pPlayer->GetEntity()->GetPhysics();
+	std::vector<IPhysicalEntity*> skipEntities;
+	skipEntities.push_back(pPlayer->GetEntity()->GetPhysics());
+	if (pPlayer->GetLinkedVehicle())
+	{
+		skipEntities.push_back(pPlayer->GetLinkedVehicle()->GetEntity()->GetPhysics());
+		maxDistance = 16.f;
+	}
 	const int objects = ent_all;
 	const int flags = (geom_colltype_ray << rwi_colltype_bit) | rwi_colltype_any | (10 & rwi_pierceability_mask) | (geom_colltype14 << rwi_colltype_bit);
 
 	ray_hit hit;
-	if (gEnv->pPhysicalWorld->RayWorldIntersection(crosshairPos, dir*8.f, objects, flags, &hit, 1, &pSkipEntity, 1))
+	if (gEnv->pPhysicalWorld->RayWorldIntersection(crosshairPos, dir*maxDistance, objects, flags, &hit, 1, skipEntities.data(), skipEntities.size()))
 	{
 		crosshairPos = hit.pt;
 	}
 	else
 	{
-		crosshairPos += dir * 8.f;
+		crosshairPos += dir * maxDistance;
 	}
 
 	// for the moment, draw something primitive with the debug tools. Maybe later we can find something more elegant...
@@ -65,7 +73,7 @@ void VR_DrawCrosshair()
 	geomMode.SetMode2D3DFlag(e_Mode3D);
 	geomMode.SetDrawInFrontMode(e_DrawInFrontOn);
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
-	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.022f, ColorB(220, 220, 220));
+	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
 }
 
