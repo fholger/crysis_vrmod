@@ -310,6 +310,11 @@ void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, flo
 	*bottom = 0.5f - 0.5f * t / m_verticalFov;
 }
 
+bool VRManager::ShouldRenderVR() const
+{
+	return !m_binocularsActive;
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	CryLogAlways("Acquiring device...");

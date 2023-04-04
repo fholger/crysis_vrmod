@@ -93,10 +93,10 @@ void ID3D10Device_RSSetScissorRects(ID3D10Device *pSelf, UINT NumRects, const D3
 			if (desc.Width != renderSize.x || desc.Height != renderSize.y)
 				continue;
 
-			scissors[i].left = max(scissors[i].left, scissorX1Limit);
-			scissors[i].right = min(scissors[i].right, scissorX2Limit);
-			scissors[i].top = max(scissors[i].top, scissorY1Limit);
-			scissors[i].bottom = min(scissors[i].bottom, scissorY2Limit);
+			scissors[i].left = max(scissors[i].left, (LONG)scissorX1Limit);
+			scissors[i].right = min(scissors[i].right, (LONG)scissorX2Limit);
+			scissors[i].top = max(scissors[i].top, (LONG)scissorY1Limit);
+			scissors[i].bottom = min(scissors[i].bottom, (LONG)scissorY2Limit);
 			CryLogAlways("Modified scissor rect %i to (%i, %i, %i, %i)", i, scissors[i].left, scissors[i].top, scissors[i].right, scissors[i].bottom);
 		}
 

@@ -4,11 +4,13 @@
 #include <wrl/client.h>
 #include <openvr.h>
 
+#include "HUD/HUD.h"
+
 #undef GetUserName
 
 using Microsoft::WRL::ComPtr;
 
-class VRManager
+class VRManager : public CHUD::IHUDListener
 {
 public:
 	~VRManager();
@@ -29,6 +31,10 @@ public:
 
 	void GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom);
 
+	void OnBinoculars(bool bShown) override { m_binocularsActive = bShown; }
+
+	bool ShouldRenderVR() const;
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -41,6 +47,7 @@ private:
 	float m_horizontalFov;
 	float m_vertRenderScale;
 	float m_horzRenderScale;
+	bool m_binocularsActive = false;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);

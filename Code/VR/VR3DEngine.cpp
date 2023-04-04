@@ -95,7 +95,7 @@ void VR_RenderSingleEye(ISystem *pSystem, int eye, const CCamera &originalCam)
 
 	CFlashMenuObject* menu = static_cast<CGame*>(gEnv->pGame)->GetMenu();
 	// do not render while in menu, as it shows a rotating game world that is disorienting
-	if (!menu->IsMenuActive())
+	if (!menu->IsMenuActive() && gVR->ShouldRenderVR())
 	{
 		hooks::CallOriginal(VR_ISystem_Render)(pSystem);
 		VR_DrawCrosshair();
@@ -126,6 +126,12 @@ void VR_ISystem_Render(ISystem *pSelf)
 
 	pSelf->SetViewCamera(originalViewCamera);
 	viewCamOverridden = false;
+
+	if (!gVR->ShouldRenderVR())
+	{
+		// for things like the binoculars, we skip the stereo rendering and instead render to the 2D screen
+		hooks::CallOriginal(VR_ISystem_Render)(pSelf);
+	}
 }
 
 void VR_InitRendererHooks()

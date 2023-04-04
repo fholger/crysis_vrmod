@@ -493,6 +493,7 @@ void CGame::PlayerIdSet(EntityId playerId)
 		{
 			m_pHUD = new CHUD();
 			m_pHUD->Init();
+			m_pHUD->RegisterListener(gVR);
 		}
 	}
 
