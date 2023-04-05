@@ -279,6 +279,27 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	angles.y = 0;
 	angles.x = 0;
 
+	if (eye == 0)
+	{
+		// manage the aiming deadzone in which the camera should not be rotated
+		float yawDiff = angles.z - m_prevViewYaw;
+		if (yawDiff < -g_PI)
+			yawDiff += 2 * g_PI;
+		else if (yawDiff > g_PI)
+			yawDiff -= 2 * g_PI;
+
+		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * g_PI / 180.f;
+		if (yawDiff > maxDiff)
+			m_prevViewYaw += yawDiff - maxDiff;
+		if (yawDiff < -maxDiff)
+			m_prevViewYaw += yawDiff + maxDiff;
+		if (m_prevViewYaw > g_PI)
+			m_prevViewYaw -= 2*g_PI;
+		if (m_prevViewYaw < -g_PI)
+			m_prevViewYaw += 2*g_PI;
+	}
+	angles.z = m_prevViewYaw;
+
 	Matrix34 viewMat;
 	viewMat.SetRotationXYZ(angles, position);
 

@@ -434,6 +434,7 @@ struct SCVars
 
 	// VR
 	int vr_cutscenes_2d;
+	float vr_yaw_deadzone_angle;
 
 	SCVars()
 	{

@@ -871,11 +871,13 @@ void SCVars::ReleaseCVars()
 void SCVars::InitVRCVars(IConsole* pConsole)
 {
 	pConsole->Register("vr_cutscenes_2d", &vr_cutscenes_2d, 0, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, plays cutscenes on a 2D screen instead of in VR");
+	pConsole->Register("vr_yaw_deadzone_angle", &vr_yaw_deadzone_angle, 30, VF_RESTRICTEDMODE|VF_SAVEGAME, "Controls the deadzone angle in front of the player where weapon aim does not rotate the camera");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
 {
 	pConsole->UnregisterVariable("vr_cutscenes_2d");
+	pConsole->UnregisterVariable("vr_yaw_deadzone_angle");
 }
 
 //------------------------------------------------------------------------

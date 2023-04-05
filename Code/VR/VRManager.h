@@ -48,6 +48,7 @@ private:
 	float m_vertRenderScale;
 	float m_horzRenderScale;
 	bool m_binocularsActive = false;
+	float m_prevViewYaw = 0;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
