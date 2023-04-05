@@ -1,0 +1,57 @@
+name: Crysis VR Automated Build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*.*.*' ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Crysis VR
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          msbuild-architecture: x64
+
+      - name: Configure build
+        shell: bash
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/installer/assembly
+          echo "CRYSIS_INSTALL_DIR=$GITHUB_WORKSPACE\\installer\\assembly" >> $GITHUB_ENV
+
+      - name: Build project
+        working-directory: Code
+        run: msbuild CrysisMod.sln /p:Configuration=Release
+
+      - name: Create installer
+        uses: joncloud/makensis-action@v4
+        with:
+          script-file: "installer/crysis.nsi"
+
+      - name: Update Github dev release
+        if: github.ref == 'refs/heads/main'
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Crysis VR development build"
+          files: |
+            installer/crysis-vrmod*.exe
+
+      - name: Create tagged Github release
+        if: github.ref_type == 'tag'
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: "Crysis VR release ${{ github.ref_name }}"
+          files: |
+            installer/crysis-vrmod*.exe
