@@ -4,6 +4,7 @@
 
 #include "Cry_Camera.h"
 #include "D3D10Hooks.h"
+#include "GameCVars.h"
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
@@ -312,6 +313,9 @@ void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, flo
 
 bool VRManager::ShouldRenderVR() const
 {
+	if (g_pGameCVars->vr_cutscenes_2d && g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
+		return false;
+
 	return !m_binocularsActive;
 }
 

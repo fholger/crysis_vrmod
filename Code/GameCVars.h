@@ -431,6 +431,10 @@ struct SCVars
 	int			g_deathCam;
 	int			g_deathEffects;
 
+
+	// VR
+	int vr_cutscenes_2d;
+
 	SCVars()
 	{
 		memset(this,0,sizeof(SCVars));
@@ -440,6 +444,9 @@ struct SCVars
 
 	void InitCVars(IConsole *pConsole);
 	void ReleaseCVars();
+
+	void InitVRCVars(IConsole* pConsole);
+	void ReleaseVRCVars(IConsole* pConsole);
 };
 
 #endif //__GAMECVARS_H__

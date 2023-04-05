@@ -556,6 +556,8 @@ void SCVars::InitCVars(IConsole *pConsole)
  
 	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");		assert(pVehicleQuality);
 
+	InitVRCVars(pConsole);
+
   NetInputChainInitCVars();
 }
 
@@ -563,6 +565,8 @@ void SCVars::InitCVars(IConsole *pConsole)
 void SCVars::ReleaseCVars()
 {
 	IConsole* pConsole = gEnv->pConsole;
+
+	ReleaseVRCVars(pConsole);
 
 	pConsole->UnregisterVariable("cl_fov", true);
 	pConsole->UnregisterVariable("cl_bob", true);
@@ -862,6 +866,16 @@ void SCVars::ReleaseCVars()
 
  pConsole->UnregisterVariable("aim_assistCrosshairSize", true);
   pConsole->UnregisterVariable("aim_assistCrosshairDebug", true);
+}
+
+void SCVars::InitVRCVars(IConsole* pConsole)
+{
+	pConsole->Register("vr_cutscenes_2d", &vr_cutscenes_2d, 0, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, plays cutscenes on a 2D screen instead of in VR");
+}
+
+void SCVars::ReleaseVRCVars(IConsole* pConsole)
+{
+	pConsole->UnregisterVariable("vr_cutscenes_2d");
 }
 
 //------------------------------------------------------------------------
