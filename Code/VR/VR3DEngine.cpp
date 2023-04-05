@@ -31,6 +31,10 @@ const CCamera &VR_GetCurrentViewCamera()
 
 void VR_DrawCrosshair()
 {
+	// don't show crosshair during cutscenes
+	if (gEnv->pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
+		return;
+
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (!pPlayer)
 		return;
