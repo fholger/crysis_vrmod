@@ -297,6 +297,13 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 			m_prevViewYaw -= 2*g_PI;
 		if (m_prevViewYaw < -g_PI)
 			m_prevViewYaw += 2*g_PI;
+
+		CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+		if (pPlayer && pPlayer->GetLinkedVehicle())
+		{
+			// don't use this while in a vehicle, it feels off
+			m_prevViewYaw = angles.z;
+		}
 	}
 	angles.z = m_prevViewYaw;
 
