@@ -12,6 +12,9 @@ jobs:
     name: Build Crysis VR
     runs-on: windows-2022
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v2
 
@@ -28,12 +31,12 @@ jobs:
 
       - name: Build project
         working-directory: Code
-        run: msbuild CrysisMod.sln /p:Configuration=Release
+        run: msbuild CrysisMod.sln /p:Configuration=Release -m
 
       - name: Create installer
-        uses: joncloud/makensis-action@v4
-        with:
-          script-file: "installer/crysis.nsi"
+        working-directory: installer
+        shell: cmd
+        run: create_installer.bat
 
       - name: Update Github dev release
         if: github.ref == 'refs/heads/main'
