@@ -70,6 +70,7 @@ History:
 
 #include "LCD/LCDWrapper.h"
 #include "VR/D3D10Hooks.h"
+#include "VR/VR3DEngine.h"
 
 static const float NIGHT_VISION_ENERGY = 30.0f;
 
@@ -3290,7 +3291,7 @@ void CHUD::OnPostUpdate(float frameTime)
 			//}
 
 			Vec3 vScreenSpace;
-			m_pRenderer->ProjectToScreen(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
+			VR_ProjectToScreenPlayerCam(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
 			Vec3 vCenter(50.0f, 50.0f,1.0f);
 			vScreenSpace -=vCenter;
 
@@ -3337,7 +3338,7 @@ void CHUD::OnPostUpdate(float frameTime)
 
 				Vec3 vWorldPos = pCurrentWeapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, helper.bone,true);
 				Vec3 vScreenSpace;
-				m_pRenderer->ProjectToScreen(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
+				VR_ProjectToScreenPlayerCam(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
 
 				float fScaleX = 0.0f;
 				float fScaleY = 0.0f;

@@ -28,6 +28,14 @@ const CCamera &VR_GetCurrentViewCamera()
 	return gEnv->pSystem->GetViewCamera();
 }
 
+void VR_ProjectToScreenPlayerCam(float ptx, float pty, float ptz, float* sx, float* sy, float* sz)
+{
+	const CCamera &currentCam = gEnv->pRenderer->GetCamera();
+	gEnv->pRenderer->SetCamera(originalViewCamera);
+	gEnv->pRenderer->ProjectToScreen(ptx, pty, ptz, sx, sy, sz);
+	gEnv->pRenderer->SetCamera(currentCam);
+}
+
 
 void VR_DrawCrosshair()
 {

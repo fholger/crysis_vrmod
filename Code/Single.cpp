@@ -33,6 +33,7 @@ History:
 
 #include "IRenderer.h"
 #include "IRenderAuxGeom.h"	
+#include "VR/VR3DEngine.h"
 
 struct DebugShoot{
 	Vec3 pos;
@@ -1302,7 +1303,7 @@ bool CSingle::CrosshairAssistAiming(const Vec3& firingPos, Vec3& firingDir, ray_
 
     for (int i=0; i<8; ++i)
     {
-      gEnv->pRenderer->ProjectToScreen(points[i].x, points[i].y, points[i].z, &curr.x, &curr.y, &curr.z);
+      VR_ProjectToScreenPlayerCam(points[i].x, points[i].y, points[i].z, &curr.x, &curr.y, &curr.z);
       smin.x = min(smin.x, curr.x); smin.y = min(smin.y, curr.y);
       smax.x = max(smax.x, curr.x); smax.y = max(smax.y, curr.y);      
     }
