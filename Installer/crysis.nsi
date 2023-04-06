@@ -19,7 +19,7 @@ Also, it is Crysis - expect performance to not be great :)'
 !define MUI_DIRECTORYPAGE_TEXT 'Please enter the location of your Crysis installation.'
 
 !define MUI_FINISHPAGE_TITLE 'Installation complete.'
-!define MUI_FINISHPAGE_TEXT 'You can now launch the VR Mod by running Mods\VRMod\LaunchVRMod.bat.'
+!define MUI_FINISHPAGE_TEXT 'You can launch the VR Mod by running LaunchVRMod.bat from your Crysis install directory.'
 
 
 !insertmacro MUI_PAGE_WELCOME
@@ -35,6 +35,9 @@ Section ""
 
 	SetOutPath $INSTDIR\Bin64
 	File .\assembly\Bin64\*
+
+	SetOutPath $INSTDIR
+	File .\assembly\LaunchVRMod.bat
 SectionEnd
 
 Function .onInit
