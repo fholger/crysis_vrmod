@@ -12,8 +12,7 @@ jobs:
     name: Build Crysis VR
     runs-on: windows-2022
 
-    permissions:
-      contents: write
+    permissions: write-all
 
     steps:
       - uses: actions/checkout@v2
