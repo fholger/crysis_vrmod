@@ -58,7 +58,7 @@
 #include "ILoadGame.h"
 #include "VR/D3D10Hooks.h"
 #include "VR/Hooks.h"
-#include "VR/VR3DEngine.h"
+#include "VR/VRRenderer.h"
 #include "VR/VRManager.h"
 
 #define GAME_DEBUG_MEM  // debug memory usage
@@ -377,7 +377,7 @@ bool CGame::Init(IGameFramework *pFramework)
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
 	VR_InitD3D10Hooks();
-	VR_InitRendererHooks();
+	gVRRenderer->Init();
 
 	if (!gVR->Init())
 		return false;
@@ -493,7 +493,7 @@ void CGame::PlayerIdSet(EntityId playerId)
 		{
 			m_pHUD = new CHUD();
 			m_pHUD->Init();
-			m_pHUD->RegisterListener(gVR);
+			m_pHUD->RegisterListener(gVRRenderer);
 		}
 	}
 

@@ -683,7 +683,7 @@
     <ClCompile Include="VR\Hooks.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
-    <ClCompile Include="VR\VR3DEngine.cpp">
+    <ClCompile Include="VR\VRRenderer.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
     <ClCompile Include="VR\D3D10Hooks.cpp">
@@ -1883,7 +1883,7 @@
     <ClInclude Include="VR\Hooks.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
-    <ClInclude Include="VR\VR3DEngine.h">
+    <ClInclude Include="VR\VRRenderer.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
     <ClInclude Include="VR\D3D10Hooks.h">

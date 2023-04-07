@@ -18,7 +18,7 @@ History:
 #include "Projectile.h"
 #include "WeaponSystem.h"
 #include "OffHand.h"
-#include "VR/VR3DEngine.h"
+#include "VR/VRRenderer.h"
 
 
 //------------------------------------------------------------------------
@@ -489,7 +489,7 @@ void CThrow::ThrowObject(IEntity* pEntity, IPhysicalEntity* pPE)
 		asv.v = (dir*speed)+vel;
 		AABB box;
 		pEntity->GetWorldBounds(box);
-		Vec3 finalW = -VR_GetCurrentViewCamera().GetMatrix().GetColumn0() * (8.0f / max(0.1f, box.GetRadius()));
+		Vec3 finalW = -gVRRenderer->GetCurrentViewCamera().GetMatrix().GetColumn0() * (8.0f / max(0.1f, box.GetRadius()));
 		finalW.x *= Random(0.5f,1.3f);
 		finalW.y *= Random(0.5f,1.3f);
 		finalW.z *= Random(0.5f,1.3f);

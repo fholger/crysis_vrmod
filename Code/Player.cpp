@@ -68,7 +68,7 @@ History:
 
 #include "Binocular.h"
 #include "SoundMoods.h"
-#include "VR/VR3DEngine.h"
+#include "VR/VRRenderer.h"
 
 // enable this to check nan's on position updates... useful for debugging some weird crashes
 #define ENABLE_NAN_CHECK
@@ -2241,7 +2241,7 @@ void CPlayer::UpdateSwimStats(float frameTime)
 	// Set underwater level for sound listener.
 	if (gEnv->pSoundSystem && isClient)
 	{
-		const CCamera& camera = VR_GetCurrentViewCamera();
+		const CCamera& camera = gVRRenderer->GetCurrentViewCamera();
 		float cameraWaterLevel = (camera.GetPosition().z - surfacePos.z);
 
 		IListener* pListener = gEnv->pSoundSystem->GetListener(LISTENERID_STANDARD);

@@ -20,7 +20,7 @@ History:
 
 #include <IMaterialEffects.h>
 
-#include "VR/VR3DEngine.h"
+#include "VR/VRRenderer.h"
 
 #define  CAMERA_DISTANCE_SQR	100
 #define  LASER_UPDATE_TIME		0.1f
@@ -918,7 +918,7 @@ void CLam::AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos)
 		if(dir.Dot(info.fireDirection)<0.985f)
 			return;
 	
-		const CCamera& camera = VR_GetCurrentViewCamera();
+		const CCamera& camera = gVRRenderer->GetCurrentViewCamera();
 		pos = camera.GetPosition();
 		dir = camera.GetMatrix().GetColumn1();
 		dir.Normalize();

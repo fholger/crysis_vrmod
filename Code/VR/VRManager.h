@@ -10,7 +10,7 @@
 
 using Microsoft::WRL::ComPtr;
 
-class VRManager : public CHUD::IHUDListener
+class VRManager
 {
 public:
 	~VRManager();
@@ -31,10 +31,6 @@ public:
 
 	void GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom);
 
-	void OnBinoculars(bool bShown) override { m_binocularsActive = bShown; }
-
-	bool ShouldRenderVR() const;
-
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -47,7 +43,6 @@ private:
 	float m_horizontalFov;
 	float m_vertRenderScale;
 	float m_horzRenderScale;
-	bool m_binocularsActive = false;
 	float m_prevViewYaw = 0;
 
 	void InitDevice(IDXGISwapChain* swapchain);

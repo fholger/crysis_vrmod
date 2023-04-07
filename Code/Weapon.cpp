@@ -43,7 +43,7 @@ History:
 #include "IPlayerInput.h"
 #include <IWorldQuery.h>
 
-#include "VR/VR3DEngine.h"
+#include "VR/VRRenderer.h"
 
 //------------------------------------------------------------------------
 CWeapon::CWeapon()
@@ -1407,7 +1407,7 @@ void CWeapon::AssistAiming(float magnification/*=1.0f*/, bool accurate/*=false*/
 		}
 	}
 
-	const CCamera &camera=VR_GetCurrentViewCamera();
+	const CCamera &camera=gVRRenderer->GetCurrentViewCamera();
 	Vec3 origo=camera.GetPosition();
 	// PARAMETER: Autotarget search radius
 	const float radius=g_pGameCVars->aim_assistSearchBox;
@@ -1598,7 +1598,7 @@ void CWeapon::AdvancedAssistAiming(float range, const Vec3& pos, Vec3 &dir)
 		}
 	}
 
-	const CCamera &camera=VR_GetCurrentViewCamera();
+	const CCamera &camera=gVRRenderer->GetCurrentViewCamera();
 	Vec3 origo=camera.GetPosition();
 
 	// Some other ray may be used too, like weapon aiming or firing ray 
