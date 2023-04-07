@@ -44,6 +44,13 @@ into 2D mode.
 - Some of the later weapons may not work properly.
 - Performance can be an issue even on potent hardware. You can reduce the resolution or the ingame quality settings if you struggle with GPU performance. Note, however, that some scenes will tax even the strongest CPUs available right now.
 
+## Roadmap
+
+- Sort out bugs and issues in the current release
+- Improve playability of the current keyboard+mouse seated experience
+- Consider port to OpenXR
+- Consider simple motion controller and roomscale support
+
 ## Legal notices
 
 This mod depends on and includes the alternative Crysis launcher by [ccomrade](https://github.com/ccomrade/c1-launcher).
