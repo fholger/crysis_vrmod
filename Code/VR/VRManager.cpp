@@ -3,7 +3,6 @@
 #include <openvr.h>
 
 #include "Cry_Camera.h"
-#include "D3D10Hooks.h"
 #include "GameCVars.h"
 
 VRManager s_VRManager;
@@ -212,9 +211,15 @@ void VRManager::CaptureHUD()
 	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
 }
 
-void VRManager::FinishFrame(IDXGISwapChain *swapchain)
+void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
 {
 	m_swapchain = swapchain;
+	if (!m_device)
+	  InitDevice(swapchain);
+}
+
+void VRManager::FinishFrame()
+{
 	if (!m_initialized || !m_device)
 		return;
 

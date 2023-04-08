@@ -442,7 +442,6 @@
     <ClCompile Include="VehicleMovementWarrior.cpp" />
     <ClCompile Include="VehicleWeapon.cpp" />
     <ClCompile Include="Voting.cpp" />
-    <ClCompile Include="VR\D3D10Hooks.cpp" />
     <ClCompile Include="VR\Hooks.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
@@ -848,7 +847,6 @@
     <ClInclude Include="VehicleMovementWarrior.h" />
     <ClInclude Include="VehicleWeapon.h" />
     <ClInclude Include="Voting.h" />
-    <ClInclude Include="VR\D3D10Hooks.h" />
     <ClInclude Include="VR\Hooks.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />

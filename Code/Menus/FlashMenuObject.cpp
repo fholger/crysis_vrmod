@@ -43,7 +43,7 @@ History:
 #include "LaptopUtil.h"
 #include "GameNetworkProfile.h"
 #include "SPAnalyst.h"
-#include "VR/D3D10Hooks.h"
+#include "VR/VRRenderer.h"
 
 //both are defined again in FlashMenuObjectOptions
 static const char* scuiControlCodePrefix = "@cc_"; // "@cc_"; // AlexL 03/04/2007: enable this when keys/controls are fully localized
@@ -1620,8 +1620,9 @@ bool CFlashMenuObject::IsOnScreen(EMENUSCREEN screen)
 
 void CFlashMenuObject::OnHardwareMouseEvent(int iX,int iY,EHARDWAREMOUSEEVENT eHardwareMouseEvent)
 {
-	float scaleX = ((float)gEnv->pRenderer->GetWidth()) / VR_GetCurrentWindowWidth();
-	float scaleY = ((float)gEnv->pRenderer->GetHeight()) / VR_GetCurrentWindowHeight();
+	Vec2i windowSize = gVRRenderer->GetWindowSize();
+	float scaleX = ((float)gEnv->pRenderer->GetWidth()) / windowSize.x;
+	float scaleY = ((float)gEnv->pRenderer->GetHeight()) / windowSize.y;
 	iX *= scaleX;
 	iY *= scaleY;
 
@@ -1870,8 +1871,9 @@ void CFlashMenuObject::GetButtonClientPos(ButtonPosMap::iterator button, Vec2 &p
 	pos.x+=offsetX;
 	pos.y+=offsetY;
 
-	pos.x *= (float)VR_GetCurrentWindowWidth() / pRenderer->GetWidth();
-	pos.y *= (float)VR_GetCurrentWindowHeight() / pRenderer->GetHeight();
+	Vec2i windowSize = gVRRenderer->GetWindowSize();
+	pos.x *= (float)windowSize.x / pRenderer->GetWidth();
+	pos.y *= (float)windowSize.y / pRenderer->GetHeight();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -3370,8 +3372,9 @@ void CFlashMenuObject::OnPostUpdate(float fDeltaTime)
 	// display a simple mouse cursor since the Windows cursor is not visible in VR
 	float x, y;
 	SAFE_HARDWARE_MOUSE_FUNC(GetHardwareMouseClientPosition(&x, &y));
-	x *= 800.f / VR_GetCurrentWindowWidth();
-	y *= 600.f / VR_GetCurrentWindowHeight();
+	Vec2i windowSize = gVRRenderer->GetWindowSize();
+	x *= 800.f / windowSize.x;
+	y *= 600.f / windowSize.y;
 	gEnv->pRenderer->SetState(GS_BLSRC_SRCALPHA | GS_BLDST_ONEMINUSSRCALPHA | GS_NODEPTHTEST);			
 	gEnv->pRenderer->Draw2dImage(x,y,20,20,m_nCursorTexID,0,1,1,0,0,1,1,1,1);
 }

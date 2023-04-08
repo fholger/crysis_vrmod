@@ -23,7 +23,8 @@ public:
 	void CaptureEye(int eye);
 	void CaptureHUD();
 
-	void FinishFrame(IDXGISwapChain *swapchain);
+	void SetSwapChain(IDXGISwapChain *swapchain);
+	void FinishFrame();
 
 	Vec2i GetRenderSize() const;
 

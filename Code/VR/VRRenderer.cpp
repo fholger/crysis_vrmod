@@ -2,7 +2,6 @@
 #include "VRRenderer.h"
 
 #include "Cry_Camera.h"
-#include "D3D10Hooks.h"
 #include "Game.h"
 #include "GameCVars.h"
 #include "Hooks.h"
@@ -15,13 +14,49 @@
 
 namespace
 {
-	bool viewCamOverridden = false;
-	CCamera originalViewCamera;
 	VRRenderer g_vrRendererImpl;
 }
 
 VRRenderer* gVRRenderer = &g_vrRendererImpl;
 
+HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
+{
+	HRESULT hr = 0;
+
+	if (gVRRenderer->OnPrePresent(pSelf))
+	{
+		hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+		gVRRenderer->OnPostPresent();
+	}
+
+	return hr;
+}
+
+HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
+{
+	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
+	{
+		gVRRenderer->SetDesiredWindowSize(pNewTargetParameters->Width, pNewTargetParameters->Height);
+		return hooks::CallOriginal(IDXGISwapChain_ResizeTarget)(pSelf, pNewTargetParameters);
+	}
+
+	return 0;
+}
+
+HRESULT IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+{
+	return hooks::CallOriginal(IDXGISwapChain_ResizeBuffers)(pSelf, BufferCount, Width, Height, NewFormat, SwapChainFlags);
+}
+
+BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
+{
+	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
+	{
+		return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
+	}
+
+	return TRUE;
+}
 
 void VR_ISystem_Render(ISystem *pSelf)
 {
@@ -30,7 +65,45 @@ void VR_ISystem_Render(ISystem *pSelf)
 
 void VRRenderer::Init()
 {
+	ComPtr<ID3D10Device> device;
+	HRESULT hr = D3D10CreateDevice(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, device.GetAddressOf());
+	if (!device)
+	{
+		CryLogAlways("Failed to create D3D10 device to hook: %i", hr);
+		return;
+	}
+
+	ComPtr<IDXGIFactory> dxgiFactory;
+	CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)dxgiFactory.GetAddressOf());
+	if (!dxgiFactory)
+	{
+		CryError("Failed to create DXGI factory");
+		return;
+	}
+
+	DXGI_SWAP_CHAIN_DESC desc = {};
+	desc.BufferCount = 2;
+	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+	desc.BufferDesc.Width = gEnv->pRenderer->GetWidth();
+	desc.BufferDesc.Height = gEnv->pRenderer->GetHeight();
+	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	desc.SampleDesc.Count = 1;
+	desc.Windowed = TRUE;
+	desc.OutputWindow = (HWND)gEnv->pRenderer->GetHWND();
+	ComPtr<IDXGISwapChain> swapchain;
+	dxgiFactory->CreateSwapChain(device.Get(), &desc, swapchain.GetAddressOf());
+	if (!swapchain)
+	{
+		CryError("Failed to create swapchain");
+		return;
+	}
+
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapchain.Get(), 8, &IDXGISwapChain_Present);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapchain.Get(), 13, &IDXGISwapChain_ResizeBuffers);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapchain.Get(), 14, &IDXGISwapChain_ResizeTarget);
+	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 }
 
 void VRRenderer::Shutdown()
@@ -40,7 +113,6 @@ void VRRenderer::Shutdown()
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
 	m_originalViewCamera = pSystem->GetViewCamera();
-	viewCamOverridden = true;
 
 	gVR->AwaitFrame();
 
@@ -49,21 +121,28 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	pSystem->RenderBegin();
 	RenderSingleEye(1, renderFunc, pSystem);
 
-	VR_RestrictScissor(false);
 	Vec2i renderSize = gVR->GetRenderSize();
 	gEnv->pRenderer->SetScissor(0, 0, renderSize.x, renderSize.y);
 	// clear render target to fully transparent for HUD render
 	ColorF transparent(0, 0, 0, 0);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
 
-	pSystem->SetViewCamera(originalViewCamera);
-	viewCamOverridden = false;
-
 	if (!ShouldRenderVR())
 	{
 		// for things like the binoculars, we skip the stereo rendering and instead render to the 2D screen
 		renderFunc(pSystem);
 	}
+}
+
+bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
+{
+	gVR->CaptureHUD();
+	return true;
+}
+
+void VRRenderer::OnPostPresent()
+{
+	gVR->FinishFrame();
 }
 
 const CCamera& VRRenderer::GetCurrentViewCamera() const
@@ -80,6 +159,25 @@ void VRRenderer::ProjectToScreenPlayerCam(float ptx, float pty, float ptz, float
 	gEnv->pRenderer->SetCamera(GetCurrentViewCamera());
 	gEnv->pRenderer->ProjectToScreen(ptx, pty, ptz, sx, sy, sz);
 	gEnv->pRenderer->SetCamera(currentCam);
+}
+
+void VRRenderer::SetDesiredWindowSize(int width, int height)
+{
+	m_windowWidth = width;
+	m_windowHeight = height;
+}
+
+Vec2i VRRenderer::GetWindowSize() const
+{
+	return Vec2i(m_windowWidth, m_windowHeight);
+}
+
+void VRRenderer::ChangeRenderResolution(int width, int height)
+{
+	m_ignoreWindowSizeChanges = true;
+	gEnv->pRenderer->ChangeResolution(width, height, 8, 0, false);
+	gEnv->pRenderer->EnableVSync(false);
+	m_ignoreWindowSizeChanges = false;
 }
 
 bool VRRenderer::ShouldRenderVR() const
@@ -101,10 +199,6 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 	ColorF black(0, 0, 0, 1);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
-
-	//gVR->GetEffectiveRenderLimits(0, &left, &right, &top, &bottom);
-	//VR_RestrictScissor(true, renderSize.x * left, renderSize.y * top, renderSize.x * right, renderSize.y * bottom);
-	//gEnv->pRenderer->SetScissor(0, 0, renderSize.x, renderSize.y);
 
 	CFlashMenuObject* menu = static_cast<CGame*>(gEnv->pGame)->GetMenu();
 	// do not render while in menu, as it shows a rotating game world that is disorienting

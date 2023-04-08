@@ -69,7 +69,6 @@ History:
 #include "Radio.h"
 
 #include "LCD/LCDWrapper.h"
-#include "VR/D3D10Hooks.h"
 #include "VR/VRRenderer.h"
 
 static const float NIGHT_VISION_ENERGY = 30.0f;
@@ -2118,8 +2117,9 @@ bool CHUD::OnAction(const ActionId& action, int activationMode, float value)
 		{
 			float x,y =0.0f;
 			gEnv->pHardwareMouse->GetHardwareMouseClientPosition(&x,&y);
-			float scaleX = ((float)gEnv->pRenderer->GetWidth()) / VR_GetCurrentWindowWidth();
-			float scaleY = ((float)gEnv->pRenderer->GetHeight()) / VR_GetCurrentWindowHeight();
+			Vec2i windowSize = gVRRenderer->GetWindowSize();
+			float scaleX = ((float)gEnv->pRenderer->GetWidth()) / windowSize.x;
+			float scaleY = ((float)gEnv->pRenderer->GetHeight()) / windowSize.y;
 			x *= scaleX;
 			y *= scaleY;
 

@@ -56,7 +56,6 @@
 
 #include "ISaveGame.h"
 #include "ILoadGame.h"
-#include "VR/D3D10Hooks.h"
 #include "VR/Hooks.h"
 #include "VR/VRRenderer.h"
 #include "VR/VRManager.h"
@@ -376,13 +375,12 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
-	VR_InitD3D10Hooks();
 	gVRRenderer->Init();
 
 	if (!gVR->Init())
 		return false;
 
-	VR_SetCurrentWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
+	gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 
 	return true;
 }
@@ -411,15 +409,11 @@ bool CGame::CompleteInit()
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
 	++m_frameCount;
-	//gVR->AwaitFrame();
 
 	Vec2i targetRenderSize = gVR->GetRenderSize();
 	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
 	{
-		VR_IgnoreWindowSizeChange(true);
-		gEnv->pRenderer->ChangeResolution(targetRenderSize.x, targetRenderSize.y, 8, 0, false);
-		gEnv->pRenderer->EnableVSync(false);
-		VR_IgnoreWindowSizeChange(false);
+		gVRRenderer->ChangeRenderResolution(targetRenderSize.x, targetRenderSize.y);
 	}
 
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
