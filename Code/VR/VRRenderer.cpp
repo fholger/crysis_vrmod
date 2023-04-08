@@ -136,6 +136,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 
 bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 {
+	gVR->SetSwapChain(swapChain);
 	gVR->CaptureHUD();
 	return true;
 }
