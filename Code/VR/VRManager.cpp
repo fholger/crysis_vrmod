@@ -37,8 +37,6 @@ VRManager::~VRManager()
 
 bool VRManager::Init()
 {
-	return true;
-
 	if (m_initialized)
 		return true;
 
@@ -91,10 +89,14 @@ void VRManager::Shutdown()
 
 void VRManager::AwaitFrame()
 {
-	if (!m_initialized)
+	if (!m_initialized || !m_device)
 		return;
 
+	ComPtr<ID3D9VkInteropDevice> vkDevice;
+	m_device->QueryInterface(__uuidof(ID3D9VkInteropDevice), (void**)vkDevice.GetAddressOf());
+	vkDevice->LockSubmissionQueue();
 	vr::VRCompositor()->WaitGetPoses(&m_headPose, 1, nullptr, 0);
+	vkDevice->ReleaseSubmissionQueue();
 }
 
 void VRManager::CaptureEye(int eye)
@@ -184,28 +186,69 @@ void VRManager::SetDevice(IDirect3DDevice9Ex *device)
 
 void VRManager::FinishFrame()
 {
-	if (!m_initialized || !m_device)
+	if (!m_initialized || !m_device || !m_eyeTextures[0] || !m_eyeTextures[1])
 		return;
+
+	ComPtr<ID3D9VkInteropDevice> vkDevice;
+	m_device->QueryInterface(__uuidof(ID3D9VkInteropDevice), (void**)vkDevice.GetAddressOf());
+
+  vr::VRVulkanTextureData_t vkTexData[2];
+	VkImageLayout origLayout[2];
+	ComPtr<ID3D9VkInteropTexture> vkTex[2];
+	VkImageSubresourceRange range;
+	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	range.baseMipLevel = 0;
+	range.levelCount = 1;
+	range.baseArrayLayer = 0;
+	range.layerCount = 1;
 
 	for (int eye = 0; eye < 2; ++eye)
 	{
-		vr::Texture_t vrTexData;
-		vrTexData.eType = vr::TextureType_DirectX;
-		vrTexData.eColorSpace = vr::ColorSpace_Auto;
-		//vrTexData.handle = m_eyeTextures[eye].Get();
+		m_eyeTextures[eye]->QueryInterface(__uuidof(ID3D9VkInteropTexture), (void**)vkTex[eye].GetAddressOf());
+		vr::VRVulkanTextureData_t vkData;
+		VkImage image;
+		VkImageCreateInfo createInfo;
+		vkTex[eye]->GetVulkanImageInfo(&image, &origLayout[eye], &createInfo);
+		vkDevice->TransitionTextureLayout(vkTex[eye].Get(), &range, origLayout[eye], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
+		vkTexData[eye].m_nFormat = createInfo.format;
+		vkTexData[eye].m_nWidth = createInfo.extent.width;
+		vkTexData[eye].m_nHeight = createInfo.extent.height;
+		vkTexData[eye].m_nImage = (uint64_t)image;
+		vkTexData[eye].m_nSampleCount = 1;
+		vkDevice->GetSubmissionQueue(&vkTexData[eye].m_pQueue, nullptr, &vkTexData[eye].m_nQueueFamilyIndex);
+		vkDevice->GetVulkanHandles(&vkTexData[eye].m_pInstance, &vkTexData[eye].m_pPhysicalDevice, &vkTexData[eye].m_pDevice);
+  }
+
+	vkDevice->FlushRenderingCommands();
+	vkDevice->LockSubmissionQueue();
+
+  for (int eye = 0; eye < 2; ++eye) 
+	{
 		// game is currently using symmetric projection, we need to cut off the texture accordingly
 		vr::VRTextureBounds_t bounds;
 		GetEffectiveRenderLimits(eye, &bounds.uMin, &bounds.uMax, &bounds.vMin, &bounds.vMax);
+
+		vr::Texture_t vrTexData;
+		vrTexData.eColorSpace = vr::ColorSpace_Auto;
+		vrTexData.eType = vr::TextureType_Vulkan;
+		vrTexData.handle = &vkTexData[eye];
 
 		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 		if (error != vr::VRCompositorError_None)
 		{
 			CryLogAlways("Submitting eye texture failed: %i", error);
 		}
+
 	}
 
 	vr::VRCompositor()->PostPresentHandoff();
+	vkDevice->ReleaseSubmissionQueue();
+
+	for (int eye = 0; eye < 2; ++eye)
+	{
+		vkDevice->TransitionTextureLayout(vkTex[eye].Get(), &range, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, origLayout[eye]);
+	}
 }
 
 Vec2i VRManager::GetRenderSize() const
