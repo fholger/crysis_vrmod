@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "VRManager.h"
 #include <openvr.h>
-
 #include "Cry_Camera.h"
 #include "GameCVars.h"
+#include <d3d9_interfaces.h>
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
@@ -32,17 +32,13 @@ VRManager::~VRManager()
 {
 	// if Shutdown isn't properly called, we will get an infinite hang when trying to dispose of our D3D resources after
 	// the game already shut down. So just let go here to avoid that
-	for (int eye = 0; eye < 2; ++eye)
-	{
-		m_eyeTextures[eye].Detach();
-	}
-	m_hudTexture.Detach();
-	m_swapchain.Detach();
 	m_device.Detach();
 }
 
 bool VRManager::Init()
 {
+	return true;
+
 	if (m_initialized)
 		return true;
 
@@ -83,12 +79,6 @@ bool VRManager::Init()
 
 void VRManager::Shutdown()
 {
-	for (int eye = 0; eye < 2; ++eye)
-	{
-		m_eyeTextures[eye].Reset();
-	}
-	m_hudTexture.Reset();
-	m_swapchain.Reset();
 	m_device.Reset();
 
 	if (!m_initialized)
@@ -109,11 +99,8 @@ void VRManager::AwaitFrame()
 
 void VRManager::CaptureEye(int eye)
 {
-	if (!m_swapchain)
-		return;
-
 	if (!m_device)
-		InitDevice(m_swapchain.Get());
+		return;
 
 	if (!m_eyeTextures[eye])
 	{
@@ -122,8 +109,8 @@ void VRManager::CaptureEye(int eye)
 			return;
 	}
 
-	D3D10_TEXTURE2D_DESC desc;
-	m_eyeTextures[eye]->GetDesc(&desc);
+	D3DSURFACE_DESC desc;
+	m_eyeTextures[eye]->GetLevelDesc(0, &desc);
 	Vec2i expectedSize = GetRenderSize();
 	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
 	{
@@ -134,34 +121,21 @@ void VRManager::CaptureEye(int eye)
 	}
 
 	// acquire and copy the current swap chain buffer to the eye texture
-	ComPtr<ID3D10Texture2D> texture;
-	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
-	if (!texture)
+	ComPtr<IDirect3DSurface9> backBuffer;
+	m_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, backBuffer.GetAddressOf());
+	ComPtr<IDirect3DSurface9> texSurface;
+	m_eyeTextures[eye]->GetSurfaceLevel(0, texSurface.GetAddressOf());
+	HRESULT hr = m_device->StretchRect(backBuffer.Get(), nullptr, texSurface.Get(), nullptr, D3DTEXF_POINT);
+	if (hr != S_OK)
 	{
-		CryLogAlways("Error: failed to acquire current swapchain buffer");
-		return;
-	}
-
-	D3D10_TEXTURE2D_DESC rtDesc;
-	texture->GetDesc(&rtDesc);
-	if (rtDesc.SampleDesc.Count > 1)
-	{
-		m_device->ResolveSubresource(m_eyeTextures[eye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
-	}
-	else
-	{
-		//m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
-		m_device->CopyResource(m_eyeTextures[eye].Get(), texture.Get());
+		CryLogAlways("ERROR: Capturing HUD failed: %i", hr);
 	}
 }
 
 void VRManager::CaptureHUD()
 {
-	if (!m_swapchain)
-		return;
-
 	if (!m_device)
-		InitDevice(m_swapchain.Get());
+		return;
 
 	if (!m_hudTexture)
 	{
@@ -170,8 +144,8 @@ void VRManager::CaptureHUD()
 			return;
 	}
 
-	D3D10_TEXTURE2D_DESC desc;
-	m_hudTexture->GetDesc(&desc);
+	D3DSURFACE_DESC desc;
+	m_hudTexture->GetLevelDesc(0, &desc);
 	Vec2i expectedSize = GetRenderSize();
 	if (desc.Width != expectedSize.x || desc.Height != expectedSize.y)
 	{
@@ -181,24 +155,15 @@ void VRManager::CaptureHUD()
 			return;
 	}
 
-	// acquire and copy the current swap chain buffer to the HUD texture
-	ComPtr<ID3D10Texture2D> texture;
-	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
-	if (!texture)
+	// acquire and copy the current back buffer to the HUD texture
+	ComPtr<IDirect3DSurface9> backBuffer;
+	m_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, backBuffer.GetAddressOf());
+	ComPtr<IDirect3DSurface9> texSurface;
+	m_hudTexture->GetSurfaceLevel(0, texSurface.GetAddressOf());
+	HRESULT hr = m_device->StretchRect(backBuffer.Get(), nullptr, texSurface.Get(), nullptr, D3DTEXF_POINT);
+	if (hr != S_OK)
 	{
-		CryLogAlways("Error: failed to acquire current swapchain buffer");
-		return;
-	}
-
-	D3D10_TEXTURE2D_DESC rtDesc;
-	texture->GetDesc(&rtDesc);
-	if (rtDesc.SampleDesc.Count > 1)
-	{
-		m_device->ResolveSubresource(m_hudTexture.Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
-	}
-	else
-	{
-		m_device->CopySubresourceRegion(m_hudTexture.Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
+		CryLogAlways("ERROR: Capturing HUD failed: %i", hr);
 	}
 
 	if (!m_initialized)
@@ -208,19 +173,13 @@ void VRManager::CaptureHUD()
 	texInfo.eColorSpace = vr::ColorSpace_Auto;
 	texInfo.eType = vr::TextureType_DirectX;
 	texInfo.handle = (void*)m_hudTexture.Get();
-	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
+	//vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
 }
 
-void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
+void VRManager::SetDevice(IDirect3DDevice9Ex *device)
 {
-	if (swapchain != m_swapchain.Get())
-	{
-		m_device.Reset();
-	}
-
-	m_swapchain = swapchain;
-	if (!m_device)
-	  InitDevice(swapchain);
+	if (device != m_device.Get())
+		InitDevice(device);
 }
 
 void VRManager::FinishFrame()
@@ -233,7 +192,7 @@ void VRManager::FinishFrame()
 		vr::Texture_t vrTexData;
 		vrTexData.eType = vr::TextureType_DirectX;
 		vrTexData.eColorSpace = vr::ColorSpace_Auto;
-		vrTexData.handle = m_eyeTextures[eye].Get();
+		//vrTexData.handle = m_eyeTextures[eye].Get();
 
 		// game is currently using symmetric projection, we need to cut off the texture accordingly
 		vr::VRTextureBounds_t bounds;
@@ -349,23 +308,14 @@ void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, flo
 	*bottom = 0.5f - 0.5f * t / m_verticalFov;
 }
 
-void VRManager::InitDevice(IDXGISwapChain* swapchain)
+void VRManager::InitDevice(IDirect3DDevice9Ex* device)
 {
 	m_hudTexture.Reset();
 	m_eyeTextures[0].Reset();
 	m_eyeTextures[1].Reset();
 
 	CryLogAlways("Acquiring device...");
-	swapchain->GetDevice(__uuidof(ID3D10Device1), (void**)m_device.ReleaseAndGetAddressOf());
-	if (!m_device)
-	{
-		CryLogAlways("Failed to get game's D3D10.1 device!");
-		return;
-	}
-	if (m_device->GetFeatureLevel() != D3D10_FEATURE_LEVEL_10_1)
-	{
-		CryLogAlways("Device only has feature level %i", m_device->GetFeatureLevel());
-	}
+	m_device = device;
 
 	//VR_InitD3D10DeviceHooks(m_device.Get());
 }
@@ -377,17 +327,7 @@ void VRManager::CreateEyeTexture(int eye)
 
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating eye texture %i: %i x %i", eye, size.x, size.y);
-
-	D3D10_TEXTURE2D_DESC desc = {};
-	desc.Width = size.x;
-	desc.Height = size.y;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_eyeTextures[eye].ReleaseAndGetAddressOf());
+	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_eyeTextures[eye].ReleaseAndGetAddressOf(), nullptr);
 	CryLogAlways("CreateTexture2D return code: %i", hr);
 }
 
@@ -398,16 +338,6 @@ void VRManager::CreateHUDTexture()
 
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating HUD texture: %i x %i", size.x, size.y);
-
-	D3D10_TEXTURE2D_DESC desc = {};
-	desc.Width = size.x;
-	desc.Height = size.y;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_hudTexture.ReleaseAndGetAddressOf());
-	CryLogAlways("CreateTexture2D return code: %i", hr);
+	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_hudTexture.ReleaseAndGetAddressOf(), nullptr);
+	CryLogAlways("CreateRenderTarget return code: %i", hr);
 }

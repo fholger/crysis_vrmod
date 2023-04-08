@@ -1,2 +1,2 @@
 @echo off
-start Bin64\Crysis.exe -MOD VRMod
+start Bin64\Crysis.exe -MOD VRMod -dx9

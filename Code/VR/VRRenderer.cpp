@@ -11,6 +11,7 @@
 #include "VRManager.h"
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
+#include <d3d9.h>
 
 namespace
 {
@@ -19,39 +20,24 @@ namespace
 
 VRRenderer* gVRRenderer = &g_vrRendererImpl;
 
-HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
+HRESULT D3D9_Present(IDirect3DDevice9Ex *pSelf, const RECT* pSourceRect, const RECT* pDestRect,HWND hDestWindowOverride, const RGNDATA* pDirtyRegion)
 {
-	HRESULT hr = 0;
+	HRESULT hr = S_OK;
 
 	if (gVRRenderer->OnPrePresent(pSelf))
 	{
-		hr = hooks::CallOriginal(IDXGISwapChain_Present)(pSelf, SyncInterval, Flags);
+		hr = hooks::CallOriginal(D3D9_Present)(pSelf, pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 		gVRRenderer->OnPostPresent();
 	}
 
 	return hr;
 }
 
-HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
-{
-	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
-	{
-		gVRRenderer->SetDesiredWindowSize(pNewTargetParameters->Width, pNewTargetParameters->Height);
-		return hooks::CallOriginal(IDXGISwapChain_ResizeTarget)(pSelf, pNewTargetParameters);
-	}
-
-	return 0;
-}
-
-HRESULT IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
-{
-	return hooks::CallOriginal(IDXGISwapChain_ResizeBuffers)(pSelf, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-}
-
 BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
 {
 	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
 	{
+		gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 		return hooks::CallOriginal(Hook_SetWindowPos)(hWnd, hWndInsertAfter, 0, 0, cx, cy, uFlags);
 	}
 
@@ -63,21 +49,46 @@ void VR_ISystem_Render(ISystem *pSelf)
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
 }
 
-extern "C" ID3D10Device1 *CryGetLatestCreatedDevice();
-extern "C" IDXGISwapChain *CryGetLatestCreatedSwapChain();
+extern "C" {
+  __declspec(dllimport) IDirect3DDevice9Ex* dxvkGetCreatedDevice();
+}
 
-void VRRenderer::Init()
-{
-	IDXGISwapChain *swapChain = CryGetLatestCreatedSwapChain();
-	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
+	/*CryLogAlways("Creating d3d9 device for function hooking...");
+	ComPtr<IDirect3D9Ex> d3d9;
+	Direct3DCreate9Ex(D3D_SDK_VERSION, d3d9.GetAddressOf());
+	if (!d3d9)
+	{
+		CryLogAlways("ERROR: Failed to create D3D9 adapter to hook!");
+		return;
+	}
 
+	ComPtr<IDirect3DDevice9Ex> device;
+	D3DPRESENT_PARAMETERS params {};
+	params.BackBufferWidth = 1280;
+	params.BackBufferHeight = 720;
+	params.BackBufferFormat = D3DFMT_A8R8G8B8;
+	params.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	params.Windowed = TRUE;
+	params.hDeviceWindow = (HWND)gEnv->pRenderer->GetHWND();
+	params.PresentationInterval = 1;
+	HRESULT hr = d3d9->CreateDeviceEx(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, (HWND)gEnv->pRenderer->GetHWND(), D3DCREATE_NOWINDOWCHANGES, &params, nullptr, device.GetAddressOf());
+	if (hr != S_OK)
+	{
+		CryLogAlways("ERROR: Failed to create D3D9 device to hook: %i", hr);
+		return;
+	}*/
+
+	IDirect3DDevice9Ex *device = dxvkGetCreatedDevice();
+  if (!device)
+  {
+	  CryLogAlways("Could not get d3d9 device from dxvk");
+		return;
+  }
+
+	CryLogAlways("Initializing rendering function hooks");
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
+	hooks::InstallVirtualFunctionHook("IDirect3DDevice9Ex::Present", device, &IDirect3DDevice9Ex::Present, &D3D9_Present);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
-
-	gVR->SetSwapChain(swapChain);
 }
 
 void VRRenderer::Shutdown()
@@ -86,18 +97,6 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
-	IDXGISwapChain *currentSwapChain = CryGetLatestCreatedSwapChain();
-	if (currentSwapChain != gVR->GetSwapChain())
-	{
-		CryLogAlways("SwapChain changed! Reinitializing hooks...");
-		hooks::RemoveHook(&IDXGISwapChain_Present);
-		hooks::RemoveHook(&IDXGISwapChain_ResizeTarget);
-		hooks::RemoveHook(&IDXGISwapChain_ResizeBuffers);
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", currentSwapChain, 8, &IDXGISwapChain_Present);
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", currentSwapChain, 13, &IDXGISwapChain_ResizeBuffers);
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", currentSwapChain, 14, &IDXGISwapChain_ResizeTarget);
-		gVR->SetSwapChain(currentSwapChain);
-	}
 	m_originalViewCamera = pSystem->GetViewCamera();
 
 	gVR->AwaitFrame();
@@ -111,7 +110,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	gEnv->pRenderer->SetScissor(0, 0, renderSize.x, renderSize.y);
 	// clear render target to fully transparent for HUD render
 	ColorF transparent(0, 0, 0, 0);
-	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
+	//gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
 
 	if (!ShouldRenderVR())
 	{
@@ -120,9 +119,9 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	}
 }
 
-bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
+bool VRRenderer::OnPrePresent(IDirect3DDevice9Ex *device)
 {
-	gVR->SetSwapChain(swapChain);
+	gVR->SetDevice(device);
 	gVR->CaptureHUD();
 	return true;
 }

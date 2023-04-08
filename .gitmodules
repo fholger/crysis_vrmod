@@ -1,0 +1,3 @@
+[submodule "Code/ThirdParty/dxvk"]
+	path = Code/ThirdParty/dxvk
+	url = https://github.com/doitsujin/dxvk

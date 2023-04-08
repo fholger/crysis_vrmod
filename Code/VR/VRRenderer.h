@@ -2,7 +2,7 @@
 #include "Cry_Camera.h"
 #include "HUD/HUD.h"
 
-struct IDXGISwapChain;
+struct IDirect3DDevice9Ex;
 
 class VRRenderer : public CHUD::IHUDListener
 {
@@ -13,7 +13,7 @@ public:
 	void Shutdown();
 
 	void Render(SystemRenderFunc renderFunc, ISystem *pSystem);
-	bool OnPrePresent(IDXGISwapChain* swapChain);
+	bool OnPrePresent(IDirect3DDevice9Ex *device);
 	void OnPostPresent();
 
 	const CCamera& GetCurrentViewCamera() const;

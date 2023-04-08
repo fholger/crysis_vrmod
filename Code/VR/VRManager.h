@@ -1,8 +1,7 @@
 #pragma once
-#include <d3d10_1.h>
-#include <dxgi.h>
 #include <wrl/client.h>
 #include <openvr.h>
+#include <d3d9.h>
 
 #include "HUD/HUD.h"
 
@@ -23,8 +22,7 @@ public:
 	void CaptureEye(int eye);
 	void CaptureHUD();
 
-	IDXGISwapChain* GetSwapChain() const { return m_swapchain.Get(); }
-	void SetSwapChain(IDXGISwapChain *swapchain);
+	void SetDevice(IDirect3DDevice9Ex *device);
 	void FinishFrame();
 
 	Vec2i GetRenderSize() const;
@@ -35,10 +33,9 @@ public:
 
 private:
 	bool m_initialized = false;
-	ComPtr<ID3D10Device1> m_device;
-	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
-	ComPtr<ID3D10Texture2D> m_hudTexture;
-	ComPtr<IDXGISwapChain> m_swapchain;
+	ComPtr<IDirect3DDevice9Ex> m_device;
+	ComPtr<IDirect3DTexture9> m_hudTexture;
+	ComPtr<IDirect3DTexture9> m_eyeTextures[2];
 	vr::TrackedDevicePose_t m_headPose;
 	vr::VROverlayHandle_t m_hudOverlay;
 	float m_verticalFov;
@@ -47,7 +44,7 @@ private:
 	float m_horzRenderScale;
 	float m_prevViewYaw = 0;
 
-	void InitDevice(IDXGISwapChain* swapchain);
+	void InitDevice(IDirect3DDevice9Ex* device);
 	void CreateEyeTexture(int eye);
 	void CreateHUDTexture();
 };

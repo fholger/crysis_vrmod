@@ -413,7 +413,7 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 	Vec2i targetRenderSize = gVR->GetRenderSize();
 	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
 	{
-		gVRRenderer->ChangeRenderResolution(targetRenderSize.x, targetRenderSize.y);
+		//gVRRenderer->ChangeRenderResolution(targetRenderSize.x, targetRenderSize.y);
 	}
 
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
