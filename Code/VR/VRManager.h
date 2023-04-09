@@ -23,6 +23,7 @@ public:
 	void CaptureEye(int eye);
 	void CaptureHUD();
 
+	IDXGISwapChain* GetSwapChain() const { return m_swapchain.Get(); }
 	void SetSwapChain(IDXGISwapChain *swapchain);
 	void FinishFrame();
 

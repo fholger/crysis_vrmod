@@ -213,6 +213,11 @@ void VRManager::CaptureHUD()
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
 {
+	if (swapchain != m_swapchain.Get())
+	{
+		m_device.Reset();
+	}
+
 	m_swapchain = swapchain;
 	if (!m_device)
 	  InitDevice(swapchain);
@@ -346,6 +351,10 @@ void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, flo
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
+	m_hudTexture.Reset();
+	m_eyeTextures[0].Reset();
+	m_eyeTextures[1].Reset();
+
 	CryLogAlways("Acquiring device...");
 	swapchain->GetDevice(__uuidof(ID3D10Device1), (void**)m_device.ReleaseAndGetAddressOf());
 	if (!m_device)

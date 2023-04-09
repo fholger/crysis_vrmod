@@ -86,6 +86,18 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	IDXGISwapChain *currentSwapChain = CryGetLatestCreatedSwapChain();
+	if (currentSwapChain != gVR->GetSwapChain())
+	{
+		CryLogAlways("SwapChain changed! Reinitializing hooks...");
+		hooks::RemoveHook(&IDXGISwapChain_Present);
+		hooks::RemoveHook(&IDXGISwapChain_ResizeTarget);
+		hooks::RemoveHook(&IDXGISwapChain_ResizeBuffers);
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", currentSwapChain, 8, &IDXGISwapChain_Present);
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", currentSwapChain, 13, &IDXGISwapChain_ResizeBuffers);
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", currentSwapChain, 14, &IDXGISwapChain_ResizeTarget);
+		gVR->SetSwapChain(currentSwapChain);
+	}
 	m_originalViewCamera = pSystem->GetViewCamera();
 
 	gVR->AwaitFrame();

@@ -126,6 +126,7 @@ extern "C" HRESULT WINAPI D3D10CreateDeviceAndSwapChain_wrapper(IDXGIAdapter *pA
 	HRESULT hr = D3D10CreateDeviceAndSwapChain1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, pSwapChainDesc, ppSwapChain, &device);
 	*ppDevice = device;
 	g_latestCreatedDevice = device;
+	g_latestCreatedSwapChain = *ppSwapChain;
 	return hr;
 }
 
