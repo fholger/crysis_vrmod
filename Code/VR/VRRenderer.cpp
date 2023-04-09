@@ -228,6 +228,10 @@ void VRRenderer::DrawCrosshair()
 	if (pPlayer->GetLinkedVehicle())
 	{
 		skipEntities.push_back(pPlayer->GetLinkedVehicle()->GetEntity()->GetPhysics());
+		IPhysicalEntity* vecSkipEnts[8];
+		int numSkips = pPlayer->GetLinkedVehicle()->GetSkipEntities(vecSkipEnts, 8);
+		for (int i = 0; i < numSkips; ++i)
+			skipEntities.push_back(vecSkipEnts[i]);
 		maxDistance = 16.f;
 	}
 	const int objects = ent_all;
