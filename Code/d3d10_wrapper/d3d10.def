@@ -29,3 +29,5 @@ EXPORTS
   D3D10StateBlockMaskGetSetting=D3D10StateBlockMaskGetSetting_wrapper @27
   D3D10StateBlockMaskIntersect=D3D10StateBlockMaskIntersect_wrapper @28
   D3D10StateBlockMaskUnion=D3D10StateBlockMaskUnion_wrapper @29
+  CryGetLatestCreatedDevice
+  CryGetLatestCreatedSwapChain

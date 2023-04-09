@@ -63,47 +63,21 @@ void VR_ISystem_Render(ISystem *pSelf)
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
 }
 
+extern "C" ID3D10Device1 *CryGetLatestCreatedDevice();
+extern "C" IDXGISwapChain *CryGetLatestCreatedSwapChain();
+
 void VRRenderer::Init()
 {
-	ComPtr<ID3D10Device> device;
-	HRESULT hr = D3D10CreateDevice(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, device.GetAddressOf());
-	if (!device)
-	{
-		CryLogAlways("Failed to create D3D10 device to hook: %i", hr);
-		return;
-	}
-
-	ComPtr<IDXGIFactory> dxgiFactory;
-	CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)dxgiFactory.GetAddressOf());
-	if (!dxgiFactory)
-	{
-		CryError("Failed to create DXGI factory");
-		return;
-	}
-
-	DXGI_SWAP_CHAIN_DESC desc = {};
-	desc.BufferCount = 2;
-	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-	desc.BufferDesc.Width = gEnv->pRenderer->GetWidth();
-	desc.BufferDesc.Height = gEnv->pRenderer->GetHeight();
-	desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	desc.SampleDesc.Count = 1;
-	desc.Windowed = TRUE;
-	desc.OutputWindow = (HWND)gEnv->pRenderer->GetHWND();
-	ComPtr<IDXGISwapChain> swapchain;
-	dxgiFactory->CreateSwapChain(device.Get(), &desc, swapchain.GetAddressOf());
-	if (!swapchain)
-	{
-		CryError("Failed to create swapchain");
-		return;
-	}
+	IDXGISwapChain *swapChain = CryGetLatestCreatedSwapChain();
+	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
 
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapchain.Get(), 8, &IDXGISwapChain_Present);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapchain.Get(), 13, &IDXGISwapChain_ResizeBuffers);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapchain.Get(), 14, &IDXGISwapChain_ResizeTarget);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
+
+	gVR->SetSwapChain(swapChain);
 }
 
 void VRRenderer::Shutdown()

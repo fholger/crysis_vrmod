@@ -42,54 +42,91 @@ LPCSTR mImportNames[] = {
 
 LPVOID d3d10CreateDevice_orig;
 LPVOID d3d10CreateDeviceAndSwapChain_orig;
+typedef HRESULT (*pfnDXGICreateSwapChain)(IDXGIFactory*, IUnknown*, DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**);
+pfnDXGICreateSwapChain dxgiCreateSwapChain_orig;
+
+namespace
+{
+	ID3D10Device1 *g_latestCreatedDevice = nullptr;
+	IDXGISwapChain *g_latestCreatedSwapChain = nullptr;
+}
+
+extern "C" ID3D10Device1 *CryGetLatestCreatedDevice()
+{
+	return g_latestCreatedDevice;
+}
+
+extern "C" IDXGISwapChain *CryGetLatestCreatedSwapChain()
+{
+	return g_latestCreatedSwapChain;
+}
+
+extern "C" HRESULT DXGICreateSwapChain_wrapper(IDXGIFactory *pSelf, IUnknown *pDevice, DXGI_SWAP_CHAIN_DESC *pDesc, IDXGISwapChain **ppSwapChain)
+{
+	HRESULT hr = dxgiCreateSwapChain_orig(pSelf, pDevice, pDesc, ppSwapChain);
+	g_latestCreatedSwapChain = *ppSwapChain;
+	return hr;
+}
 
 void FindAdapter(IDXGIAdapter *adapter, IDXGIAdapter1 **replacement)
 {
-    if (!adapter)
-    {
-        *replacement = nullptr;
-        return;
-    }
+	static Microsoft::WRL::ComPtr<IDXGIFactory1> s_factory;
+	if (!s_factory)
+	{
+		CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)s_factory.GetAddressOf());
+
+		LPVOID *vtable = *((LPVOID**)s_factory.Get());
+		LPVOID pTarget = vtable[10];
+
+		MH_CreateHook(pTarget, &DXGICreateSwapChain_wrapper, (LPVOID*)&dxgiCreateSwapChain_orig);
+		MH_EnableHook(pTarget);
+	}
+
+	if (!adapter)
+	{
+		*replacement = nullptr;
+		return;
+	}
 
 	DXGI_ADAPTER_DESC refDesc;
 	adapter->GetDesc(&refDesc);
 
-	Microsoft::WRL::ComPtr<IDXGIFactory1> factory;
-	CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)factory.GetAddressOf());
 	UINT idx = 0;
-	while (factory->EnumAdapters1(idx, replacement) != DXGI_ERROR_NOT_FOUND)
+	while (s_factory->EnumAdapters1(idx, replacement) != DXGI_ERROR_NOT_FOUND)
 	{
 		++idx;
 		DXGI_ADAPTER_DESC desc;
 		(*replacement)->GetDesc(&desc);
 		if (desc.AdapterLuid.HighPart == refDesc.AdapterLuid.HighPart && desc.AdapterLuid.LowPart == refDesc.AdapterLuid.LowPart)
 		{
-            return;
+			return;
 		}
-        (*replacement)->Release();
-        *replacement = nullptr;
+		(*replacement)->Release();
+		*replacement = nullptr;
 	}
 }
 
 extern "C" HRESULT WINAPI D3D10CreateDevice_wrapper(IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion, ID3D10Device **ppDevice)
 {
-    ID3D10Device1* device;
-    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
-    FindAdapter(pAdapter, adapter.GetAddressOf());
-    HRESULT hr = D3D10CreateDevice1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &device);
-    auto featureLevel = device->GetFeatureLevel();
-    *ppDevice = device;
-    return hr;
+	ID3D10Device1* device;
+	Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+	FindAdapter(pAdapter, adapter.GetAddressOf());
+	HRESULT hr = D3D10CreateDevice1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, &device);
+	auto featureLevel = device->GetFeatureLevel();
+	*ppDevice = device;
+	g_latestCreatedDevice = device;
+	return hr;
 }
 
 extern "C" HRESULT WINAPI D3D10CreateDeviceAndSwapChain_wrapper(IDXGIAdapter *pAdapter, D3D10_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, UINT SDKVersion, DXGI_SWAP_CHAIN_DESC *pSwapChainDesc, IDXGISwapChain **ppSwapChain, ID3D10Device **ppDevice)
 {
-    ID3D10Device1* device;
-    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
-    FindAdapter(pAdapter, adapter.GetAddressOf());
-    HRESULT hr = D3D10CreateDeviceAndSwapChain1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, pSwapChainDesc, ppSwapChain, &device);
-    *ppDevice = device;
-    return hr;
+	ID3D10Device1* device;
+	Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+	FindAdapter(pAdapter, adapter.GetAddressOf());
+	HRESULT hr = D3D10CreateDeviceAndSwapChain1(adapter.Get(), D3D10_DRIVER_TYPE_HARDWARE, nullptr, Flags, D3D10_FEATURE_LEVEL_10_1, D3D10_1_SDK_VERSION, pSwapChainDesc, ppSwapChain, &device);
+	*ppDevice = device;
+	g_latestCreatedDevice = device;
+	return hr;
 }
 
 extern "C" void D3D10CompileEffectFromMemory_wrapper();
@@ -121,26 +158,27 @@ extern "C" void D3D10StateBlockMaskIntersect_wrapper();
 extern "C" void D3D10StateBlockMaskUnion_wrapper();
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
-  mHinst = hinstDLL;
-  if (fdwReason == DLL_PROCESS_ATTACH) {
-	wchar_t buf[MAX_PATH + 1];
-	GetSystemDirectory(buf, sizeof(buf));
-	std::wstring dllPath = buf;
-	dllPath += L"\\d3d10.dll";
-    mHinstDLL = LoadLibrary(dllPath.c_str());
-    if (!mHinstDLL) {
-      return FALSE;
-    }
-    for (int i = 0; i < 29; ++i) {
-      mProcs[i] = (UINT_PTR)GetProcAddress(mHinstDLL, mImportNames[i]);
-    }
-    MH_Initialize();
-    MH_CreateHook((LPVOID)mProcs[3], &D3D10CreateDevice_wrapper, &d3d10CreateDevice_orig);
-    MH_EnableHook((LPVOID)mProcs[3]);
-    MH_CreateHook((LPVOID)mProcs[4], &D3D10CreateDeviceAndSwapChain_wrapper, &d3d10CreateDeviceAndSwapChain_orig);
-    MH_EnableHook((LPVOID)mProcs[4]);
-  } else if (fdwReason == DLL_PROCESS_DETACH) {
-    FreeLibrary(mHinstDLL);
-  }
-  return TRUE;
+	mHinst = hinstDLL;
+	if (fdwReason == DLL_PROCESS_ATTACH) {
+		wchar_t buf[MAX_PATH + 1];
+		GetSystemDirectory(buf, sizeof(buf));
+		std::wstring dllPath = buf;
+		dllPath += L"\\d3d10.dll";
+		mHinstDLL = LoadLibrary(dllPath.c_str());
+		if (!mHinstDLL) {
+			return FALSE;
+		}
+		for (int i = 0; i < 29; ++i) {
+			mProcs[i] = (UINT_PTR)GetProcAddress(mHinstDLL, mImportNames[i]);
+		}
+		MH_Initialize();
+		MH_CreateHook((LPVOID)mProcs[3], &D3D10CreateDevice_wrapper, &d3d10CreateDevice_orig);
+		MH_EnableHook((LPVOID)mProcs[3]);
+		MH_CreateHook((LPVOID)mProcs[4], &D3D10CreateDeviceAndSwapChain_wrapper, &d3d10CreateDeviceAndSwapChain_orig);
+		MH_EnableHook((LPVOID)mProcs[4]);
+	}
+	else if (fdwReason == DLL_PROCESS_DETACH) {
+		FreeLibrary(mHinstDLL);
+	}
+	return TRUE;
 }
