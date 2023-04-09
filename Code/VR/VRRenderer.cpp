@@ -161,7 +161,12 @@ Vec2i VRRenderer::GetWindowSize() const
 void VRRenderer::ChangeRenderResolution(int width, int height)
 {
 	CryLogAlways("Changing render resolution to %i x %i", width, height);
+	CryFixedStringT<32> cmd;
 	m_ignoreWindowSizeChanges = true;
+	cmd.Format("r_width %i", width);
+	gEnv->pConsole->ExecuteString(cmd);
+	cmd.Format("r_height %i", height);
+	gEnv->pConsole->ExecuteString(cmd);
 	gEnv->pRenderer->ChangeResolution(width, height, 8, 0, false);
 	gEnv->pRenderer->EnableVSync(false);
 	m_ignoreWindowSizeChanges = false;
