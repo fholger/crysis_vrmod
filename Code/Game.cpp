@@ -382,6 +382,8 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 
+	//gEnv->pRenderer->ChangeResolution(1920, 1080, 8, 0, false);
+
 	return true;
 }
 

@@ -160,6 +160,7 @@ Vec2i VRRenderer::GetWindowSize() const
 
 void VRRenderer::ChangeRenderResolution(int width, int height)
 {
+	CryLogAlways("Changing render resolution to %i x %i", width, height);
 	m_ignoreWindowSizeChanges = true;
 	gEnv->pRenderer->ChangeResolution(width, height, 8, 0, false);
 	gEnv->pRenderer->EnableVSync(false);

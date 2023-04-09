@@ -205,10 +205,14 @@ void VRManager::FinishFrame()
 	for (int eye = 0; eye < 2; ++eye)
 	{
 		m_eyeTextures[eye]->QueryInterface(__uuidof(ID3D9VkInteropTexture), (void**)vkTex[eye].GetAddressOf());
-		vr::VRVulkanTextureData_t vkData;
 		VkImage image;
-		VkImageCreateInfo createInfo;
-		vkTex[eye]->GetVulkanImageInfo(&image, &origLayout[eye], &createInfo);
+		VkImageCreateInfo createInfo {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		HRESULT hr = vkTex[eye]->GetVulkanImageInfo(&image, &origLayout[eye], &createInfo);
+		if (hr != S_OK)
+		{
+			CryLogAlways("Fetching vulkan image info failed: %i", hr);
+		}
 		vkDevice->TransitionTextureLayout(vkTex[eye].Get(), &range, origLayout[eye], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
 		vkTexData[eye].m_nFormat = createInfo.format;
@@ -370,7 +374,7 @@ void VRManager::CreateEyeTexture(int eye)
 
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating eye texture %i: %i x %i", eye, size.x, size.y);
-	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_eyeTextures[eye].ReleaseAndGetAddressOf(), nullptr);
+	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_eyeTextures[eye].ReleaseAndGetAddressOf(), nullptr);
 	CryLogAlways("CreateTexture2D return code: %i", hr);
 }
 
@@ -381,6 +385,6 @@ void VRManager::CreateHUDTexture()
 
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating HUD texture: %i x %i", size.x, size.y);
-	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_hudTexture.ReleaseAndGetAddressOf(), nullptr);
+	HRESULT hr = m_device->CreateTexture(size.x, size.y, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, m_hudTexture.ReleaseAndGetAddressOf(), nullptr);
 	CryLogAlways("CreateRenderTarget return code: %i", hr);
 }
