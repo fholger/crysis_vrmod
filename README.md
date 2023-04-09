@@ -12,7 +12,7 @@ The mod currently requires SteamVR to run.
 ## Installation
 
 Download and install Crysis. Then head over to the mod's [Releases](https://github.com/fholger/crysis_vrmod/releases) and
-find the latest release at the top of the page. Expand the "Assets" and download the `crysis-vrmod-x.y.exe` installer.
+find the latest release at the top of the page. Under the "Assets" section find and download the `crysis-vrmod-x.y.exe` installer.
 Run it and point it to where you have installed Crysis. If you are not sure and own it on Steam, right-click on Crysis
 in your Steam library, then select "Manage" -> "Browse local files", and it will show you the game's install location.
 
