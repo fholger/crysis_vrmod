@@ -38,11 +38,20 @@ in a small region in front of you. If you move the crosshair beyond the edges of
 In-game cutscenes display in VR by default, but since they take over the camera, you might prefer to have them display in 2D, instead. To achieve this, bring down the console (`~` key by default) and type in `vr_cutscenes_2d 1` to switch cutscenes
 into 2D mode.
 
+## Notes on performance
+
+Be advised that Crysis in VR needs fairly potent hardware. This is in part due to it being Crysis, and in part due to the method I'm using to implement stereoscopic rendering not being the most efficient one. Unfortunately, due to the limited engine and renderer access being available to me, that's about as good as I can make it.
+
+On the CPU side, expect even the most powerful CPUs to struggle in some scenes, although you should mostly be fine playing on a Ryzen 7000 or 5800X3D or an Intel 12th gen or up. Expect more issues as you go down. A Ryzen 3000 is not going to provide a very good experience.
+
+On the GPU side, it is less clear, and you do have some options to trade visual quality vs performance via the SteamVR rendering resolution and the ingame quality settings. Still, in my testing an RTX 2080 Ti was struggling (although that may have been in part due to its pairing with a weaker CPU). A 4090 does perfectly fine (duh), as does an RX 7900 XT.
+There are also a few tricks I can hopefully implement at some point that would improve the GPU performance a bit.
+
 ## Known issues
 
 - The desktop mirror does not display anything beyond the menu or HUD. If you wish to record gameplay, use the SteamVR mirror view, instead.
 - Some of the later weapons may not work properly.
-- Performance can be an issue even on potent hardware. You can reduce the resolution or the ingame quality settings if you struggle with GPU performance. Note, however, that some scenes will tax even the strongest CPUs available right now.
+- Anti-aliasing is known to cause issues and crashes. If you are having trouble, try lowering or disabling the anti-aliasing and restart the game.
 
 ## Roadmap
 
