@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.1.2'
+!define VERSION '0.1.3'
 
 Name "Crysis VR Mod"
 
