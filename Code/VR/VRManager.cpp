@@ -336,7 +336,7 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
 	float tanl, tanr, tant, tanb;
 	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &tanl, &tanr, &tant, &tanb);
-	cam.UpdateFrustumFromVRRaw(tanl, tanr, tant, tanb);
+	cam.UpdateFrustumFromVRRaw(tanl, tanr, -tanb, -tant);
 }
 
 void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom)
