@@ -220,10 +220,6 @@ public:
 			if (m_pHUDFader[i])
 			{
 				m_pHUDFader[i]->Update(fDeltaTime);
-				const bool bMFX = (i>= MFX_FADER_OFFSET && i <= MFX_FADER_END);
-				const bool bSkipDraw = bInTimeDemo && !bMFX;
-				if (!bSkipDraw) // in TimeDemo we don't draw
-					m_pHUDFader[i]->Draw();
 				if (m_pHUDFader[i]->IsActive())
 					++nActive;
 			}
@@ -249,6 +245,21 @@ public:
 					}
 					y+=10.0f;
 				}
+			}
+		}
+	}
+
+	void Draw()
+	{
+		const bool bInTimeDemo = g_pGame->GetIGameFramework()->IsInTimeDemo();
+		for (int i=0; i<NUM_FADERS; ++i)
+		{
+			if (m_pHUDFader[i])
+			{
+				const bool bMFX = (i>= MFX_FADER_OFFSET && i <= MFX_FADER_END);
+				const bool bSkipDraw = bInTimeDemo && !bMFX;
+				if (!bSkipDraw) // in TimeDemo we don't draw
+					m_pHUDFader[i]->Draw();
 			}
 		}
 	}
@@ -310,6 +321,15 @@ public:
 };
 
 CMasterFader* g_pMasterFader = 0;
+
+void DrawHUDFaders()
+{
+	if (g_pMasterFader != nullptr)
+	{
+		gEnv->pRenderer->SetState(GS_BLSRC_SRCALPHA | GS_BLDST_ONEMINUSSRCALPHA | GS_NODEPTHTEST);
+		g_pMasterFader->Draw();
+	}
+}
 
 CHUDFader* GetHUDFader(int group)
 {

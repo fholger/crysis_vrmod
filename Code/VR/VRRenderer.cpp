@@ -175,6 +175,8 @@ bool VRRenderer::ShouldRenderVR() const
 	return !m_binocularsActive;
 }
 
+extern void DrawHUDFaders();
+
 void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem)
 {
 	CCamera eyeCam = m_originalViewCamera;
@@ -197,6 +199,8 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 	pSystem->SetViewCamera(m_originalViewCamera);
 	m_viewCamOverridden = false;
+
+	DrawHUDFaders();
 
 	gVR->CaptureEye(eye);
 }
