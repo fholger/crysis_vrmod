@@ -37,6 +37,10 @@ jobs:
         shell: cmd
         run: create_installer.bat
 
+      - name: Zip debug symbols
+        run: |
+          7z a -t7z crysisvr_pdbs.7z Bin64\*.pdb
+
       - name: Update Github dev release
         if: github.ref == 'refs/heads/main'
         uses: marvinpinto/action-automatic-releases@latest
@@ -47,6 +51,7 @@ jobs:
           title: "Crysis VR development build"
           files: |
             installer/crysis-vrmod*.exe
+            crysisvr_pdbs.7z
 
       - name: Create tagged Github release
         if: github.ref_type == 'tag'
@@ -57,3 +62,4 @@ jobs:
           title: "Crysis VR release ${{ github.ref_name }}"
           files: |
             installer/crysis-vrmod*.exe
+            crysisvr_pdbs.7z
