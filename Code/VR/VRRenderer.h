@@ -36,6 +36,7 @@ private:
 	bool m_ignoreWindowSizeChanges = false;
 	int m_windowWidth = 0;
 	int m_windowHeight = 0;
+	bool m_didRenderThisFrame = false;
 
 	void RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem);
 	void DrawCrosshair();

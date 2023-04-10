@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d10_1.h>
 #include <dxgi.h>
+#include <d3d11.h>
 #include <wrl/client.h>
 #include <openvr.h>
 
@@ -25,7 +26,7 @@ public:
 
 	IDXGISwapChain* GetSwapChain() const { return m_swapchain.Get(); }
 	void SetSwapChain(IDXGISwapChain *swapchain);
-	void FinishFrame();
+	void FinishFrame(bool didRenderThisFrame);
 
 	Vec2i GetRenderSize() const;
 
@@ -36,9 +37,16 @@ public:
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
+	ComPtr<IDXGISwapChain> m_swapchain;
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
 	ComPtr<ID3D10Texture2D> m_hudTexture;
-	ComPtr<IDXGISwapChain> m_swapchain;
+
+	// D3D11 resources for OpenXR submission
+	ComPtr<ID3D11Device> m_device11;
+	ComPtr<ID3D11DeviceContext> m_context11;
+	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
+	ComPtr<ID3D11Texture2D> m_hudTexture11;
+
 	vr::TrackedDevicePose_t m_headPose;
 	vr::VROverlayHandle_t m_hudOverlay;
 	float m_verticalFov;
@@ -50,6 +58,8 @@ private:
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
 	void CreateHUDTexture();
+	void CreateSharedTexture(ComPtr<ID3D10Texture2D>& texture, ComPtr<ID3D11Texture2D>& texture11, int width, int height);
+	void CopyBackbufferToTexture(ID3D10Texture2D *target);
 };
 
 extern VRManager* gVR;

@@ -63,6 +63,13 @@ void VR_ISystem_Render(ISystem *pSelf)
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
 }
 
+void VR_ISystem_Quit(ISystem *pSelf)
+{
+	gVRRenderer->Shutdown();
+	gVR->Shutdown();
+	hooks::CallOriginal(VR_ISystem_Quit)(pSelf);
+}
+
 extern "C" ID3D10Device1 *CryGetLatestCreatedDevice();
 extern "C" IDXGISwapChain *CryGetLatestCreatedSwapChain();
 
@@ -76,6 +83,7 @@ void VRRenderer::Init()
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
 	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
+	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
 
 	gVR->SetSwapChain(swapChain);
 }
@@ -118,6 +126,8 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 		// for things like the binoculars, we skip the stereo rendering and instead render to the 2D screen
 		renderFunc(pSystem);
 	}
+
+	m_didRenderThisFrame = true;
 }
 
 bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
@@ -129,7 +139,8 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 
 void VRRenderer::OnPostPresent()
 {
-	gVR->FinishFrame();
+	gVR->FinishFrame(m_didRenderThisFrame);
+	m_didRenderThisFrame = false;
 }
 
 const CCamera& VRRenderer::GetCurrentViewCamera() const

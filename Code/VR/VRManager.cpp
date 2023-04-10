@@ -35,10 +35,14 @@ VRManager::~VRManager()
 	for (int eye = 0; eye < 2; ++eye)
 	{
 		m_eyeTextures[eye].Detach();
+		m_eyeTextures11[eye].Detach();
 	}
 	m_hudTexture.Detach();
+	m_hudTexture11.Detach();
 	m_swapchain.Detach();
 	m_device.Detach();
+	m_context11.Detach();
+	m_device11.Detach();
 }
 
 bool VRManager::Init()
@@ -83,13 +87,19 @@ bool VRManager::Init()
 
 void VRManager::Shutdown()
 {
+	CryLogAlways("Shutting down VRManager...");
+
 	for (int eye = 0; eye < 2; ++eye)
 	{
 		m_eyeTextures[eye].Reset();
+		m_eyeTextures11[eye].Reset();
 	}
 	m_hudTexture.Reset();
+	m_hudTexture11.Reset();
 	m_swapchain.Reset();
 	m_device.Reset();
+	m_context11.Reset();
+	m_device11.Reset();
 
 	if (!m_initialized)
 		return;
@@ -134,25 +144,7 @@ void VRManager::CaptureEye(int eye)
 	}
 
 	// acquire and copy the current swap chain buffer to the eye texture
-	ComPtr<ID3D10Texture2D> texture;
-	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
-	if (!texture)
-	{
-		CryLogAlways("Error: failed to acquire current swapchain buffer");
-		return;
-	}
-
-	D3D10_TEXTURE2D_DESC rtDesc;
-	texture->GetDesc(&rtDesc);
-	if (rtDesc.SampleDesc.Count > 1)
-	{
-		m_device->ResolveSubresource(m_eyeTextures[eye].Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
-	}
-	else
-	{
-		//m_device->CopySubresourceRegion(m_eyeTextures[eye].Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
-		m_device->CopyResource(m_eyeTextures[eye].Get(), texture.Get());
-	}
+	CopyBackbufferToTexture(m_eyeTextures[eye].Get());
 }
 
 void VRManager::CaptureHUD()
@@ -182,33 +174,7 @@ void VRManager::CaptureHUD()
 	}
 
 	// acquire and copy the current swap chain buffer to the HUD texture
-	ComPtr<ID3D10Texture2D> texture;
-	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)texture.GetAddressOf());
-	if (!texture)
-	{
-		CryLogAlways("Error: failed to acquire current swapchain buffer");
-		return;
-	}
-
-	D3D10_TEXTURE2D_DESC rtDesc;
-	texture->GetDesc(&rtDesc);
-	if (rtDesc.SampleDesc.Count > 1)
-	{
-		m_device->ResolveSubresource(m_hudTexture.Get(), 0, texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
-	}
-	else
-	{
-		m_device->CopySubresourceRegion(m_hudTexture.Get(), 0, 0, 0, 0, texture.Get(), 0, nullptr);
-	}
-
-	if (!m_initialized)
-		return;
-
-	vr::Texture_t texInfo;
-	texInfo.eColorSpace = vr::ColorSpace_Auto;
-	texInfo.eType = vr::TextureType_DirectX;
-	texInfo.handle = (void*)m_hudTexture.Get();
-	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
+	CopyBackbufferToTexture(m_hudTexture.Get());
 }
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
@@ -223,9 +189,27 @@ void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
 	  InitDevice(swapchain);
 }
 
-void VRManager::FinishFrame()
+void VRManager::FinishFrame(bool didRenderThisFrame)
 {
-	if (!m_initialized || !m_device)
+	if (!m_initialized || !m_device || !m_device11)
+		return;
+
+	vr::Texture_t texInfo;
+	texInfo.eColorSpace = vr::ColorSpace_Auto;
+	texInfo.eType = vr::TextureType_DirectX;
+	texInfo.handle = (void*)m_hudTexture11.Get();
+
+	ComPtr<IDXGIKeyedMutex> mutex;
+	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	HRESULT hr = mutex->AcquireSync(1, 1000);
+	if (hr != S_OK)
+	{
+		CryLogAlways("Error while waiting for HUD texture mutex in FinishFrame: %i", hr);
+	}
+	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
+	mutex->ReleaseSync(0);
+
+	if (!didRenderThisFrame)
 		return;
 
 	for (int eye = 0; eye < 2; ++eye)
@@ -233,17 +217,23 @@ void VRManager::FinishFrame()
 		vr::Texture_t vrTexData;
 		vrTexData.eType = vr::TextureType_DirectX;
 		vrTexData.eColorSpace = vr::ColorSpace_Auto;
-		vrTexData.handle = m_eyeTextures[eye].Get();
+		vrTexData.handle = m_eyeTextures11[eye].Get();
 
 		// game is currently using symmetric projection, we need to cut off the texture accordingly
 		vr::VRTextureBounds_t bounds;
 		GetEffectiveRenderLimits(eye, &bounds.uMin, &bounds.uMax, &bounds.vMin, &bounds.vMax);
+
+		ComPtr<IDXGIKeyedMutex> mutex;
+		m_eyeTextures11[eye]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+		mutex->AcquireSync(1, 1000);
 
 		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
 		if (error != vr::VRCompositorError_None)
 		{
 			CryLogAlways("Submitting eye texture failed: %i", error);
 		}
+
+		mutex->ReleaseSync(0);
 	}
 
 	vr::VRCompositor()->PostPresentHandoff();
@@ -368,46 +358,104 @@ void VRManager::InitDevice(IDXGISwapChain* swapchain)
 	}
 
 	//VR_InitD3D10DeviceHooks(m_device.Get());
+
+	CryLogAlways("Creating D3D11 device");
+	ComPtr<IDXGIAdapter> adapter;
+	ComPtr<IDXGIDevice> dxgiDevice;
+	m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)dxgiDevice.GetAddressOf());
+	if (dxgiDevice)
+	{
+		CryLogAlways("Found DXGI device, querying for adapter");
+		dxgiDevice->GetAdapter(adapter.GetAddressOf());
+	}
+	if (!adapter)
+		CryLogAlways("Did not find the DXGI adapter for the D3D10 device");
+	HRESULT hr = D3D11CreateDevice(adapter.Get(), adapter.Get() ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr,
+		D3D11_CREATE_DEVICE_SINGLETHREADED, nullptr, 0, D3D11_SDK_VERSION,
+		m_device11.ReleaseAndGetAddressOf(), nullptr, m_context11.ReleaseAndGetAddressOf());
+	if (hr != S_OK)
+	{
+		CryLogAlways("Failed to create D3D11 device: %i", hr);
+	}
 }
 
 void VRManager::CreateEyeTexture(int eye)
 {
-	if (!m_device)
-		return;
-
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating eye texture %i: %i x %i", eye, size.x, size.y);
-
-	D3D10_TEXTURE2D_DESC desc = {};
-	desc.Width = size.x;
-	desc.Height = size.y;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_eyeTextures[eye].ReleaseAndGetAddressOf());
-	CryLogAlways("CreateTexture2D return code: %i", hr);
+	CreateSharedTexture(m_eyeTextures[eye], m_eyeTextures11[eye], size.x, size.y);
 }
 
 void VRManager::CreateHUDTexture()
 {
-	if (!m_device)
-		return;
-
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating HUD texture: %i x %i", size.x, size.y);
+	CreateSharedTexture(m_hudTexture, m_hudTexture11, size.x, size.y);
+}
+
+void VRManager::CreateSharedTexture(ComPtr<ID3D10Texture2D> &texture, ComPtr<ID3D11Texture2D> &texture11, int width, int height)
+{
+	if (!m_device || !m_device11)
+		return;
 
 	D3D10_TEXTURE2D_DESC desc = {};
-	desc.Width = size.x;
-	desc.Height = size.y;
+	desc.Width = width;
+	desc.Height = height;
 	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.ArraySize = 1;
 	desc.MipLevels = 1;
 	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE | D3D10_BIND_RENDER_TARGET;
-	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, m_hudTexture.ReleaseAndGetAddressOf());
-	CryLogAlways("CreateTexture2D return code: %i", hr);
+	desc.BindFlags = 0;
+	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED_KEYEDMUTEX;
+	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, texture.ReleaseAndGetAddressOf());
+	if (hr != S_OK)
+	{
+		CryLogAlways("D3D10 CreateTexture2D failed: %i", hr);
+		return;
+	}
+
+	CryLogAlways("Sharing texture with D3D11...");
+	ComPtr<IDXGIResource> dxgiRes;
+	texture->QueryInterface(__uuidof(IDXGIResource), (void**)dxgiRes.GetAddressOf());
+	HANDLE handle;
+	dxgiRes->GetSharedHandle(&handle);
+	hr = m_device11->OpenSharedResource(handle, __uuidof(ID3D11Texture2D), (void**)texture11.ReleaseAndGetAddressOf());
+	if (hr != S_OK)
+	{
+		CryLogAlways("D3D11 OpenSharedResource failed: %i", hr);
+	}
+}
+
+void VRManager::CopyBackbufferToTexture(ID3D10Texture2D *target)
+{
+	// acquire and copy the current swap chain buffer to the HUD texture
+	ComPtr<ID3D10Texture2D> backbuffer;
+	m_swapchain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)backbuffer.GetAddressOf());
+	if (!backbuffer)
+	{
+		CryLogAlways("Error: failed to acquire current swapchain buffer");
+		return;
+	}
+
+	ComPtr<IDXGIKeyedMutex> mutex;
+	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	HRESULT hr = mutex->AcquireSync(0, 1000);
+	if (hr != S_OK)
+	{
+		CryLogAlways("Error while waiting for mutex during copy: %i", hr);
+	}
+
+	D3D10_TEXTURE2D_DESC rtDesc;
+	backbuffer->GetDesc(&rtDesc);
+	if (rtDesc.SampleDesc.Count > 1)
+	{
+		m_device->ResolveSubresource(target, 0, backbuffer.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
+	}
+	else
+	{
+		m_device->CopyResource(target, backbuffer.Get());
+	}
+
+	mutex->ReleaseSync(1);
 }
