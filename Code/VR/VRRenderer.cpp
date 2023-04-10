@@ -53,6 +53,8 @@ extern "C" {
   __declspec(dllimport) IDirect3DDevice9Ex* dxvkGetCreatedDevice();
 }
 
+void VRRenderer::Init()
+{
 	/*CryLogAlways("Creating d3d9 device for function hooking...");
 	ComPtr<IDirect3D9Ex> d3d9;
 	Direct3DCreate9Ex(D3D_SDK_VERSION, d3d9.GetAddressOf());
@@ -110,7 +112,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	gEnv->pRenderer->SetScissor(0, 0, renderSize.x, renderSize.y);
 	// clear render target to fully transparent for HUD render
 	ColorF transparent(0, 0, 0, 0);
-	//gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
+	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
 
 	if (!ShouldRenderVR())
 	{

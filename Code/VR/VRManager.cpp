@@ -167,15 +167,6 @@ void VRManager::CaptureHUD()
 	{
 		CryLogAlways("ERROR: Capturing HUD failed: %i", hr);
 	}
-
-	if (!m_initialized)
-		return;
-
-	vr::Texture_t texInfo;
-	texInfo.eColorSpace = vr::ColorSpace_Auto;
-	texInfo.eType = vr::TextureType_DirectX;
-	texInfo.handle = (void*)m_hudTexture.Get();
-	//vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
 }
 
 void VRManager::SetDevice(IDirect3DDevice9Ex *device)
@@ -192,9 +183,9 @@ void VRManager::FinishFrame()
 	ComPtr<ID3D9VkInteropDevice> vkDevice;
 	m_device->QueryInterface(__uuidof(ID3D9VkInteropDevice), (void**)vkDevice.GetAddressOf());
 
-  vr::VRVulkanTextureData_t vkTexData[2];
-	VkImageLayout origLayout[2];
-	ComPtr<ID3D9VkInteropTexture> vkTex[2];
+  vr::VRVulkanTextureData_t vkTexData[3];
+	VkImageLayout origLayout[3];
+	ComPtr<ID3D9VkInteropTexture> vkTex[3];
 	VkImageSubresourceRange range;
 	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	range.baseMipLevel = 0;
@@ -202,9 +193,10 @@ void VRManager::FinishFrame()
 	range.baseArrayLayer = 0;
 	range.layerCount = 1;
 
-	for (int eye = 0; eye < 2; ++eye)
+	for (int eye = 0; eye < 3; ++eye)
 	{
-		m_eyeTextures[eye]->QueryInterface(__uuidof(ID3D9VkInteropTexture), (void**)vkTex[eye].GetAddressOf());
+		IDirect3DTexture9 *tex = eye == 2 ? m_hudTexture.Get() : m_eyeTextures[eye].Get();
+		tex->QueryInterface(__uuidof(ID3D9VkInteropTexture), (void**)vkTex[eye].GetAddressOf());
 		VkImage image;
 		VkImageCreateInfo createInfo {};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -243,13 +235,18 @@ void VRManager::FinishFrame()
 		{
 			CryLogAlways("Submitting eye texture failed: %i", error);
 		}
-
 	}
+
+	vr::Texture_t texInfo;
+	texInfo.eColorSpace = vr::ColorSpace_Auto;
+	texInfo.eType = vr::TextureType_Vulkan;
+	texInfo.handle = (void*)&vkTexData[2];
+	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
 
 	vr::VRCompositor()->PostPresentHandoff();
 	vkDevice->ReleaseSubmissionQueue();
 
-	for (int eye = 0; eye < 2; ++eye)
+	for (int eye = 0; eye < 3; ++eye)
 	{
 		vkDevice->TransitionTextureLayout(vkTex[eye].Get(), &range, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, origLayout[eye]);
 	}
