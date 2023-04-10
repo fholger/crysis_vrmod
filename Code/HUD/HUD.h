@@ -840,6 +840,8 @@ private:
 	int m_prevSpectatorMode;
 	int m_prevSpectatorHealth;
 	EntityId m_prevSpectatorTarget;
+
+	int m_nCursorTexID;
 };
 
 //-----------------------------------------------------------------------------------------------------

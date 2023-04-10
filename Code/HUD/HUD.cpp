@@ -284,6 +284,8 @@ CHUD::CHUD()
 
 	//the hud exists as long as the game exists
 	gEnv->pGame->GetIGameFramework()->RegisterListener(this, "hud", FRAMEWORKLISTENERPRIORITY_HUD);
+
+	m_nCursorTexID = gEnv->pRenderer->EF_LoadTexture("Textures/Gui/mouse.dds",0,eTT_2D)->GetTextureID();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -2111,7 +2113,7 @@ bool CHUD::OnAction(const ActionId& action, int activationMode, float value)
 		}
 	}
 
-	if(action == rGameActions.xi_hud_mouseclick)
+	if(action == rGameActions.xi_hud_mouseclick || (action == rGameActions.hud_mouseclick && m_pModalHUD == &m_animWeaponAccessories))
 	{
 		if (m_pModalHUD)
 		{
@@ -3671,6 +3673,18 @@ void CHUD::OnPostUpdate(float frameTime)
 
 	// Modal dialog box must be always rendered last
 	UpdateWarningMessages(frameTime);
+
+	if (m_animWeaponAccessories.GetVisible())
+	{
+		// display a simple mouse cursor since the Windows cursor is not visible in VR
+		float x, y;
+		SAFE_HARDWARE_MOUSE_FUNC(GetHardwareMouseClientPosition(&x, &y));
+		Vec2i windowSize = gVRRenderer->GetWindowSize();
+		x *= 800.f / windowSize.x;
+		y *= 600.f / windowSize.y;
+		gEnv->pRenderer->SetState(GS_BLSRC_SRCALPHA | GS_BLDST_ONEMINUSSRCALPHA | GS_NODEPTHTEST);			
+		gEnv->pRenderer->Draw2dImage(x,y,20,20,m_nCursorTexID,0,1,1,0,0,1,1,1,1);
+	}
 }
 
 //-----------------------------------------------------------------------------------------------------
