@@ -15,11 +15,13 @@ private:
 	XrInstance m_instance = nullptr;
 	XrSystemId m_system = 0;
 	XrSession m_session = nullptr;
+	XrSpace m_space = nullptr;
 	bool m_sessionActive = false;
 	bool m_frameStarted = false;
 	bool m_shouldRender = false;
 	XrTime m_predictedDisplayTime = 0;
 	XrTime m_predictedNextFrameDisplayTime = 0;
+	XrView m_renderViews[2] = {};
 
 	bool CreateInstance();
 	void HandleSessionStateChange(XrEventDataSessionStateChanged* event);

@@ -145,6 +145,12 @@ void OpenXRManager::CreateSession(ID3D11Device* device)
 	XrResult result = xrCreateSession(m_instance, &createInfo, &m_session);
 	XR_CheckResult(result, "creating session", m_instance);
 	m_sessionActive = false;
+
+	XrReferenceSpaceCreateInfo spaceCreateInfo{};
+	spaceCreateInfo.type = XR_TYPE_REFERENCE_SPACE_CREATE_INFO;
+	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
+	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
+	XR_CheckResult(result, "creating seated reference space", m_instance);
 }
 
 void OpenXRManager::AwaitFrame()
@@ -174,6 +180,16 @@ void OpenXRManager::AwaitFrame()
 	result = xrBeginFrame(m_session, nullptr);
 	XR_CheckResult(result, "begin frame", m_instance);
 	m_frameStarted = true;
+
+	XrViewLocateInfo viewLocateInfo{};
+	viewLocateInfo.type = XR_TYPE_VIEW_LOCATE_INFO;
+	viewLocateInfo.space = m_space;
+	viewLocateInfo.viewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+	viewLocateInfo.displayTime = m_predictedDisplayTime;
+	XrViewState viewState{XR_TYPE_VIEW_STATE};
+	uint32_t viewCount = 0;
+	result = xrLocateViews(m_session, &viewLocateInfo, &viewState, 2, &viewCount, m_renderViews);
+	XR_CheckResult(result, "getting eye views", m_instance);
 }
 
 bool OpenXRManager::CreateInstance()
