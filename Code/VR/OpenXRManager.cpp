@@ -2,11 +2,14 @@
 #define XR_USE_PLATFORM_WIN32 1
 #define XR_USE_GRAPHICS_API_D3D11 1
 #include <d3d11.h>
+#include <wrl/client.h>
 #include <openxr/openxr_platform.h>
 #include "OpenXRManager.h"
 
 OpenXRManager g_xrManager;
 OpenXRManager *gXR = &g_xrManager;
+
+using Microsoft::WRL::ComPtr;
 
 namespace
 {
@@ -124,6 +127,13 @@ bool OpenXRManager::Init()
 
 void OpenXRManager::Shutdown()
 {
+	xrDestroySwapchain(m_stereoSwapchain);
+	m_stereoSwapchain = nullptr;
+	m_stereoImages.clear();
+	xrDestroySwapchain(m_hudSwapchain);
+	m_hudSwapchain = nullptr;
+	xrDestroySpace(m_space);
+	m_space = nullptr;
 	xrDestroySession(m_session);
 	m_session = nullptr;
 	xrDestroyInstance(m_instance);
@@ -220,6 +230,43 @@ void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float
 	tanb = tanf(m_renderViews[eye].fov.angleDown);
 }
 
+void OpenXRManager::SubmitEyes(int width, int height, ID3D11Texture2D* leftEyeTex, int leftX, int leftY,
+	ID3D11Texture2D* rightEyeTex, int rightX, int rightY)
+{
+	if (!m_stereoSwapchain || m_stereoWidth != width || m_stereoHeight != height)
+	{
+		CreateStereoSwapchain(width, height);
+		if (!m_stereoSwapchain)
+			return;
+	}
+
+	ComPtr<ID3D11Device> device;
+	leftEyeTex->GetDevice(device.GetAddressOf());
+	ComPtr<ID3D11DeviceContext> context;
+	device->GetImmediateContext(context.GetAddressOf());
+
+	XR_CheckResult(xrAcquireSwapchainImage(m_stereoSwapchain, nullptr, &m_currentStereoIndex), "acquiring swapchain image", m_instance);
+	XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+	waitInfo.timeout = 1000000000;
+	XR_CheckResult(xrWaitSwapchainImage(m_stereoSwapchain, &waitInfo), "waiting for swapchain image", m_instance);
+
+	D3D11_BOX rect;
+	rect.left = leftX;
+	rect.top = leftY;
+	rect.right = leftX + width;
+	rect.bottom = leftY + height;
+	rect.front = 0;
+	rect.back = 1;
+	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, 0, 0, 0, leftEyeTex, 0, &rect);
+	rect.left = rightX;
+	rect.top = rightY;
+	rect.right = rightX + width;
+	rect.bottom = rightY + height;
+	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, width, 0, 0, rightEyeTex, 0, &rect);
+
+	xrReleaseSwapchainImage(m_stereoSwapchain, nullptr);
+}
+
 bool OpenXRManager::CreateInstance()
 {
 	CryLogAlways("Creating OpenXR instance...");
@@ -311,6 +358,51 @@ void OpenXRManager::HandleSessionStateChange(XrEventDataSessionStateChanged* eve
 		CryLogAlways("Error: XR session lost");
 		Shutdown();
 		break;
+	}
+}
+
+void OpenXRManager::CreateStereoSwapchain(int width, int height)
+{
+	if (m_stereoSwapchain)
+	{
+		xrDestroySwapchain(m_stereoSwapchain);
+		m_stereoSwapchain = nullptr;
+		m_stereoWidth = 0;
+		m_stereoHeight = 0;
+	}
+
+	CryLogAlways("XR: Creating stereo swapchain of size %i x %i", width, height);
+
+	XrSwapchainCreateInfo createInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
+	createInfo.width = width * 2;
+	createInfo.height = height;
+	createInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	createInfo.usageFlags = XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
+	createInfo.sampleCount = 1;
+	createInfo.faceCount = 1;
+	createInfo.arraySize = 1;
+	createInfo.mipCount = 1;
+	XrResult result = xrCreateSwapchain(m_session, &createInfo, &m_stereoSwapchain);
+	if (!XR_CheckResult(result, "creating stereo swapchain", m_instance))
+		return;
+	m_stereoWidth = width;
+	m_stereoHeight = height;
+
+	uint32_t imageCount;
+	xrEnumerateSwapchainImages(m_stereoSwapchain, 0, &imageCount, nullptr);
+	std::vector<XrSwapchainImageD3D11KHR> images (imageCount);
+	for (auto &image : images)
+	{
+		image.type = XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR;
+		image.next = nullptr;
+	}
+	result = xrEnumerateSwapchainImages(m_stereoSwapchain, images.size(), &imageCount, reinterpret_cast<XrSwapchainImageBaseHeader*>(images.data()));
+	XR_CheckResult(result, "getting swapchain images", m_instance);
+	m_stereoImages.clear();
+
+	for (const auto& image: images)
+	{
+		m_stereoImages.push_back(image.texture);
 	}
 }
 
