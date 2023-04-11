@@ -57,6 +57,7 @@
 #include "ISaveGame.h"
 #include "ILoadGame.h"
 #include "VR/Hooks.h"
+#include "VR/OpenXRManager.h"
 #include "VR/VRRenderer.h"
 #include "VR/VRManager.h"
 
@@ -379,6 +380,8 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	if (!gVR->Init())
 		return false;
+	if (!gXR->Init())
+		return false;
 
 	gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 
@@ -547,6 +550,7 @@ string CGame::InitMapReloading()
 void CGame::Shutdown()
 {
 	gVR->Shutdown();
+	gXR->Shutdown();
 
 	if (m_pPlayerProfileManager)
 	{

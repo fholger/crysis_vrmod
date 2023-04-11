@@ -7,6 +7,7 @@
 #include "Hooks.h"
 #include "IRenderAuxGeom.h"
 #include "IVehicleSystem.h"
+#include "OpenXRManager.h"
 #include "Player.h"
 #include "VRManager.h"
 #include "Weapon.h"
@@ -67,6 +68,7 @@ void VR_ISystem_Quit(ISystem *pSelf)
 {
 	gVRRenderer->Shutdown();
 	gVR->Shutdown();
+	gXR->Shutdown();
 	hooks::CallOriginal(VR_ISystem_Quit)(pSelf);
 }
 

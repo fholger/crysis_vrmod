@@ -443,6 +443,7 @@
     <ClCompile Include="VehicleWeapon.cpp" />
     <ClCompile Include="Voting.cpp" />
     <ClCompile Include="VR\Hooks.cpp" />
+    <ClCompile Include="VR\OpenXRManager.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -848,6 +849,7 @@
     <ClInclude Include="VehicleWeapon.h" />
     <ClInclude Include="Voting.h" />
     <ClInclude Include="VR\Hooks.h" />
+    <ClInclude Include="VR\OpenXRManager.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />
     <ClInclude Include="Weapon.h" />
