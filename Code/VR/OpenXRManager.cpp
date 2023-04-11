@@ -111,12 +111,44 @@ bool OpenXRManager::Init()
 
 void OpenXRManager::Shutdown()
 {
+	xrDestroySession(m_session);
+	m_session = nullptr;
 	xrDestroyInstance(m_instance);
 	m_instance = nullptr;
 }
 
+void OpenXRManager::GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel)
+{
+	XrGraphicsRequirementsD3D11KHR d3dReqs{};
+	d3dReqs.type = XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR;
+	XR_CheckResult(xrGetD3D11GraphicsRequirementsKHR(m_instance, m_system, &d3dReqs), "getting D3D11 requirements", m_instance);
+	if (adapterLuid)
+		*adapterLuid = d3dReqs.adapterLuid;
+	if (minRequiredLevel)
+		*minRequiredLevel = d3dReqs.minFeatureLevel;
+}
+
+void OpenXRManager::CreateSession(ID3D11Device* device)
+{
+	if (m_session)
+	{
+		xrDestroySession(m_session);
+		m_session = nullptr;
+	}
+	XrGraphicsBindingD3D11KHR graphicsBinding{};
+	graphicsBinding.type = XR_TYPE_GRAPHICS_BINDING_D3D11_KHR;
+	graphicsBinding.device = device;
+	XrSessionCreateInfo createInfo{};
+	createInfo.type = XR_TYPE_SESSION_CREATE_INFO;
+	createInfo.next = &graphicsBinding;
+	createInfo.systemId = m_system;
+	XrResult result = xrCreateSession(m_instance, &createInfo, &m_session);
+	XR_CheckResult(result, "creating session", m_instance);
+}
+
 bool OpenXRManager::CreateInstance()
 {
+	CryLogAlways("Creating OpenXR instance...");
 	XR_CheckAvailableExtensions();
 	XR_CheckAvailableApiLayers();
 
@@ -159,6 +191,10 @@ bool OpenXRManager::CreateInstance()
 
 	XR_LoadExtensionFunctions(m_instance);
 
-	return true;
+	XrSystemGetInfo systemInfo{};
+	systemInfo.type = XR_TYPE_SYSTEM_GET_INFO;
+	systemInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
+	result = xrGetSystem(m_instance, &systemInfo, &m_system);
+	return XR_CheckResult(result, "getting system", m_instance);
 }
 

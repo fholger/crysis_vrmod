@@ -4,6 +4,7 @@
 
 #include "Cry_Camera.h"
 #include "GameCVars.h"
+#include "OpenXRManager.h"
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
@@ -357,26 +358,49 @@ void VRManager::InitDevice(IDXGISwapChain* swapchain)
 		CryLogAlways("Device only has feature level %i", m_device->GetFeatureLevel());
 	}
 
-	//VR_InitD3D10DeviceHooks(m_device.Get());
-
-	CryLogAlways("Creating D3D11 device");
-	ComPtr<IDXGIAdapter> adapter;
 	ComPtr<IDXGIDevice> dxgiDevice;
 	m_device->QueryInterface(__uuidof(IDXGIDevice), (void**)dxgiDevice.GetAddressOf());
 	if (dxgiDevice)
 	{
-		CryLogAlways("Found DXGI device, querying for adapter");
-		dxgiDevice->GetAdapter(adapter.GetAddressOf());
+		ComPtr<IDXGIAdapter> d3d10Adapter;
+		dxgiDevice->GetAdapter(d3d10Adapter.GetAddressOf());
+		DXGI_ADAPTER_DESC desc;
+		d3d10Adapter->GetDesc(&desc);
+		CryLogAlways("Game is rendering to device %ls", desc.Description);
 	}
-	if (!adapter)
-		CryLogAlways("Did not find the DXGI adapter for the D3D10 device");
-	HRESULT hr = D3D11CreateDevice(adapter.Get(), adapter.Get() ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr,
-		D3D11_CREATE_DEVICE_SINGLETHREADED, nullptr, 0, D3D11_SDK_VERSION,
+
+	CryLogAlways("Creating D3D11 device");
+	LUID requiredAdapterLuid;
+	D3D_FEATURE_LEVEL requiredLevel;
+	gXR->GetD3D11Requirements(&requiredAdapterLuid, &requiredLevel);
+	ComPtr<IDXGIFactory1> factory;
+	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)factory.GetAddressOf());
+	if (hr != S_OK)
+	{
+		CryLogAlways("Failed to create DXGI factory: %i", hr);
+		return;
+	}
+	ComPtr<IDXGIAdapter1> adapter;
+	for (UINT idx = 0; factory->EnumAdapters1(idx, adapter.ReleaseAndGetAddressOf()) == S_OK; ++idx)
+	{
+		DXGI_ADAPTER_DESC1 desc;
+		adapter->GetDesc1(&desc);
+		if (desc.AdapterLuid.HighPart == requiredAdapterLuid.HighPart && desc.AdapterLuid.LowPart == requiredAdapterLuid.LowPart)
+		{
+			CryLogAlways("Found adapter for XR rendering: %ls", desc.Description);
+			break;
+		}
+	}
+
+	hr = D3D11CreateDevice(adapter.Get(), adapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE, nullptr,
+		D3D11_CREATE_DEVICE_SINGLETHREADED, &requiredLevel, 1, D3D11_SDK_VERSION,
 		m_device11.ReleaseAndGetAddressOf(), nullptr, m_context11.ReleaseAndGetAddressOf());
 	if (hr != S_OK)
 	{
 		CryLogAlways("Failed to create D3D11 device: %i", hr);
 	}
+
+	gXR->CreateSession(m_device11.Get());
 }
 
 void VRManager::CreateEyeTexture(int eye)
