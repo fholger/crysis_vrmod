@@ -10,6 +10,19 @@ OpenXRManager *gXR = &g_xrManager;
 
 namespace
 {
+	// OpenXR: x = right, y = up, -z = forward
+	// Crysis: x = right, y = forward, z = up
+	// both use the metric system, i.e. 1 unit = 1m
+	Vec3 OpenXRToCrysis(const XrVector3f& position)
+	{
+		return Vec3(position.x, position.z, -position.y);
+	}
+
+	Quat OpenXRToCrysis(const XrQuaternionf& rotation)
+	{
+		return Quat(-rotation.x, -rotation.z, rotation.y, rotation.w);
+	}
+
 	bool XR_KHR_D3D11_enable_available = false;
 	bool XR_EXT_debug_utils_available = false;
 	bool XR_EXT_hp_mixed_reality_controller_available = false;
@@ -190,6 +203,21 @@ void OpenXRManager::AwaitFrame()
 	uint32_t viewCount = 0;
 	result = xrLocateViews(m_session, &viewLocateInfo, &viewState, 2, &viewCount, m_renderViews);
 	XR_CheckResult(result, "getting eye views", m_instance);
+}
+
+Matrix34 OpenXRManager::GetRenderEyeTransform(int eye)
+{
+	Vec3 position = OpenXRToCrysis(m_renderViews[eye].pose.position);
+	Quat orientation = OpenXRToCrysis(m_renderViews[eye].pose.orientation);
+	return Matrix34(Vec3(1,1,1), orientation, position);
+}
+
+void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb)
+{
+	tanl = tanf(m_renderViews[eye].fov.angleLeft);
+	tanr = tanf(m_renderViews[eye].fov.angleRight);
+	tant = tanf(m_renderViews[eye].fov.angleUp);
+	tanb = tanf(m_renderViews[eye].fov.angleDown);
 }
 
 bool OpenXRManager::CreateInstance()

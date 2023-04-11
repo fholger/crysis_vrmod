@@ -11,6 +11,9 @@ public:
 	void CreateSession(ID3D11Device* device);
 	void AwaitFrame();
 
+	Matrix34 GetRenderEyeTransform(int eye);
+	void GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb);
+
 private:
 	XrInstance m_instance = nullptr;
 	XrSystemId m_system = 0;

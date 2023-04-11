@@ -115,7 +115,7 @@ void VRManager::AwaitFrame()
 	if (!m_initialized)
 		return;
 
-	vr::VRCompositor()->WaitGetPoses(&m_headPose, 1, nullptr, 0);
+	gXR->AwaitFrame();
 }
 
 void VRManager::CaptureEye(int eye)
@@ -311,10 +311,8 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	Matrix34 viewMat;
 	viewMat.SetRotationXYZ(angles, position);
 
-	vr::HmdMatrix34_t eyeMatVR = vr::VRSystem()->GetEyeToHeadTransform(eye == 0 ? vr::Eye_Left : vr::Eye_Right);
-	Matrix34 eyeMat = OpenVRToCrysis(eyeMatVR);
-	Matrix34 headMat = OpenVRToCrysis(m_headPose.mDeviceToAbsoluteTracking);
-	viewMat = viewMat * headMat * eyeMat;
+	Matrix34 eyeMat = gXR->GetRenderEyeTransform(eye);
+	viewMat = viewMat * eyeMat;
 
 	cam.SetMatrix(viewMat);
 
@@ -326,7 +324,7 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 
 	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
 	float tanl, tanr, tant, tanb;
-	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &tanl, &tanr, &tant, &tanb);
+	gXR->GetFov(eye, tanl, tanr, tant, tanb);
 	cam.UpdateFrustumFromVRRaw(tanl, tanr, -tanb, -tant);
 }
 
