@@ -144,6 +144,36 @@ void OpenXRManager::CreateSession(ID3D11Device* device)
 	createInfo.systemId = m_system;
 	XrResult result = xrCreateSession(m_instance, &createInfo, &m_session);
 	XR_CheckResult(result, "creating session", m_instance);
+	m_sessionActive = false;
+}
+
+void OpenXRManager::AwaitFrame()
+{
+	if (!m_session)
+		return;
+
+	XrEventDataBuffer eventData{};
+	eventData.type = XR_TYPE_EVENT_DATA_BUFFER;
+	XrResult result = xrPollEvent(m_instance, &eventData);
+	if (!XR_CheckResult(result, "polling event", m_instance))
+		return;
+
+	if (eventData.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED)
+		HandleSessionStateChange(reinterpret_cast<XrEventDataSessionStateChanged*>(&eventData));
+
+	if (!m_sessionActive)
+		return;
+
+	XrFrameState frameState{};
+	frameState.type = XR_TYPE_FRAME_STATE;
+	xrWaitFrame(m_session, nullptr, &frameState);
+	m_shouldRender = frameState.shouldRender;
+	m_predictedDisplayTime = frameState.predictedDisplayTime;
+	m_predictedNextFrameDisplayTime = m_predictedDisplayTime + frameState.predictedDisplayPeriod;
+
+	result = xrBeginFrame(m_session, nullptr);
+	XR_CheckResult(result, "begin frame", m_instance);
+	m_frameStarted = true;
 }
 
 bool OpenXRManager::CreateInstance()
@@ -196,5 +226,47 @@ bool OpenXRManager::CreateInstance()
 	systemInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
 	result = xrGetSystem(m_instance, &systemInfo, &m_system);
 	return XR_CheckResult(result, "getting system", m_instance);
+}
+
+void OpenXRManager::HandleSessionStateChange(XrEventDataSessionStateChanged* event)
+{
+	XrSessionBeginInfo beginInfo = {
+		XR_TYPE_SESSION_BEGIN_INFO,
+		nullptr,
+		XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+	};
+	XrResult result;
+
+	switch (event->state)
+	{
+	case XR_SESSION_STATE_READY:
+		CryLogAlways("XR session is ready, beginning session...");
+		result = xrBeginSession(m_session, &beginInfo);
+		XR_CheckResult(result, "beginning session", m_instance);
+		m_sessionActive = true;
+		break;
+
+	case XR_SESSION_STATE_SYNCHRONIZED:
+	case XR_SESSION_STATE_VISIBLE:
+	case XR_SESSION_STATE_FOCUSED:
+		CryLogAlways("XR session restored");
+		m_sessionActive = true;
+		break;
+
+	case XR_SESSION_STATE_IDLE:
+		m_sessionActive = false;
+		break;
+
+	case XR_SESSION_STATE_STOPPING:
+		m_sessionActive = false;
+		CryLogAlways("XR session lost or stopped");
+		result = xrEndSession(m_session);
+		XR_CheckResult(result, "ending session", m_instance);
+		break;
+	case XR_SESSION_STATE_LOSS_PENDING:
+		CryLogAlways("Error: XR session lost");
+		Shutdown();
+		break;
+	}
 }
 
