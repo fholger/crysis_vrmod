@@ -255,14 +255,28 @@ void OpenXRManager::FinishFrame()
 	stereoLayer.space = m_space;
 	stereoLayer.viewCount = 2;
 	stereoLayer.views = views;
+
+	XrCompositionLayerQuad hudLayer{ XR_TYPE_COMPOSITION_LAYER_QUAD };
+	hudLayer.eyeVisibility = XR_EYE_VISIBILITY_BOTH;
+	hudLayer.space = m_space;
+	hudLayer.subImage.swapchain = m_hudSwapchain;
+	hudLayer.subImage.imageRect.extent.width = m_hudWidth;
+	hudLayer.subImage.imageRect.extent.height = m_hudHeight;
+	hudLayer.pose.orientation.w = 1;
+	hudLayer.pose.position.z = -2.f;
+	hudLayer.size.width = 2.f;
+	hudLayer.size.height = 2.f;
+	hudLayer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+
 	const XrCompositionLayerBaseHeader* layers[] = {
 		reinterpret_cast<XrCompositionLayerBaseHeader*>(&stereoLayer),
+		reinterpret_cast<XrCompositionLayerBaseHeader*>(&hudLayer),
 	};
 
 	XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
 	endInfo.displayTime = m_predictedDisplayTime;
 	endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-	endInfo.layerCount = 1;
+	endInfo.layerCount = 2;
 	endInfo.layers = layers;
 
 	XrResult result = xrEndFrame(m_session, &endInfo);
@@ -312,7 +326,8 @@ void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	ComPtr<ID3D11DeviceContext> context;
 	device->GetImmediateContext(context.GetAddressOf());
 
-	XR_CheckResult(xrAcquireSwapchainImage(m_stereoSwapchain, nullptr, &m_currentStereoIndex), "acquiring swapchain image", m_instance);
+	uint32_t imageIdx;
+	XR_CheckResult(xrAcquireSwapchainImage(m_stereoSwapchain, nullptr, &imageIdx), "acquiring swapchain image", m_instance);
 	XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
 	waitInfo.timeout = 1000000000;
 	XR_CheckResult(xrWaitSwapchainImage(m_stereoSwapchain, &waitInfo), "waiting for swapchain image", m_instance);
@@ -324,14 +339,42 @@ void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	rect.bottom = rect.top + height;
 	rect.front = 0;
 	rect.back = 1;
-	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, 0, 0, 0, leftEyeTex, 0, &rect);
+	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, 0, 0, 0, leftEyeTex, 0, &rect);
 	rect.left = rDesc.Width * rightArea.x;
 	rect.top = rDesc.Height * rightArea.y;
 	rect.right = rect.left + width;
 	rect.bottom = rect.top + height;
-	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, width, 0, 0, rightEyeTex, 0, &rect);
+	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, width, 0, 0, rightEyeTex, 0, &rect);
 
 	XR_CheckResult(xrReleaseSwapchainImage(m_stereoSwapchain, nullptr), "releasing swapchain image", m_instance);
+}
+
+void OpenXRManager::SubmitHud(ID3D11Texture2D* hudTex)
+{
+	D3D11_TEXTURE2D_DESC desc;
+	hudTex->GetDesc(&desc);
+
+	if (!m_hudSwapchain || m_hudWidth != desc.Width || m_hudHeight != desc.Height)
+	{
+		CreateHudSwapchain(desc.Width, desc.Height);
+		if (!m_hudSwapchain)
+			return;
+	}
+
+	ComPtr<ID3D11Device> device;
+	hudTex->GetDevice(device.GetAddressOf());
+	ComPtr<ID3D11DeviceContext> context;
+	device->GetImmediateContext(context.GetAddressOf());
+
+	uint32_t imageIdx;
+	XR_CheckResult(xrAcquireSwapchainImage(m_hudSwapchain, nullptr, &imageIdx), "acquiring swapchain image", m_instance);
+	XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+	waitInfo.timeout = 1000000000;
+	XR_CheckResult(xrWaitSwapchainImage(m_hudSwapchain, &waitInfo), "waiting for swapchain image", m_instance);
+
+	context->CopyResource(m_hudImages[imageIdx], hudTex);
+
+	XR_CheckResult(xrReleaseSwapchainImage(m_hudSwapchain, nullptr), "releasing swapchain image", m_instance);
 }
 
 bool OpenXRManager::CreateInstance()
@@ -470,6 +513,51 @@ void OpenXRManager::CreateStereoSwapchain(int width, int height)
 	for (const auto& image: images)
 	{
 		m_stereoImages.push_back(image.texture);
+	}
+}
+
+void OpenXRManager::CreateHudSwapchain(int width, int height)
+{
+	if (m_hudSwapchain)
+	{
+		xrDestroySwapchain(m_hudSwapchain);
+		m_hudSwapchain = nullptr;
+		m_hudWidth = 0;
+		m_hudHeight = 0;
+	}
+
+	CryLogAlways("XR: Creating HUD swapchain of size %i x %i", width, height);
+
+	XrSwapchainCreateInfo createInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
+	createInfo.width = width;
+	createInfo.height = height;
+	createInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	createInfo.usageFlags = XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
+	createInfo.sampleCount = 1;
+	createInfo.faceCount = 1;
+	createInfo.arraySize = 1;
+	createInfo.mipCount = 1;
+	XrResult result = xrCreateSwapchain(m_session, &createInfo, &m_hudSwapchain);
+	if (!XR_CheckResult(result, "creating hud swapchain", m_instance))
+		return;
+	m_hudWidth = width;
+	m_hudHeight = height;
+
+	uint32_t imageCount;
+	xrEnumerateSwapchainImages(m_hudSwapchain, 0, &imageCount, nullptr);
+	std::vector<XrSwapchainImageD3D11KHR> images (imageCount);
+	for (auto &image : images)
+	{
+		image.type = XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR;
+		image.next = nullptr;
+	}
+	result = xrEnumerateSwapchainImages(m_hudSwapchain, images.size(), &imageCount, reinterpret_cast<XrSwapchainImageBaseHeader*>(images.data()));
+	XR_CheckResult(result, "getting swapchain images", m_instance);
+	m_hudImages.clear();
+
+	for (const auto& image: images)
+	{
+		m_hudImages.push_back(image.texture);
 	}
 }
 

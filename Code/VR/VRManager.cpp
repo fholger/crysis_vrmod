@@ -144,7 +144,7 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 	ComPtr<IDXGIKeyedMutex> mutexHud;
 	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexHud.GetAddressOf());
 	mutexHud->AcquireSync(1, 1000);
-	//vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
+	gXR->SubmitHud(m_hudTexture11.Get());
 	mutexHud->ReleaseSync(0);
 
 	if (!didRenderThisFrame)

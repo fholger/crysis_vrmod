@@ -17,6 +17,7 @@ public:
 	Vec2i GetRecommendedRenderSize() const;
 
 	void SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea);
+	void SubmitHud(ID3D11Texture2D* hudTex);
 
 private:
 	XrInstance m_instance = nullptr;
@@ -32,13 +33,16 @@ private:
 	XrSwapchain m_stereoSwapchain = nullptr;
 	int m_stereoWidth = 0;
 	int m_stereoHeight = 0;
-	XrSwapchain m_hudSwapchain = nullptr;
 	std::vector<ID3D11Texture2D*> m_stereoImages;
-	uint32_t m_currentStereoIndex = 0;
+	XrSwapchain m_hudSwapchain = nullptr;
+	int m_hudWidth = 0;
+	int m_hudHeight = 0;
+	std::vector<ID3D11Texture2D*> m_hudImages;
 
 	bool CreateInstance();
 	void HandleSessionStateChange(XrEventDataSessionStateChanged* event);
 	void CreateStereoSwapchain(int width, int height);
+	void CreateHudSwapchain(int width, int height);
 };
 
 extern OpenXRManager *gXR;
