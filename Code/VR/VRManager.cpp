@@ -141,6 +141,12 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 	if (!m_initialized || !m_device || !m_device11)
 		return;
 
+	if (!didRenderThisFrame)
+	{
+		// bit late technically, but need to do this to be able to update the HUD
+		gXR->AwaitFrame();
+	}
+
 	ComPtr<IDXGIKeyedMutex> mutexHud;
 	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexHud.GetAddressOf());
 	mutexHud->AcquireSync(1, 1000);
@@ -148,7 +154,10 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 	mutexHud->ReleaseSync(0);
 
 	if (!didRenderThisFrame)
+	{
+		gXR->FinishFrame();
 		return;
+	}
 
 	ComPtr<IDXGIKeyedMutex> mutexLeft, mutexRight;
 	m_eyeTextures11[0]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexLeft.GetAddressOf());
