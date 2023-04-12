@@ -44,6 +44,7 @@ namespace
 
 #define XR_DECLARE_FN_PTR(name) PFN_##name name = nullptr
 	XR_DECLARE_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
+	XR_DECLARE_FN_PTR(xrCreateDebugUtilsMessengerEXT);
 
 	bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
 	{
@@ -53,7 +54,7 @@ namespace
 
 		char resultString[XR_MAX_RESULT_STRING_SIZE];
 		xrResultToString( instance, result, resultString );
-		CryLogAlways("XR %s failed: %s", description, resultString);
+		CryLogAlways("XR %s failed: %s (%i)", description, resultString, result);
 		return false;
 	}
 
@@ -126,6 +127,27 @@ namespace
 	{
 #define XR_LOAD_FN_PTR(name) XR_CheckResult(xrGetInstanceProcAddr(instance, #name, (PFN_xrVoidFunction*)& name), "loading extension function " #name, instance)
 		XR_LOAD_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
+		XR_LOAD_FN_PTR(xrCreateDebugUtilsMessengerEXT);
+	}
+
+	XrBool32 XRAPI_PTR XR_DebugMessengerCallback(
+			XrDebugUtilsMessageSeverityFlagsEXT              messageSeverity,
+			XrDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+			const XrDebugUtilsMessengerCallbackDataEXT*      callbackData,
+			void*                                            userData) {
+		CryLogAlways("XR in %s: %s", callbackData->functionName, callbackData->message);
+		return XR_TRUE;
+	}
+
+	void XR_SetupDebugMessenger(XrInstance instance)
+	{
+		static XrDebugUtilsMessengerEXT debugMessenger = nullptr;
+
+		XrDebugUtilsMessengerCreateInfoEXT createInfo{ XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+		createInfo.messageSeverities = 0xffffffff;
+		createInfo.messageTypes = 0xffffffff;
+		createInfo.userCallback = &XR_DebugMessengerCallback;
+		xrCreateDebugUtilsMessengerEXT(instance, &createInfo, &debugMessenger);
 	}
 }
 
@@ -391,18 +413,16 @@ bool OpenXRManager::CreateInstance()
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
+	enabledExtensions.push_back(XR_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	if (XR_EXT_hp_mixed_reality_controller_available)
 		enabledExtensions.push_back(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME);
 
-	XrInstanceCreateInfo createInfo {};
-	createInfo.type = XR_TYPE_INSTANCE_CREATE_INFO;
-	createInfo.applicationInfo = {
-		"Crysis VR",
-		1,
-		"CryEngine 2",
-		0,
-		XR_CURRENT_API_VERSION,
-	};
+	XrInstanceCreateInfo createInfo{ XR_TYPE_INSTANCE_CREATE_INFO };
+	createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
+	createInfo.applicationInfo.applicationVersion = 1;
+	createInfo.applicationInfo.engineVersion = 1;
+	strcpy(createInfo.applicationInfo.applicationName, "Crysis VR");
+	strcpy(createInfo.applicationInfo.engineName, "CryEngine 2");
 	createInfo.enabledExtensionCount = enabledExtensions.size();
 	createInfo.enabledExtensionNames = enabledExtensions.data();
 
@@ -421,6 +441,7 @@ bool OpenXRManager::CreateInstance()
 		XR_VERSION_PATCH(instanceProperties.runtimeVersion));
 
 	XR_LoadExtensionFunctions(m_instance);
+	XR_SetupDebugMessenger(m_instance);
 
 	XrSystemGetInfo systemInfo{};
 	systemInfo.type = XR_TYPE_SYSTEM_GET_INFO;
