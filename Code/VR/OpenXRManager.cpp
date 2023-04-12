@@ -16,14 +16,26 @@ namespace
 	// OpenXR: x = right, y = up, -z = forward
 	// Crysis: x = right, y = forward, z = up
 	// both use the metric system, i.e. 1 unit = 1m
-	Vec3 OpenXRToCrysis(const XrVector3f& position)
+	Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position)
 	{
-		return Vec3(position.x, position.z, -position.y);
-	}
+		Vec3 pos(position.x, position.y, position.z);
+		Quat rot(orientation.w, orientation.x, orientation.y, orientation.z);
+		Matrix34 xr(Vec3(1, 1, 1), rot, pos);
 
-	Quat OpenXRToCrysis(const XrQuaternionf& rotation)
-	{
-		return Quat(-rotation.x, -rotation.z, rotation.y, rotation.w);
+		Matrix34 m;
+		m.m00 = xr.m00;
+		m.m01 = -xr.m02;
+		m.m02 = xr.m01;
+		m.m03 = xr.m03;
+		m.m10 = -xr.m20;
+		m.m11 = xr.m22;
+		m.m12 = -xr.m21;
+		m.m13 = -xr.m23;
+		m.m20 = xr.m10;
+		m.m21 = -xr.m12;
+		m.m22 = xr.m11;
+		m.m23 = xr.m13;
+		return m;
 	}
 
 	bool XR_KHR_D3D11_enable_available = false;
@@ -32,6 +44,7 @@ namespace
 
 #define XR_DECLARE_FN_PTR(name) PFN_##name name = nullptr
 	XR_DECLARE_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
+	XR_DECLARE_FN_PTR(xrCreateDebugUtilsMessengerEXT);
 
 	bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
 	{
@@ -114,6 +127,27 @@ namespace
 	{
 #define XR_LOAD_FN_PTR(name) XR_CheckResult(xrGetInstanceProcAddr(instance, #name, (PFN_xrVoidFunction*)& name), "loading extension function " #name, instance)
 		XR_LOAD_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
+		XR_LOAD_FN_PTR(xrCreateDebugUtilsMessengerEXT);
+	}
+
+	XrBool32 XRAPI_PTR XR_DebugMessengerCallback(
+			XrDebugUtilsMessageSeverityFlagsEXT              messageSeverity,
+			XrDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+			const XrDebugUtilsMessengerCallbackDataEXT*      callbackData,
+			void*                                            userData) {
+		CryLogAlways("XR in %s: %s", callbackData->functionName, callbackData->message);
+		return XR_TRUE;
+	}
+
+	void XR_SetupDebugMessenger(XrInstance instance)
+	{
+		static XrDebugUtilsMessengerEXT debugMessenger = nullptr;
+
+		XrDebugUtilsMessengerCreateInfoEXT createInfo{ XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+		createInfo.messageSeverities = 0xffffffff;
+		createInfo.messageTypes = 0xffffffff;
+		createInfo.userCallback = &XR_DebugMessengerCallback;
+		xrCreateDebugUtilsMessengerEXT(instance, &createInfo, &debugMessenger);
 	}
 }
 
@@ -172,6 +206,7 @@ void OpenXRManager::CreateSession(ID3D11Device* device)
 	XrReferenceSpaceCreateInfo spaceCreateInfo{};
 	spaceCreateInfo.type = XR_TYPE_REFERENCE_SPACE_CREATE_INFO;
 	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
+	spaceCreateInfo.poseInReferenceSpace.orientation.w = 1;
 	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
 	XR_CheckResult(result, "creating seated reference space", m_instance);
 }
@@ -215,14 +250,53 @@ void OpenXRManager::AwaitFrame()
 	XR_CheckResult(result, "getting eye views", m_instance);
 }
 
-Matrix34 OpenXRManager::GetRenderEyeTransform(int eye)
+void OpenXRManager::FinishFrame()
 {
-	Vec3 position = OpenXRToCrysis(m_renderViews[eye].pose.position);
-	Quat orientation = OpenXRToCrysis(m_renderViews[eye].pose.orientation);
-	return Matrix34(Vec3(1,1,1), orientation, position);
+	if (!m_frameStarted)
+		return;
+
+	XrCompositionLayerProjectionView views[2] = {};
+	views[0].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
+	views[0].pose = m_renderViews[0].pose;
+	views[0].fov = m_renderViews[0].fov;
+	views[0].subImage.swapchain = m_stereoSwapchain;
+	views[0].subImage.imageRect.offset.x = 0;
+	views[0].subImage.imageRect.offset.y = 0;
+	views[0].subImage.imageRect.extent.width = m_stereoWidth;
+	views[0].subImage.imageRect.extent.height = m_stereoHeight;
+	views[1].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
+	views[1].pose = m_renderViews[1].pose;
+	views[1].fov = m_renderViews[1].fov;
+	views[1].subImage.swapchain = m_stereoSwapchain;
+	views[1].subImage.imageRect.offset.x = m_stereoWidth;
+	views[1].subImage.imageRect.offset.y = 0;
+	views[1].subImage.imageRect.extent.width = m_stereoWidth;
+	views[1].subImage.imageRect.extent.height = m_stereoHeight;
+
+	XrCompositionLayerProjection stereoLayer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+	stereoLayer.space = m_space;
+	stereoLayer.viewCount = 2;
+	stereoLayer.views = views;
+	const XrCompositionLayerBaseHeader* layers[] = {
+		reinterpret_cast<XrCompositionLayerBaseHeader*>(&stereoLayer),
+	};
+
+	XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
+	endInfo.displayTime = m_predictedDisplayTime;
+	endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+	endInfo.layerCount = 1;
+	endInfo.layers = layers;
+
+	XrResult result = xrEndFrame(m_session, &endInfo);
+	XR_CheckResult(result, "submitting frame", m_instance);
 }
 
-void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb)
+Matrix34 OpenXRManager::GetRenderEyeTransform(int eye) const
+{
+	return OpenXRToCrysis(m_renderViews[eye].pose.orientation, m_renderViews[eye].pose.position);
+}
+
+void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const
 {
 	tanl = tanf(m_renderViews[eye].fov.angleLeft);
 	tanr = tanf(m_renderViews[eye].fov.angleRight);
@@ -230,9 +304,24 @@ void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float
 	tanb = tanf(m_renderViews[eye].fov.angleDown);
 }
 
-void OpenXRManager::SubmitEyes(int width, int height, ID3D11Texture2D* leftEyeTex, int leftX, int leftY,
-	ID3D11Texture2D* rightEyeTex, int rightX, int rightY)
+Vec2i OpenXRManager::GetRecommendedRenderSize() const
 {
+	uint32_t viewCount = 0;
+	XrViewConfigurationView views[2] = {};
+	views[0].type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
+	views[1].type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
+	xrEnumerateViewConfigurationViews(m_instance, m_system, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, 2, &viewCount, views);
+	return Vec2i(views[0].recommendedImageRectWidth, views[0].recommendedImageRectHeight);
+}
+
+void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)
+{
+	D3D11_TEXTURE2D_DESC lDesc, rDesc;
+	leftEyeTex->GetDesc(&lDesc);
+	rightEyeTex->GetDesc(&rDesc);
+	int width = max(lDesc.Width * leftArea.w, rDesc.Width * rightArea.w);
+	int height = max(lDesc.Height * leftArea.h, rDesc.Height * rightArea.h);
+
 	if (!m_stereoSwapchain || m_stereoWidth != width || m_stereoHeight != height)
 	{
 		CreateStereoSwapchain(width, height);
@@ -251,20 +340,20 @@ void OpenXRManager::SubmitEyes(int width, int height, ID3D11Texture2D* leftEyeTe
 	XR_CheckResult(xrWaitSwapchainImage(m_stereoSwapchain, &waitInfo), "waiting for swapchain image", m_instance);
 
 	D3D11_BOX rect;
-	rect.left = leftX;
-	rect.top = leftY;
-	rect.right = leftX + width;
-	rect.bottom = leftY + height;
+	rect.left = lDesc.Width * leftArea.x;
+	rect.top = lDesc.Height * leftArea.y;
+	rect.right = rect.left + width;
+	rect.bottom = rect.top + height;
 	rect.front = 0;
 	rect.back = 1;
 	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, 0, 0, 0, leftEyeTex, 0, &rect);
-	rect.left = rightX;
-	rect.top = rightY;
-	rect.right = rightX + width;
-	rect.bottom = rightY + height;
+	rect.left = rDesc.Width * rightArea.x;
+	rect.top = rDesc.Height * rightArea.y;
+	rect.right = rect.left + width;
+	rect.bottom = rect.top + height;
 	context->CopySubresourceRegion(m_stereoImages[m_currentStereoIndex], 0, width, 0, 0, rightEyeTex, 0, &rect);
 
-	xrReleaseSwapchainImage(m_stereoSwapchain, nullptr);
+	XR_CheckResult(xrReleaseSwapchainImage(m_stereoSwapchain, nullptr), "releasing swapchain image", m_instance);
 }
 
 bool OpenXRManager::CreateInstance()
@@ -281,6 +370,7 @@ bool OpenXRManager::CreateInstance()
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
+	enabledExtensions.push_back(XR_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	if (XR_EXT_hp_mixed_reality_controller_available)
 		enabledExtensions.push_back(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME);
 
@@ -311,6 +401,7 @@ bool OpenXRManager::CreateInstance()
 		XR_VERSION_PATCH(instanceProperties.runtimeVersion));
 
 	XR_LoadExtensionFunctions(m_instance);
+	XR_SetupDebugMessenger(m_instance);
 
 	XrSystemGetInfo systemInfo{};
 	systemInfo.type = XR_TYPE_SYSTEM_GET_INFO;
@@ -376,7 +467,7 @@ void OpenXRManager::CreateStereoSwapchain(int width, int height)
 	XrSwapchainCreateInfo createInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
 	createInfo.width = width * 2;
 	createInfo.height = height;
-	createInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	createInfo.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	createInfo.usageFlags = XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
 	createInfo.sampleCount = 1;
 	createInfo.faceCount = 1;

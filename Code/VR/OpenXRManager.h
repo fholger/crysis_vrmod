@@ -10,12 +10,13 @@ public:
 	void GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel);
 	void CreateSession(ID3D11Device* device);
 	void AwaitFrame();
+	void FinishFrame();
 
-	Matrix34 GetRenderEyeTransform(int eye);
-	void GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb);
+	Matrix34 GetRenderEyeTransform(int eye) const;
+	void GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const;
+	Vec2i GetRecommendedRenderSize() const;
 
-	void SubmitEyes(int width, int height, ID3D11Texture2D* leftEyeTex, int leftX, int leftY,
-		ID3D11Texture2D* rightEyTex, int rightX, int rightY);
+	void SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea);
 
 private:
 	XrInstance m_instance = nullptr;

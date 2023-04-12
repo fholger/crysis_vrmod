@@ -3,7 +3,6 @@
 #include <dxgi.h>
 #include <d3d11.h>
 #include <wrl/client.h>
-#include <openvr.h>
 
 #include "HUD/HUD.h"
 
@@ -32,7 +31,7 @@ public:
 
 	void ModifyViewCamera(int eye, CCamera& cam);
 
-	void GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom);
+	RectF GetEffectiveRenderLimits(int eye);
 
 private:
 	bool m_initialized = false;
@@ -47,12 +46,6 @@ private:
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
 	ComPtr<ID3D11Texture2D> m_hudTexture11;
 
-	vr::TrackedDevicePose_t m_headPose;
-	vr::VROverlayHandle_t m_hudOverlay;
-	float m_verticalFov;
-	float m_horizontalFov;
-	float m_vertRenderScale;
-	float m_horzRenderScale;
 	float m_prevViewYaw = 0;
 
 	void InitDevice(IDXGISwapChain* swapchain);

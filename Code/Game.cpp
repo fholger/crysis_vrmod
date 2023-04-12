@@ -376,13 +376,13 @@ bool CGame::Init(IGameFramework *pFramework)
 
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
-	gVRRenderer->Init();
 
 	if (!gVR->Init())
 		return false;
 	if (!gXR->Init())
 		return false;
 
+	gVRRenderer->Init();
 	gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 
 	return true;

@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "VRManager.h"
-#include <openvr.h>
 
 #include "Cry_Camera.h"
 #include "GameCVars.h"
@@ -8,26 +7,6 @@
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
-
-// OpenVR: x = right, y = up, -z = forward
-// Crysis: x = right, y = forward, z = up
-Matrix34 OpenVRToCrysis(const vr::HmdMatrix34_t &mat)
-{
-	Matrix34 m;
-	m.m00 = mat.m[0][0];
-	m.m01 = -mat.m[0][2];
-	m.m02 = mat.m[0][1];
-	m.m03 = mat.m[0][3];
-	m.m10 = -mat.m[2][0];
-	m.m11 = mat.m[2][2];
-	m.m12 = -mat.m[2][1];
-	m.m13 = -mat.m[2][3];
-	m.m20 = mat.m[1][0];
-	m.m21 = -mat.m[1][2];
-	m.m22 = mat.m[1][1];
-	m.m23 = mat.m[1][3];
-	return m;
-}
 
 VRManager::~VRManager()
 {
@@ -50,37 +29,6 @@ bool VRManager::Init()
 {
 	if (m_initialized)
 		return true;
-
-	vr::EVRInitError error;
-	vr::VR_Init(&error, vr::VRApplication_Scene);
-	if (error != vr::VRInitError_None)
-	{
-		CryError("Failed to initialize OpenVR: %s", vr::VR_GetVRInitErrorAsEnglishDescription(error));
-		return false;
-	}
-
-	vr::VRCompositor()->SetTrackingSpace(vr::TrackingUniverseSeated);
-
-	vr::VROverlay()->CreateOverlay("CrysisHud", "Crysis HUD", &m_hudOverlay);
-	vr::VROverlay()->SetOverlayWidthInMeters(m_hudOverlay, 2.f);
-	vr::HmdMatrix34_t transform;
-	memset(&transform, 0, sizeof(vr::HmdMatrix34_t));
-	transform.m[0][0] = transform.m[1][1] = transform.m[2][2] = 1;
-	transform.m[0][3] = 0;
-	transform.m[1][3] = 0;
-	transform.m[2][3] = -2.f;
-	vr::VROverlay()->SetOverlayTransformAbsolute(m_hudOverlay, vr::TrackingUniverseSeated, &transform);
-	vr::VROverlay()->ShowOverlay(m_hudOverlay);
-
-	float ll, lr, lt, lb, rl, rr, rt, rb;
-	vr::VRSystem()->GetProjectionRaw(vr::Eye_Left, &ll, &lr, &lt, &lb);
-	vr::VRSystem()->GetProjectionRaw(vr::Eye_Right, &rl, &rr, &rt, &rb);
-	CryLogAlways(" Left eye - l: %.2f  r: %.2f  t: %.2f  b: %.2f", ll, lr, lt, lb);
-	CryLogAlways("Right eye - l: %.2f  r: %.2f  t: %.2f  b: %.2f", rl, rr, rt, rb);
-	m_verticalFov = max(max(fabsf(lt), fabsf(lb)), max(fabsf(rt), fabsf(rb)));
-	m_horizontalFov = max(max(fabsf(ll), fabsf(lr)), max(fabsf(rl), fabsf(rr)));
-	m_vertRenderScale = 2.f * m_verticalFov / min(fabsf(lt) + fabsf(lb), fabsf(rt) + fabsf(rb));
-	CryLogAlways("VR vert fov: %.2f  horz fov: %.2f  vert scale: %.2f", m_verticalFov, m_horizontalFov, m_vertRenderScale);
 
 	m_initialized = true;
 	return true;
@@ -105,8 +53,6 @@ void VRManager::Shutdown()
 	if (!m_initialized)
 		return;
 
-	vr::VROverlay()->DestroyOverlay(m_hudOverlay);
-	vr::VR_Shutdown();
 	m_initialized = false;
 }
 
@@ -195,61 +141,50 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 	if (!m_initialized || !m_device || !m_device11)
 		return;
 
-	vr::Texture_t texInfo;
-	texInfo.eColorSpace = vr::ColorSpace_Auto;
-	texInfo.eType = vr::TextureType_DirectX;
-	texInfo.handle = (void*)m_hudTexture11.Get();
-
-	ComPtr<IDXGIKeyedMutex> mutex;
-	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	HRESULT hr = mutex->AcquireSync(1, 1000);
-	if (hr != S_OK)
-	{
-		CryLogAlways("Error while waiting for HUD texture mutex in FinishFrame: %i", hr);
-	}
-	vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
-	mutex->ReleaseSync(0);
+	ComPtr<IDXGIKeyedMutex> mutexHud;
+	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexHud.GetAddressOf());
+	mutexHud->AcquireSync(1, 1000);
+	//vr::VROverlay()->SetOverlayTexture(m_hudOverlay, &texInfo);
+	mutexHud->ReleaseSync(0);
 
 	if (!didRenderThisFrame)
 		return;
 
-	for (int eye = 0; eye < 2; ++eye)
-	{
-		vr::Texture_t vrTexData;
-		vrTexData.eType = vr::TextureType_DirectX;
-		vrTexData.eColorSpace = vr::ColorSpace_Auto;
-		vrTexData.handle = m_eyeTextures11[eye].Get();
+	ComPtr<IDXGIKeyedMutex> mutexLeft, mutexRight;
+	m_eyeTextures11[0]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexLeft.GetAddressOf());
+	mutexLeft->AcquireSync(1, 1000);
+	m_eyeTextures11[1]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexRight.GetAddressOf());
+	mutexRight->AcquireSync(1, 1000);
 
-		// game is currently using symmetric projection, we need to cut off the texture accordingly
-		vr::VRTextureBounds_t bounds;
-		GetEffectiveRenderLimits(eye, &bounds.uMin, &bounds.uMax, &bounds.vMin, &bounds.vMax);
+	// game is currently using symmetric projection, we need to cut off the texture accordingly
+	RectF leftBounds = GetEffectiveRenderLimits(0);
+	RectF rightBounds = GetEffectiveRenderLimits(1);
+	gXR->SubmitEyes(m_eyeTextures11[0].Get(), leftBounds, m_eyeTextures11[1].Get(), rightBounds);
 
-		ComPtr<IDXGIKeyedMutex> mutex;
-		m_eyeTextures11[eye]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-		mutex->AcquireSync(1, 1000);
+	mutexLeft->ReleaseSync(0);
+	mutexRight->ReleaseSync(0);
 
-		auto error = vr::VRCompositor()->Submit(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &vrTexData, &bounds);
-		if (error != vr::VRCompositorError_None)
-		{
-			CryLogAlways("Submitting eye texture failed: %i", error);
-		}
-
-		mutex->ReleaseSync(0);
-	}
-
-	vr::VRCompositor()->PostPresentHandoff();
+	gXR->FinishFrame();
 }
 
 Vec2i VRManager::GetRenderSize() const
 {
-	if (!m_initialized)
-		return Vec2i(1280, 800);
+	float ll, lr, lt, lb, rl, rr, rt, rb;
+	gXR->GetFov(0, ll, lr, lt, lb);
+	gXR->GetFov(1, rl, rr, rt, rb);
+	if (ll == 0)
+	{
+		// XR is not running, yet
+		return Vec2i(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
+	}
+	float verticalFov = max(max(fabsf(lt), fabsf(lb)), max(fabsf(rt), fabsf(rb)));
+	float horizontalFov = max(max(fabsf(ll), fabsf(lr)), max(fabsf(rl), fabsf(rr)));
+	float vertRenderScale = 2.f * verticalFov / min(fabsf(lt) + fabsf(lb), fabsf(rt) + fabsf(rb));
 
-	uint32_t width, height;
-	vr::VRSystem()->GetRecommendedRenderTargetSize(&width, &height);
-	height *= m_vertRenderScale;
-	width = height * m_horizontalFov / m_verticalFov;
-	return Vec2i(width, height);
+	Vec2i renderSize = gXR->GetRecommendedRenderSize();
+	renderSize.y *= vertRenderScale;
+	renderSize.x = renderSize.y * horizontalFov / verticalFov;
+	return renderSize;
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -318,24 +253,39 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 
 	// we don't have obvious access to the projection matrix, and the camera code is written with symmetric projection in mind
 	// for now, set up a symmetric FOV and cut off parts of the image during submission
-	float vertFov = atanf(m_verticalFov) * 2;
+	float tanl, tanr, tant, tanb;
+	gXR->GetFov(eye, tanl, tanr, tant, tanb);
+	float verticalFov = max(fabsf(tant), fabsf(tanb));
+	float vertFov = atanf(verticalFov) * 2;
 	Vec2i renderSize = GetRenderSize();
 	cam.SetFrustum(renderSize.x, renderSize.y, vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 
 	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
-	float tanl, tanr, tant, tanb;
-	gXR->GetFov(eye, tanl, tanr, tant, tanb);
-	cam.UpdateFrustumFromVRRaw(tanl, tanr, -tanb, -tant);
+	cam.UpdateFrustumFromVRRaw(tanl, tanr, tanb, tant);
 }
 
-void VRManager::GetEffectiveRenderLimits(int eye, float* left, float* right, float* top, float* bottom)
+RectF VRManager::GetEffectiveRenderLimits(int eye)
 {
 	float l, r, t, b;
-	vr::VRSystem()->GetProjectionRaw(eye == 0 ? vr::Eye_Left : vr::Eye_Right, &l, &r, &t, &b);
-	*left = 0.5f + 0.5f * l / m_horizontalFov;
-	*right = 0.5f + 0.5f * r / m_horizontalFov;
-	*top = 0.5f - 0.5f * b / m_verticalFov;
-	*bottom = 0.5f - 0.5f * t / m_verticalFov;
+	gXR->GetFov(eye, l, r, t, b);
+	float verticalFov = max(fabsf(t), fabsf(b));
+	float horizontalFov = max(fabsf(l), fabsf(r));
+	RectF result;
+	if (verticalFov > 0)
+	{
+		result.x = 0.5f + 0.5f * l / horizontalFov;
+		result.y = 0.5f - 0.5f * t / verticalFov;
+		result.w = 0.5f + 0.5f * r / horizontalFov - result.x;
+		result.h = 0.5f - 0.5f * b / verticalFov - result.y;
+	}
+	else
+	{
+		result.x = 0;
+		result.y = 0;
+		result.w = 1;
+		result.h = 1;
+	}
+	return result;
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
