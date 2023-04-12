@@ -246,13 +246,18 @@ void OpenXRManager::AwaitFrame()
 	viewLocateInfo.displayTime = m_predictedDisplayTime;
 	XrViewState viewState{XR_TYPE_VIEW_STATE};
 	uint32_t viewCount = 0;
+	for (int i = 0; i < 2; ++i)
+	{
+		m_renderViews[i].type = XR_TYPE_VIEW;
+		m_renderViews[i].next = nullptr;
+	}
 	result = xrLocateViews(m_session, &viewLocateInfo, &viewState, 2, &viewCount, m_renderViews);
 	XR_CheckResult(result, "getting eye views", m_instance);
 }
 
 void OpenXRManager::FinishFrame()
 {
-	if (!m_frameStarted)
+	if (!m_frameStarted || !m_sessionActive)
 		return;
 
 	XrCompositionLayerProjectionView views[2] = {};
@@ -330,6 +335,9 @@ Vec2i OpenXRManager::GetRecommendedRenderSize() const
 
 void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)
 {
+	if (!m_sessionActive)
+		return;
+
 	D3D11_TEXTURE2D_DESC lDesc, rDesc;
 	leftEyeTex->GetDesc(&lDesc);
 	rightEyeTex->GetDesc(&rDesc);
@@ -373,6 +381,9 @@ void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 
 void OpenXRManager::SubmitHud(ID3D11Texture2D* hudTex)
 {
+	if (!m_sessionActive)
+		return;
+
 	D3D11_TEXTURE2D_DESC desc;
 	hudTex->GetDesc(&desc);
 
