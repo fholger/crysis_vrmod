@@ -3,7 +3,7 @@
 
 #include "Cry_Camera.h"
 #include "GameCVars.h"
-#include "OpenXRManager.h"
+#include "OpenXRRuntime.h"
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;

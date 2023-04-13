@@ -57,7 +57,7 @@
 #include "ISaveGame.h"
 #include "ILoadGame.h"
 #include "VR/Hooks.h"
-#include "VR/OpenXRManager.h"
+#include "VR/OpenXRRuntime.h"
 #include "VR/VRRenderer.h"
 #include "VR/VRManager.h"
 

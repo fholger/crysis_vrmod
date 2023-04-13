@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <openxr/openxr.h>
 
-class OpenXRManager
+class OpenXRRuntime
 {
 public:
 	bool Init();
@@ -45,4 +45,4 @@ private:
 	void CreateHudSwapchain(int width, int height);
 };
 
-extern OpenXRManager *gXR;
+extern OpenXRRuntime *gXR;

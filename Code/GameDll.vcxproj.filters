@@ -689,7 +689,7 @@
     <ClCompile Include="VR\VRManager.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
-    <ClCompile Include="VR\OpenXRManager.cpp">
+    <ClCompile Include="VR\OpenXRRuntime.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1889,7 +1889,7 @@
     <ClInclude Include="VR\VRManager.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
-    <ClInclude Include="VR\OpenXRManager.h">
+    <ClInclude Include="VR\OpenXRRuntime.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
   </ItemGroup>

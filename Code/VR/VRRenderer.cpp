@@ -8,7 +8,7 @@
 #include "IRenderAuxGeom.h"
 #include "IronSight.h"
 #include "IVehicleSystem.h"
-#include "OpenXRManager.h"
+#include "OpenXRRuntime.h"
 #include "Player.h"
 #include "VRManager.h"
 #include "Weapon.h"

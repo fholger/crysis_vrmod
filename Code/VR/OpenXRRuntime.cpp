@@ -4,10 +4,10 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <openxr/openxr_platform.h>
-#include "OpenXRManager.h"
+#include "OpenXRRuntime.h"
 
-OpenXRManager g_xrManager;
-OpenXRManager *gXR = &g_xrManager;
+OpenXRRuntime g_xrRuntime;
+OpenXRRuntime *gXR = &g_xrRuntime;
 
 using Microsoft::WRL::ComPtr;
 
@@ -151,7 +151,7 @@ namespace
 	}
 }
 
-bool OpenXRManager::Init()
+bool OpenXRRuntime::Init()
 {
 	if (!CreateInstance())
 		return false;
@@ -159,7 +159,7 @@ bool OpenXRManager::Init()
 	return true;
 }
 
-void OpenXRManager::Shutdown()
+void OpenXRRuntime::Shutdown()
 {
 	xrDestroySwapchain(m_stereoSwapchain);
 	m_stereoSwapchain = nullptr;
@@ -174,7 +174,7 @@ void OpenXRManager::Shutdown()
 	m_instance = nullptr;
 }
 
-void OpenXRManager::GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel)
+void OpenXRRuntime::GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel)
 {
 	XrGraphicsRequirementsD3D11KHR d3dReqs{};
 	d3dReqs.type = XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR;
@@ -185,7 +185,7 @@ void OpenXRManager::GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* m
 		*minRequiredLevel = d3dReqs.minFeatureLevel;
 }
 
-void OpenXRManager::CreateSession(ID3D11Device* device)
+void OpenXRRuntime::CreateSession(ID3D11Device* device)
 {
 	if (m_session)
 	{
@@ -211,7 +211,7 @@ void OpenXRManager::CreateSession(ID3D11Device* device)
 	XR_CheckResult(result, "creating seated reference space", m_instance);
 }
 
-void OpenXRManager::AwaitFrame()
+void OpenXRRuntime::AwaitFrame()
 {
 	if (!m_session)
 		return;
@@ -255,7 +255,7 @@ void OpenXRManager::AwaitFrame()
 	XR_CheckResult(result, "getting eye views", m_instance);
 }
 
-void OpenXRManager::FinishFrame()
+void OpenXRRuntime::FinishFrame()
 {
 	if (!m_frameStarted || !m_sessionActive)
 		return;
@@ -310,12 +310,12 @@ void OpenXRManager::FinishFrame()
 	XR_CheckResult(result, "submitting frame", m_instance);
 }
 
-Matrix34 OpenXRManager::GetRenderEyeTransform(int eye) const
+Matrix34 OpenXRRuntime::GetRenderEyeTransform(int eye) const
 {
 	return OpenXRToCrysis(m_renderViews[eye].pose.orientation, m_renderViews[eye].pose.position);
 }
 
-void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const
+void OpenXRRuntime::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const
 {
 	tanl = tanf(m_renderViews[eye].fov.angleLeft);
 	tanr = tanf(m_renderViews[eye].fov.angleRight);
@@ -323,7 +323,7 @@ void OpenXRManager::GetFov(int eye, float& tanl, float& tanr, float& tant, float
 	tanb = tanf(m_renderViews[eye].fov.angleDown);
 }
 
-Vec2i OpenXRManager::GetRecommendedRenderSize() const
+Vec2i OpenXRRuntime::GetRecommendedRenderSize() const
 {
 	uint32_t viewCount = 0;
 	XrViewConfigurationView views[2] = {};
@@ -333,7 +333,7 @@ Vec2i OpenXRManager::GetRecommendedRenderSize() const
 	return Vec2i(views[0].recommendedImageRectWidth, views[0].recommendedImageRectHeight);
 }
 
-void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)
+void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)
 {
 	if (!m_sessionActive)
 		return;
@@ -379,7 +379,7 @@ void OpenXRManager::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	XR_CheckResult(xrReleaseSwapchainImage(m_stereoSwapchain, nullptr), "releasing swapchain image", m_instance);
 }
 
-void OpenXRManager::SubmitHud(ID3D11Texture2D* hudTex)
+void OpenXRRuntime::SubmitHud(ID3D11Texture2D* hudTex)
 {
 	if (!m_sessionActive)
 		return;
@@ -410,7 +410,7 @@ void OpenXRManager::SubmitHud(ID3D11Texture2D* hudTex)
 	XR_CheckResult(xrReleaseSwapchainImage(m_hudSwapchain, nullptr), "releasing swapchain image", m_instance);
 }
 
-bool OpenXRManager::CreateInstance()
+bool OpenXRRuntime::CreateInstance()
 {
 	CryLogAlways("Creating OpenXR instance...");
 	XR_CheckAvailableExtensions();
@@ -461,7 +461,7 @@ bool OpenXRManager::CreateInstance()
 	return XR_CheckResult(result, "getting system", m_instance);
 }
 
-void OpenXRManager::HandleSessionStateChange(XrEventDataSessionStateChanged* event)
+void OpenXRRuntime::HandleSessionStateChange(XrEventDataSessionStateChanged* event)
 {
 	XrSessionBeginInfo beginInfo = {
 		XR_TYPE_SESSION_BEGIN_INFO,
@@ -503,7 +503,7 @@ void OpenXRManager::HandleSessionStateChange(XrEventDataSessionStateChanged* eve
 	}
 }
 
-void OpenXRManager::CreateStereoSwapchain(int width, int height)
+void OpenXRRuntime::CreateStereoSwapchain(int width, int height)
 {
 	if (m_stereoSwapchain)
 	{
@@ -548,7 +548,7 @@ void OpenXRManager::CreateStereoSwapchain(int width, int height)
 	}
 }
 
-void OpenXRManager::CreateHudSwapchain(int width, int height)
+void OpenXRRuntime::CreateHudSwapchain(int width, int height)
 {
 	if (m_hudSwapchain)
 	{
