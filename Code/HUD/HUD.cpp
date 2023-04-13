@@ -3277,8 +3277,11 @@ void CHUD::OnPostUpdate(float frameTime)
 			int zoommode = m_pHUDScopes->m_iZoomLevel;
 
 			Vec3 vWorldPos;
-			if(!pCurrentWeapon->GetScopePosition(vWorldPos))
-				vWorldPos = gEnv->pRenderer->GetCamera().GetPosition();
+			if (!pCurrentWeapon->GetScopePosition(vWorldPos))
+			{
+				//vWorldPos = gEnv->pRenderer->GetCamera().GetPosition();
+				vWorldPos = gVRRenderer->GetCurrentViewCamera().GetPosition();
+			}
 
 			//float color[] = {1,1,1,0.5f};
 			//gEnv->pRenderer->Draw2dLabel(100,100,2,color,false,"%f, %f, %f",vWorldPos.x,vWorldPos.y,vWorldPos.z);

@@ -6,6 +6,7 @@
 #include "GameCVars.h"
 #include "Hooks.h"
 #include "IRenderAuxGeom.h"
+#include "IronSight.h"
 #include "IVehicleSystem.h"
 #include "OpenXRManager.h"
 #include "Player.h"
@@ -184,6 +185,20 @@ bool VRRenderer::ShouldRenderVR() const
 {
 	if (g_pGameCVars->vr_cutscenes_2d && g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return false;
+
+	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (pPlayer)
+	{
+		if (CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(true)))
+		{
+			IZoomMode* zoom = weapon->GetZoomMode(weapon->GetCurrentZoomMode());
+			if (CIronSight *sight = dynamic_cast<CIronSight*>(zoom))
+			{
+				if (sight->IsScope() && (sight->IsZoomed() || sight->IsZooming()))
+					return false;
+			}
+		}
+	}
 
 	return !m_binocularsActive;
 }

@@ -1231,7 +1231,8 @@ bool CSingle::CrosshairAssistAiming(const Vec3& firingPos, Vec3& firingDir, ray_
   if (pEntity && m_pWeapon->IsValidAssistTarget(pEntity, pSelf, false))
     return false;
 
-  const CCamera& cam = gEnv->pRenderer->GetCamera();
+  //const CCamera& cam = gEnv->pRenderer->GetCamera();
+  const CCamera& cam = gVRRenderer->GetCurrentViewCamera();
   Lineseg lineseg(cam.GetPosition(), cam.GetPosition()+m_fireparams.crosshair_assist_range*cam.GetViewdir());  
   
   float t = 0.f;  
