@@ -7,7 +7,7 @@ You need to own and have installed the original Crysis (*not* the Remastered ver
 
 This mod is still very early in its development. It has working stereoscopic rendering with 6DOF headset tracking.
 There is currently no motion controller or roomscale support, so you'll have to play seated with a keyboard+mouse or gamepad.
-The mod currently requires SteamVR to run.
+The mod uses OpenXR and was successfully tested with the SteamVR and Oculus runtimes, but is expected to work with WMR, too.
 
 ## Installation
 
@@ -17,7 +17,7 @@ Run it and point it to where you have installed Crysis. If you are not sure and 
 in your Steam library, then select "Manage" -> "Browse local files", and it will show you the game's install location.
 
 The installer will install the VR mod and all required dependencies. Once it's done, head over to your Crysis folder and
-double-click the `LaunchVRMod.bat` file to start playing Crysis in VR.
+launch the `CrysisVR.exe` file inside the `Bin64` folder to start playing Crysis in VR.
 
 *Note*: the installer is not digitally signed, so Windows will warn you and stop you from executing it. You'll have to tell
 it to run the installer, anyway.
@@ -28,12 +28,18 @@ If you are the brave sort, you can also opt to download the [latest development 
 
 ## Playing
 
-The mod is currently a seated experience and requires that you calibrate your seated position in SteamVR. Once in position,
-bring up the SteamVR menu and click on the little position icon in the lower right of the menu to calibrate your seated position.
+The mod is currently a seated experience and requires that you calibrate your seated position in your VR runtime. 
+For SteamVR, once in position, go to your desktop and bring up the SteamVR desktop menu and select "Reset seated position".
+The in-VR option to recenter your view does *not* work, unfortunately. Note: you may have to alt-tab out of the game to
+access the SteamVR menu on the desktop, which will pause the game and stop it from properly rendering in VR. It will resume
+once you refocus the game window.
 
 As there is currently no support for motion controllers, you have to play with a gamepad or keyboard and mouse. You will see
 a small white dot in front of you that functions as a crosshair replacement in VR. You can freely move the crosshair around
 in a small region in front of you. If you move the crosshair beyond the edges of this region, your view will rotate.
+
+If you do not like the deadzone, you can disable it or modify its radius. Bring down the console (`~` key by default) and type
+in `vr_yaw_deadzone_angle 0`.
 
 In-game cutscenes display in VR by default, but since they take over the camera, you might prefer to have them display in 2D, instead. To achieve this, bring down the console (`~` key by default) and type in `vr_cutscenes_2d 1` to switch cutscenes
 into 2D mode.
@@ -57,7 +63,6 @@ There are also a few tricks I can hopefully implement at some point that would i
 
 - Sort out bugs and issues in the current release
 - Improve playability of the current keyboard+mouse seated experience
-- Consider port to OpenXR
 - Consider simple motion controller and roomscale support
 
 ## Legal notices
