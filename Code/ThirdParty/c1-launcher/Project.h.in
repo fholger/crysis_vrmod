@@ -1,0 +1,16 @@
+/**
+ * @file
+ * @brief Project information.
+ *
+ * This file is processed by CMake.
+ */
+
+#pragma once
+
+#define PROJECT_VERSION @PROJECT_VERSION_MAJOR@
+#define PROJECT_VERSION_STRING "v@PROJECT_VERSION_MAJOR@"
+#define PROJECT_BUILD_BITS "@BUILD_BITS@-bit"
+
+// contains launcher name and version
+// defined in Main.cpp of each launcher
+extern const char* const PROJECT_BANNER;
