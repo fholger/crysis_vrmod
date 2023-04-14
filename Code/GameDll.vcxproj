@@ -822,7 +822,6 @@
     <ClInclude Include="ThirdParty\minhook\src\hde\pstdint.h" />
     <ClInclude Include="ThirdParty\minhook\src\hde\table64.h" />
     <ClInclude Include="ThirdParty\minhook\src\trampoline.h" />
-    <ClInclude Include="ThirdParty\openvr\include\openvr.h" />
     <ClInclude Include="Throw.h" />
     <ClInclude Include="ThrowableWeapon.h" />
     <ClInclude Include="TracerManager.h" />

@@ -100,9 +100,6 @@
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{96a85344-e3e6-419d-9792-077c8021645a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\OpenVR">
-      <UniqueIdentifier>{79ab463c-e2b7-429e-ad65-b6f81d12b0e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ThirdParty\MinHook">
       <UniqueIdentifier>{7c889be8-bb9f-498f-ad19-e55afc939549}</UniqueIdentifier>
     </Filter>
@@ -1861,9 +1858,6 @@
     </ClInclude>
     <ClInclude Include="CryEngine\CryAction\Network\NetActionSync.h">
       <Filter>CryEngine Headers\CryAction\Network</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\openvr\include\openvr.h">
-      <Filter>ThirdParty\OpenVR</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\minhook\include\MinHook.h">
       <Filter>ThirdParty\MinHook</Filter>

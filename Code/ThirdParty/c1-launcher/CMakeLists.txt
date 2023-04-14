@@ -86,6 +86,7 @@ add_executable(CrysisVR WIN32
 	Resources/Launcher.manifest
 	Resources/GameLauncher.rc
 )
+add_custom_command(TARGET CrysisVR POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:CrysisVR> "${PROJECT_SOURCE_DIR}/../../../Bin64")
 
 target_link_libraries(CrysisVR LauncherBase)
 
