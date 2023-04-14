@@ -82,6 +82,8 @@ void VRRenderer::Init()
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
 
+	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
+
 	IDXGISwapChain *swapChain = g_latestCreatedSwapChain;
 	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
 
@@ -101,9 +103,10 @@ void VRRenderer::Shutdown()
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
 	IDXGISwapChain *currentSwapChain = g_latestCreatedSwapChain;
-	if (currentSwapChain != gVR->GetSwapChain())
+	int64 milliSecsSinceLastPresentCall = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64() - m_lastPresentCallTime;
+	if (currentSwapChain != gVR->GetSwapChain() || milliSecsSinceLastPresentCall > 1000)
 	{
-		CryLogAlways("SwapChain changed! Reinitializing hooks...");
+		CryLogAlways("May have lost our Present hook, recreating!");
 		hooks::RemoveHook(&IDXGISwapChain_Present);
 		hooks::RemoveHook(&IDXGISwapChain_ResizeTarget);
 		hooks::RemoveHook(&IDXGISwapChain_ResizeBuffers);
@@ -138,6 +141,8 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 
 bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 {
+	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
+
 	gVR->SetSwapChain(swapChain);
 	gVR->CaptureHUD();
 	return true;
