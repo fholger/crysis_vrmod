@@ -17,10 +17,8 @@ namespace {
 
 namespace hooks {
 
-	void Init() {
-		if (MH_Initialize() != MH_OK) {
-			CryError("Failed to initialize MinHook");
-		}
+	bool Init() {
+		return MH_Initialize() == MH_OK;
 	}
 
 	void Shutdown() {

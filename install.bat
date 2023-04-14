@@ -9,12 +9,8 @@ if not exist %VRMOD_INSTALL_DIR%\Bin64 (mkdir %VRMOD_INSTALL_DIR%\Bin64)
 
 xcopy /i /y %SOURCE_DIR%\*.xml %VRMOD_INSTALL_DIR%
 xcopy /y %SOURCE_DIR%\Bin64\VRMod.dll %VRMOD_INSTALL_DIR%\Bin64
-rem xcopy /y %SOURCE_DIR%\Bin64\dxgi.dll %CRYSIS_INSTALL_DIR%\Bin64
-xcopy /y %SOURCE_DIR%\Bin64\d3d10.dll %CRYSIS_INSTALL_DIR%\Bin64
-xcopy /y %SOURCE_DIR%\Bin64\openvr_api.dll %CRYSIS_INSTALL_DIR%\Bin64
-xcopy /y %SOURCE_DIR%\Bin64\CrysisC1.exe %CRYSIS_INSTALL_DIR%\Bin64
+xcopy /y %SOURCE_DIR%\Bin64\CrysisVR.exe %CRYSIS_INSTALL_DIR%\Bin64
 xcopy /i /s /y %SOURCE_DIR%\Game %VRMOD_INSTALL_DIR%\Game
-xcopy /y %SOURCE_DIR%\LaunchVRMod.bat %CRYSIS_INSTALL_DIR%
 
 goto eof
 

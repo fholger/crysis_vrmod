@@ -15,6 +15,7 @@ class GameLauncher
 		void* pCryNetwork;
 		void* pCrySystem;
 		void* pCryRenderD3D10;
+		void* pVRMod;
 
 		int gameBuild;
 	};
@@ -30,4 +31,6 @@ public:
 private:
 	void LoadEngine();
 	void PatchEngine();
+	void LoadVRMod();
+	void InitVRModD3DHooks();
 };

@@ -21,6 +21,9 @@ namespace
 
 VRRenderer* gVRRenderer = &g_vrRendererImpl;
 
+extern ID3D10Device1 *g_latestCreatedDevice;
+extern IDXGISwapChain *g_latestCreatedSwapChain;
+
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
 	HRESULT hr = 0;
@@ -73,22 +76,22 @@ void VR_ISystem_Quit(ISystem *pSelf)
 	hooks::CallOriginal(VR_ISystem_Quit)(pSelf);
 }
 
-extern "C" ID3D10Device1 *CryGetLatestCreatedDevice();
-extern "C" IDXGISwapChain *CryGetLatestCreatedSwapChain();
-
 void VRRenderer::Init()
 {
-	IDXGISwapChain *swapChain = CryGetLatestCreatedSwapChain();
-	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
-
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
-	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
 
-	gVR->SetSwapChain(swapChain);
+	IDXGISwapChain *swapChain = g_latestCreatedSwapChain;
+	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
+
+	if (swapChain != nullptr)
+	{
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
+		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
+		gVR->SetSwapChain(swapChain);
+	}
 }
 
 void VRRenderer::Shutdown()
@@ -97,7 +100,7 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
-	IDXGISwapChain *currentSwapChain = CryGetLatestCreatedSwapChain();
+	IDXGISwapChain *currentSwapChain = g_latestCreatedSwapChain;
 	if (currentSwapChain != gVR->GetSwapChain())
 	{
 		CryLogAlways("SwapChain changed! Reinitializing hooks...");

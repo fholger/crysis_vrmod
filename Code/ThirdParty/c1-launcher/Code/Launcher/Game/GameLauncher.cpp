@@ -7,6 +7,8 @@
 
 #include "GameLauncher.h"
 
+#include "Library/StringTools.h"
+
 #define DEFAULT_LOG_FILE_NAME "Game.log"
 
 static std::FILE* OpenLogFile()
@@ -48,6 +50,7 @@ int GameLauncher::Run()
 
 void GameLauncher::LoadEngine()
 {
+	LoadVRMod();
 	m_dlls.pCrySystem = LauncherCommon::LoadModule("CrySystem.dll");
 
 	m_dlls.gameBuild = LauncherCommon::GetGameBuild(m_dlls.pCrySystem);
@@ -105,5 +108,24 @@ void GameLauncher::PatchEngine()
 	if (m_dlls.pCryRenderD3D10)
 	{
 		MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(m_dlls.pCryRenderD3D10, m_dlls.gameBuild);
+	}
+}
+
+void GameLauncher::LoadVRMod()
+{
+	std::string vrModPath = LauncherCommon::GetMainFolderPath();
+	if (vrModPath.empty())
+		vrModPath = ".";
+	vrModPath += "\\Mods\\VRMod\\Bin64\\VRMod.dll";
+	m_dlls.pVRMod = LauncherCommon::LoadModule(vrModPath.c_str());
+}
+
+void GameLauncher::InitVRModD3DHooks()
+{
+	typedef bool (*InitD3DHooksFn)();
+	auto fn = (InitD3DHooksFn) OS::Module::FindSymbol(m_dlls.pVRMod, "CryVRInitD3DHooks");
+	if (fn == nullptr || !fn())
+	{
+		throw StringTools::Error("Could not initialize VR mod hooks!");
 	}
 }

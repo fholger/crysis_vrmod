@@ -7,7 +7,7 @@
 
 namespace hooks {
 
-	void Init();
+	bool Init();
 	void Shutdown();
 
 	/*template<typename T>

@@ -692,6 +692,9 @@
     <ClCompile Include="VR\OpenXRRuntime.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
+    <ClCompile Include="VR\D3DHooks.cpp">
+      <Filter>VR Mod</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">

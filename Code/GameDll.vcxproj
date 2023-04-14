@@ -150,7 +150,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -230,7 +230,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -442,6 +442,7 @@
     <ClCompile Include="VehicleMovementWarrior.cpp" />
     <ClCompile Include="VehicleWeapon.cpp" />
     <ClCompile Include="Voting.cpp" />
+    <ClCompile Include="VR\D3DHooks.cpp" />
     <ClCompile Include="VR\Hooks.cpp" />
     <ClCompile Include="VR\OpenXRRuntime.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
@@ -867,11 +868,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameDll.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="d3d10_wrapper\D3D10Wrapper.vcxproj">
-      <Project>{b9b43121-f0f9-404a-9a4e-22231e40177c}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
