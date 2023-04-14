@@ -424,7 +424,6 @@ bool OpenXRRuntime::CreateInstance()
 
 	std::vector<const char*> enabledExtensions;
 	enabledExtensions.push_back(XR_KHR_D3D11_ENABLE_EXTENSION_NAME);
-	enabledExtensions.push_back(XR_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	if (XR_EXT_hp_mixed_reality_controller_available)
 		enabledExtensions.push_back(XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME);
 
@@ -452,7 +451,6 @@ bool OpenXRRuntime::CreateInstance()
 		XR_VERSION_PATCH(instanceProperties.runtimeVersion));
 
 	XR_LoadExtensionFunctions(m_instance);
-	XR_SetupDebugMessenger(m_instance);
 
 	XrSystemGetInfo systemInfo{};
 	systemInfo.type = XR_TYPE_SYSTEM_GET_INFO;
