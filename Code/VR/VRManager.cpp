@@ -138,7 +138,7 @@ void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
 
 void VRManager::FinishFrame(bool didRenderThisFrame)
 {
-	if (!m_initialized || !m_device || !m_device11)
+	if (!m_initialized || !m_device || !m_device11 || !m_hudTexture11)
 		return;
 
 	if (!didRenderThisFrame)

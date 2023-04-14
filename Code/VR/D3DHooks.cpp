@@ -84,10 +84,26 @@ extern "C" bool __declspec(dllexport) CryVRInitD3DHooks()
 	if (!hooks::Init())
 		return false;
 
-	// install hooks to redirect calls to D3D10.1 and DXGI 1.1
-	hooks::InstallHook("D3D10CreateDevice", &D3D10CreateDevice, &D3D10CreateDevice_wrapper);
-	hooks::InstallHook("D3D10CreateDeviceAndSwapChain", &D3D10CreateDeviceAndSwapChain, &D3D10CreateDeviceAndSwapChain_wrapper);
-	hooks::InstallHook("CreateDXGIFactory", &CreateDXGIFactory, &CreateDXGIFactory_wrapper);
+	// load system d3d10.dll
+	wchar_t buf[MAX_PATH + 1];
+	GetSystemDirectoryW(buf, sizeof(buf));
+	std::wstring systemPath = buf;
+	std::wstring d3d10DllPath = systemPath + L"\\d3d10.dll";
+	HMODULE d3d10Dll = LoadLibraryW(d3d10DllPath.c_str());
+	if (!d3d10Dll) {
+		return false;
+	}
+	// install hooks to redirect calls to D3D10.1
+	hooks::InstallHook("D3D10CreateDevice", GetProcAddress(d3d10Dll, "D3D10CreateDevice"), &D3D10CreateDevice_wrapper);
+	hooks::InstallHook("D3D10CreateDeviceAndSwapChain", GetProcAddress(d3d10Dll, "D3D10CreateDeviceAndSwapChain"), &D3D10CreateDeviceAndSwapChain_wrapper);
+
+	// load system dxgi.dll
+	std::wstring dxgiDllPath = systemPath + L"\\dxgi.dll";
+	HMODULE dxgiDll = LoadLibraryW(dxgiDllPath.c_str());
+	if (!dxgiDll) {
+		return false;
+	}
+	hooks::InstallHook("CreateDXGIFactory", GetProcAddress(dxgiDll, "CreateDXGIFactory"), &CreateDXGIFactory_wrapper);
 
 	// install DXGI factory hooks to capture created swapchains
 	ComPtr<IDXGIFactory1> factory;
