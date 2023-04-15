@@ -102,17 +102,20 @@ void VRRenderer::Init()
 	IDXGISwapChain *swapChain = g_latestCreatedSwapChain;
 	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
 
-	if (swapChain != nullptr)
+	if (!swapChain)
 	{
-		swapChain->GetDevice(__uuidof(ID3D10Device), (void**)m_device.ReleaseAndGetAddressOf());
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
-		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
-		hooks::InstallVirtualFunctionHook("ID3D10Device::OMSetRenderTargets", m_device.Get(), &ID3D10Device::OMSetRenderTargets, &VR_ID3D10Device_OMSetRenderTargets);
-		hooks::InstallVirtualFunctionHook("ID3D10Device::RSSetState", m_device.Get(), &ID3D10Device::RSSetState, &VR_ID3D10Device_RSSetState);
-
-		gVR->SetSwapChain(swapChain);
+		CryLogAlways("Error: no swapchain found");
+		return;
 	}
+
+	swapChain->GetDevice(__uuidof(ID3D10Device), (void**)m_device.ReleaseAndGetAddressOf());
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
+	hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
+	hooks::InstallVirtualFunctionHook("ID3D10Device::OMSetRenderTargets", m_device.Get(), &ID3D10Device::OMSetRenderTargets, &VR_ID3D10Device_OMSetRenderTargets);
+	hooks::InstallVirtualFunctionHook("ID3D10Device::RSSetState", m_device.Get(), &ID3D10Device::RSSetState, &VR_ID3D10Device_RSSetState);
+
+	gVR->SetSwapChain(swapChain);
 }
 
 void VRRenderer::Shutdown()
@@ -265,7 +268,7 @@ void VRRenderer::OnRenderTargetChanged(ID3D10RenderTargetView* rtv, ID3D10DepthS
 
 void VRRenderer::OnSetRasterizerState(ID3D10RasterizerState*& state)
 {
-	if (!m_renderTargetIsBackBuffer || m_renderingEye == -1 || !state)
+	if (!m_renderTargetIsBackBuffer || m_renderingEye == -1 || !state || !g_pGameCVars->vr_render_use_scissor)
 		return;
 
 	D3D10_RASTERIZER_DESC desc;
@@ -380,7 +383,7 @@ void VRRenderer::DrawCrosshair()
 
 void VRRenderer::SetScissorForCurrentEye()
 {
-	if (m_renderingEye == -1)
+	if (m_renderingEye == -1 || !g_pGameCVars->vr_render_use_scissor)
 		return;
 
 	// since we can't easily set the projection matrix properly for asymmetric FOV rendering, we will instead set a scissor
