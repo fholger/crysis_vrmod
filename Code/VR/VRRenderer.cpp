@@ -13,6 +13,7 @@
 #include "VRManager.h"
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
+#include <d3d9.h>
 
 namespace
 {
@@ -23,6 +24,8 @@ VRRenderer* gVRRenderer = &g_vrRendererImpl;
 
 extern ID3D10Device1 *g_latestCreatedDevice;
 extern IDXGISwapChain *g_latestCreatedSwapChain;
+
+const D3DCOLOR EvtCol = D3DCOLOR_ARGB(255, 255, 0, 0);
 
 HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
@@ -63,6 +66,18 @@ BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx,
 	return TRUE;
 }
 
+void VR_ID3D10Device_OMSetRenderTargets(ID3D10Device *pSelf, UINT NumViews, ID3D10RenderTargetView *const *ppRenderTargetViews, ID3D10DepthStencilView *pDepthStencilView)
+{
+	gVRRenderer->OnRenderTargetChanged(NumViews > 0 ? ppRenderTargetViews[0] : nullptr, pDepthStencilView);
+	hooks::CallOriginal(VR_ID3D10Device_OMSetRenderTargets)(pSelf, NumViews, ppRenderTargetViews, pDepthStencilView);
+}
+
+void VR_ID3D10Device_RSSetState(ID3D10Device *pSelf, ID3D10RasterizerState *state)
+{
+	gVRRenderer->OnSetRasterizerState(state);
+	hooks::CallOriginal(VR_ID3D10Device_RSSetState)(pSelf, state);
+}
+
 void VR_ISystem_Render(ISystem *pSelf)
 {
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
@@ -89,9 +104,13 @@ void VRRenderer::Init()
 
 	if (swapChain != nullptr)
 	{
+		swapChain->GetDevice(__uuidof(ID3D10Device), (void**)m_device.ReleaseAndGetAddressOf());
 		hooks::InstallVirtualFunctionHook("IDXGISwapChain::Present", swapChain, 8, &IDXGISwapChain_Present);
 		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeBuffers", swapChain, 13, &IDXGISwapChain_ResizeBuffers);
 		hooks::InstallVirtualFunctionHook("IDXGISwapChain::ResizeTarget", swapChain, 14, &IDXGISwapChain_ResizeTarget);
+		hooks::InstallVirtualFunctionHook("ID3D10Device::OMSetRenderTargets", m_device.Get(), &ID3D10Device::OMSetRenderTargets, &VR_ID3D10Device_OMSetRenderTargets);
+		hooks::InstallVirtualFunctionHook("ID3D10Device::RSSetState", m_device.Get(), &ID3D10Device::RSSetState, &VR_ID3D10Device_RSSetState);
+
 		gVR->SetSwapChain(swapChain);
 	}
 }
@@ -102,6 +121,7 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	D3DPERF_BeginEvent(EvtCol, L"StereoRender");
 	IDXGISwapChain *currentSwapChain = g_latestCreatedSwapChain;
 	int64 milliSecsSinceLastPresentCall = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64() - m_lastPresentCallTime;
 	if (currentSwapChain != gVR->GetSwapChain() || milliSecsSinceLastPresentCall > 1000)
@@ -137,6 +157,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	}
 
 	m_didRenderThisFrame = true;
+	D3DPERF_EndEvent();
 }
 
 bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
@@ -144,6 +165,7 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
 
 	gVR->SetSwapChain(swapChain);
+	D3DPERF_SetMarker(EvtCol, L"CaptureHUD");
 	gVR->CaptureHUD();
 	return true;
 }
@@ -211,10 +233,63 @@ bool VRRenderer::ShouldRenderVR() const
 	return !m_binocularsActive;
 }
 
+void VRRenderer::OnRenderTargetChanged(ID3D10RenderTargetView* rtv, ID3D10DepthStencilView* depth)
+{
+	m_renderTargetIsBackBuffer = false;
+
+	if (!g_latestCreatedSwapChain || !rtv)
+		return;
+
+	// check if the render target is the current backbuffer
+	ComPtr<ID3D10Texture2D> tex;
+	rtv->GetResource((ID3D10Resource**)tex.GetAddressOf());
+	ComPtr<ID3D10Texture2D> backBuffer;
+	g_latestCreatedSwapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)backBuffer.GetAddressOf());
+	if (backBuffer != tex)
+		return;
+
+	m_renderTargetIsBackBuffer = true;
+
+	if (m_renderingEye == -1)
+		return;
+
+	// make sure scissor is enabled and set scissor
+	ComPtr<ID3D10RasterizerState> currentState;
+	m_device->RSGetState(currentState.GetAddressOf());
+	ID3D10RasterizerState* desiredState = currentState.Get();
+	OnSetRasterizerState(desiredState);
+	if (desiredState != currentState.Get())
+		hooks::CallOriginal(VR_ID3D10Device_RSSetState)(m_device.Get(), desiredState);
+	SetScissorForCurrentEye();
+}
+
+void VRRenderer::OnSetRasterizerState(ID3D10RasterizerState*& state)
+{
+	if (!m_renderTargetIsBackBuffer || m_renderingEye == -1 || !state)
+		return;
+
+	D3D10_RASTERIZER_DESC desc;
+	state->GetDesc(&desc);
+	if (desc.ScissorEnable) // scissor already enabled?
+		return;
+
+	auto it = m_replacementStates.find(state);
+	if (it == m_replacementStates.end())
+	{
+		CryLogAlways("Creating replacement rasterizer state with scissor enabled for %ul", (uintptr_t)state);
+		desc.ScissorEnable = TRUE;
+		m_device->CreateRasterizerState(&desc, m_replacementStates[state].ReleaseAndGetAddressOf());
+	}
+
+	state = m_replacementStates[state].Get();
+}
+
 extern void DrawHUDFaders();
 
 void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	D3DPERF_BeginEvent(EvtCol, L"SingleEye");
+	m_renderingEye = eye;
 	CCamera eyeCam = m_originalViewCamera;
 	gVR->ModifyViewCamera(eye, eyeCam);
 	pSystem->SetViewCamera(eyeCam);
@@ -238,7 +313,11 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 	DrawHUDFaders();
 
+	D3DPERF_SetMarker(EvtCol, L"CaptureEye");
 	gVR->CaptureEye(eye);
+	m_renderingEye = -1;
+
+	D3DPERF_EndEvent();
 }
 
 void VRRenderer::DrawCrosshair()
@@ -287,6 +366,7 @@ void VRRenderer::DrawCrosshair()
 		crosshairPos += dir * maxDistance;
 	}
 
+	D3DPERF_BeginEvent(EvtCol, L"DrawCrosshair");
 	// for the moment, draw something primitive with the debug tools. Maybe later we can find something more elegant...
 	SAuxGeomRenderFlags geomMode;
 	geomMode.SetDepthTestFlag(e_DepthTestOff);
@@ -295,4 +375,23 @@ void VRRenderer::DrawCrosshair()
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
 	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
+	D3DPERF_EndEvent();
+}
+
+void VRRenderer::SetScissorForCurrentEye()
+{
+	if (m_renderingEye == -1)
+		return;
+
+	// since we can't easily set the projection matrix properly for asymmetric FOV rendering, we will instead set a scissor
+	// to recoup the GPU performance lost.
+	RectF limits = gVR->GetEffectiveRenderLimits(m_renderingEye);
+	Vec2i size = gVR->GetRenderSize();
+
+	D3D10_RECT scissor;
+	scissor.left = size.x * limits.x;
+	scissor.top = size.y * limits.y;
+	scissor.right = size.x * (limits.x + limits.w);
+	scissor.bottom = size.y * (limits.y + limits.h);
+	m_device->RSSetScissorRects(1, &scissor);
 }

@@ -1,8 +1,17 @@
 #pragma once
+
 #include "Cry_Camera.h"
 #include "HUD/HUD.h"
+#include <d3d10_1.h>
+#include <unordered_map>
+#include <wrl/client.h>
+#undef PlaySound
+#undef DrawText
+#undef GetMessage
+#undef min
+#undef max
 
-struct IDXGISwapChain;
+using Microsoft::WRL::ComPtr;
 
 class VRRenderer : public CHUD::IHUDListener
 {
@@ -29,7 +38,11 @@ public:
 
 	bool ShouldIgnoreWindowSizeChanges() const { return m_ignoreWindowSizeChanges; }
 
+	void OnRenderTargetChanged(ID3D10RenderTargetView* rtv, ID3D10DepthStencilView* depth);
+	void OnSetRasterizerState(ID3D10RasterizerState*& state);
+
 private:
+	ComPtr<ID3D10Device> m_device;
 	CCamera m_originalViewCamera;
 	bool m_viewCamOverridden = false;
 	bool m_binocularsActive = false;
@@ -38,9 +51,14 @@ private:
 	int m_windowHeight = 0;
 	bool m_didRenderThisFrame = false;
 	int64 m_lastPresentCallTime = 0;
+	bool m_renderTargetIsBackBuffer = false;
+	int m_renderingEye = -1;
+	std::unordered_map<ID3D10RasterizerState*, ComPtr<ID3D10RasterizerState>> m_replacementStates;
 
 	void RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem);
 	void DrawCrosshair();
+
+	void SetScissorForCurrentEye();
 };
 
 extern VRRenderer* gVRRenderer;
