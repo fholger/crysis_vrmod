@@ -246,9 +246,11 @@ void VRRenderer::OnRenderTargetChanged(ID3D10RenderTargetView* rtv, ID3D10DepthS
 	// check if the render target is the current backbuffer
 	ComPtr<ID3D10Texture2D> tex;
 	rtv->GetResource((ID3D10Resource**)tex.GetAddressOf());
-	ComPtr<ID3D10Texture2D> backBuffer;
-	g_latestCreatedSwapChain->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)backBuffer.GetAddressOf());
-	if (backBuffer != tex)
+
+	Vec2i renderSize = gVR->GetRenderSize();
+	D3D10_TEXTURE2D_DESC desc;
+	tex->GetDesc(&desc);
+	if (desc.Width != renderSize.x || desc.Height != renderSize.y)
 		return;
 
 	m_renderTargetIsBackBuffer = true;
