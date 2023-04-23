@@ -29,6 +29,8 @@ public:
 
 	bool ShouldIgnoreWindowSizeChanges() const { return m_ignoreWindowSizeChanges; }
 
+	bool ShouldRenderShadowMaps() const { return m_currentEye != 1; }
+
 private:
 	CCamera m_originalViewCamera;
 	bool m_viewCamOverridden = false;
@@ -38,6 +40,7 @@ private:
 	int m_windowHeight = 0;
 	bool m_didRenderThisFrame = false;
 	int64 m_lastPresentCallTime = 0;
+	int m_currentEye = -1;
 
 	void RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem);
 	void DrawCrosshair();

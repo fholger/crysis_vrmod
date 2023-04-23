@@ -76,6 +76,19 @@ void VR_ISystem_Quit(ISystem *pSelf)
 	hooks::CallOriginal(VR_ISystem_Quit)(pSelf);
 }
 
+void VR_CryRenderD3D10_Shadows(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4)
+{
+	// only execute this function for the first eye, as shadow maps do not need to be regenerated for the second eye
+	// should save a small bit of performance
+	if (gVRRenderer->ShouldRenderShadowMaps() || !g_pGameCVars->vr_shadow_optimization)
+		hooks::CallOriginal(VR_CryRenderD3D10_Shadows)(arg1, arg2, arg3, arg4);
+}
+
+void *ModuleAddress(void *base, std::size_t offset)
+{
+	return static_cast<unsigned char*>(base) + offset;
+}
+
 void VRRenderer::Init()
 {
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
@@ -83,6 +96,13 @@ void VRRenderer::Init()
 	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
 
 	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
+
+	HMODULE renderDll = GetModuleHandleW(L"CryRenderD3D10.dll");
+	if (renderDll)
+	{
+		CryLogAlways("Found handle for D3D10 renderer, attempting to hook shadow rendering function");
+		hooks::InstallHook("CryD3D10Render::Shadows", ModuleAddress(renderDll, 0x0bee30), &VR_CryRenderD3D10_Shadows);
+	}
 
 	IDXGISwapChain *swapChain = g_latestCreatedSwapChain;
 	CryLogAlways("Retrieved swap chain: %ul", (uintptr_t)swapChain);
@@ -215,6 +235,8 @@ extern void DrawHUDFaders();
 
 void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	m_currentEye = eye;
+
 	CCamera eyeCam = m_originalViewCamera;
 	gVR->ModifyViewCamera(eye, eyeCam);
 	pSystem->SetViewCamera(eyeCam);
@@ -239,6 +261,8 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 	DrawHUDFaders();
 
 	gVR->CaptureEye(eye);
+
+	m_currentEye = -1;
 }
 
 void VRRenderer::DrawCrosshair()
