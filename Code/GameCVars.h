@@ -436,6 +436,7 @@ struct SCVars
 	int vr_cutscenes_2d;
 	float vr_yaw_deadzone_angle;
 	int vr_shadow_optimization;
+	float vr_resolution_scale;
 
 	SCVars()
 	{

@@ -6,6 +6,8 @@
 #include <openxr/openxr_platform.h>
 #include "OpenXRRuntime.h"
 
+#include "GameCVars.h"
+
 OpenXRRuntime g_xrRuntime;
 OpenXRRuntime *gXR = &g_xrRuntime;
 
@@ -330,7 +332,8 @@ Vec2i OpenXRRuntime::GetRecommendedRenderSize() const
 	views[0].type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
 	views[1].type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
 	xrEnumerateViewConfigurationViews(m_instance, m_system, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, 2, &viewCount, views);
-	return Vec2i(views[0].recommendedImageRectWidth, views[0].recommendedImageRectHeight);
+	float scale = FClamp(g_pGameCVars->vr_resolution_scale, 0.25f, 4.f);
+	return Vec2i(views[0].recommendedImageRectWidth * scale, views[0].recommendedImageRectHeight * scale);
 }
 
 void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)

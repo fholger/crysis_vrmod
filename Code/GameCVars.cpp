@@ -873,12 +873,15 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_cutscenes_2d", &vr_cutscenes_2d, 0, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, plays cutscenes on a 2D screen instead of in VR");
 	pConsole->Register("vr_yaw_deadzone_angle", &vr_yaw_deadzone_angle, 30, VF_RESTRICTEDMODE|VF_SAVEGAME, "Controls the deadzone angle in front of the player where weapon aim does not rotate the camera");
 	pConsole->Register("vr_shadow_optimization", &vr_shadow_optimization, 1, VF_RESTRICTEDMODE, "If enabled, only draws shadow maps once for the first eye, hopefully improving performance without any side effects");
+	pConsole->Register("vr_resolution_scale", &vr_resolution_scale, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Allows changing the VR render resolution");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
 {
 	pConsole->UnregisterVariable("vr_cutscenes_2d");
 	pConsole->UnregisterVariable("vr_yaw_deadzone_angle");
+	pConsole->UnregisterVariable("vr_shadow_optimization");
+	pConsole->UnregisterVariable("vr_resolution_scale");
 }
 
 //------------------------------------------------------------------------
