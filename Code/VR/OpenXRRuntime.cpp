@@ -127,7 +127,7 @@ namespace
 	{
 #define XR_LOAD_FN_PTR(name) XR_CheckResult(xrGetInstanceProcAddr(instance, #name, (PFN_xrVoidFunction*)& name), "loading extension function " #name, instance)
 		XR_LOAD_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
-		XR_LOAD_FN_PTR(xrCreateDebugUtilsMessengerEXT);
+		//XR_LOAD_FN_PTR(xrCreateDebugUtilsMessengerEXT);
 	}
 
 	XrBool32 XRAPI_PTR XR_DebugMessengerCallback(
