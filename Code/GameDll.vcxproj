@@ -444,6 +444,7 @@
     <ClCompile Include="Voting.cpp" />
     <ClCompile Include="VR\D3DHooks.cpp" />
     <ClCompile Include="VR\Hooks.cpp" />
+    <ClCompile Include="VR\OpenXRInput.cpp" />
     <ClCompile Include="VR\OpenXRRuntime.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
@@ -849,6 +850,7 @@
     <ClInclude Include="VehicleWeapon.h" />
     <ClInclude Include="Voting.h" />
     <ClInclude Include="VR\Hooks.h" />
+    <ClInclude Include="VR\OpenXRInput.h" />
     <ClInclude Include="VR\OpenXRRuntime.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />

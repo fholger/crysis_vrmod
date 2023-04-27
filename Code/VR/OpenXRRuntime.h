@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <openxr/openxr.h>
+#include "OpenXRInput.h"
 
 class OpenXRRuntime
 {
@@ -12,6 +13,8 @@ public:
 	void AwaitFrame();
 	void FinishFrame();
 
+	void Update();
+
 	Matrix34 GetRenderEyeTransform(int eye) const;
 	void GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const;
 	Vec2i GetRecommendedRenderSize() const;
@@ -20,6 +23,7 @@ public:
 	void SubmitHud(ID3D11Texture2D* hudTex);
 
 private:
+	OpenXRInput m_input;
 	XrInstance m_instance = nullptr;
 	XrSystemId m_system = 0;
 	XrSession m_session = nullptr;

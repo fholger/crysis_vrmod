@@ -422,6 +422,8 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
 	float frameTime = gEnv->pTimer->GetFrameTime();
 
+	gXR->Update();
+
 	if (m_pFramework->IsGamePaused() == false)
 	{
 		m_pWeaponSystem->Update(frameTime);

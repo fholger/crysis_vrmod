@@ -13,6 +13,18 @@ OpenXRRuntime *gXR = &g_xrRuntime;
 
 using Microsoft::WRL::ComPtr;
 
+bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
+{
+	if ( XR_SUCCEEDED( result ) ) {
+		return true;
+	}
+
+	char resultString[XR_MAX_RESULT_STRING_SIZE];
+	xrResultToString( instance, result, resultString );
+	CryLogAlways("XR %s failed: %s (%i)", description, resultString, result);
+	return false;
+}
+
 namespace
 {
 	// OpenXR: x = right, y = up, -z = forward
@@ -47,18 +59,6 @@ namespace
 #define XR_DECLARE_FN_PTR(name) PFN_##name name = nullptr
 	XR_DECLARE_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
 	XR_DECLARE_FN_PTR(xrCreateDebugUtilsMessengerEXT);
-
-	bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
-	{
-		if ( XR_SUCCEEDED( result ) ) {
-			return true;
-		}
-
-		char resultString[XR_MAX_RESULT_STRING_SIZE];
-		xrResultToString( instance, result, resultString );
-		CryLogAlways("XR %s failed: %s (%i)", description, resultString, result);
-		return false;
-	}
 
 	void XR_CheckAvailableExtensions()
 	{
@@ -163,6 +163,8 @@ bool OpenXRRuntime::Init()
 
 void OpenXRRuntime::Shutdown()
 {
+	m_input.Shutdown();
+
 	xrDestroySwapchain(m_stereoSwapchain);
 	m_stereoSwapchain = nullptr;
 	m_stereoImages.clear();
@@ -191,6 +193,7 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 {
 	if (m_session)
 	{
+		m_input.Shutdown();
 		xrDestroySession(m_session);
 		m_session = nullptr;
 	}
@@ -211,6 +214,8 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 	spaceCreateInfo.poseInReferenceSpace.orientation.w = 1;
 	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
 	XR_CheckResult(result, "creating seated reference space", m_instance);
+
+	m_input.Init(m_instance, m_session);
 }
 
 void OpenXRRuntime::AwaitFrame()
@@ -310,6 +315,11 @@ void OpenXRRuntime::FinishFrame()
 
 	XrResult result = xrEndFrame(m_session, &endInfo);
 	XR_CheckResult(result, "submitting frame", m_instance);
+}
+
+void OpenXRRuntime::Update()
+{
+	m_input.Update();
 }
 
 Matrix34 OpenXRRuntime::GetRenderEyeTransform(int eye) const
