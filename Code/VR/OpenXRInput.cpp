@@ -3,6 +3,32 @@
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
 
+class SuggestedProfileBinding
+{
+public:
+	SuggestedProfileBinding(XrInstance instance) : m_instance(instance) {}
+
+	void AddBinding(XrAction action, const char* binding)
+	{
+		XrPath bindingPath;
+		XR_CheckResult(xrStringToPath(m_instance, binding, &bindingPath), "string to path");
+		m_bindings.push_back({ action, bindingPath });
+	}
+
+	void SuggestBindings(const char* profile)
+	{
+		XrInteractionProfileSuggestedBinding suggestedBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
+		XR_CheckResult(xrStringToPath(m_instance, profile, &suggestedBindings.interactionProfile), "profile string to path");
+		suggestedBindings.suggestedBindings = m_bindings.data();
+		suggestedBindings.countSuggestedBindings = m_bindings.size();
+		XR_CheckResult(xrSuggestInteractionProfileBindings(m_instance, &suggestedBindings), "suggesting bindings");
+	}
+
+private:
+	XrInstance m_instance;
+	std::vector<XrActionSuggestedBinding> m_bindings;
+};
+
 void OpenXRInput::Init(XrInstance instance, XrSession session)
 {
 	m_instance = instance;
@@ -14,6 +40,7 @@ void OpenXRInput::Init(XrInstance instance, XrSession session)
 	XR_CheckResult(xrCreateActionSet(m_instance, &setCreateInfo, &m_ingameSet), "creating ingame action set", m_instance);
 
 	CreateInputActions();
+	SuggestBindings();
 }
 
 void OpenXRInput::Shutdown()
@@ -61,6 +88,25 @@ void OpenXRInput::CreateInputActions()
 	strcpy(createInfo.actionName, "right_joystick");
 	strcpy(createInfo.localizedActionName, "Right Joystick");
 	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_stick[1]), "creating thumbstick action");
+}
+
+void OpenXRInput::SuggestBindings()
+{
+	SuggestedProfileBinding knuckles(m_instance);
+	knuckles.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
+	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/aim");
+	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/aim");
+	knuckles.AddBinding(m_stick[0], "/user/hand/left/input/thumbstick");
+	knuckles.AddBinding(m_stick[1], "/user/hand/right/input/thumbstick");
+	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
+
+	SuggestedProfileBinding touch(m_instance);
+	touch.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
+	touch.AddBinding(m_controller[0], "/user/hand/left/input/aim");
+	touch.AddBinding(m_controller[1], "/user/hand/right/input/aim");
+	touch.AddBinding(m_stick[0], "/user/hand/left/input/thumbstick");
+	touch.AddBinding(m_stick[1], "/user/hand/right/input/thumbstick");
+	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 
 void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, XrAction* action, const char* name, const char* description)

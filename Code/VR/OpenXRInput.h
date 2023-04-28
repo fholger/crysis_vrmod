@@ -19,5 +19,6 @@ private:
 	XrAction m_primaryFire = nullptr;
 
 	void CreateInputActions();
+	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, XrAction* action, const char* name, const char* description);
 };
