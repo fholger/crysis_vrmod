@@ -606,6 +606,15 @@ void CRocketLauncher::UpdateTPLaser(float frameTime)
 
 }
 
+Matrix34 CRocketLauncher::GetInverseGripTransform()
+{
+	// the rocket launcher does not have a proper handle position for the right hand, so we need to use another reference point
+	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, "weapon", false);
+	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "weapon", false));
+	transform.InvertFast();
+	return transform;
+}
+
 //===============================================
 void CRocketLauncher::GetAttachmentsAtHelper(const char *helper, std::vector<string> &rAttachments)
 {

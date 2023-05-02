@@ -70,6 +70,10 @@ private:
 	bool  m_lastLaserHitSolid;
 	bool  m_lastLaserHitViewPlane;
 	float m_smoothLaserLength;
+
+	// VR
+public:
+	Matrix34 GetInverseGripTransform() override;
 };
 
 
