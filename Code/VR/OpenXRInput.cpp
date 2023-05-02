@@ -2,10 +2,13 @@
 #include "OpenXRInput.h"
 
 #include "GameActions.h"
+#include "GameCVars.h"
 #include "IPlayerInput.h"
+#include "OpenXRRuntime.h"
 #include "Player.h"
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
+extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
 
 class SuggestedProfileBinding
 {
@@ -33,10 +36,11 @@ private:
 	std::vector<XrActionSuggestedBinding> m_bindings;
 };
 
-void OpenXRInput::Init(XrInstance instance, XrSession session)
+void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
 {
 	m_instance = instance;
 	m_session = session;
+	m_trackingSpace = space;
 
 	XrActionSetCreateInfo setCreateInfo{ XR_TYPE_ACTION_SET_CREATE_INFO };
 	strcpy(setCreateInfo.actionSetName, "ingame");
@@ -54,6 +58,8 @@ void OpenXRInput::Init(XrInstance instance, XrSession session)
 
 void OpenXRInput::Shutdown()
 {
+	xrDestroySpace(m_gripSpace[0]);
+	xrDestroySpace(m_gripSpace[1]);
 	xrDestroyAction(m_primaryFire);
 	xrDestroyAction(m_moveX);
 	xrDestroyAction(m_moveY);
@@ -79,6 +85,15 @@ void OpenXRInput::Update()
 	UpdatePlayerMovement();
 }
 
+Matrix34 OpenXRInput::GetControllerTransform(int hand)
+{
+	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
+	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
+	// the grip pose has a peculiar orientation. This brings it in line with what we need
+	Matrix33 correction = Matrix33::CreateRotationXYZ(Ang3(gf_PI, gf_PI/2, 0));
+	return OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
+}
+
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, &m_primaryFire, "primary_fire", "Primary Fire");
@@ -91,6 +106,14 @@ void OpenXRInput::CreateInputActions()
 	strcpy(createInfo.actionName, "right_controller");
 	strcpy(createInfo.localizedActionName, "Right Controller");
 	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_controller[1]), "creating controller pose action");
+
+	XrActionSpaceCreateInfo spaceCreateInfo{ XR_TYPE_ACTION_SPACE_CREATE_INFO };
+	spaceCreateInfo.action = m_controller[0];
+	spaceCreateInfo.subactionPath = XR_NULL_PATH;
+	spaceCreateInfo.poseInActionSpace.orientation.w = 1;
+	XR_CheckResult(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_gripSpace[0]), "creating controller tracking space", m_instance);
+	spaceCreateInfo.action = m_controller[1];
+	XR_CheckResult(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_gripSpace[1]), "creating controller tracking space", m_instance);
 
 	createInfo.actionType = XR_ACTION_TYPE_FLOAT_INPUT;
 	strcpy(createInfo.actionName, "move_x");
@@ -111,8 +134,8 @@ void OpenXRInput::SuggestBindings()
 {
 	SuggestedProfileBinding knuckles(m_instance);
 	knuckles.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
-	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/aim");
-	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/aim");
+	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip");
+	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip");
 	knuckles.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
 	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
@@ -121,8 +144,8 @@ void OpenXRInput::SuggestBindings()
 
 	SuggestedProfileBinding touch(m_instance);
 	touch.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
-	touch.AddBinding(m_controller[0], "/user/hand/left/input/aim");
-	touch.AddBinding(m_controller[1], "/user/hand/right/input/aim");
+	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip");
+	touch.AddBinding(m_controller[1], "/user/hand/right/input/grip");
 	touch.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
 	touch.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	touch.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");

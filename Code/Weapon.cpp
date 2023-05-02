@@ -3729,3 +3729,11 @@ void CWeapon::CacheRaisePose()
 	else if (strcmp(name, "mg") == 0)
 		m_raisePose = (uint8)eWeaponRaisedPose_MG;
 }
+
+Matrix34 CWeapon::GetInverseGripTransform()
+{
+	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, "hand_R_term", false);
+	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "hand_R_term", false));
+	transform.InvertFast();
+	return transform;
+}

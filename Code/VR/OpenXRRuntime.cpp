@@ -25,32 +25,33 @@ bool XR_CheckResult(XrResult result, const char *description, XrInstance instanc
 	return false;
 }
 
+// OpenXR: x = right, y = up, -z = forward
+// Crysis: x = right, y = forward, z = up
+// both use the metric system, i.e. 1 unit = 1m
+Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position)
+{
+	Vec3 pos(position.x, position.y, position.z);
+	Quat rot(orientation.w, orientation.x, orientation.y, orientation.z);
+	Matrix34 xr(Vec3(1, 1, 1), rot, pos);
+
+	Matrix34 m;
+	m.m00 = xr.m00;
+	m.m01 = -xr.m02;
+	m.m02 = xr.m01;
+	m.m03 = xr.m03;
+	m.m10 = -xr.m20;
+	m.m11 = xr.m22;
+	m.m12 = -xr.m21;
+	m.m13 = -xr.m23;
+	m.m20 = xr.m10;
+	m.m21 = -xr.m12;
+	m.m22 = xr.m11;
+	m.m23 = xr.m13;
+	return m;
+}
+
 namespace
 {
-	// OpenXR: x = right, y = up, -z = forward
-	// Crysis: x = right, y = forward, z = up
-	// both use the metric system, i.e. 1 unit = 1m
-	Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position)
-	{
-		Vec3 pos(position.x, position.y, position.z);
-		Quat rot(orientation.w, orientation.x, orientation.y, orientation.z);
-		Matrix34 xr(Vec3(1, 1, 1), rot, pos);
-
-		Matrix34 m;
-		m.m00 = xr.m00;
-		m.m01 = -xr.m02;
-		m.m02 = xr.m01;
-		m.m03 = xr.m03;
-		m.m10 = -xr.m20;
-		m.m11 = xr.m22;
-		m.m12 = -xr.m21;
-		m.m13 = -xr.m23;
-		m.m20 = xr.m10;
-		m.m21 = -xr.m12;
-		m.m22 = xr.m11;
-		m.m23 = xr.m13;
-		return m;
-	}
 
 	bool XR_KHR_D3D11_enable_available = false;
 	bool XR_EXT_debug_utils_available = false;
@@ -215,7 +216,7 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
 	XR_CheckResult(result, "creating seated reference space", m_instance);
 
-	m_input.Init(m_instance, m_session);
+	m_input.Init(m_instance, m_session, m_space);
 }
 
 void OpenXRRuntime::AwaitFrame()

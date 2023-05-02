@@ -1,14 +1,18 @@
 #pragma once
-#include <d3d11.h>
 #include <openxr/openxr.h>
 #include "OpenXRInput.h"
+
+struct ID3D11Device;
+struct ID3D11Texture2D;
+struct _LUID;
+enum D3D_FEATURE_LEVEL;
 
 class OpenXRRuntime
 {
 public:
 	bool Init();
 	void Shutdown();
-	void GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel);
+	void GetD3D11Requirements(_LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel);
 	void CreateSession(ID3D11Device* device);
 	void AwaitFrame();
 	void FinishFrame();
@@ -21,6 +25,10 @@ public:
 
 	void SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea);
 	void SubmitHud(ID3D11Texture2D* hudTex);
+
+	XrTime GetNextFrameDisplayTime() const { return m_predictedNextFrameDisplayTime; }
+
+	OpenXRInput* GetInput() { return &m_input; }
 
 private:
 	OpenXRInput m_input;

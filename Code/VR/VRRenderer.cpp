@@ -91,6 +91,7 @@ void *ModuleAddress(void *base, std::size_t offset)
 
 void VRRenderer::Init()
 {
+	LUID test;
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
@@ -318,5 +319,17 @@ void VRRenderer::DrawCrosshair()
 	geomMode.SetDrawInFrontMode(e_DrawInFrontOn);
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
 	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
+
+	CWeapon *weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
+	if (weapon)
+	{
+		Vec3 weaponPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "camera_helper", true);
+		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(weaponPos, 0.02f, ColorB(255, 0, 0));
+		Vec3 rootPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "trigger", true);
+		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(rootPos, 0.02f, ColorB(0, 255, 0));
+		Vec3 handPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "hand_R_term", true);
+		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(handPos, 0.02f, ColorB(0, 0, 255));
+	}
+
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
 }

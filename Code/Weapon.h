@@ -734,6 +734,10 @@ private:
 
 	void	CacheRaisePose();
 
+
+	// VR CODE
+public:
+	virtual Matrix34 GetInverseGripTransform();
 };
 
 
