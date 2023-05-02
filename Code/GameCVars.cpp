@@ -874,6 +874,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_yaw_deadzone_angle", &vr_yaw_deadzone_angle, 30, VF_RESTRICTEDMODE|VF_SAVEGAME, "Controls the deadzone angle in front of the player where weapon aim does not rotate the camera");
 	pConsole->Register("vr_shadow_optimization", &vr_shadow_optimization, 1, VF_RESTRICTEDMODE, "If enabled, only draws shadow maps once for the first eye, hopefully improving performance without any side effects");
 	pConsole->Register("vr_resolution_scale", &vr_resolution_scale, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Allows changing the VR render resolution");
+	pConsole->Register("vr_enable_motion_controllers", &vr_enable_motion_controllers, 1, VF_RESTRICTEDMODE|VF_SAVEGAME, "Play with tracked motion controllers");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

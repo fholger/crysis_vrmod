@@ -1678,7 +1678,7 @@ void CPlayer::PostUpdateView(SViewParams &viewParams)
 	m_stats.FPWeaponAngles = Ang3(wQuat);	
 
 	CWeapon* weapon = GetWeapon(GetCurrentItemId());
-	if (weapon)
+	if (weapon && g_pGameCVars->vr_enable_motion_controllers)
 	{
 		m_stats.FPWeaponAngles.x = m_stats.FPWeaponAngles.y = 0;
 		Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(m_stats.FPWeaponAngles, m_stats.FPWeaponPos);

@@ -234,6 +234,8 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 			yawDiff -= 2 * g_PI;
 
 		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * g_PI / 180.f;
+		if (g_pGameCVars->vr_enable_motion_controllers)
+			maxDiff = 0;
 		if (yawDiff > maxDiff)
 			m_prevViewYaw += yawDiff - maxDiff;
 		if (yawDiff < -maxDiff)

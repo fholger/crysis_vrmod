@@ -73,7 +73,7 @@ void OpenXRInput::Shutdown()
 
 void OpenXRInput::Update()
 {
-	if (!m_session)
+	if (!m_session || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
 
 	XrActiveActionSet activeSet{ m_ingameSet, XR_NULL_PATH };
