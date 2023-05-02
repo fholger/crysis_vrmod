@@ -83,6 +83,7 @@ void OpenXRInput::Update()
 	XR_CheckResult(xrSyncActions(m_session, &syncInfo), "syncing actions");
 
 	UpdatePlayerMovement();
+	UpdateBooleanAction(m_primaryFire, g_pGameActions->attack1);
 }
 
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
@@ -201,5 +202,24 @@ void OpenXRInput::UpdatePlayerMovement()
 	if (state.isActive)
 	{
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, state.currentState);
+	}
+}
+
+void OpenXRInput::UpdateBooleanAction(XrAction action, const ActionId& inputEvent)
+{
+	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (!pPlayer)
+		return;
+	IPlayerInput* input = pPlayer->GetPlayerInput();
+	if (!input)
+		return;
+
+	XrActionStateBoolean state{ XR_TYPE_ACTION_STATE_BOOLEAN };
+	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+	getInfo.subactionPath = XR_NULL_PATH;
+	xrGetActionStateBoolean(m_session, &getInfo, &state);
+	if (state.isActive)
+	{
+		input->OnAction(inputEvent, state.currentState ? eAAM_OnPress : eAAM_OnRelease, 1.f);
 	}
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include <openxr/openxr.h>
 
+#include "IActionMapManager.h"
+
 class OpenXRInput
 {
 public:
@@ -29,4 +31,5 @@ private:
 	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, XrAction* action, const char* name, const char* description);
 	void UpdatePlayerMovement();
+	void UpdateBooleanAction(XrAction action, const ActionId& inputEvent);
 };
