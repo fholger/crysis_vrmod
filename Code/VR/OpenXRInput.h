@@ -31,6 +31,8 @@ private:
 	XrAction m_menu = nullptr;
 	XrAction m_suitMenu = nullptr;
 	XrSpace m_gripSpace[2] = {};
+	bool m_wasJumpActive = false;
+	bool m_wasCrouchActive = false;
 
 	void CreateInputActions();
 	void SuggestBindings();

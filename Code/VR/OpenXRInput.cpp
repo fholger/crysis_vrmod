@@ -137,6 +137,9 @@ void OpenXRInput::CreateInputActions()
 	strcpy(createInfo.actionName, "rotate_pitch");
 	strcpy(createInfo.localizedActionName, "Rotate Pitch");
 	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_rotatePitch), "creating movement action");
+	strcpy(createInfo.actionName, "jump_crouch");
+	strcpy(createInfo.localizedActionName, "Jump / Crouch / Prone");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_jumpCrouch), "creating movement action");
 }
 
 void OpenXRInput::SuggestBindings()
@@ -148,11 +151,11 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
 	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
-	knuckles.AddBinding(m_rotatePitch, "/user/hand/right/input/thumbstick/y");
+	knuckles.AddBinding(m_jumpCrouch, "/user/hand/right/input/thumbstick/y");
 	knuckles.AddBinding(m_sprint, "/user/hand/left/input/trigger");
 	knuckles.AddBinding(m_menu, "/user/hand/left/input/b/click");
 	knuckles.AddBinding(m_reload, "/user/hand/right/input/a/click");
-	knuckles.AddBinding(m_suitMenu, "/user/hand/right/input/trigger/click");
+	knuckles.AddBinding(m_suitMenu, "/user/hand/left/input/trigger/click");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
@@ -202,11 +205,58 @@ void OpenXRInput::UpdatePlayerMovement()
 		input->OnAction(g_pGameActions->xi_movey, eAAM_Always, state.currentState);
 	}
 
+	getInfo.action = m_jumpCrouch;
+	xrGetActionStateFloat(m_session, &getInfo, &state);
+	float jumpCrouch = state.isActive ? state.currentState : 0;
+
 	getInfo.action = m_rotateYaw;
 	xrGetActionStateFloat(m_session, &getInfo, &state);
-	if (state.isActive)
+	float yaw = state.isActive ? state.currentState : 0;
+	if (state.isActive && fabsf(jumpCrouch) < g_pGameCVars->vr_controller_stick_zone_cutoff)
 	{
-		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, state.currentState);
+		float deadzone = FClamp(g_pGameCVars->vr_controller_yaw_deadzone, 0, 0.99f);
+		float value = 0;
+		if (yaw < -deadzone)
+			value = (yaw + deadzone) / (1.f - deadzone);
+		else if (yaw > deadzone)
+			value = (yaw - deadzone) / (1.f - deadzone);
+		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, value);
+	}
+
+	if (jumpCrouch < g_pGameCVars->vr_controller_stick_action_threshold)
+	{
+		if (m_wasJumpActive)
+			input->OnAction(g_pGameActions->jump, eAAM_OnRelease, 0);
+		m_wasJumpActive = false;
+	}
+	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
+	{
+		if (!m_wasJumpActive)
+			input->OnAction(g_pGameActions->jump, eAAM_OnPress, 1);
+		m_wasJumpActive = true;
+	}
+	if (jumpCrouch > -g_pGameCVars->vr_controller_stick_action_threshold)
+	{
+		m_wasCrouchActive = false;
+	}
+	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
+	{
+		if (!m_wasCrouchActive)
+		{
+			if (pPlayer->GetStance() == STANCE_CROUCH)
+			{
+				input->OnAction(g_pGameActions->crouch, eAAM_OnRelease, 0);
+				input->OnAction(g_pGameActions->prone, eAAM_OnPress, 1);
+			}
+			else
+			{
+				// as prone is a toggle, might need to deactivate it
+				if (pPlayer->GetStance() == STANCE_PRONE)
+					input->OnAction(g_pGameActions->prone, eAAM_OnPress, 1);
+				input->OnAction(g_pGameActions->crouch, eAAM_OnPress, 1);
+			}
+		}
+		m_wasCrouchActive = true;
 	}
 
 	getInfo.action = m_rotatePitch;

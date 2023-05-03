@@ -439,6 +439,10 @@ struct SCVars
 	float vr_resolution_scale;
 	int vr_enable_motion_controllers;
 
+	float vr_controller_yaw_deadzone;
+	float vr_controller_stick_action_threshold;
+	float vr_controller_stick_zone_cutoff;
+
 	SCVars()
 	{
 		memset(this,0,sizeof(SCVars));

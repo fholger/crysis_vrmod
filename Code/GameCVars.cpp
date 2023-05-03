@@ -875,6 +875,9 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_shadow_optimization", &vr_shadow_optimization, 1, VF_RESTRICTEDMODE, "If enabled, only draws shadow maps once for the first eye, hopefully improving performance without any side effects");
 	pConsole->Register("vr_resolution_scale", &vr_resolution_scale, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Allows changing the VR render resolution");
 	pConsole->Register("vr_enable_motion_controllers", &vr_enable_motion_controllers, 1, VF_RESTRICTEDMODE|VF_SAVEGAME, "Play with tracked motion controllers");
+	pConsole->Register("vr_controller_yaw_deadzone", &vr_controller_yaw_deadzone, 0.15f, VF_RESTRICTEDMODE, "Deadzone for stick turning");
+	pConsole->Register("vr_controller_stick_action_threshold", &vr_controller_stick_action_threshold, 0.75f, VF_RESTRICTEDMODE, "How far a stick needs to be extended to trigger an input action");
+	pConsole->Register("vr_controller_stick_zone_cutoff", &vr_controller_stick_zone_cutoff, 0.35f, VF_RESTRICTEDMODE, "If stick is extended this far in one axis, disable any input actions in the other axis");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
@@ -883,6 +886,10 @@ void SCVars::ReleaseVRCVars(IConsole* pConsole)
 	pConsole->UnregisterVariable("vr_yaw_deadzone_angle");
 	pConsole->UnregisterVariable("vr_shadow_optimization");
 	pConsole->UnregisterVariable("vr_resolution_scale");
+	pConsole->UnregisterVariable("vr_enable_motion_controllers");
+	pConsole->UnregisterVariable("vr_controller_yaw_deadzone");
+	pConsole->UnregisterVariable("vr_controller_stick_action_threshold");
+	pConsole->UnregisterVariable("vr_controller_stick_zone_cutoff");
 }
 
 //------------------------------------------------------------------------
