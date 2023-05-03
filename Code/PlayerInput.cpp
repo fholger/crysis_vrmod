@@ -20,6 +20,8 @@
 #include <IWorldQuery.h>
 #include <IInteractor.h>
 
+#include "Menus/FlashMenuObject.h"
+
 TActionHandler<CPlayerInput>	CPlayerInput::s_actionHandler;
 
 CPlayerInput::CPlayerInput( CPlayer * pPlayer ) : 
@@ -97,6 +99,8 @@ CPlayerInput::CPlayerInput( CPlayer * pPlayer ) :
 		ADD_HANDLER(xi_use, OnActionUse);
 
 		ADD_HANDLER(invert_mouse, OnActionInvertMouse);
+
+		ADD_HANDLER(hud_menu, OnActionMenu);
 
 	#undef ADD_HANDLER
 	}
@@ -1625,6 +1629,17 @@ bool CPlayerInput::OnActionXIDisconnect(EntityId entityId, const ActionId& actio
 bool CPlayerInput::OnActionInvertMouse(EntityId entityId, const ActionId& actionId, int activationMode, float value)
 {
 	g_pGameCVars->cl_invertMouse = !g_pGameCVars->cl_invertMouse;
+
+	return false;
+}
+
+bool CPlayerInput::OnActionMenu(EntityId entityId, const ActionId& actionId, int activationMode, float value)
+{
+	if (activationMode == eAAM_OnPress)
+	{
+		bool currentlyInMenu = SAFE_MENU_FUNC_RET(IsMenuActive());
+		SAFE_MENU_FUNC(ShowInGameMenu(!currentlyInMenu));
+	}
 
 	return false;
 }

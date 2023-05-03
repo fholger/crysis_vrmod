@@ -84,6 +84,10 @@ void OpenXRInput::Update()
 
 	UpdatePlayerMovement();
 	UpdateBooleanAction(m_primaryFire, g_pGameActions->attack1);
+	UpdateBooleanAction(m_sprint, g_pGameActions->sprint);
+	UpdateBooleanAction(m_menu, g_pGameActions->hud_menu);
+	UpdateBooleanAction(m_reload, g_pGameActions->reload);
+	UpdateBooleanAction(m_suitMenu, g_pGameActions->hud_suit_menu);
 }
 
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
@@ -98,6 +102,10 @@ Matrix34 OpenXRInput::GetControllerTransform(int hand)
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, &m_primaryFire, "primary_fire", "Primary Fire");
+	CreateBooleanAction(m_ingameSet, &m_suitMenu, "suit_menu", "Suit Menu");
+	CreateBooleanAction(m_ingameSet, &m_menu, "menu_toggle", "Open menu / show objectives");
+	CreateBooleanAction(m_ingameSet, &m_sprint, "sprint", "Sprint");
+	CreateBooleanAction(m_ingameSet, &m_reload, "reload", "Reload");
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -141,6 +149,10 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
 	knuckles.AddBinding(m_rotatePitch, "/user/hand/right/input/thumbstick/y");
+	knuckles.AddBinding(m_sprint, "/user/hand/left/input/trigger");
+	knuckles.AddBinding(m_menu, "/user/hand/left/input/b/click");
+	knuckles.AddBinding(m_reload, "/user/hand/right/input/a/click");
+	knuckles.AddBinding(m_suitMenu, "/user/hand/right/input/trigger/click");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
@@ -217,9 +229,10 @@ void OpenXRInput::UpdateBooleanAction(XrAction action, const ActionId& inputEven
 	XrActionStateBoolean state{ XR_TYPE_ACTION_STATE_BOOLEAN };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 	getInfo.subactionPath = XR_NULL_PATH;
-	xrGetActionStateBoolean(m_session, &getInfo, &state);
-	if (state.isActive)
+	getInfo.action = action;
+	XR_CheckResult(xrGetActionStateBoolean(m_session, &getInfo, &state), "getting boolean action state", m_instance);
+	if (state.isActive && state.changedSinceLastSync)
 	{
-		input->OnAction(inputEvent, state.currentState ? eAAM_OnPress : eAAM_OnRelease, 1.f);
+		input->OnAction(inputEvent, state.currentState ? eAAM_OnPress : eAAM_OnRelease, state.currentState ? 1.f : 0.f);
 	}
 }

@@ -25,6 +25,11 @@ private:
 	XrAction m_rotateYaw = nullptr;
 	XrAction m_rotatePitch = nullptr;
 	XrAction m_primaryFire = nullptr;
+	XrAction m_jumpCrouch = nullptr;
+	XrAction m_sprint = nullptr;
+	XrAction m_reload = nullptr;
+	XrAction m_menu = nullptr;
+	XrAction m_suitMenu = nullptr;
 	XrSpace m_gripSpace[2] = {};
 
 	void CreateInputActions();
