@@ -176,6 +176,12 @@ void CHomingMissile::UpdateControlledMissile(float frameTime)
 
 						eyePos = state.eyePosition;
 						eyeDir = state.eyeDirection;
+
+						if (g_pGameCVars->vr_enable_motion_controllers)
+						{
+							eyePos = state.weaponPosition;
+							eyeDir = state.fireDirection;
+						}
 					}
 					else
 					{	
