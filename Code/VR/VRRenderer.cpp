@@ -285,6 +285,15 @@ void VRRenderer::DrawCrosshair()
 	const CCamera& cam = m_originalViewCamera;
 	Vec3 crosshairPos = cam.GetPosition();
 	Vec3 dir = cam.GetViewdir();
+
+	if (g_pGameCVars->vr_enable_motion_controllers)
+	{
+		SMovementState moveState;
+		pPlayer->GetMovementController()->GetMovementState(moveState);
+		crosshairPos = moveState.weaponPosition;
+		dir = moveState.fireDirection;
+	}
+
 	dir.Normalize();
 	float maxDistance = 10.f;
 
@@ -319,17 +328,6 @@ void VRRenderer::DrawCrosshair()
 	geomMode.SetDrawInFrontMode(e_DrawInFrontOn);
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
 	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
-
-	CWeapon *weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
-	if (weapon)
-	{
-		Vec3 weaponPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "camera_helper", true);
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(weaponPos, 0.02f, ColorB(255, 0, 0));
-		Vec3 rootPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "trigger", true);
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(rootPos, 0.02f, ColorB(0, 255, 0));
-		Vec3 handPos = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "hand_R_term", true);
-		gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(handPos, 0.02f, ColorB(0, 0, 255));
-	}
 
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
 }

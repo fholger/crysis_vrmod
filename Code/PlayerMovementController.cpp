@@ -12,6 +12,7 @@
 #include "GameCVars.h"
 #include "NetInputChainDebug.h"
 #include "Item.h"
+#include "Weapon.h"
 #include "VR/VRRenderer.h"
 
 #define ENABLE_NAN_CHECK
@@ -1376,6 +1377,19 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 		state.weaponPosition = state.eyePosition;
 		state.fireDirection = state.aimDirection = state.eyeDirection;
 		state.fireTarget = m_fireTarget;
+
+		// VR adjustments
+		if (g_pGameCVars->vr_enable_motion_controllers)
+		{
+			CWeapon* weapon = m_pPlayer->GetWeapon(m_pPlayer->GetCurrentItemId());
+			if (weapon)
+			{
+				state.weaponPosition = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "weapon_term", true);
+				//state.fireDirection = weapon->GetSlotHelperRotation(CItem::eIGS_FirstPerson, "weapon_term", true).GetColumn0();
+				state.fireDirection = weapon->GetEntity()->GetWorldRotation().GetColumn1();
+				state.weaponPosition += 0.5f * state.fireDirection;
+			}
+		}
 	}
 	else
 	{

@@ -1669,7 +1669,7 @@ void CPlayer::PostUpdateView(SViewParams &viewParams)
 {
 
 	Vec3 shakeVec(viewParams.currentShakeShift*0.85f);
-	m_stats.FPWeaponPos = viewParams.position + m_stats.FPWeaponPosOffset + shakeVec;;
+	m_stats.FPWeaponPos = viewParams.position + m_stats.FPWeaponPosOffset + shakeVec;
 
 	Quat wQuat(viewParams.rotation*Quat::CreateRotationXYZ(m_stats.FPWeaponAnglesOffset * gf_PI/180.0f));
 	wQuat *= Quat::CreateSlerp(viewParams.currentShakeQuat,IDENTITY,0.5f);
@@ -1692,7 +1692,6 @@ void CPlayer::PostUpdateView(SViewParams &viewParams)
 	m_stats.FPSecWeaponPos = m_stats.FPWeaponPos;
 	m_stats.FPSecWeaponAngles = m_stats.FPWeaponAngles;
 
-	
 	if (CItem *pItem=GetItem(GetInventory()->GetCurrentItem()))
 		pItem->PostFilterView(viewParams);
 
