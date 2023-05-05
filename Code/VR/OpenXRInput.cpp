@@ -3,9 +3,11 @@
 
 #include "GameActions.h"
 #include "GameCVars.h"
+#include "GunTurret.h"
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
+#include "HUD/HUD.h"
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
 extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
@@ -112,8 +114,8 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
 	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, nullptr, false);
-	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->use);
-	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->binoculars);
+	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->xi_use);
+	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
 	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
 
@@ -162,6 +164,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
 	knuckles.AddBinding(m_jumpCrouch, "/user/hand/right/input/thumbstick/y");
+	knuckles.AddBinding(m_rotatePitch, "/user/hand/right/input/thumbstick/y");
 	knuckles.AddBinding(m_sprint.handle, "/user/hand/left/input/trigger");
 	knuckles.AddBinding(m_menu.handle, "/user/hand/left/input/b/click");
 	knuckles.AddBinding(m_reload.handle, "/user/hand/right/input/a/click");
@@ -214,6 +217,11 @@ void OpenXRInput::UpdatePlayerMovement()
 	if (!input)
 		return;
 
+	bool inVehicle = pPlayer->GetLinkedVehicle() != nullptr;
+	bool inHud = g_pGame->GetHUD()->GetModalHUD() != nullptr;
+	CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
+	bool usingMountedGun = dynamic_cast<CGunTurret*>(weapon) != nullptr;
+
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 	getInfo.subactionPath = XR_NULL_PATH;
@@ -222,14 +230,14 @@ void OpenXRInput::UpdatePlayerMovement()
 	xrGetActionStateFloat(m_session, &getInfo, &state);
 	if (state.isActive)
 	{
-		input->OnAction(g_pGameActions->xi_movex, eAAM_Always, state.currentState);
+		input->OnAction(inVehicle ? g_pGameActions->xi_v_movex : g_pGameActions->xi_movex, eAAM_Always, state.currentState);
 	}
 
 	getInfo.action = m_moveY;
 	xrGetActionStateFloat(m_session, &getInfo, &state);
 	if (state.isActive)
 	{
-		input->OnAction(g_pGameActions->xi_movey, eAAM_Always, state.currentState);
+		input->OnAction(inVehicle ? g_pGameActions->xi_v_movey : g_pGameActions->xi_movey, eAAM_Always, state.currentState);
 	}
 
 	getInfo.action = m_jumpCrouch;
@@ -239,7 +247,26 @@ void OpenXRInput::UpdatePlayerMovement()
 	getInfo.action = m_rotateYaw;
 	xrGetActionStateFloat(m_session, &getInfo, &state);
 	float yaw = state.isActive ? state.currentState : 0;
-	if (state.isActive && fabsf(jumpCrouch) < g_pGameCVars->vr_controller_stick_zone_cutoff)
+
+	getInfo.action = m_rotatePitch;
+	xrGetActionStateFloat(m_session, &getInfo, &state);
+	float pitch = state.isActive ? state.currentState : 0;
+
+	if (inVehicle)
+	{
+		input->OnAction(g_pGameActions->xi_v_rotatepitch, eAAM_Always, pitch);
+		input->OnAction(g_pGameActions->xi_v_rotateyaw, eAAM_Always, yaw);
+		return;
+	}
+
+	if (inHud || usingMountedGun)
+	{
+		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
+		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
+		return;
+	}
+
+	if (fabsf(jumpCrouch) < g_pGameCVars->vr_controller_stick_zone_cutoff)
 	{
 		float deadzone = FClamp(g_pGameCVars->vr_controller_yaw_deadzone, 0, 0.99f);
 		float value = 0;
@@ -284,13 +311,6 @@ void OpenXRInput::UpdatePlayerMovement()
 			}
 		}
 		m_wasCrouchActive = true;
-	}
-
-	getInfo.action = m_rotatePitch;
-	xrGetActionStateFloat(m_session, &getInfo, &state);
-	if (state.isActive)
-	{
-		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, state.currentState);
 	}
 }
 

@@ -99,6 +99,8 @@ DECL_ACTION(xi_movey)
 DECL_ACTION(xi_disconnect)
 DECL_ACTION(xi_rotateyaw)
 DECL_ACTION(xi_rotatepitch)
+DECL_ACTION(xi_v_movex)
+DECL_ACTION(xi_v_movey)
 DECL_ACTION(xi_v_rotateyaw)
 DECL_ACTION(xi_v_rotatepitch)
 
