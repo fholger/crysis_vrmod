@@ -14,6 +14,16 @@ public:
 	Matrix34 GetControllerTransform(int hand);
 
 private:
+	struct BooleanAction
+	{
+		XrAction handle = nullptr;
+		ActionId* onPress = nullptr;
+		ActionId* onLongPress = nullptr;
+		bool sendRelease = true;
+		bool longPressActive = false;
+		float timePressed = -1;
+	};
+
 	XrInstance m_instance = nullptr;
 	XrSession m_session = nullptr;
 	XrSpace m_trackingSpace = nullptr;
@@ -24,19 +34,24 @@ private:
 	XrAction m_moveY = nullptr;
 	XrAction m_rotateYaw = nullptr;
 	XrAction m_rotatePitch = nullptr;
-	XrAction m_primaryFire = nullptr;
 	XrAction m_jumpCrouch = nullptr;
-	XrAction m_sprint = nullptr;
-	XrAction m_reload = nullptr;
-	XrAction m_menu = nullptr;
-	XrAction m_suitMenu = nullptr;
+	BooleanAction m_primaryFire;
+	BooleanAction m_sprint;
+	BooleanAction m_reload;
+	BooleanAction m_menu;
+	BooleanAction m_suitMenu;
+	BooleanAction m_binoculars;
+	BooleanAction m_nextWeapon;
+	BooleanAction m_use;
+	BooleanAction m_nightvision;
+	BooleanAction m_melee;
 	XrSpace m_gripSpace[2] = {};
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
 
 	void CreateInputActions();
 	void SuggestBindings();
-	void CreateBooleanAction(XrActionSet actionSet, XrAction* action, const char* name, const char* description);
+	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true);
 	void UpdatePlayerMovement();
-	void UpdateBooleanAction(XrAction action, const ActionId& inputEvent);
+	void UpdateBooleanAction(BooleanAction& action);
 };

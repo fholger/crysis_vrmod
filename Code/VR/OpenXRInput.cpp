@@ -60,7 +60,7 @@ void OpenXRInput::Shutdown()
 {
 	xrDestroySpace(m_gripSpace[0]);
 	xrDestroySpace(m_gripSpace[1]);
-	xrDestroyAction(m_primaryFire);
+	xrDestroyAction(m_primaryFire.handle);
 	xrDestroyAction(m_moveX);
 	xrDestroyAction(m_moveY);
 	xrDestroyAction(m_controller[0]);
@@ -83,11 +83,16 @@ void OpenXRInput::Update()
 	XR_CheckResult(xrSyncActions(m_session, &syncInfo), "syncing actions");
 
 	UpdatePlayerMovement();
-	UpdateBooleanAction(m_primaryFire, g_pGameActions->attack1);
-	UpdateBooleanAction(m_sprint, g_pGameActions->sprint);
-	UpdateBooleanAction(m_menu, g_pGameActions->hud_menu);
-	UpdateBooleanAction(m_reload, g_pGameActions->reload);
-	UpdateBooleanAction(m_suitMenu, g_pGameActions->hud_suit_menu);
+	UpdateBooleanAction(m_sprint);
+	UpdateBooleanAction(m_menu);
+	UpdateBooleanAction(m_suitMenu);
+	UpdateBooleanAction(m_primaryFire);
+	UpdateBooleanAction(m_nextWeapon);
+	UpdateBooleanAction(m_reload);
+	UpdateBooleanAction(m_use);
+	UpdateBooleanAction(m_binoculars);
+	UpdateBooleanAction(m_nightvision);
+	UpdateBooleanAction(m_melee);
 }
 
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
@@ -101,11 +106,16 @@ Matrix34 OpenXRInput::GetControllerTransform(int hand)
 
 void OpenXRInput::CreateInputActions()
 {
-	CreateBooleanAction(m_ingameSet, &m_primaryFire, "primary_fire", "Primary Fire");
-	CreateBooleanAction(m_ingameSet, &m_suitMenu, "suit_menu", "Suit Menu");
-	CreateBooleanAction(m_ingameSet, &m_menu, "menu_toggle", "Open menu / show objectives");
-	CreateBooleanAction(m_ingameSet, &m_sprint, "sprint", "Sprint");
-	CreateBooleanAction(m_ingameSet, &m_reload, "reload", "Reload");
+	CreateBooleanAction(m_ingameSet, m_primaryFire, "primary_fire", "Primary Fire", &g_pGameActions->attack1);
+	CreateBooleanAction(m_ingameSet, m_suitMenu, "suit_menu", "Suit Menu", &g_pGameActions->hud_suit_menu);
+	CreateBooleanAction(m_ingameSet, m_menu, "menu_toggle", "Open menu / show objectives", &g_pGameActions->xi_hud_back);
+	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
+	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
+	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, nullptr, false);
+	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->use);
+	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->binoculars);
+	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
+	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -145,21 +155,26 @@ void OpenXRInput::CreateInputActions()
 void OpenXRInput::SuggestBindings()
 {
 	SuggestedProfileBinding knuckles(m_instance);
-	knuckles.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
+	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/right/input/trigger/click");
 	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip");
 	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip");
 	knuckles.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
 	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
 	knuckles.AddBinding(m_jumpCrouch, "/user/hand/right/input/thumbstick/y");
-	knuckles.AddBinding(m_sprint, "/user/hand/left/input/trigger");
-	knuckles.AddBinding(m_menu, "/user/hand/left/input/b/click");
-	knuckles.AddBinding(m_reload, "/user/hand/right/input/a/click");
-	knuckles.AddBinding(m_suitMenu, "/user/hand/left/input/trigger/click");
+	knuckles.AddBinding(m_sprint.handle, "/user/hand/left/input/trigger");
+	knuckles.AddBinding(m_menu.handle, "/user/hand/left/input/b/click");
+	knuckles.AddBinding(m_reload.handle, "/user/hand/right/input/a/click");
+	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/left/input/trigger/click");
+	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/right/input/b");
+	knuckles.AddBinding(m_use.handle, "/user/hand/left/input/squeeze/force");
+	knuckles.AddBinding(m_binoculars.handle, "/user/hand/left/input/a");
+	knuckles.AddBinding(m_nightvision.handle, "/user/hand/left/input/thumbstick/click");
+	knuckles.AddBinding(m_melee.handle, "/user/hand/right/input/thumbstick/click");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
-	touch.AddBinding(m_primaryFire, "/user/hand/right/input/trigger");
+	touch.AddBinding(m_primaryFire.handle, "/user/hand/right/input/trigger");
 	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip");
 	touch.AddBinding(m_controller[1], "/user/hand/right/input/grip");
 	touch.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
@@ -169,13 +184,25 @@ void OpenXRInput::SuggestBindings()
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 
-void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, XrAction* action, const char* name, const char* description)
+
+void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name,
+	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease)
 {
+	if (action.handle)
+	{
+		xrDestroyAction(action.handle);
+	}
+
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_BOOLEAN_INPUT;
 	strcpy(createInfo.actionName, name);
 	strcpy(createInfo.localizedActionName, description);
-	XR_CheckResult(xrCreateAction(actionSet, &createInfo, action), "creating boolean action");
+	XR_CheckResult(xrCreateAction(actionSet, &createInfo, &action.handle), "creating boolean action");
+
+	action.onPress = onPress;
+	action.onLongPress = onLongPress;
+	action.sendRelease = sendRelease;
+	action.longPressActive = false;
 }
 
 void OpenXRInput::UpdatePlayerMovement()
@@ -267,7 +294,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	}
 }
 
-void OpenXRInput::UpdateBooleanAction(XrAction action, const ActionId& inputEvent)
+void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 {
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (!pPlayer)
@@ -279,10 +306,51 @@ void OpenXRInput::UpdateBooleanAction(XrAction action, const ActionId& inputEven
 	XrActionStateBoolean state{ XR_TYPE_ACTION_STATE_BOOLEAN };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 	getInfo.subactionPath = XR_NULL_PATH;
-	getInfo.action = action;
+	getInfo.action = action.handle;
 	XR_CheckResult(xrGetActionStateBoolean(m_session, &getInfo, &state), "getting boolean action state", m_instance);
-	if (state.isActive && state.changedSinceLastSync)
+
+	if (!state.isActive || !action.onPress)
+		return;
+
+	if (action.onLongPress == nullptr)
 	{
-		input->OnAction(inputEvent, state.currentState ? eAAM_OnPress : eAAM_OnRelease, state.currentState ? 1.f : 0.f);
+		if (state.changedSinceLastSync && (state.currentState || action.sendRelease))
+		{
+			input->OnAction(*action.onPress, state.currentState ? eAAM_OnPress : eAAM_OnRelease, state.currentState ? 1.f : 0.f);
+		}
+		return;
+	}
+
+	if (state.changedSinceLastSync && state.currentState == XR_TRUE)
+	{
+		action.timePressed = gEnv->pTimer->GetAsyncCurTime();
+	}
+	else if (state.changedSinceLastSync && state.currentState == XR_FALSE)
+	{
+		if (action.longPressActive && action.onLongPress && action.sendRelease)
+		{
+			input->OnAction(*action.onLongPress, eAAM_OnRelease, 0);
+		}
+		else if (action.onPress)
+		{
+			// we are only activating on release to distinguish from a long press
+			input->OnAction(*action.onPress, eAAM_OnPress, 1);
+			if (action.sendRelease)
+			{
+				input->OnAction(*action.onPress, eAAM_OnRelease, 0);
+			}
+		}
+		action.timePressed = -1;
+		action.longPressActive = false;
+	}
+
+	if (state.currentState == XR_TRUE && action.timePressed >= 0)
+	{
+		float curTime = gEnv->pTimer->GetAsyncCurTime();
+		if (curTime - action.timePressed >= 0.25f)
+		{
+			action.longPressActive = true;
+			input->OnAction(*action.onLongPress, eAAM_OnPress, 1);
+		}
 	}
 }
