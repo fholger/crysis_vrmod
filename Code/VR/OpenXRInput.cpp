@@ -371,7 +371,7 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 		{
 			input->OnAction(*action.onLongPress, eAAM_OnRelease, 0);
 		}
-		else if (action.onPress)
+		else if (action.onPress && !action.longPressActive)
 		{
 			// we are only activating on release to distinguish from a long press
 			input->OnAction(*action.onPress, eAAM_OnPress, 1);
@@ -384,7 +384,7 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 		action.longPressActive = false;
 	}
 
-	if (state.currentState == XR_TRUE && action.timePressed >= 0)
+	if (state.currentState == XR_TRUE && action.timePressed >= 0 && !action.longPressActive)
 	{
 		float curTime = gEnv->pTimer->GetAsyncCurTime();
 		if (curTime - action.timePressed >= 0.25f)
