@@ -706,6 +706,9 @@ void CMelee::Hit(ray_hit *hit, const Vec3 &dir, float damageScale, bool remote)
 //-----------------------------------------------------------------------
 void CMelee::ApplyCameraShake(bool hit)
 {
+	// VR: don't want no screen shake
+	return;
+
 	// Add some camera shake for client even if not hitting
 	if(m_pWeapon->GetOwnerActor() && m_pWeapon->GetOwnerActor()->IsClient())
 	{

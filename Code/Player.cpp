@@ -3512,6 +3512,9 @@ void CPlayer::CameraShake(float angle,float shift,float duration,float frequency
 {
 	float angleAmount(max(-90.0f,min(90.0f,angle)) * gf_PI/180.0f);
 	float shiftAmount(shift);
+
+	// VR: don't want angle shake
+	angleAmount = 0;
   
   if (IVehicle* pVehicle = GetLinkedVehicle())
   {
