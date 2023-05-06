@@ -7,6 +7,7 @@
 #include "HUD/HUD.h"
 
 #undef GetUserName
+#undef PlaySound
 
 using Microsoft::WRL::ComPtr;
 
@@ -30,6 +31,8 @@ public:
 	Vec2i GetRenderSize() const;
 
 	void ModifyViewCamera(int eye, CCamera& cam);
+
+	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
 
 	RectF GetEffectiveRenderLimits(int eye);
 

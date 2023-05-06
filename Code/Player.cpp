@@ -68,7 +68,7 @@ History:
 
 #include "Binocular.h"
 #include "SoundMoods.h"
-#include "VR/OpenXRRuntime.h"
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 // enable this to check nan's on position updates... useful for debugging some weird crashes
@@ -1677,17 +1677,7 @@ void CPlayer::PostUpdateView(SViewParams &viewParams)
 
 	m_stats.FPWeaponAngles = Ang3(wQuat);	
 
-	CWeapon* weapon = GetWeapon(GetCurrentItemId());
-	if (weapon && g_pGameCVars->vr_enable_motion_controllers)
-	{
-		m_stats.FPWeaponAngles.x = m_stats.FPWeaponAngles.y = 0;
-		Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(m_stats.FPWeaponAngles, m_stats.FPWeaponPos);
-		Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(1);
-		Matrix34 inverseWeaponGripTransform = weapon->GetInverseGripTransform();
-		Matrix34 trackedTransform = weaponWorldTransform * controllerTransform * inverseWeaponGripTransform;
-		m_stats.FPWeaponPos = trackedTransform.GetTranslation();
-		m_stats.FPWeaponAngles = Ang3(trackedTransform);
-	}
+	gVR->ModifyWeaponPosition(this, m_stats.FPWeaponAngles, m_stats.FPWeaponPos);
 
 	m_stats.FPSecWeaponPos = m_stats.FPWeaponPos;
 	m_stats.FPSecWeaponAngles = m_stats.FPWeaponAngles;

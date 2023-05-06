@@ -4,6 +4,9 @@
 #include "Cry_Camera.h"
 #include "GameCVars.h"
 #include "OpenXRRuntime.h"
+#include "VRRenderer.h"
+#include "Weapon.h"
+#include "Menus/FlashMenuObject.h"
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
@@ -273,6 +276,29 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 
 	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
 	cam.UpdateFrustumFromVRRaw(tanl, tanr, tanb, tant);
+}
+
+void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition)
+{
+	if (!g_pGameCVars->vr_enable_motion_controllers
+		|| g_pGame->GetMenu()->IsMenuActive()
+		|| g_pGame->GetHUD()->GetModalHUD()
+		|| !gVRRenderer->ShouldRenderVR())
+	{
+		return;
+	}
+
+	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
+	if (!weapon)
+		return;
+
+	weaponAngles.x = weaponAngles.y = 0;
+	Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(weaponAngles, weaponPosition);
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(1);
+	Matrix34 inverseWeaponGripTransform = weapon->GetInverseGripTransform();
+	Matrix34 trackedTransform = weaponWorldTransform * controllerTransform * inverseWeaponGripTransform;
+	weaponPosition = trackedTransform.GetTranslation();
+	weaponAngles = Ang3(trackedTransform);
 }
 
 RectF VRManager::GetEffectiveRenderLimits(int eye)
