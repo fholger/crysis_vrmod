@@ -220,7 +220,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	bool inVehicle = pPlayer->GetLinkedVehicle() != nullptr;
 	bool inHud = g_pGame->GetHUD()->GetModalHUD() != nullptr;
 	CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
-	bool usingMountedGun = dynamic_cast<CGunTurret*>(weapon) != nullptr;
+	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
 
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
