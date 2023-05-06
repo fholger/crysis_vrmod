@@ -10,6 +10,7 @@
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "HUD/HUD.h"
+#include "Menus/FlashMenuObject.h"
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
 extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
@@ -50,13 +51,19 @@ void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
 	strcpy(setCreateInfo.actionSetName, "ingame");
 	strcpy(setCreateInfo.localizedActionSetName, "Ingame");
 	XR_CheckResult(xrCreateActionSet(m_instance, &setCreateInfo, &m_ingameSet), "creating ingame action set", m_instance);
+	strcpy(setCreateInfo.actionSetName, "menu");
+	strcpy(setCreateInfo.localizedActionSetName, "Menu");
+	XR_CheckResult(xrCreateActionSet(m_instance, &setCreateInfo, &m_menuSet), "creating menu action set", m_instance);
 
 	CreateInputActions();
 	SuggestBindings();
 
 	XrSessionActionSetsAttachInfo attachInfo{ XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
-	attachInfo.actionSets = &m_ingameSet;
-	attachInfo.countActionSets = 1;
+	std::vector<XrActionSet> actionSets;
+	actionSets.push_back(m_ingameSet);
+	actionSets.push_back(m_menuSet);
+	attachInfo.actionSets = actionSets.data();
+	attachInfo.countActionSets = actionSets.size();
 	XR_CheckResult(xrAttachSessionActionSets(m_session, &attachInfo), "attaching action set", m_instance);
 }
 
@@ -80,23 +87,13 @@ void OpenXRInput::Update()
 	if (!m_session || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
 
-	XrActiveActionSet activeSet{ m_ingameSet, XR_NULL_PATH };
+	std::vector<XrActiveActionSet> activeSets;
+	activeSets.push_back({ m_ingameSet, XR_NULL_PATH });
+	activeSets.push_back({ m_menuSet, XR_NULL_PATH });
 	XrActionsSyncInfo syncInfo{ XR_TYPE_ACTIONS_SYNC_INFO };
-	syncInfo.countActiveActionSets = 1;
-	syncInfo.activeActionSets = &activeSet;
+	syncInfo.countActiveActionSets = activeSets.size();
+	syncInfo.activeActionSets = activeSets.data();
 	XR_CheckResult(xrSyncActions(m_session, &syncInfo), "syncing actions");
-
-	UpdatePlayerMovement();
-	UpdateBooleanAction(m_sprint);
-	UpdateBooleanAction(m_menu);
-	UpdateBooleanAction(m_suitMenu);
-	UpdateBooleanAction(m_primaryFire);
-	UpdateBooleanAction(m_nextWeapon);
-	UpdateBooleanAction(m_reload);
-	UpdateBooleanAction(m_use);
-	UpdateBooleanAction(m_binoculars);
-	UpdateBooleanAction(m_nightvision);
-	UpdateBooleanAction(m_melee);
 
 	float pointerX, pointerY;
 	if (CalcControllerHudIntersection(1, pointerX, pointerY))
@@ -114,6 +111,15 @@ void OpenXRInput::Update()
 
 		Vec2i windowSize = gVRRenderer->GetWindowSize();
 		gEnv->pHardwareMouse->SetHardwareMouseClientPosition(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
+	}
+
+	if (g_pGame->GetMenu()->IsMenuActive())
+	{
+		UpdateMenuActions();
+	}
+	else
+	{
+		UpdateIngameActions();
 	}
 }
 
@@ -138,6 +144,8 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
 	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
+	CreateBooleanAction(m_menuSet, m_menuClick, "click", "Menu Click", &g_pGameActions->hud_mouseclick);
+	CreateBooleanAction(m_menuSet, m_menuBack, "back", "Menu Back", nullptr);
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -194,6 +202,9 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/left/input/a");
 	knuckles.AddBinding(m_nightvision.handle, "/user/hand/left/input/thumbstick/click");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/right/input/thumbstick/click");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/trigger");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/a");
+	knuckles.AddBinding(m_menuBack.handle, "/user/hand/right/input/b");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
@@ -226,6 +237,30 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 	action.onLongPress = onLongPress;
 	action.sendRelease = sendRelease;
 	action.longPressActive = false;
+}
+
+void OpenXRInput::UpdateIngameActions()
+{
+	UpdatePlayerMovement();
+	UpdateBooleanAction(m_sprint);
+	UpdateBooleanAction(m_menu);
+	UpdateBooleanAction(m_suitMenu);
+	UpdateBooleanAction(m_primaryFire);
+	UpdateBooleanAction(m_nextWeapon);
+	UpdateBooleanAction(m_reload);
+	UpdateBooleanAction(m_use);
+	UpdateBooleanAction(m_binoculars);
+	UpdateBooleanAction(m_nightvision);
+	UpdateBooleanAction(m_melee);
+	UpdateBooleanAction(m_menuClick);
+}
+
+void OpenXRInput::UpdateMenuActions()
+{
+	m_timeLastMenuUpdate = gEnv->pTimer->GetAsyncCurTime();
+	UpdateBooleanActionForMenu(m_menuClick, eDI_XI, eKI_XI_A);
+	UpdateBooleanActionForMenu(m_menuBack, eDI_XI, eKI_XI_B);
+	UpdateBooleanActionForMenu(m_menu, eDI_Keyboard, eKI_Escape);
 }
 
 void OpenXRInput::UpdatePlayerMovement()
@@ -393,6 +428,30 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 			input->OnAction(*action.onLongPress, eAAM_OnPress, 1);
 		}
 	}
+}
+
+void OpenXRInput::UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key)
+{
+	action.timePressed = -1;
+
+	CFlashMenuObject* menu = g_pGame->GetMenu();
+	if (!menu || !menu->IsMenuActive())
+		return;
+
+	XrActionStateBoolean state{ XR_TYPE_ACTION_STATE_BOOLEAN };
+	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+	getInfo.subactionPath = XR_NULL_PATH;
+	getInfo.action = action.handle;
+	XR_CheckResult(xrGetActionStateBoolean(m_session, &getInfo, &state), "getting boolean action state", m_instance);
+
+	if (!state.isActive || !state.changedSinceLastSync)
+		return;
+
+	SInputEvent event;
+	event.deviceId = device;
+	event.keyId = key;
+	event.state = state.currentState ? eIS_Pressed : eIS_Released;
+	menu->OnInputEvent(event);
 }
 
 bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)

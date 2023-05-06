@@ -46,6 +46,12 @@ private:
 	BooleanAction m_nightvision;
 	BooleanAction m_melee;
 	XrSpace m_gripSpace[2] = {};
+
+	XrActionSet m_menuSet = nullptr;
+	BooleanAction m_menuClick;
+	BooleanAction m_menuBack;
+	float m_timeLastMenuUpdate = 0;
+
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
 
@@ -56,8 +62,11 @@ private:
 	void CreateInputActions();
 	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true);
+	void UpdateIngameActions();
+	void UpdateMenuActions();
 	void UpdatePlayerMovement();
 	void UpdateBooleanAction(BooleanAction& action);
+	void UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key);
 
 	bool CalcControllerHudIntersection(int hand, float& x, float& y);
 };
