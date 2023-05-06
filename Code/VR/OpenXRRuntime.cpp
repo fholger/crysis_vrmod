@@ -13,6 +13,9 @@ OpenXRRuntime *gXR = &g_xrRuntime;
 
 using Microsoft::WRL::ComPtr;
 
+const int OpenXRInput::MOUSE_SAMPLE_COUNT;
+
+
 bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
 {
 	if ( XR_SUCCEEDED( result ) ) {
@@ -297,10 +300,9 @@ void OpenXRRuntime::FinishFrame()
 	hudLayer.subImage.swapchain = m_hudSwapchain;
 	hudLayer.subImage.imageRect.extent.width = m_hudWidth;
 	hudLayer.subImage.imageRect.extent.height = m_hudHeight;
-	hudLayer.pose.orientation.w = 1;
-	hudLayer.pose.position.z = -2.f;
-	hudLayer.size.width = 2.f;
-	hudLayer.size.height = 2.f;
+	hudLayer.pose = GetHudPose();
+	hudLayer.size.width = GetHudWidth();
+	hudLayer.size.height = GetHudHeight();
 	hudLayer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
 
 	const XrCompositionLayerBaseHeader* layers[] = {
@@ -422,6 +424,14 @@ void OpenXRRuntime::SubmitHud(ID3D11Texture2D* hudTex)
 	context->CopyResource(m_hudImages[imageIdx], hudTex);
 
 	XR_CheckResult(xrReleaseSwapchainImage(m_hudSwapchain, nullptr), "releasing swapchain image", m_instance);
+}
+
+XrPosef OpenXRRuntime::GetHudPose() const
+{
+	XrPosef pose{};
+	pose.orientation.w = 1;
+	pose.position.z = -2.f;
+	return pose;
 }
 
 bool OpenXRRuntime::CreateInstance()

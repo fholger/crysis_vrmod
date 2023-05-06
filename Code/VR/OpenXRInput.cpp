@@ -7,6 +7,8 @@
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
+#include "VRManager.h"
+#include "VRRenderer.h"
 #include "HUD/HUD.h"
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
@@ -95,13 +97,31 @@ void OpenXRInput::Update()
 	UpdateBooleanAction(m_binoculars);
 	UpdateBooleanAction(m_nightvision);
 	UpdateBooleanAction(m_melee);
+
+	float pointerX, pointerY;
+	if (CalcControllerHudIntersection(1, pointerX, pointerY))
+	{
+		m_hudMousePosSamples[m_curMouseSampleIdx].x = pointerX;
+		m_hudMousePosSamples[m_curMouseSampleIdx].y = pointerY;
+		m_curMouseSampleIdx = (m_curMouseSampleIdx + 1) % MOUSE_SAMPLE_COUNT;
+
+		Vec2 smoothedMousePos;
+		for (int i = 0; i < MOUSE_SAMPLE_COUNT; ++i)
+		{
+			smoothedMousePos += m_hudMousePosSamples[i];
+		}
+		smoothedMousePos /= MOUSE_SAMPLE_COUNT;
+
+		Vec2i windowSize = gVRRenderer->GetWindowSize();
+		gEnv->pHardwareMouse->SetHardwareMouseClientPosition(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
+	}
 }
 
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
 {
 	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
 	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
-	// the grip pose has a peculiar orientation. This brings it in line with what we need
+	// the grip pose has a peculiar orientation. This brings it in line with what we need for the weapon orientation
 	Matrix33 correction = Matrix33::CreateRotationXYZ(Ang3(gf_PI, gf_PI/2, 0));
 	return OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
 }
@@ -113,7 +133,7 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_menu, "menu_toggle", "Open menu / show objectives", &g_pGameActions->xi_hud_back);
 	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
-	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, nullptr, false);
+	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, &g_pGameActions->xi_zoom, false);
 	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->xi_use);
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
@@ -373,4 +393,40 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 			input->OnAction(*action.onLongPress, eAAM_OnPress, 1);
 		}
 	}
+}
+
+bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)
+{
+	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
+	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
+	// need to massage the pose orientation a little bit to work in our favour
+	Matrix33 correction = Matrix33::CreateRotationXYZ(Ang3(-gf_PI/3, 0, 0));
+	Matrix34 controllerTransform = OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
+
+	XrPosef hudPose = gXR->GetHudPose();
+	Matrix34 hudTransform = OpenXRToCrysis(hudPose.orientation, hudPose.position);
+	hudTransform.InvertFast();
+
+	Matrix34 controllerInHudSpace = hudTransform * controllerTransform;
+
+	Vec3 pos = controllerInHudSpace.GetTranslation();
+	Vec3 dir = controllerInHudSpace.GetColumn1();
+
+	if (dir.y <= 0.01)
+		return false;
+
+	float t = -pos.y / dir.y;
+	if (t < 0)
+		return false;
+
+	Vec2 intersection(pos.x + t * dir.x, pos.z + t * dir.z);
+	Vec2 hudSize(gXR->GetHudWidth(), gXR->GetHudHeight());
+	Vec2 upperLeft = -.5f * hudSize;
+
+	intersection -= upperLeft;
+	intersection.x /= hudSize.x;
+	intersection.y /= hudSize.y;
+	x = intersection.x;
+	y = 1 - intersection.y;
+	return (x >= 0 && x <= 1 && y >= 0 && y <= 1);
 }

@@ -49,9 +49,15 @@ private:
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
 
+	static const int MOUSE_SAMPLE_COUNT = 10;
+	Vec2 m_hudMousePosSamples[MOUSE_SAMPLE_COUNT];
+	int m_curMouseSampleIdx = 0;
+
 	void CreateInputActions();
 	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true);
 	void UpdatePlayerMovement();
 	void UpdateBooleanAction(BooleanAction& action);
+
+	bool CalcControllerHudIntersection(int hand, float& x, float& y);
 };

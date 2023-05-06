@@ -30,6 +30,10 @@ public:
 
 	OpenXRInput* GetInput() { return &m_input; }
 
+	XrPosef GetHudPose() const;
+	float GetHudWidth() const { return 2.f; }
+	float GetHudHeight() const { return 2.f; }
+
 private:
 	OpenXRInput m_input;
 	XrInstance m_instance = nullptr;
