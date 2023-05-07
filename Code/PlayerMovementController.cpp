@@ -13,6 +13,7 @@
 #include "NetInputChainDebug.h"
 #include "Item.h"
 #include "Weapon.h"
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 #define ENABLE_NAN_CHECK
@@ -1372,6 +1373,7 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 		else
 			state.eyeDirection = m_pPlayer->GetViewQuatFinal().GetColumn1();
 
+		gVR->ModifyPlayerEye(m_pPlayer, state.eyePosition, state.eyeDirection);
 
 		state.animationEyeDirection = state.eyeDirection;
 		state.weaponPosition = state.eyePosition;

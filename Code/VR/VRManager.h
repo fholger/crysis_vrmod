@@ -8,6 +8,8 @@
 
 #undef GetUserName
 #undef PlaySound
+#undef min
+#undef max
 
 using Microsoft::WRL::ComPtr;
 
@@ -31,8 +33,8 @@ public:
 	Vec2i GetRenderSize() const;
 
 	void ModifyViewCamera(int eye, CCamera& cam);
-
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
+	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 
 	RectF GetEffectiveRenderLimits(int eye);
 

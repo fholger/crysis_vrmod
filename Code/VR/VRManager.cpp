@@ -301,6 +301,28 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	weaponAngles = Ang3(trackedTransform);
 }
 
+void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
+{
+	if (!g_pGameCVars->vr_enable_motion_controllers
+		|| g_pGame->GetMenu()->IsMenuActive()
+		|| g_pGame->GetHUD()->GetModalHUD()
+		|| !gVRRenderer->ShouldRenderVR())
+	{
+		return;
+	}
+
+	if (pPlayer->GetActorStats()->mountedWeaponID)
+		return;
+
+	CCamera left = gVRRenderer->GetCurrentViewCamera();
+	ModifyViewCamera(0, left);
+	CCamera right = gVRRenderer->GetCurrentViewCamera();
+	ModifyViewCamera(1, right);
+
+	eyePosition = 0.5f * (left.GetPosition() + right.GetPosition());
+	eyeDirection = 0.5f * (left.GetViewdir() + right.GetViewdir());
+}
+
 RectF VRManager::GetEffectiveRenderLimits(int eye)
 {
 	float l, r, t, b;
