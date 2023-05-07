@@ -33,7 +33,7 @@ namespace
 class SuggestedProfileBinding
 {
 public:
-	SuggestedProfileBinding(XrInstance instance) : m_instance(instance) {}
+	SuggestedProfileBinding(XrInstance instance, bool hasXYButtonsOnLeft) : m_instance(instance), m_hasXYButtonsOnLeft(hasXYButtonsOnLeft) {}
 
 	void AddBinding(XrAction action, const char* binding)
 	{
@@ -46,8 +46,22 @@ public:
 		finalBinding = replace_all(finalBinding, "<!weapon>", nonWeaponHand);
 		finalBinding = replace_all(finalBinding, "<movement>", movementHand);
 		finalBinding = replace_all(finalBinding, "<!movement>", nonMovementHand);
-		CryLogAlways("Binding to %s", finalBinding.c_str());
 
+		if (m_hasXYButtonsOnLeft && finalBinding.find("/user/hand/left") == 0)
+		{
+			size_t pos = finalBinding.size() - 2;
+			if (finalBinding.substr(pos) == "/a")
+				finalBinding.replace(pos, 2, "/x");
+			if (finalBinding.substr(pos) == "/b")
+				finalBinding.replace(pos, 2, "/y");
+			pos = finalBinding.size() - strlen("/a/click");
+			if (finalBinding.substr(pos) == "/a/click" || finalBinding.substr(pos) == "/a/touch")
+				finalBinding.replace(pos, 2, "/x");
+			if (finalBinding.substr(pos) == "/b/click" || finalBinding.substr(pos) == "/b/touch")
+				finalBinding.replace(pos, 2, "/y");
+		}
+
+		CryLogAlways("Final binding path: %s", finalBinding.c_str());
 		XrPath bindingPath;
 		XR_CheckResult(xrStringToPath(m_instance, finalBinding.c_str(), &bindingPath), "string to path");
 		m_bindings.push_back({ action, bindingPath });
@@ -65,6 +79,7 @@ public:
 private:
 	XrInstance m_instance;
 	std::vector<XrActionSuggestedBinding> m_bindings;
+	bool m_hasXYButtonsOnLeft;
 };
 
 void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
@@ -236,7 +251,7 @@ void OpenXRInput::CreateInputActions()
 
 void OpenXRInput::SuggestBindings()
 {
-	SuggestedProfileBinding knuckles(m_instance);
+	SuggestedProfileBinding knuckles(m_instance, false);
 	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger/click");
 	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip");
 	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip");
@@ -266,14 +281,34 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
-	SuggestedProfileBinding touch(m_instance);
-	touch.AddBinding(m_primaryFire.handle, "/user/hand/right/input/trigger");
+	SuggestedProfileBinding touch(m_instance, true);
+	touch.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip");
 	touch.AddBinding(m_controller[1], "/user/hand/right/input/grip");
-	touch.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
-	touch.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
-	touch.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
-	touch.AddBinding(m_rotatePitch, "/user/hand/right/input/thumbstick/y");
+	touch.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
+	touch.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
+	touch.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
+	touch.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
+	touch.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
+	touch.AddBinding(m_sprint.handle, "/user/hand/<weapon>/input/squeeze");
+	touch.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
+	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
+	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
+	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze");
+	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
+	touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/thumbstick/click");
+	touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
+	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
+	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
+	touch.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
+	touch.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
+	touch.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
+	touch.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
+	touch.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
+	touch.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 
