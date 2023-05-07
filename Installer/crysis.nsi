@@ -35,6 +35,10 @@ Section ""
 
 	SetOutPath $INSTDIR\Bin64
 	File .\assembly\Bin64\*
+
+	SetOutPath $INSTDIR
+	File .\assembly\system.vrsample.cfg
+
 	; remove wrapper dlls from previous builds as they may now conflict
 	Delete $INSTDIR\Bin64\d3d10.dll
 	Delete $INSTDIR\Bin64\dxgi.dll
