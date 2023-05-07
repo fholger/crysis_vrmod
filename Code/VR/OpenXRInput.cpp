@@ -315,6 +315,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	bool inVehicle = pPlayer->GetLinkedVehicle() != nullptr;
 	bool inHud = g_pGame->GetHUD()->GetModalHUD() != nullptr;
 	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
+	bool rendering2D = !gVRRenderer->ShouldRenderVR();
 
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
@@ -353,7 +354,7 @@ void OpenXRInput::UpdatePlayerMovement()
 		return;
 	}
 
-	if (inHud || usingMountedGun)
+	if (inHud || usingMountedGun || rendering2D)
 	{
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
 		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
