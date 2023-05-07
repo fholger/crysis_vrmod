@@ -15,6 +15,7 @@ History:
 #include "RocketLauncher.h"
 
 #include "Actor.h"
+#include "GameCVars.h"
 #include "HUD/HUD.h"
 #include "HUD/HUDCrosshair.h"
 #include "GameRules.h"
@@ -368,7 +369,7 @@ void CRocketLauncher::UpdateDotEffect(float frameTime)
 
 	CActor *pActor = GetOwnerActor();
 	IMovementController * pMC = pActor ? pActor->GetMovementController() : NULL;
-	if (pMC)
+	if (pMC && !g_pGameCVars->vr_enable_motion_controllers)
 	{ 
 		SMovementState info;
 		pMC->GetMovementState(info);

@@ -921,6 +921,13 @@ void CLam::AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos)
 		const CCamera& camera = gVRRenderer->GetCurrentViewCamera();
 		pos = camera.GetPosition();
 		dir = camera.GetMatrix().GetColumn1();
+
+		if (g_pGameCVars->vr_enable_motion_controllers)
+		{
+			pos = info.weaponPosition;
+			dir = info.fireDirection;
+		}
+
 		dir.Normalize();
 	}
 }
