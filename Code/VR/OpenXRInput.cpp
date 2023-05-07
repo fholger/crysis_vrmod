@@ -146,6 +146,11 @@ void OpenXRInput::Update()
 		UpdateMenuActions();
 		return;
 	}
+	if (g_pGame->GetHUD()->GetModalHUD())
+	{
+		UpdateHUDActions();
+		return;
+	}
 
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (pPlayer && pPlayer->GetLinkedVehicle())
@@ -326,10 +331,19 @@ void OpenXRInput::UpdateVehicleActions()
 
 void OpenXRInput::UpdateMenuActions()
 {
-	m_timeLastMenuUpdate = gEnv->pTimer->GetAsyncCurTime();
 	UpdateBooleanActionForMenu(m_menuClick, eDI_XI, eKI_XI_A);
 	UpdateBooleanActionForMenu(m_menuBack, eDI_XI, eKI_XI_B);
 	UpdateBooleanActionForMenu(m_menu, eDI_Keyboard, eKI_Escape);
+	// this is needed to potentially debounce the suit menu and not have it active in the background still
+	UpdateBooleanAction(m_suitMenu);
+}
+
+void OpenXRInput::UpdateHUDActions()
+{
+	UpdatePlayerMovement();
+	UpdateBooleanAction(m_menu);
+	UpdateBooleanAction(m_suitMenu);
+	UpdateBooleanAction(m_menuClick);
 }
 
 void OpenXRInput::UpdatePlayerMovement()

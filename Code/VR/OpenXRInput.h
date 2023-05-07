@@ -51,7 +51,6 @@ private:
 	XrActionSet m_menuSet = nullptr;
 	BooleanAction m_menuClick;
 	BooleanAction m_menuBack;
-	float m_timeLastMenuUpdate = 0;
 
 	XrActionSet m_vehicleSet = nullptr;
 	BooleanAction m_vecBoost;
@@ -75,6 +74,7 @@ private:
 	void UpdateIngameActions();
 	void UpdateVehicleActions();
 	void UpdateMenuActions();
+	void UpdateHUDActions();
 	void UpdatePlayerMovement();
 	void UpdateBooleanAction(BooleanAction& action);
 	void UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key);
