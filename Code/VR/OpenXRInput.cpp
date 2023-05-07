@@ -54,6 +54,9 @@ void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
 	strcpy(setCreateInfo.actionSetName, "menu");
 	strcpy(setCreateInfo.localizedActionSetName, "Menu");
 	XR_CheckResult(xrCreateActionSet(m_instance, &setCreateInfo, &m_menuSet), "creating menu action set", m_instance);
+	strcpy(setCreateInfo.actionSetName, "vehicles");
+	strcpy(setCreateInfo.localizedActionSetName, "Vehicles");
+	XR_CheckResult(xrCreateActionSet(m_instance, &setCreateInfo, &m_vehicleSet), "creating vehicle action set", m_instance);
 
 	CreateInputActions();
 	SuggestBindings();
@@ -62,6 +65,7 @@ void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
 	std::vector<XrActionSet> actionSets;
 	actionSets.push_back(m_ingameSet);
 	actionSets.push_back(m_menuSet);
+	actionSets.push_back(m_vehicleSet);
 	attachInfo.actionSets = actionSets.data();
 	attachInfo.countActionSets = actionSets.size();
 	XR_CheckResult(xrAttachSessionActionSets(m_session, &attachInfo), "attaching action set", m_instance);
@@ -71,12 +75,9 @@ void OpenXRInput::Shutdown()
 {
 	xrDestroySpace(m_gripSpace[0]);
 	xrDestroySpace(m_gripSpace[1]);
-	xrDestroyAction(m_primaryFire.handle);
-	xrDestroyAction(m_moveX);
-	xrDestroyAction(m_moveY);
-	xrDestroyAction(m_controller[0]);
-	xrDestroyAction(m_controller[1]);
 	xrDestroyActionSet(m_ingameSet);
+	xrDestroyActionSet(m_menuSet);
+	xrDestroyActionSet(m_vehicleSet);
 
 	m_session = nullptr;
 	m_instance = nullptr;
@@ -90,6 +91,7 @@ void OpenXRInput::Update()
 	std::vector<XrActiveActionSet> activeSets;
 	activeSets.push_back({ m_ingameSet, XR_NULL_PATH });
 	activeSets.push_back({ m_menuSet, XR_NULL_PATH });
+	activeSets.push_back({ m_vehicleSet, XR_NULL_PATH });
 	XrActionsSyncInfo syncInfo{ XR_TYPE_ACTIONS_SYNC_INFO };
 	syncInfo.countActiveActionSets = activeSets.size();
 	syncInfo.activeActionSets = activeSets.data();
@@ -116,6 +118,13 @@ void OpenXRInput::Update()
 	if (g_pGame->GetMenu()->IsMenuActive())
 	{
 		UpdateMenuActions();
+		return;
+	}
+
+	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (pPlayer->GetLinkedVehicle())
+	{
+		UpdateVehicleActions();
 	}
 	else
 	{
@@ -144,8 +153,17 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
 	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
+
 	CreateBooleanAction(m_menuSet, m_menuClick, "click", "Menu Click", &g_pGameActions->hud_mouseclick);
 	CreateBooleanAction(m_menuSet, m_menuBack, "back", "Menu Back", nullptr);
+
+	CreateBooleanAction(m_vehicleSet, m_vecBoost, "vec_boost", "Vehicle Boost", &g_pGameActions->v_boost);
+	CreateBooleanAction(m_vehicleSet, m_vecAfterburner, "vec_afterburner", "Vehicle Afterburner", &g_pGameActions->v_afterburner);
+	CreateBooleanAction(m_vehicleSet, m_vecBrake, "vec_brake", "Vehicle Brake", &g_pGameActions->v_brake);
+	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use);
+	CreateBooleanAction(m_vehicleSet, m_vecHorn, "vec_horn", "Vehicle horn", &g_pGameActions->v_horn);
+	CreateBooleanAction(m_vehicleSet, m_vecLights, "vec_lights", "Vehicle lights", &g_pGameActions->v_lights);
+	CreateBooleanAction(m_vehicleSet, m_vecSwitchSeatView, "vec_switch", "Switch vehicle seat / view", &g_pGameActions->v_changeseat, &g_pGameActions->v_changeview);
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -205,6 +223,13 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/trigger");
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/a");
 	knuckles.AddBinding(m_menuBack.handle, "/user/hand/right/input/b");
+	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/left/input/trigger");
+	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/right/input/a");
+	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/right/input/b");
+	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/left/input/trigger");
+	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/right/input/thumbstick/click");
+	knuckles.AddBinding(m_vecLights.handle, "/user/hand/left/input/thumbstick/click");
+	knuckles.AddBinding(m_vecExit.handle, "/user/hand/left/input/a");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
@@ -255,6 +280,21 @@ void OpenXRInput::UpdateIngameActions()
 	UpdateBooleanAction(m_menuClick);
 }
 
+void OpenXRInput::UpdateVehicleActions()
+{
+	UpdatePlayerMovement();
+	UpdateBooleanAction(m_menu);
+	UpdateBooleanAction(m_primaryFire);
+	UpdateBooleanAction(m_menuClick);
+	UpdateBooleanAction(m_vecBoost);
+	UpdateBooleanAction(m_vecAfterburner);
+	UpdateBooleanAction(m_vecExit);
+	UpdateBooleanAction(m_vecSwitchSeatView);
+	UpdateBooleanAction(m_vecHorn);
+	UpdateBooleanAction(m_vecLights);
+	UpdateBooleanAction(m_vecBrake);
+}
+
 void OpenXRInput::UpdateMenuActions()
 {
 	m_timeLastMenuUpdate = gEnv->pTimer->GetAsyncCurTime();
@@ -274,7 +314,6 @@ void OpenXRInput::UpdatePlayerMovement()
 
 	bool inVehicle = pPlayer->GetLinkedVehicle() != nullptr;
 	bool inHud = g_pGame->GetHUD()->GetModalHUD() != nullptr;
-	CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
 	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
 
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };

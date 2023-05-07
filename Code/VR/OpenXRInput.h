@@ -52,6 +52,15 @@ private:
 	BooleanAction m_menuBack;
 	float m_timeLastMenuUpdate = 0;
 
+	XrActionSet m_vehicleSet = nullptr;
+	BooleanAction m_vecBoost;
+	BooleanAction m_vecAfterburner;
+	BooleanAction m_vecBrake;
+	BooleanAction m_vecHorn;
+	BooleanAction m_vecLights;
+	BooleanAction m_vecExit;
+	BooleanAction m_vecSwitchSeatView;
+
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
 
@@ -63,6 +72,7 @@ private:
 	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true);
 	void UpdateIngameActions();
+	void UpdateVehicleActions();
 	void UpdateMenuActions();
 	void UpdatePlayerMovement();
 	void UpdateBooleanAction(BooleanAction& action);
