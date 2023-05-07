@@ -20,6 +20,7 @@ private:
 		ActionId* onPress = nullptr;
 		ActionId* onLongPress = nullptr;
 		bool sendRelease = true;
+		bool pressOnRelease = false;
 		bool longPressActive = false;
 		float timePressed = -1;
 	};
@@ -70,7 +71,7 @@ private:
 
 	void CreateInputActions();
 	void SuggestBindings();
-	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true);
+	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true, bool pressOnRelease = false);
 	void UpdateIngameActions();
 	void UpdateVehicleActions();
 	void UpdateMenuActions();

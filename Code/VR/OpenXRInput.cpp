@@ -160,10 +160,10 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_vehicleSet, m_vecBoost, "vec_boost", "Vehicle Boost", &g_pGameActions->v_boost);
 	CreateBooleanAction(m_vehicleSet, m_vecAfterburner, "vec_afterburner", "Vehicle Afterburner", &g_pGameActions->v_afterburner);
 	CreateBooleanAction(m_vehicleSet, m_vecBrake, "vec_brake", "Vehicle Brake", &g_pGameActions->v_brake);
-	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use);
+	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use, nullptr, false, true);
 	CreateBooleanAction(m_vehicleSet, m_vecHorn, "vec_horn", "Vehicle horn", &g_pGameActions->v_horn);
 	CreateBooleanAction(m_vehicleSet, m_vecLights, "vec_lights", "Vehicle lights", &g_pGameActions->v_lights);
-	CreateBooleanAction(m_vehicleSet, m_vecSwitchSeatView, "vec_switch", "Switch vehicle seat / view", &g_pGameActions->v_changeseat, &g_pGameActions->v_changeview);
+	CreateBooleanAction(m_vehicleSet, m_vecSwitchSeatView, "vec_switch", "Switch vehicle seat / view", &g_pGameActions->v_changeseat, &g_pGameActions->v_changeview, false);
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -245,7 +245,7 @@ void OpenXRInput::SuggestBindings()
 
 
 void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name,
-	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease)
+	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool pressOnRelease)
 {
 	if (action.handle)
 	{
@@ -261,6 +261,7 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 	action.onPress = onPress;
 	action.onLongPress = onLongPress;
 	action.sendRelease = sendRelease;
+	action.pressOnRelease = pressOnRelease;
 	action.longPressActive = false;
 }
 
@@ -429,9 +430,12 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 
 	if (action.onLongPress == nullptr)
 	{
-		if (state.changedSinceLastSync && (state.currentState || action.sendRelease))
+		if (state.changedSinceLastSync)
 		{
-			input->OnAction(*action.onPress, state.currentState ? eAAM_OnPress : eAAM_OnRelease, state.currentState ? 1.f : 0.f);
+			if ((state.currentState && !action.pressOnRelease) || (!state.currentState && action.pressOnRelease))
+				input->OnAction(*action.onPress, eAAM_OnPress, 1.f);
+			else if (!state.currentState && action.sendRelease)
+				input->OnAction(*action.onPress, eAAM_OnRelease, 0.f);
 		}
 		return;
 	}
