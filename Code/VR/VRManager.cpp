@@ -294,7 +294,7 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 
 	weaponAngles.x = weaponAngles.y = 0;
 	Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(weaponAngles, weaponPosition);
-	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(1);
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(g_pGameCVars->vr_weapon_hand);
 	Matrix34 inverseWeaponGripTransform = weapon->GetInverseGripTransform();
 	Matrix34 trackedTransform = weaponWorldTransform * controllerTransform * inverseWeaponGripTransform;
 	weaponPosition = trackedTransform.GetTranslation();

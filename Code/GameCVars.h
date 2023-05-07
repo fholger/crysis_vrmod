@@ -438,6 +438,9 @@ struct SCVars
 	int vr_shadow_optimization;
 	float vr_resolution_scale;
 	int vr_enable_motion_controllers;
+	int vr_weapon_hand;
+	int vr_movement_hand;
+	float vr_weapon_angle_offset;
 
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;

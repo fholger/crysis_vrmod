@@ -3,17 +3,32 @@
 
 #include "GameActions.h"
 #include "GameCVars.h"
-#include "GunTurret.h"
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
-#include "VRManager.h"
 #include "VRRenderer.h"
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
 extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
+
+namespace
+{
+	std::string replace_all(std::string input, const std::string& search, const std::string& replace)
+	{
+		if (search.empty())
+			return input;
+
+		size_t pos = 0;
+		while ((pos = input.find(search, pos)) != std::string::npos)
+		{
+			input.replace(pos, search.length(), replace);
+			pos += replace.length();
+		}
+		return input;
+	}
+}
 
 class SuggestedProfileBinding
 {
@@ -22,8 +37,19 @@ public:
 
 	void AddBinding(XrAction action, const char* binding)
 	{
+		const char* weaponHand = g_pGameCVars->vr_weapon_hand == 0 ? "left" : "right";
+		const char* nonWeaponHand = g_pGameCVars->vr_weapon_hand == 1 ? "left" : "right";
+		const char* movementHand = g_pGameCVars->vr_movement_hand == 0 ? "left" : "right";
+		const char* nonMovementHand = g_pGameCVars->vr_movement_hand == 1 ? "left" : "right";
+		std::string finalBinding = binding;
+		finalBinding = replace_all(finalBinding, "<weapon>", weaponHand);
+		finalBinding = replace_all(finalBinding, "<!weapon>", nonWeaponHand);
+		finalBinding = replace_all(finalBinding, "<movement>", movementHand);
+		finalBinding = replace_all(finalBinding, "<!movement>", nonMovementHand);
+		CryLogAlways("Binding to %s", finalBinding.c_str());
+
 		XrPath bindingPath;
-		XR_CheckResult(xrStringToPath(m_instance, binding, &bindingPath), "string to path");
+		XR_CheckResult(xrStringToPath(m_instance, finalBinding.c_str(), &bindingPath), "string to path");
 		m_bindings.push_back({ action, bindingPath });
 	}
 
@@ -98,7 +124,7 @@ void OpenXRInput::Update()
 	XR_CheckResult(xrSyncActions(m_session, &syncInfo), "syncing actions");
 
 	float pointerX, pointerY;
-	if (CalcControllerHudIntersection(1, pointerX, pointerY))
+	if (CalcControllerHudIntersection(g_pGameCVars->vr_weapon_hand, pointerX, pointerY))
 	{
 		m_hudMousePosSamples[m_curMouseSampleIdx].x = pointerX;
 		m_hudMousePosSamples[m_curMouseSampleIdx].y = pointerY;
@@ -134,6 +160,8 @@ void OpenXRInput::Update()
 
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
 {
+	hand = clamp_tpl(hand, 0, 1);
+
 	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
 	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
 	// the grip pose has a peculiar orientation. This brings it in line with what we need for the weapon orientation
@@ -203,33 +231,33 @@ void OpenXRInput::CreateInputActions()
 void OpenXRInput::SuggestBindings()
 {
 	SuggestedProfileBinding knuckles(m_instance);
-	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/right/input/trigger/click");
+	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger/click");
 	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip");
 	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip");
-	knuckles.AddBinding(m_moveX, "/user/hand/left/input/thumbstick/x");
-	knuckles.AddBinding(m_moveY, "/user/hand/left/input/thumbstick/y");
-	knuckles.AddBinding(m_rotateYaw, "/user/hand/right/input/thumbstick/x");
-	knuckles.AddBinding(m_jumpCrouch, "/user/hand/right/input/thumbstick/y");
-	knuckles.AddBinding(m_rotatePitch, "/user/hand/right/input/thumbstick/y");
-	knuckles.AddBinding(m_sprint.handle, "/user/hand/left/input/trigger");
-	knuckles.AddBinding(m_menu.handle, "/user/hand/left/input/b/click");
-	knuckles.AddBinding(m_reload.handle, "/user/hand/right/input/a/click");
-	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/left/input/trigger/click");
-	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/right/input/b");
-	knuckles.AddBinding(m_use.handle, "/user/hand/left/input/squeeze/force");
-	knuckles.AddBinding(m_binoculars.handle, "/user/hand/left/input/a");
-	knuckles.AddBinding(m_nightvision.handle, "/user/hand/left/input/thumbstick/click");
-	knuckles.AddBinding(m_melee.handle, "/user/hand/right/input/thumbstick/click");
-	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/trigger");
-	knuckles.AddBinding(m_menuClick.handle, "/user/hand/right/input/a");
-	knuckles.AddBinding(m_menuBack.handle, "/user/hand/right/input/b");
-	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/left/input/trigger");
-	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/right/input/a");
-	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/right/input/b");
-	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/left/input/trigger");
-	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/right/input/thumbstick/click");
-	knuckles.AddBinding(m_vecLights.handle, "/user/hand/left/input/thumbstick/click");
-	knuckles.AddBinding(m_vecExit.handle, "/user/hand/left/input/a");
+	knuckles.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
+	knuckles.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
+	knuckles.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_sprint.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
+	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
+	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<!weapon>/input/trigger/click");
+	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
+	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze/force");
+	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
+	knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/thumbstick/click");
+	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
+	knuckles.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
+	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
+	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
+	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
+	knuckles.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
+	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance);
@@ -500,6 +528,8 @@ void OpenXRInput::UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId de
 
 bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)
 {
+	hand = clamp_tpl(hand, 0, 1);
+
 	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
 	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
 	// need to massage the pose orientation a little bit to work in our favour
