@@ -77,6 +77,8 @@ public:
 
 	virtual tSoundID PlayAction(const ItemString& action, int layer =0 , bool loop =false , uint flags  = eIPAF_Default , float speedOverride  = -1.0f );
 
+	Matrix34 GetInverseGripTransform() override;
+
 protected:
 	void	UpdateAnimState(float frameTime);
 	void  CollisionFeeback(Vec3 &pos, int eFAS);

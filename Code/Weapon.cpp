@@ -3732,6 +3732,15 @@ void CWeapon::CacheRaisePose()
 
 Matrix34 CWeapon::GetInverseGripTransform()
 {
+	if (IsDualWieldMaster() && g_pGameCVars->vr_weapon_hand == 0)
+	{
+		CWeapon* slave = static_cast<CWeapon*>(GetDualWieldSlave());
+		Matrix34 transform = slave->GetSlotHelperRotation(eIGS_FirstPerson, "hand_L_term", false);
+		transform.SetTranslation(slave->GetSlotHelperPos(eIGS_FirstPerson, "hand_L_term", false));
+		transform.InvertFast();
+		return transform;
+	}
+
 	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, "hand_R_term", false);
 	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "hand_R_term", false));
 	transform.InvertFast();

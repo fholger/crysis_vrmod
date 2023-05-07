@@ -20,6 +20,7 @@ History:
 #include <IWorldQuery.h>
 #include <IGameTokens.h>
 #include "GameActions.h"
+#include "GameCVars.h"
 
 #include "HUD/HUD.h"
 
@@ -435,4 +436,13 @@ tSoundID CFists::PlayAction(const ItemString& action, int layer /* =0  */, bool 
 		return CWeapon::PlayAction(g_pItemStrings->offhand_off_akimbo, layer,loop,flags,speedOverride);
 	else
 		return CWeapon::PlayAction(action, layer,loop,flags,speedOverride);
+}
+
+Matrix34 CFists::GetInverseGripTransform()
+{
+	const char* boneName = g_pGameCVars->vr_weapon_hand == 0 ? "hand_L_term" : "hand_R_term";
+	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, boneName, false);
+	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, boneName, false));
+	transform.InvertFast();
+	return transform;
 }
