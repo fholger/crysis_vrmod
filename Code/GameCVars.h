@@ -441,6 +441,7 @@ struct SCVars
 	int vr_weapon_hand;
 	int vr_movement_hand;
 	float vr_weapon_angle_offset;
+	int vr_enable_crosshair;
 
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;

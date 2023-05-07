@@ -881,6 +881,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
 	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE, "Which hand controls player movement: 0 (left) or 1 (right)");
 	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE, "Adjust weapon holding angle");
+	pConsole->Register("vr_enable_crosshair", &vr_enable_crosshair, 1, VF_RESTRICTEDMODE, "If enabled, displays a simple crosshair to assist with aiming in VR");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

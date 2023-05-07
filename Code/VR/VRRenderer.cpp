@@ -269,6 +269,9 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 void VRRenderer::DrawCrosshair()
 {
+	if (!g_pGameCVars->vr_enable_crosshair)
+		return;
+
 	// don't show crosshair during cutscenes
 	if (gEnv->pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return;
