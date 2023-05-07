@@ -148,7 +148,7 @@ void OpenXRInput::Update()
 	}
 
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-	if (pPlayer->GetLinkedVehicle())
+	if (pPlayer && pPlayer->GetLinkedVehicle())
 	{
 		UpdateVehicleActions();
 	}
