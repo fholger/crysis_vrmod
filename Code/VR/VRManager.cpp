@@ -227,6 +227,9 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	angles.y = 0;
 	angles.x = 0;
 
+	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
+	bool isCutscene = system && system->IsPlayingCutScene();
+
 	if (eye == 0)
 	{
 		// manage the aiming deadzone in which the camera should not be rotated
@@ -239,14 +242,23 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * g_PI / 180.f;
 		if (g_pGameCVars->vr_enable_motion_controllers)
 			maxDiff = 0;
-		if (yawDiff > maxDiff)
-			m_prevViewYaw += yawDiff - maxDiff;
-		if (yawDiff < -maxDiff)
-			m_prevViewYaw += yawDiff + maxDiff;
-		if (m_prevViewYaw > g_PI)
-			m_prevViewYaw -= 2*g_PI;
-		if (m_prevViewYaw < -g_PI)
-			m_prevViewYaw += 2*g_PI;
+		if (isCutscene)
+		{
+			maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * g_PI / 180.f;
+			if (yawDiff > maxDiff || yawDiff < -maxDiff)
+				m_prevViewYaw = angles.z;
+		}
+		else
+		{
+			if (yawDiff > maxDiff)
+				m_prevViewYaw += yawDiff - maxDiff;
+			if (yawDiff < -maxDiff)
+				m_prevViewYaw += yawDiff + maxDiff;
+			if (m_prevViewYaw > g_PI)
+				m_prevViewYaw -= 2*g_PI;
+			if (m_prevViewYaw < -g_PI)
+				m_prevViewYaw += 2*g_PI;
+		}
 
 		CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 		if (pPlayer && pPlayer->GetLinkedVehicle())

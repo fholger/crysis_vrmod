@@ -161,7 +161,7 @@ void OpenXRInput::Update()
 		UpdateMenuActions();
 		return;
 	}
-	if (g_pGame->GetHUD()->GetModalHUD())
+	if (g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD())
 	{
 		UpdateHUDActions();
 		return;
@@ -392,7 +392,7 @@ void OpenXRInput::UpdatePlayerMovement()
 		return;
 
 	bool inVehicle = pPlayer->GetLinkedVehicle() != nullptr;
-	bool inHud = g_pGame->GetHUD()->GetModalHUD() != nullptr;
+	bool inHud = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD() != nullptr;
 	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
 	bool rendering2D = !gVRRenderer->ShouldRenderVR();
 
