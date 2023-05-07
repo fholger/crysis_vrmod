@@ -10,6 +10,7 @@
 #include "IVehicleSystem.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
+#include "RocketLauncher.h"
 #include "VRManager.h"
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
@@ -278,7 +279,7 @@ void VRRenderer::DrawCrosshair()
 	if (CWeapon *weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(true)))
 	{
 		// don't draw a crosshair if the weapon laser is active
-		if (weapon->IsLamLaserActivated())
+		if (weapon->IsLamLaserActivated() || dynamic_cast<CRocketLauncher*>(weapon) != nullptr)
 			return;
 	}
 
