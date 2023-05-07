@@ -628,7 +628,7 @@ int CScriptBind_Actor::SetViewShake(IFunctionHandler *pH, Ang3 shakeAngle, Vec3 
 	if (pView)
 	{
 		const int SCRIPT_SHAKE_ID = 42;
-		pView->SetViewShake(shakeAngle, shakeShift, duration, frequency, randomness, SCRIPT_SHAKE_ID);
+		pView->SetViewShake(ZERO, shakeShift, duration, frequency, randomness, SCRIPT_SHAKE_ID);
 	}
 
 	return pH->EndFunction();

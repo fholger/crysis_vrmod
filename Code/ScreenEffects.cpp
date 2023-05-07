@@ -114,7 +114,7 @@ void CScreenEffects::CamShake(Vec3 shiftShake, Vec3 rotateShake, float freq, flo
 		IView *view = gEnv->pGame->GetIGameFramework()->GetIViewSystem()->GetActiveView();
 		if (view)
 		{
-			view->SetViewShake(Ang3(shiftShake), rotateShake, shakeTime, shakeTime, randomness, shakeID, false);
+			view->SetViewShake(ZERO, rotateShake, shakeTime, shakeTime, randomness, shakeID, false);
 		}
 	}
 }

@@ -1236,7 +1236,7 @@ void CPlayerView::ViewShakePostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 			//float white[4] = {1,1,1,1};
 			//gEnv->pRenderer->Draw2dLabel( 100, 50, 2, white, false, "dot:%f vel:%f", dot, rPlayer.m_stats.velocity.len() );
 			
-			pView->SetViewShake(Ang3(0.0005f,0.001f,0.0005f)*dot,Vec3(0.003f,0.0f,0.003f)*dot,0.3f,0.015f,1.0f,2);
+			pView->SetViewShake(ZERO,Vec3(0.003f,0.0f,0.003f)*dot,0.3f,0.015f,1.0f,2);
 		}
 	}
 
