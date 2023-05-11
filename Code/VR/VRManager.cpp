@@ -290,6 +290,15 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	cam.UpdateFrustumFromVRRaw(tanl, tanr, tanb, tant);
 }
 
+void VRManager::ModifyViewCameraFor3DCinema(int eye, CCamera& cam)
+{
+	Matrix34 transform = cam.GetMatrix();
+	Vec3 pos = transform.GetTranslation();
+	pos += g_pGameCVars->vr_cinema_3d_eye_dist * transform.GetColumn0().GetNormalized() * (eye == 0 ? -1 : 1);
+	transform.SetTranslation(pos);
+	cam.SetMatrix(transform);
+}
+
 void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers

@@ -434,6 +434,8 @@ struct SCVars
 
 	// VR
 	int vr_cutscenes_2d;
+	int vr_cinema_3d;
+	float vr_cinema_3d_eye_dist;
 	float vr_cutscenes_angle_snap;
 	float vr_yaw_deadzone_angle;
 	int vr_shadow_optimization;

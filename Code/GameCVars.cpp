@@ -883,18 +883,27 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE, "Adjust weapon holding angle");
 	pConsole->Register("vr_enable_crosshair", &vr_enable_crosshair, 1, VF_RESTRICTEDMODE, "If enabled, displays a simple crosshair to assist with aiming in VR");
 	pConsole->Register("vr_cutscenes_angle_snap", &vr_cutscenes_angle_snap, 60, VF_RESTRICTEDMODE|VF_SAVEGAME, "Ignores camera rotation in cutscenes until the angle difference reaches this value, then snaps the angle to the new value");
+	pConsole->Register("vr_cinema_3d", &vr_cinema_3d, 1, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, whenever the game switches to a cinema mode (e.g. binoculars, weapon scopes or cutscenes), the cinema will render in 3D");
+	pConsole->Register("vr_cinema_3d_eye_dist", &vr_cinema_3d_eye_dist, 0.032f, VF_RESTRICTEDMODE|VF_SAVEGAME, "Determines the distance between the stereoscopic cameras in 3D cinema render mode");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
 {
-	pConsole->UnregisterVariable("vr_cutscenes_2d");
-	pConsole->UnregisterVariable("vr_yaw_deadzone_angle");
-	pConsole->UnregisterVariable("vr_shadow_optimization");
-	pConsole->UnregisterVariable("vr_resolution_scale");
-	pConsole->UnregisterVariable("vr_enable_motion_controllers");
-	pConsole->UnregisterVariable("vr_controller_yaw_deadzone");
-	pConsole->UnregisterVariable("vr_controller_stick_action_threshold");
-	pConsole->UnregisterVariable("vr_controller_stick_zone_cutoff");
+	pConsole->UnregisterVariable("vr_cutscenes_2d", true);
+	pConsole->UnregisterVariable("vr_yaw_deadzone_angle", true);
+	pConsole->UnregisterVariable("vr_shadow_optimization", true);
+	pConsole->UnregisterVariable("vr_resolution_scale", true);
+	pConsole->UnregisterVariable("vr_enable_motion_controllers", true);
+	pConsole->UnregisterVariable("vr_controller_yaw_deadzone", true);
+	pConsole->UnregisterVariable("vr_controller_stick_action_threshold", true);
+	pConsole->UnregisterVariable("vr_controller_stick_zone_cutoff", true);
+	pConsole->UnregisterVariable("vr_weapon_hand", true);
+	pConsole->UnregisterVariable("vr_movement_hand", true);
+	pConsole->UnregisterVariable("vr_weapon_angle_offset", true);
+	pConsole->UnregisterVariable("vr_enable_crosshair", true);
+	pConsole->UnregisterVariable("vr_cutscenes_angle_snap", true);
+	pConsole->UnregisterVariable("vr_cinema_3d", true);
+	pConsole->UnregisterVariable("vr_cinema_3d_eye_dist", true);
 }
 
 //------------------------------------------------------------------------

@@ -7,6 +7,7 @@
 #include "OpenXRRuntime.h"
 
 #include "GameCVars.h"
+#include "VRRenderer.h"
 
 OpenXRRuntime g_xrRuntime;
 OpenXRRuntime *gXR = &g_xrRuntime;
@@ -294,6 +295,28 @@ void OpenXRRuntime::FinishFrame()
 	stereoLayer.viewCount = 2;
 	stereoLayer.views = views;
 
+	XrCompositionLayerQuad cinema3DLayerLeft{ XR_TYPE_COMPOSITION_LAYER_QUAD };
+	cinema3DLayerLeft.eyeVisibility = XR_EYE_VISIBILITY_LEFT;
+	cinema3DLayerLeft.space = m_space;
+	cinema3DLayerLeft.subImage.swapchain = m_stereoSwapchain;
+	cinema3DLayerLeft.subImage.imageRect.extent.width = m_stereoWidth;
+	cinema3DLayerLeft.subImage.imageRect.extent.height = m_stereoHeight;
+	cinema3DLayerLeft.pose = GetHudPose();
+	cinema3DLayerLeft.size.width = GetHudWidth();
+	cinema3DLayerLeft.size.height = GetHudHeight();
+	cinema3DLayerLeft.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+	XrCompositionLayerQuad cinema3DLayerRight{ XR_TYPE_COMPOSITION_LAYER_QUAD };
+	cinema3DLayerRight.eyeVisibility = XR_EYE_VISIBILITY_RIGHT;
+	cinema3DLayerRight.space = m_space;
+	cinema3DLayerRight.subImage.swapchain = m_stereoSwapchain;
+	cinema3DLayerRight.subImage.imageRect.offset.x = m_stereoWidth;
+	cinema3DLayerRight.subImage.imageRect.extent.width = m_stereoWidth;
+	cinema3DLayerRight.subImage.imageRect.extent.height = m_stereoHeight;
+	cinema3DLayerRight.pose = GetHudPose();
+	cinema3DLayerRight.size.width = GetHudWidth();
+	cinema3DLayerRight.size.height = GetHudHeight();
+	cinema3DLayerRight.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+
 	XrCompositionLayerQuad hudLayer{ XR_TYPE_COMPOSITION_LAYER_QUAD };
 	hudLayer.eyeVisibility = XR_EYE_VISIBILITY_BOTH;
 	hudLayer.space = m_space;
@@ -305,16 +328,24 @@ void OpenXRRuntime::FinishFrame()
 	hudLayer.size.height = GetHudHeight();
 	hudLayer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
 
-	const XrCompositionLayerBaseHeader* layers[] = {
-		reinterpret_cast<XrCompositionLayerBaseHeader*>(&stereoLayer),
-		reinterpret_cast<XrCompositionLayerBaseHeader*>(&hudLayer),
-	};
+	std::vector<XrCompositionLayerBaseHeader*> layers;
+	VRRenderMode renderMode = gVRRenderer->GetRenderMode();
+	if (renderMode == RM_VR)
+	{
+		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&stereoLayer));
+	}
+	else if (renderMode == RM_3D)
+	{
+		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&cinema3DLayerLeft));
+		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&cinema3DLayerRight));
+	}
+	layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&hudLayer));
 
 	XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
 	endInfo.displayTime = m_predictedDisplayTime;
 	endInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-	endInfo.layerCount = 2;
-	endInfo.layers = layers;
+	endInfo.layerCount = layers.size();
+	endInfo.layers = layers.data();
 
 	XrResult result = xrEndFrame(m_session, &endInfo);
 	XR_CheckResult(result, "submitting frame", m_instance);
@@ -378,6 +409,7 @@ void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	waitInfo.timeout = 1000000000;
 	XR_CheckResult(xrWaitSwapchainImage(m_stereoSwapchain, &waitInfo), "waiting for swapchain image", m_instance);
 
+	bool isVR = gVRRenderer->GetRenderMode() == RM_VR;
 	D3D11_BOX rect;
 	rect.left = lDesc.Width * leftArea.x;
 	rect.top = lDesc.Height * leftArea.y;
@@ -385,12 +417,12 @@ void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	rect.bottom = rect.top + height;
 	rect.front = 0;
 	rect.back = 1;
-	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, 0, 0, 0, leftEyeTex, 0, &rect);
+	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, 0, 0, 0, leftEyeTex, 0, isVR ? &rect : nullptr);
 	rect.left = rDesc.Width * rightArea.x;
 	rect.top = rDesc.Height * rightArea.y;
 	rect.right = rect.left + width;
 	rect.bottom = rect.top + height;
-	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, width, 0, 0, rightEyeTex, 0, &rect);
+	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, width, 0, 0, rightEyeTex, 0, isVR ? &rect : nullptr);
 
 	XR_CheckResult(xrReleaseSwapchainImage(m_stereoSwapchain, nullptr), "releasing swapchain image", m_instance);
 }

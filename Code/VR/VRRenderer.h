@@ -4,6 +4,13 @@
 
 struct IDXGISwapChain;
 
+enum VRRenderMode
+{
+	RM_VR,
+	RM_2D,
+	RM_3D,
+};
+
 class VRRenderer : public CHUD::IHUDListener
 {
 	typedef void (*SystemRenderFunc)(ISystem* system);
@@ -24,6 +31,7 @@ public:
 	void ChangeRenderResolution(int width, int height);
 
 	bool ShouldRenderVR() const;
+	VRRenderMode GetRenderMode() const;
 
 	void OnBinoculars(bool bShown) override { m_binocularsActive = bShown; }
 

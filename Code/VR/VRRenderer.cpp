@@ -152,7 +152,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 	ColorF transparent(0, 0, 0, 0);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &transparent);
 
-	if (!ShouldRenderVR())
+	if (GetRenderMode() == RM_2D)
 	{
 		// for things like the binoculars, we skip the stereo rendering and instead render to the 2D screen
 		renderFunc(pSystem);
@@ -233,28 +233,46 @@ bool VRRenderer::ShouldRenderVR() const
 	return !m_binocularsActive;
 }
 
+VRRenderMode VRRenderer::GetRenderMode() const
+{
+	if (ShouldRenderVR())
+		return RM_VR;
+
+	return g_pGameCVars->vr_cinema_3d ? RM_3D : RM_2D;
+}
+
 extern void DrawHUDFaders();
 
 void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	VRRenderMode renderMode = GetRenderMode();
+
 	m_currentEye = eye;
 
 	CCamera eyeCam = m_originalViewCamera;
-	gVR->ModifyViewCamera(eye, eyeCam);
+	if (renderMode == RM_VR)
+	{
+		gVR->ModifyViewCamera(eye, eyeCam);
+		float fov = eyeCam.GetFov();
+		gEnv->pRenderer->EF_Query(EFQ_DrawNearFov, (INT_PTR)&fov);
+	}
+	else
+	{
+		gVR->ModifyViewCameraFor3DCinema(eye, eyeCam);
+	}
 	pSystem->SetViewCamera(eyeCam);
 	m_viewCamOverridden = true;
-	float fov = eyeCam.GetFov();
-	gEnv->pRenderer->EF_Query(EFQ_DrawNearFov, (INT_PTR)&fov);
 
 	ColorF black(0, 0, 0, 1);
 	gEnv->pRenderer->ClearBuffer(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &black);
 
 	CFlashMenuObject* menu = static_cast<CGame*>(gEnv->pGame)->GetMenu();
 	// do not render while in menu, as it shows a rotating game world that is disorienting
-	if (!menu->IsMenuActive() && ShouldRenderVR())
+	if (!menu->IsMenuActive() && renderMode != RM_2D)
 	{
 		renderFunc(pSystem);
-		DrawCrosshair();
+		if (renderMode == RM_VR)
+			DrawCrosshair();
 	}
 
 	pSystem->SetViewCamera(m_originalViewCamera);
