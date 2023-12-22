@@ -16,6 +16,7 @@
 #define _STL_UTILS_HEADER_
 
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <vector>
 
