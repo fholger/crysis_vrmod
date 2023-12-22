@@ -55,7 +55,7 @@ int HeadlessServerLauncher::Run()
 	const char* logFileName = OS::CmdLine::GetArgValue("-logfile", DEFAULT_LOG_FILE_NAME);
 	const char* logPrefix = OS::CmdLine::GetArgValue("-logprefix", "");
 
-	m_params.hInstance = OS::Module::GetEXE();
+	m_params.hInstance = OS::EXE::Get();
 	m_params.logFileName = DEFAULT_LOG_FILE_NAME;
 	m_params.isDedicatedServer = true;
 	m_params.pLog = &m_logger;
@@ -86,17 +86,17 @@ int HeadlessServerLauncher::Run()
 
 void HeadlessServerLauncher::LoadEngine()
 {
-	m_dlls.pCrySystem = LauncherCommon::LoadModule("CrySystem.dll");
+	m_dlls.pCrySystem = LauncherCommon::LoadDLL("CrySystem.dll");
 
 	m_dlls.gameBuild = LauncherCommon::GetGameBuild(m_dlls.pCrySystem);
 	Print("Game build: %d", m_dlls.gameBuild);
 
 	LauncherCommon::VerifyGameBuild(m_dlls.gameBuild);
 
-	m_dlls.pCryGame = LauncherCommon::LoadModule("CryGame.dll");
-	m_dlls.pCryAction = LauncherCommon::LoadModule("CryAction.dll");
-	m_dlls.pCryNetwork = LauncherCommon::LoadModule("CryNetwork.dll");
-	m_dlls.pCryRenderNULL = LauncherCommon::LoadModule("CryRenderNULL.dll");
+	m_dlls.pCryGame = LauncherCommon::LoadDLL("CryGame.dll");
+	m_dlls.pCryAction = LauncherCommon::LoadDLL("CryAction.dll");
+	m_dlls.pCryNetwork = LauncherCommon::LoadDLL("CryNetwork.dll");
+	m_dlls.pCryRenderNULL = LauncherCommon::LoadDLL("CryRenderNULL.dll");
 }
 
 void HeadlessServerLauncher::PatchEngine()
@@ -117,7 +117,7 @@ void HeadlessServerLauncher::PatchEngine()
 
 	if (m_dlls.pCrySystem)
 	{
-		MemoryPatch::CrySystem::UnhandledExceptions(m_dlls.pCrySystem, m_dlls.gameBuild);
+		MemoryPatch::CrySystem::DisableCrashHandler(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &CPUInfo::Detect);
 		MemoryPatch::CrySystem::HookError(m_dlls.pCrySystem, m_dlls.gameBuild, &CrashLogger::OnEngineError);
 	}
@@ -147,6 +147,7 @@ void HeadlessServerLauncher::OnInitProgress(const char* message)
 
 void HeadlessServerLauncher::OnInit(ISystem* pSystem)
 {
+	gEnv = pSystem->GetGlobalEnvironment();
 }
 
 void HeadlessServerLauncher::OnShutdown()

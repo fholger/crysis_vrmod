@@ -6,6 +6,8 @@
 #include "../MemoryPatch.h"
 
 #include "GameLauncher.h"
+#include "LanguageHook.h"
+#include "Library/StringFormat.h"
 
 #include "Library/StringTools.h"
 
@@ -14,6 +16,38 @@
 static std::FILE* OpenLogFile()
 {
 	return LauncherCommon::OpenLogFile(DEFAULT_LOG_FILE_NAME);
+}
+
+static void LogBytes(const char* message, std::size_t bytes)
+{
+	const char* unit = "";
+	char units[6][2] = { "K", "M", "G", "T", "P", "E" };
+
+	for (int i = 0; i < 6 && bytes >= 1024; i++)
+	{
+		unit = units[i];
+		bytes /= 1024;
+	}
+
+	CryLogAlways("%s%u%s", message, static_cast<unsigned int>(bytes), unit);
+}
+
+static void OnD3D9Info(MemoryPatch::CryRenderD3D9::AdapterInfo* info)
+{
+	CryLogAlways("D3D9 Adapter: %s", info->description);
+	CryLogAlways("D3D9 Adapter: PCI %04x:%04x (rev %02x)", info->vendor_id, info->device_id, info->revision);
+
+	// no memory info available
+}
+
+static void OnD3D10Info(MemoryPatch::CryRenderD3D10::AdapterInfo* info)
+{
+	CryLogAlways("D3D10 Adapter: %ls", info->description);
+	CryLogAlways("D3D10 Adapter: PCI %04x:%04x (rev %02x)", info->vendor_id, info->device_id, info->revision);
+
+	LogBytes("D3D10 Adapter: Dedicated video memory = ", info->dedicated_video_memory);
+	LogBytes("D3D10 Adapter: Dedicated system memory = ", info->dedicated_system_memory);
+	LogBytes("D3D10 Adapter: Shared system memory = ", info->shared_system_memory);
 }
 
 GameLauncher::GameLauncher() : m_pGameStartup(NULL), m_params(), m_dlls()
@@ -30,7 +64,7 @@ GameLauncher::~GameLauncher()
 
 int GameLauncher::Run()
 {
-	m_params.hInstance = OS::Module::GetEXE();
+	m_params.hInstance = OS::EXE::Get();
 	m_params.logFileName = DEFAULT_LOG_FILE_NAME;
 
 	char cmdLine[2048];
@@ -50,22 +84,27 @@ int GameLauncher::Run()
 
 void GameLauncher::LoadEngine()
 {
-	LoadVRMod();
-	m_dlls.pCrySystem = LauncherCommon::LoadModule("CrySystem.dll");
+    LoadVRMod();
+	m_dlls.pCrySystem = LauncherCommon::LoadDLL("CrySystem.dll");
 
 	m_dlls.gameBuild = LauncherCommon::GetGameBuild(m_dlls.pCrySystem);
 
 	LauncherCommon::VerifyGameBuild(m_dlls.gameBuild);
 
-	m_dlls.pCryGame = LauncherCommon::LoadModule("CryGame.dll");
-	m_dlls.pCryAction = LauncherCommon::LoadModule("CryAction.dll");
-	m_dlls.pCryNetwork = LauncherCommon::LoadModule("CryNetwork.dll");
+	m_dlls.pCryGame = LauncherCommon::LoadDLL("CryGame.dll");
+	m_dlls.pCryAction = LauncherCommon::LoadDLL("CryAction.dll");
+	m_dlls.pCryNetwork = LauncherCommon::LoadDLL("CryNetwork.dll");
 
-	const bool isDX10 = !OS::CmdLine::HasArg("-dx9") && (OS::CmdLine::HasArg("-dx10") || OS::IsVistaOrLater());
-
-	if (isDX10)
+	if (!m_params.isDedicatedServer && !OS::CmdLine::HasArg("-dedicated"))
 	{
-		m_dlls.pCryRenderD3D10 = LauncherCommon::LoadModule("CryRenderD3D10.dll");
+		if (!OS::CmdLine::HasArg("-dx9") && (OS::CmdLine::HasArg("-dx10") || OS::IsVistaOrLater()))
+		{
+			m_dlls.pCryRenderD3D10 = LauncherCommon::LoadDLL("CryRenderD3D10.dll");
+		}
+		else
+		{
+			m_dlls.pCryRenderD3D9 = LauncherCommon::LoadDLL("CryRenderD3D9.dll");
+		}
 	}
 }
 
@@ -100,14 +139,21 @@ void GameLauncher::PatchEngine()
 		MemoryPatch::CrySystem::RemoveSecuROM(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::AllowDX9VeryHighSpec(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::AllowMultipleInstances(m_dlls.pCrySystem, m_dlls.gameBuild);
-		MemoryPatch::CrySystem::UnhandledExceptions(m_dlls.pCrySystem, m_dlls.gameBuild);
+		MemoryPatch::CrySystem::DisableCrashHandler(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &CPUInfo::Detect);
 		MemoryPatch::CrySystem::HookError(m_dlls.pCrySystem, m_dlls.gameBuild, &CrashLogger::OnEngineError);
+		MemoryPatch::CrySystem::HookLanguageInit(m_dlls.pCrySystem, m_dlls.gameBuild, &LanguageHook::OnInit);
+	}
+
+	if (m_dlls.pCryRenderD3D9)
+	{
+		MemoryPatch::CryRenderD3D9::HookAdapterInfo(m_dlls.pCryRenderD3D9, m_dlls.gameBuild, &OnD3D9Info);
 	}
 
 	if (m_dlls.pCryRenderD3D10)
 	{
 		MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(m_dlls.pCryRenderD3D10, m_dlls.gameBuild);
+		MemoryPatch::CryRenderD3D10::HookAdapterInfo(m_dlls.pCryRenderD3D10, m_dlls.gameBuild, &OnD3D10Info);
 	}
 }
 
@@ -117,7 +163,7 @@ void GameLauncher::LoadVRMod()
 	if (vrModPath.empty())
 		vrModPath = ".";
 	vrModPath += "\\Mods\\VRMod\\Bin64\\VRMod.dll";
-	m_dlls.pVRMod = LauncherCommon::LoadModule(vrModPath.c_str());
+	m_dlls.pVRMod = LauncherCommon::LoadDLL(vrModPath.c_str());
 
 	InitVRModD3DHooks();
 }
@@ -125,9 +171,9 @@ void GameLauncher::LoadVRMod()
 void GameLauncher::InitVRModD3DHooks()
 {
 	typedef bool (*InitD3DHooksFn)();
-	auto fn = (InitD3DHooksFn) OS::Module::FindSymbol(m_dlls.pVRMod, "CryVRInitD3DHooks");
+	auto fn = (InitD3DHooksFn) OS::DLL::FindSymbol(m_dlls.pVRMod, "CryVRInitD3DHooks");
 	if (fn == nullptr || !fn())
 	{
-		throw StringTools::Error("Could not initialize VR mod hooks!");
+		throw StringFormat_Error("Could not initialize VR mod hooks!");
 	}
 }

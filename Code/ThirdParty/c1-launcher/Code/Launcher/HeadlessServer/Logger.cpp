@@ -1,11 +1,10 @@
 #include <algorithm>
 
-#include "CryCommon/CrySystem/CryColorCode.h"
 #include "CryCommon/CrySystem/IConsole.h"
 #include "CryCommon/CrySystem/ISystem.h"
 
 #include "Library/PathTools.h"
-#include "Library/StringTools.h"
+#include "Library/StringFormat.h"
 #include "Library/StringView.h"
 
 #include "Logger.h"
@@ -32,24 +31,22 @@ void Logger::OnUpdate()
 
 static StringView ExtractBackupNameAttachment(StringView header)
 {
-	const StringView prefix = "BackupNameAttachment=";
+	const StringView prefix("BackupNameAttachment=");
 
-	if (header.StartsWith(prefix))
+	if (header.starts_with(prefix))
 	{
-		header.RemovePrefix(prefix.length);
+		header.remove_prefix(prefix.length());
 
-		std::size_t pos;
-
-		pos = 0;
-		if (header.Find('"', pos))
+		std::size_t pos = header.find('"');
+		if (pos != StringView::npos)
 		{
-			header.RemovePrefix(pos + 1);
+			header.remove_prefix(pos + 1);
 		}
 
-		pos = 0;
-		if (header.Find('"', pos) || header.Find('\r', pos) || header.Find('\n', pos))
+		pos = header.find_first_of("\"\r\n");
+		if (pos != StringView::npos)
 		{
-			header.RemoveSuffix(header.length - pos);
+			header.remove_suffix(header.length() - pos);
 		}
 
 		return header;
@@ -70,9 +67,9 @@ static void BackupLogFile(const char* logPath)
 	}
 
 	char headerBuffer[256];
-	const StringView header(headerBuffer, logFile.Read(headerBuffer, sizeof headerBuffer));
+	const StringView header(headerBuffer, logFile.Read(headerBuffer, sizeof(headerBuffer)));
 
-	if (header.IsEmpty() && logFile.IsEndOfFile())
+	if (header.empty() && logFile.IsEndOfFile())
 	{
 		// the existing log file is empty, so no backup is needed
 		return;
@@ -88,7 +85,7 @@ static void BackupLogFile(const char* logPath)
 
 	if (!OS::FileSystem::CreateDirectory(backupPath.c_str()))
 	{
-		throw StringTools::OSError("Failed to create log backup directory!\n=> %s", backupPath.c_str());
+		throw StringFormat_OSError("Failed to create log backup directory!\n=> %s", backupPath.c_str());
 	}
 
 	backupPath += OS_PATH_SLASH;
@@ -98,10 +95,7 @@ static void BackupLogFile(const char* logPath)
 
 	if (!OS::FileSystem::CopyFile(logPath, backupPath.c_str()))
 	{
-		throw StringTools::OSError("Failed to copy the existing log file!\n<= %s\n=> %s",
-			logPath,
-			backupPath.c_str()
-		);
+		throw StringFormat_OSError("Failed to copy the log file!\n<= %s\n=> %s", logPath, backupPath.c_str());
 	}
 }
 
@@ -111,9 +105,9 @@ void Logger::OpenFile(const char* logPath)
 
 	BackupLogFile(logPath);
 
-	if (m_file.Open(logPath, "w"))
+	if (!m_file.Open(logPath, "w"))
 	{
-		throw StringTools::OSError("Failed to open log file!\n=> %s", logPath);
+		throw StringFormat_OSError("Failed to open log file!\n=> %s", logPath);
 	}
 
 	m_filePath = logPath;
@@ -180,7 +174,7 @@ bool Logger::SetFileName(const char* fileName)
 
 const char* Logger::GetFileName()
 {
-	return PathTools::BaseName(m_filePath).string;
+	return PathTools::BaseName(m_filePath).data();
 }
 
 void Logger::LogPlus(const char* format, ...)
@@ -436,7 +430,7 @@ static void AddTimeZoneOffset(std::string& result)
 			sign = '+';
 		}
 
-		StringTools::FormatTo(result, "%c%02u%02u", sign, bias / 60, bias % 60);
+		StringFormatTo(result, "%c%02u%02u", sign, bias / 60, bias % 60);
 	}
 }
 
@@ -451,52 +445,52 @@ static void ExpandMessagePrefixSpecifier(std::string& result, char specifier, co
 		}
 		case 't':
 		{
-			StringTools::FormatTo(result, "%04x", OS::GetCurrentThreadID());
+			StringFormatTo(result, "%04x", OS::GetCurrentThreadID());
 			break;
 		}
 		case 'd':
 		{
-			StringTools::FormatTo(result, "%02u", time.day);
+			StringFormatTo(result, "%02u", time.day);
 			break;
 		}
 		case 'm':
 		{
-			StringTools::FormatTo(result, "%02u", time.month);
+			StringFormatTo(result, "%02u", time.month);
 			break;
 		}
 		case 'Y':
 		{
-			StringTools::FormatTo(result, "%04u", time.year);
+			StringFormatTo(result, "%04u", time.year);
 			break;
 		}
 		case 'F':
 		{
-			StringTools::FormatTo(result, "%04u-%02u-%02u", time.year, time.month, time.day);
+			StringFormatTo(result, "%04u-%02u-%02u", time.year, time.month, time.day);
 			break;
 		}
 		case 'H':
 		{
-			StringTools::FormatTo(result, "%02u", time.hour);
+			StringFormatTo(result, "%02u", time.hour);
 			break;
 		}
 		case 'M':
 		{
-			StringTools::FormatTo(result, "%02u", time.minute);
+			StringFormatTo(result, "%02u", time.minute);
 			break;
 		}
 		case 'S':
 		{
-			StringTools::FormatTo(result, "%02u", time.second);
+			StringFormatTo(result, "%02u", time.second);
 			break;
 		}
 		case 'T':
 		{
-			StringTools::FormatTo(result, "%02u:%02u:%02u", time.hour, time.minute, time.second);
+			StringFormatTo(result, "%02u:%02u:%02u", time.hour, time.minute, time.second);
 			break;
 		}
 		case 'N':
 		{
-			StringTools::FormatTo(result, "%03u", time.millisecond);
+			StringFormatTo(result, "%03u", time.millisecond);
 			break;
 		}
 		case 'z':
@@ -511,13 +505,13 @@ static void FormatPrefix(std::string& result, const StringView& prefix)
 {
 	const OS::DateTime currentTime = OS::GetCurrentDateTimeLocal();
 
-	result.reserve(result.length() + prefix.length);
+	result.reserve(result.length() + prefix.length());
 
-	for (std::size_t i = 0; i < prefix.length; i++)
+	for (std::size_t i = 0; i < prefix.length(); i++)
 	{
 		if (prefix[i] == '%')
 		{
-			if ((i+1) < prefix.length)
+			if ((i+1) < prefix.length())
 			{
 				i++;
 				ExpandMessagePrefixSpecifier(result, prefix[i], currentTime);
@@ -540,7 +534,7 @@ void Logger::BuildMessagePrefix(Message& message)
 
 	const StringView prefix = m_cvars.prefix->GetString();
 
-	if (prefix.IsEmpty() || prefix == "0")
+	if (prefix.empty() || prefix == "0")
 	{
 		// empty string or "0" means log prefix is disabled
 		return;
@@ -561,18 +555,18 @@ void Logger::BuildMessageContent(Message& message, const char* format, va_list a
 		case ILog::eWarning:
 		case ILog::eWarningAlways:
 		{
-			message.content += CRY_COLOR_CODE_YELLOW_STRING "[Warning] ";
+			message.content += CONSOLE_COLOR_YELLOW "[Warning] ";
 			break;
 		}
 		case ILog::eError:
 		case ILog::eErrorAlways:
 		{
-			message.content += CRY_COLOR_CODE_RED_STRING "[Error] ";
+			message.content += CONSOLE_COLOR_RED "[Error] ";
 			break;
 		}
 		case ILog::eComment:
 		{
-			message.content += CRY_COLOR_CODE_GRAY_STRING;
+			message.content += CONSOLE_COLOR_GRAY;
 			break;
 		}
 		case ILog::eMessage:
@@ -584,7 +578,7 @@ void Logger::BuildMessageContent(Message& message, const char* format, va_list a
 		}
 	}
 
-	StringTools::FormatToV(message.content, format, args);
+	StringFormatToV(message.content, format, args);
 }
 
 void Logger::WriteMessage(const Message& message)

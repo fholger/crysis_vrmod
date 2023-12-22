@@ -27,7 +27,7 @@ static int FindArgIndex(const char* arg)
 const char* OS::CmdLine::GetOnlyArgs()
 {
 	char separator = ' ';
-	const char* args = Get();
+	const char* args = ::GetCommandLineA();
 
 	if (*args == '"')
 	{
@@ -127,28 +127,28 @@ static __declspec(noinline) const VS_FIXEDFILEINFO* GetFileInfo(void* mod)
 	return fileInfo;
 }
 
-int OS::Module::Version::GetMajor(void* mod)
+int OS::DLL::Version::GetMajor(void* mod)
 {
 	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
 
 	return (fileInfo) ? HIWORD(fileInfo->dwProductVersionMS) : -1;
 }
 
-int OS::Module::Version::GetMinor(void* mod)
+int OS::DLL::Version::GetMinor(void* mod)
 {
 	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
 
 	return (fileInfo) ? LOWORD(fileInfo->dwProductVersionMS) : -1;
 }
 
-int OS::Module::Version::GetTweak(void* mod)
+int OS::DLL::Version::GetTweak(void* mod)
 {
 	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
 
 	return (fileInfo) ? HIWORD(fileInfo->dwProductVersionLS) : -1;
 }
 
-int OS::Module::Version::GetPatch(void* mod)
+int OS::DLL::Version::GetPatch(void* mod)
 {
 	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
 
@@ -205,34 +205,24 @@ std::size_t OS::GetDocumentsPath(char* buffer, std::size_t bufferSize)
 	const int id = CSIDL_PERSONAL | CSIDL_FLAG_CREATE;
 	const DWORD flags = SHGFP_TYPE_CURRENT;
 
-	char* targetBuffer = buffer;
-
 	char safeBuffer[MAX_PATH + 1];
-	if (bufferSize <= MAX_PATH)
-	{
-		targetBuffer = safeBuffer;
-	}
-
-	if (SHGetFolderPathA(NULL, id, NULL, flags, targetBuffer) != S_OK)
+	if (SHGetFolderPathA(NULL, id, NULL, flags, safeBuffer) != S_OK)
 	{
 		SetLastError(ERROR_PATH_NOT_FOUND);
 		return 0;
 	}
 
-	const std::size_t resultLength = strlen(targetBuffer);
+	const std::size_t length = strlen(safeBuffer);
 
-	if (targetBuffer != buffer)
+	if (length >= bufferSize)
 	{
-		if (resultLength >= bufferSize)
-		{
-			SetLastError(ERROR_BUFFER_OVERFLOW);
-			return 0;
-		}
-
-		memcpy(buffer, targetBuffer, resultLength + 1);
+		SetLastError(ERROR_BUFFER_OVERFLOW);
+		return 0;
 	}
 
-	return resultLength;
+	memcpy(buffer, safeBuffer, length + 1);
+
+	return length;
 }
 
 //////////
@@ -296,7 +286,8 @@ long OS::GetCurrentTimeZoneBias()
 bool OS::IsVistaOrLater()
 {
 	OSVERSIONINFOW info = {};
-	info.dwOSVersionInfoSize = sizeof info;
+	info.dwOSVersionInfoSize = sizeof(info);
+	__pragma(warning(suppress:4996))
 	GetVersionExW(&info);
 
 	return info.dwMajorVersion >= 6;

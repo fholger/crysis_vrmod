@@ -68,8 +68,10 @@ extern "C"
 	__declspec(dllimport) void __stdcall EnterCriticalSection(CRITICAL_SECTION* cs);
 	__declspec(dllimport) void __stdcall LeaveCriticalSection(CRITICAL_SECTION* cs);
 
-	__declspec(dllimport) int __stdcall CopyFileA(const char* srcPath, const char* dstPath, int failIfExists);
+	__declspec(dllimport) int __stdcall CopyFileA(const char* source, const char* destination, int failIfExists);
 	__declspec(dllimport) int __stdcall CreateDirectoryA(const char* path, SECURITY_ATTRIBUTES*);
+
+	__declspec(dllimport) int __stdcall GetLocaleInfoA(DWORD locale, DWORD type, char* buffer, int bufferSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,16 +121,11 @@ namespace OS
 	// Modules //
 	/////////////
 
-	namespace Module
+	namespace DLL
 	{
 		inline void* Get(const char* name)
 		{
 			return ::GetModuleHandleA(name);
-		}
-
-		inline void* GetEXE()
-		{
-			return ::GetModuleHandleA(NULL);
 		}
 
 		inline void* Load(const char* name)
@@ -151,17 +148,30 @@ namespace OS
 			return ::GetModuleFileNameA(static_cast<HMODULE>(mod), buffer, static_cast<DWORD>(bufferSize));
 		}
 
-		inline std::size_t GetEXEPath(char* buffer, std::size_t bufferSize)
-		{
-			return ::GetModuleFileNameA(NULL, buffer, static_cast<DWORD>(bufferSize));
-		}
-
 		namespace Version
 		{
 			int GetMajor(void* mod);
 			int GetMinor(void* mod);
 			int GetTweak(void* mod);
 			int GetPatch(void* mod);
+		}
+	}
+
+	namespace EXE
+	{
+		inline void* Get()
+		{
+			return ::GetModuleHandleA(NULL);
+		}
+
+		inline std::size_t GetPath(char* buffer, std::size_t bufferSize)
+		{
+			return ::GetModuleFileNameA(NULL, buffer, static_cast<DWORD>(bufferSize));
+		}
+
+		namespace Version
+		{
+			using namespace DLL::Version;
 		}
 	}
 
@@ -246,11 +256,11 @@ namespace OS
 
 	namespace FileSystem
 	{
-		inline bool CopyFile(const char* srcPath, const char* dstPath)
+		inline bool CopyFile(const char* source, const char* destination)
 		{
 			const int failIfExists = 0;
 
-			return ::CopyFileA(srcPath, dstPath, failIfExists) != 0;
+			return ::CopyFileA(source, destination, failIfExists) != 0;
 		}
 
 		inline bool CreateDirectory(const char* path)
@@ -293,4 +303,14 @@ namespace OS
 	bool IsVistaOrLater();
 
 	unsigned int GetLogicalProcessorCount();
+
+	// https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+	inline std::size_t GetSystemLanguageCode(char* buffer, std::size_t bufferSize)
+	{
+		return static_cast<std::size_t>(::GetLocaleInfoA(
+			0x800,  // LOCALE_SYSTEM_DEFAULT
+			0x59,   // LOCALE_SISO639LANGNAME
+			buffer, static_cast<int>(bufferSize)
+		));
+	}
 }
