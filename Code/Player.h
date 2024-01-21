@@ -369,6 +369,7 @@ public:
 	virtual void SetAuthority( bool auth );
 	virtual void SerializeXML( XmlNodeRef& node, bool bLoading );
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
+	void ProcessRoomscaleMovement();
 	virtual void PrePhysicsUpdate();
 	virtual void UpdateView(SViewParams &viewParams);
 	virtual void PostUpdateView(SViewParams &viewParams);

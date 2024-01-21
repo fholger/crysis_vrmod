@@ -10,6 +10,7 @@
 #include "PlayerInput.h"
 #include "GameActions.h"
 #include "NetInputChainDebug.h"
+#include "VR/VRManager.h"
 
 #undef CALL_PLAYER_EVENT_LISTENERS
 #define CALL_PLAYER_EVENT_LISTENERS(func) \

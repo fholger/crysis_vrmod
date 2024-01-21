@@ -39,6 +39,15 @@ public:
 
 	RectF GetEffectiveRenderLimits(int eye);
 
+	Matrix33 GetReferenceTransform() const;
+	Vec3 GetHmdOffset() const;
+	float GetHmdYawOffset() const;
+
+	void UpdateReferenceOffset(const Vec3& offset);
+	void UpdateReferenceYaw(float yaw);
+
+	Matrix34 GetEyeTransform(int eye) const;
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -59,6 +68,9 @@ private:
 	void CreateHUDTexture();
 	void CreateSharedTexture(ComPtr<ID3D10Texture2D>& texture, ComPtr<ID3D11Texture2D>& texture11, int width, int height);
 	void CopyBackbufferToTexture(ID3D10Texture2D *target);
+
+	Vec3 m_referencePosition;
+	float m_referenceYaw = 0;
 };
 
 extern VRManager* gVR;

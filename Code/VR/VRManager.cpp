@@ -245,6 +245,8 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 		if (isCutscene)
 		{
 			maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * g_PI / 180.f;
+			if (g_pGameCVars->vr_cutscenes_2d)
+				maxDiff = 0;
 			if (yawDiff > maxDiff || yawDiff < -maxDiff)
 				m_prevViewYaw = angles.z;
 		}
@@ -272,7 +274,7 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	Matrix34 viewMat;
 	viewMat.SetRotationXYZ(angles, position);
 
-	Matrix34 eyeMat = gXR->GetRenderEyeTransform(eye);
+	Matrix34 eyeMat = gVR->GetEyeTransform(eye);
 	viewMat = viewMat * eyeMat;
 
 	cam.SetMatrix(viewMat);
@@ -366,6 +368,46 @@ RectF VRManager::GetEffectiveRenderLimits(int eye)
 		result.h = 1;
 	}
 	return result;
+}
+
+Matrix33 VRManager::GetReferenceTransform() const
+{
+	Ang3 refAngles(0, 0, m_referenceYaw);
+	return Matrix33::CreateRotationXYZ(refAngles).GetTransposed();
+}
+
+Vec3 VRManager::GetHmdOffset() const
+{
+	Vec3 position = gXR->GetHmdTransform().GetTranslation();
+	return GetReferenceTransform() * (position - m_referencePosition);
+}
+
+float VRManager::GetHmdYawOffset() const
+{
+	Ang3 angles(gXR->GetHmdTransform());
+	return angles.z - m_referenceYaw;
+}
+
+void VRManager::UpdateReferenceOffset(const Vec3& offset)
+{
+	// added offset is in player space, convert back to raw HMD space
+	Vec3 rawOffset = GetReferenceTransform().GetTransposed() * offset;
+	rawOffset.z = 0;
+	m_referencePosition += rawOffset;
+}
+
+void VRManager::UpdateReferenceYaw(float yaw)
+{
+	m_referenceYaw += yaw;
+}
+
+Matrix34 VRManager::GetEyeTransform(int eye) const
+{
+	Matrix34 rawEye = gXR->GetRenderEyeTransform(eye);
+	Vec3 position = GetReferenceTransform() * (rawEye.GetTranslation() - m_referencePosition);
+	Ang3 angles(rawEye);
+	angles.z -= m_referenceYaw;
+	return Matrix34::CreateRotationXYZ(angles, position);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

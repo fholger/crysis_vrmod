@@ -361,6 +361,13 @@ Matrix34 OpenXRRuntime::GetRenderEyeTransform(int eye) const
 	return OpenXRToCrysis(m_renderViews[eye].pose.orientation, m_renderViews[eye].pose.position);
 }
 
+Matrix44 OpenXRRuntime::GetHmdTransform() const
+{
+	Matrix44 hmdTransform = GetRenderEyeTransform(0);
+	hmdTransform = (hmdTransform + GetRenderEyeTransform(1)) * .5f;
+	return hmdTransform;
+}
+
 void OpenXRRuntime::GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const
 {
 	tanl = tanf(m_renderViews[eye].fov.angleLeft);

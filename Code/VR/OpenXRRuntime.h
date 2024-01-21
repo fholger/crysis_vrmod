@@ -20,6 +20,7 @@ public:
 	void Update();
 
 	Matrix34 GetRenderEyeTransform(int eye) const;
+	Matrix44 GetHmdTransform() const;
 	void GetFov(int eye, float& tanl, float& tanr, float& tant, float& tanb) const;
 	Vec2i GetRecommendedRenderSize() const;
 

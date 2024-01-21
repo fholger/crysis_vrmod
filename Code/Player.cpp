@@ -1013,6 +1013,17 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 	UpdateSounds(ctx.fFrameTime);
 }
 
+void CPlayer::ProcessRoomscaleMovement()
+{
+	float hmdYaw = gVR->GetHmdYawOffset();
+	CMovementRequest mv;
+	mv.AddDeltaRotation(Ang3(0, 0, hmdYaw));
+	if (m_pMovementController->RequestMovement(mv))
+	{
+		gVR->UpdateReferenceYaw(hmdYaw);
+	}
+}
+
 void CPlayer::UpdateSounds(float fFrameTime)
 {
 	if(IsClient())
@@ -1311,6 +1322,9 @@ void CPlayer::PrePhysicsUpdate()
 				}		
 			}
 		}
+
+		if (m_linkStats.CanRotate() && g_pGameCVars->vr_enable_motion_controllers)
+			ProcessRoomscaleMovement();
   }
 
 	bool client(IsClient());
