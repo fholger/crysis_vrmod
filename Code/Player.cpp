@@ -1015,10 +1015,56 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 
 void CPlayer::ProcessRoomscaleMovement()
 {
+	if (!m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
+		return;
+	if (GetLinkedVehicle() || m_stats.isOnLadder)
+		return;
+
+	Ang3 angles = GetEntity()->GetWorldAngles();
+	angles.x = angles.y = 0;
+	Matrix33 playerTransform = Matrix33::CreateRotationXYZ(DEG2RAD(angles));
+
+	Vec3 playerPos = GetEntity()->GetWorldPos();
+	Vec3 hmdOffset = gVR->GetHmdOffset();
+	hmdOffset.z = 0;
+	Vec3 worldOffset = playerTransform * hmdOffset;
+
+	float length = worldOffset.len();
+	if (length > 0.02f)
+	{
+		// only do small movements per frame, as otherwise it can lead to stuttering responses from the engine
+		worldOffset *= 0.02f / length;
+		hmdOffset *= 0.02f / length;
+	}
+
+	// take terrain slope into account to move a bit up or down and prevent the engine from "jumping" the player vertically
+	if (GetEntity()->GetPhysics())
+	{
+		pe_status_living status;
+		GetEntity()->GetPhysics()->GetStatus(&status);
+		Vec3 normal = status.groundSlope;
+
+		Vec3 fwd = worldOffset.GetNormalized();
+		Vec3 left = -fwd.Cross(normal);
+		fwd = left.Cross(normal);
+		Vec3 fwd2D = fwd;
+		fwd2D.z = 0;
+		worldOffset = fwd * worldOffset.len() / (max(fwd2D.len(), 0.01f));
+	}
+
+	Vec3 desiredPos = playerPos + worldOffset;
+
+	// fixme: the engine appears to do a good job of preventing the player from clipping into obstacles and getting up terrain slopes
+	// still, would be better if we could explicitly check if the position is free, but there is no easily accessible way for us to do
+	// so...
+	GetEntity()->SetPos(desiredPos);
+
+	gVR->UpdateReferenceOffset(hmdOffset);
+
 	float hmdYaw = gVR->GetHmdYawOffset();
-	CMovementRequest mv;
-	mv.AddDeltaRotation(Ang3(0, 0, hmdYaw));
-	if (m_pMovementController->RequestMovement(mv))
+	CMovementRequest rot;
+	rot.AddDeltaRotation(Ang3(0, 0, hmdYaw));
+	if (m_pMovementController->RequestMovement(rot))
 	{
 		gVR->UpdateReferenceYaw(hmdYaw);
 	}
@@ -1323,7 +1369,6 @@ void CPlayer::PrePhysicsUpdate()
 			}
 		}
 
-		if (m_linkStats.CanRotate() && g_pGameCVars->vr_enable_motion_controllers)
 			ProcessRoomscaleMovement();
   }
 
