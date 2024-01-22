@@ -379,6 +379,7 @@ Matrix33 VRManager::GetReferenceTransform() const
 Vec3 VRManager::GetHmdOffset() const
 {
 	Vec3 position = gXR->GetHmdTransform().GetTranslation();
+	position.z = 0;
 	return GetReferenceTransform() * (position - m_referencePosition);
 }
 

@@ -370,6 +370,7 @@ public:
 	virtual void SerializeXML( XmlNodeRef& node, bool bLoading );
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
 	void ProcessRoomscaleMovement();
+	void ProcessRoomscaleRotation();
 	virtual void PrePhysicsUpdate();
 	virtual void UpdateView(SViewParams &viewParams);
 	virtual void PostUpdateView(SViewParams &viewParams);
