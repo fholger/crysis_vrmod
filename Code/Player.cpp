@@ -1020,9 +1020,7 @@ void CPlayer::ProcessRoomscaleMovement()
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
 
-	SMovementState state;
-	m_pMovementController->GetMovementState(state);
-	if (fabsf(state.desiredSpeed) > 0.0001f)
+	if (m_stats.inMovement > 0) // don't do this while we are otherwise moving, or it will interfere
 		return;
 
 	Ang3 angles = GetEntity()->GetWorldAngles();
@@ -1035,29 +1033,28 @@ void CPlayer::ProcessRoomscaleMovement()
 	Vec3 worldOffset = playerTransform * hmdOffset;
 
 	float length = worldOffset.len();
-	if (length > 0.01f)
+	if (length > 0.02f)
 	{
-		// only do small movements per frame, as otherwise it can lead to stuttering responses from the engine
-		worldOffset *= 0.01f / length;
-		hmdOffset *= 0.01f / length;
+		// only do small movements per frame, as otherwise we can't guarantee the move is actually valid
+		worldOffset *= 0.02f / length;
+		hmdOffset *= 0.02f / length;
 	}
 
-	// take terrain slope into account to move a bit up or down and prevent the engine from "jumping" the player vertically
-	pe_status_living status;
-	GetEntity()->GetPhysics()->GetStatus(&status);
-	Vec3 normal = status.groundSlope;
-
-	Vec3 fwd = worldOffset.GetNormalized();
-	Vec3 left = -fwd.Cross(normal);
-	fwd = left.Cross(normal);
-	Vec3 fwd2D = fwd;
-	fwd2D.z = 0;
-	worldOffset = fwd * worldOffset.len() / (max(fwd2D.len(), 0.01f));
-
 	Vec3 desiredPos = playerPos + worldOffset;
+	bool canMove = true;
+	if (!CanStandAtPosition(desiredPos))
+	{
+		// hit an obstacle, try to step up
+		desiredPos.z += 0.25f;
+		if (!CanStandAtPosition(desiredPos))
+			canMove = false;
+	}
 
-	// fixme: this does not check for obstacles, at all, unlike Far Cry... need to find something better
-	GetEntity()->SetPos(desiredPos, ENTITY_XFORM_PHYSICS_STEP);
+	if (canMove)
+	{
+		Vec3 ground = FindGround(desiredPos);
+		GetEntity()->SetPos(ground);
+	}
 
 	gVR->UpdateReferenceOffset(hmdOffset);
 
@@ -4459,6 +4456,22 @@ void CPlayer::PlayAction(const char *action,const char *extension, bool looping)
 		m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( "Signal", action );
 }
 
+Vec3 CPlayer::FindGround(const Vec3& pos) const
+{
+	Vec3 dir(0, 0, -0.5f);
+	Vec3 start = pos + Vec3(0, 0, .25f);
+
+	ray_hit hit;
+	IPhysicalEntity* physent = GetEntity()->GetPhysics();
+	if (gEnv->pPhysicalWorld->RayWorldIntersection(start, dir, ent_all, rwi_stop_at_pierceable | rwi_colltype_any, &hit, 1, &physent, 1))
+	{
+		Vec3 ground(pos.x, pos.y, pos.z - hit.dist);
+		return ground;
+	}
+
+	return pos;
+}
+
 void CPlayer::AnimationControlled(bool activate)
 {
 	if (m_stats.animationControlled != activate)
@@ -6698,6 +6711,33 @@ void CPlayer::OnSoundSystemEvent(ESoundSystemCallbackEvent event,ISound *pSound)
 	{
 		m_bVoiceSoundPlaying = false;
 	}
+}
+
+bool CPlayer::CanStandAtPosition(const Vec3& pos) const
+{
+	IPhysicalEntity* physent = GetEntity()->GetPhysics();
+	if (!physent)
+		return false;
+
+	AABB aabb = GetStanceInfo(GetStance())->GetStanceBounds();
+	OBB obb;
+	obb.SetOBBfromAABB(Quat(IDENTITY), aabb);
+
+	Matrix34 playerMat = GetEntity()->GetWorldTM();
+	playerMat.SetTranslation(pos);
+	primitives::box physbox;
+	physbox.bOriented = 1;
+	physbox.center = obb.c;
+	physbox.Basis = IDENTITY;
+	physbox.size = obb.h;
+	physbox.center = playerMat.TransformPoint(physbox.center);
+	physbox.Basis *= Matrix33(playerMat).GetInverted();
+	physbox.size *= .95f; // slight reduction; any overlap can be dealt with by the physics system
+
+	float hits = gEnv->pPhysicalWorld->PrimitiveWorldIntersection(physbox.type, &physbox, Vec3(0, 0, 0), ent_static | ent_terrain | ent_ignore_noncolliding,
+		nullptr, 0, (geom_colltype_player << rwi_colltype_bit) | rwi_stop_at_pierceable, nullptr, nullptr, 0, &physent, 1);
+
+	return hits <= 0;
 }
 
 //--------------------------------------------------------

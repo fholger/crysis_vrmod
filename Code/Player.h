@@ -720,6 +720,8 @@ public:
 	virtual void OnSoundSystemEvent( ESoundSystemCallbackEvent event,ISound *pSound );
 
 private:
+	bool CanStandAtPosition(const Vec3& pos) const;
+	Vec3 FindGround(const Vec3& pos) const;
 	void AnimationControlled(bool activate);
 	bool ShouldUsePhysicsMovement();
   void Debug();
