@@ -1024,8 +1024,7 @@ void CPlayer::ProcessRoomscaleMovement()
 		return;
 
 	Ang3 angles = GetEntity()->GetWorldAngles();
-	angles.x = angles.y = 0;
-	Matrix33 playerTransform = Matrix33::CreateRotationXYZ(DEG2RAD(angles));
+	Matrix33 playerTransform = Matrix33::CreateRotationZ(angles.z);
 
 	Vec3 playerPos = GetEntity()->GetPos();
 	Vec3 hmdOffset = gVR->GetHmdOffset();
@@ -1042,11 +1041,12 @@ void CPlayer::ProcessRoomscaleMovement()
 
 	Vec3 desiredPos = playerPos + worldOffset;
 	bool canMove = true;
-	if (!CanStandAtPosition(desiredPos))
+	if (SweepPlayer(playerPos, desiredPos))
 	{
 		// hit an obstacle, try to step up
+		playerPos.z += 0.25f;
 		desiredPos.z += 0.25f;
-		if (!CanStandAtPosition(desiredPos))
+		if (SweepPlayer(playerPos, desiredPos))
 			canMove = false;
 	}
 
@@ -4463,7 +4463,7 @@ Vec3 CPlayer::FindGround(const Vec3& pos) const
 
 	ray_hit hit;
 	IPhysicalEntity* physent = GetEntity()->GetPhysics();
-	if (gEnv->pPhysicalWorld->RayWorldIntersection(start, dir, ent_all, rwi_stop_at_pierceable | rwi_colltype_any, &hit, 1, &physent, 1))
+	if (gEnv->pPhysicalWorld->RayTraceEntity(physent, start, dir, &hit))
 	{
 		Vec3 ground(pos.x, pos.y, pos.z - hit.dist);
 		return ground;
@@ -6738,6 +6738,16 @@ bool CPlayer::CanStandAtPosition(const Vec3& pos) const
 		nullptr, 0, (geom_colltype_player << rwi_colltype_bit) | rwi_stop_at_pierceable, nullptr, nullptr, 0, &physent, 1);
 
 	return hits <= 0;
+}
+
+bool CPlayer::SweepPlayer(const Vec3& from, const Vec3& to) const
+{
+	IPhysicalEntity* physent = GetEntity()->GetPhysics();
+	if (!physent)
+		return false;
+
+	ray_hit hit;
+	return gEnv->pPhysicalWorld->RayTraceEntity(physent, from, to - from, &hit);
 }
 
 //--------------------------------------------------------

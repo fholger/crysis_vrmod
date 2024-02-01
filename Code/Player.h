@@ -721,6 +721,7 @@ public:
 
 private:
 	bool CanStandAtPosition(const Vec3& pos) const;
+	bool SweepPlayer(const Vec3& from, const Vec3& to) const;
 	Vec3 FindGround(const Vec3& pos) const;
 	void AnimationControlled(bool activate);
 	bool ShouldUsePhysicsMovement();
