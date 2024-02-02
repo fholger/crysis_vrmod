@@ -1020,8 +1020,17 @@ void CPlayer::ProcessRoomscaleMovement()
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
 
-	if (m_stats.inMovement > 0) // don't do this while we are otherwise moving, or it will interfere
+	if (m_stats.inRest <= 0 || m_stats.jumped) // don't do this while we are otherwise moving, or it will interfere
 		return;
+
+	if (m_roomscaleMovementPause > 0)
+	{
+		// only process roomscale movement at a reduced rate - the physics engine needs time to update the player before we
+		// manually set its position again, otherwise we are bypassing all physics
+		m_roomscaleMovementPause -= gEnv->pTimer->GetFrameTime();
+		if (m_roomscaleMovementPause > 0)
+			return;
+	}
 
 	Ang3 angles = GetEntity()->GetWorldAngles();
 	Matrix33 playerTransform = Matrix33::CreateRotationZ(angles.z);
@@ -1032,11 +1041,14 @@ void CPlayer::ProcessRoomscaleMovement()
 	Vec3 worldOffset = playerTransform * hmdOffset;
 
 	float length = worldOffset.len();
-	if (length > 0.02f)
+	if (length < 0.005)
+		return;
+
+	if (length > 0.05f)
 	{
 		// only do small movements per frame, as otherwise we can't guarantee the move is actually valid
-		worldOffset *= 0.02f / length;
-		hmdOffset *= 0.02f / length;
+		worldOffset *= 0.05f / length;
+		hmdOffset *= 0.05f / length;
 	}
 
 	Vec3 desiredPos = playerPos + worldOffset;
@@ -1054,6 +1066,7 @@ void CPlayer::ProcessRoomscaleMovement()
 	{
 		Vec3 ground = FindGround(desiredPos);
 		GetEntity()->SetPos(ground);
+		m_roomscaleMovementPause = 0.03f;
 	}
 
 	gVR->UpdateReferenceOffset(hmdOffset);
