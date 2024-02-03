@@ -1020,16 +1020,15 @@ void CPlayer::ProcessRoomscaleMovement()
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
 
-	if (m_stats.inRest <= 0 || m_stats.jumped) // don't do this while we are otherwise moving, or it will interfere
+	if (m_stats.inRest <= 0 || m_stats.jumped || m_stats.onGround <= 0) // don't do this while we are otherwise moving, or it will interfere
 		return;
 
 	if (m_roomscaleMovementPause > 0)
 	{
 		// only process roomscale movement at a reduced rate - the physics engine needs time to update the player before we
 		// manually set its position again, otherwise we are bypassing all physics
-		m_roomscaleMovementPause -= gEnv->pTimer->GetFrameTime();
-		if (m_roomscaleMovementPause > 0)
-			return;
+		--m_roomscaleMovementPause;
+		return;
 	}
 
 	Ang3 angles = GetEntity()->GetWorldAngles();
@@ -1066,7 +1065,7 @@ void CPlayer::ProcessRoomscaleMovement()
 	{
 		Vec3 ground = FindGround(desiredPos);
 		GetEntity()->SetPos(ground);
-		m_roomscaleMovementPause = 0.03f;
+		m_roomscaleMovementPause = 1;
 	}
 
 	gVR->UpdateReferenceOffset(hmdOffset);

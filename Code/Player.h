@@ -864,7 +864,7 @@ public:
 	void DebugGraph_AddValue(const char* id, float value) const;
 
 private:
-	float m_roomscaleMovementPause = 0;
+	int m_roomscaleMovementPause = 0;
 };
 
 
