@@ -423,6 +423,7 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 	float frameTime = gEnv->pTimer->GetFrameTime();
 
 	gXR->Update();
+	gVR->Update();
 
 	if (m_pFramework->IsGamePaused() == false)
 	{

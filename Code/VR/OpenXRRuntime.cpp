@@ -54,6 +54,35 @@ Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& posi
 	return m;
 }
 
+XrPosef CrysisToOpenXR(const Matrix34& transform)
+{
+	Matrix34 m;
+	m.m00 = transform.m00;
+	m.m01 = -transform.m02;
+	m.m02 = -transform.m01;
+	m.m03 = -transform.m03;
+	m.m10 = -transform.m20;
+	m.m11 = transform.m22;
+	m.m12 = transform.m21;
+	m.m13 = transform.m23;
+	m.m20 = -transform.m10;
+	m.m21 = transform.m12;
+	m.m22 = transform.m11;
+	m.m23 = transform.m13;
+
+	Vec3 pos = m.GetTranslation();
+	Quat rot = GetQuatFromMat33((Matrix33)m);
+	XrPosef pose;
+	pose.position.x = pos.x;
+	pose.position.y = pos.y;
+	pose.position.z = pos.z;
+	pose.orientation.w = rot.w;
+	pose.orientation.x = rot.v.x;
+	pose.orientation.y = rot.v.y;
+	pose.orientation.z = rot.v.z;
+	return pose;
+}
+
 namespace
 {
 
@@ -163,6 +192,10 @@ bool OpenXRRuntime::Init()
 	if (!CreateInstance())
 		return false;
 
+	memset(&m_hudPose, 0, sizeof(m_hudPose));
+	m_hudPose.orientation.w = 1;
+	m_hudPose.position.z = -2.f;
+
 	return true;
 }
 
@@ -219,6 +252,10 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 	spaceCreateInfo.poseInReferenceSpace.orientation.w = 1;
 	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
 	XR_CheckResult(result, "creating seated reference space", m_instance);
+
+	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
+	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_viewSpace);
+	XR_CheckResult(result, "creating HMD reference space", m_instance);
 
 	m_input.Init(m_instance, m_session, m_space);
 }
@@ -467,10 +504,12 @@ void OpenXRRuntime::SubmitHud(ID3D11Texture2D* hudTex)
 
 XrPosef OpenXRRuntime::GetHudPose() const
 {
-	XrPosef pose{};
-	pose.orientation.w = 1;
-	pose.position.z = -2.f;
-	return pose;
+	return m_hudPose;
+}
+
+void OpenXRRuntime::SetHudPose(const XrPosef& pose)
+{
+	m_hudPose = pose;
 }
 
 bool OpenXRRuntime::CreateInstance()

@@ -48,6 +48,12 @@ public:
 
 	Matrix34 GetEyeTransform(int eye) const;
 
+	void Update();
+	void RecalibrateView();
+
+	void SetHudInFrontOfPlayer();
+	void SetHudAttachedToHead();
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -71,6 +77,10 @@ private:
 
 	Vec3 m_referencePosition;
 	float m_referenceYaw = 0;
+	Matrix34 m_fixedHudTransform;
+	bool m_fixedPositionInitialized = false;
+
+	bool m_wasInMenu = false;
 };
 
 extern VRManager* gVR;

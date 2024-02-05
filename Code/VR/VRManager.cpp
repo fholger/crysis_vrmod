@@ -415,6 +415,78 @@ Matrix34 VRManager::GetEyeTransform(int eye) const
 	return Matrix34::CreateRotationXYZ(angles, position);
 }
 
+void VRManager::Update()
+{
+	if (!g_pGameCVars->vr_enable_motion_controllers)
+		return;
+
+	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()))
+	{
+		if (!m_wasInMenu)
+		{
+			m_wasInMenu = true;
+			RecalibrateView();
+		}
+		SetHudInFrontOfPlayer();
+		return;
+	}
+
+	if (m_wasInMenu)
+	{
+		m_wasInMenu = false;
+		RecalibrateView();
+	}
+
+	SetHudAttachedToHead();
+}
+
+void VRManager::RecalibrateView()
+{
+	Matrix34 hmdTransform = Matrix34(gXR->GetHmdTransform());
+
+	m_referencePosition = hmdTransform.GetTranslation();
+	m_referencePosition.z = 0;
+
+	Ang3 angles;
+	angles.SetAnglesXYZ((Matrix33)hmdTransform);
+	m_referenceYaw = angles.z;
+
+	// recalibrate menu positioning
+	angles.x = angles.y = 0;
+	m_fixedHudTransform.SetRotationXYZ(angles, hmdTransform.GetTranslation());
+	Vec3 dir = -m_fixedHudTransform.GetColumn1();
+	Vec3 pos = m_fixedHudTransform.GetTranslation() + 2 * dir;
+	m_fixedHudTransform.SetTranslation(pos);
+}
+
+extern XrPosef CrysisToOpenXR(const Matrix34& transform);
+
+void VRManager::SetHudInFrontOfPlayer()
+{
+	if (!m_fixedPositionInitialized)
+	{
+		RecalibrateView();
+		m_fixedPositionInitialized = true;
+	}
+
+	gXR->SetHudPose(CrysisToOpenXR(m_fixedHudTransform));
+}
+
+void VRManager::SetHudAttachedToHead()
+{
+	m_fixedPositionInitialized = false;
+
+	Matrix34 hudTransform = Matrix34(gXR->GetHmdTransform());
+	Ang3 angles;
+	angles.SetAnglesXYZ((Matrix33)hudTransform);
+	angles.x = -angles.x;
+	angles.y = -angles.y;
+	hudTransform.SetRotationXYZ(angles, hudTransform.GetTranslation());
+	Vec3 forward = -hudTransform.GetColumn1();
+	hudTransform.SetTranslation(hudTransform.GetTranslation() + 2 * forward);
+	gXR->SetHudPose(CrysisToOpenXR(hudTransform));
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	m_hudTexture.Reset();
