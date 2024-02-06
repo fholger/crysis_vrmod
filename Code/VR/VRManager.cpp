@@ -437,7 +437,10 @@ void VRManager::Update()
 		RecalibrateView();
 	}
 
-	SetHudAttachedToHead();
+	if (gVRRenderer->ShouldRenderVR())
+		SetHudAttachedToHead();
+	else
+		SetHudInFrontOfPlayer();
 }
 
 void VRManager::RecalibrateView()
