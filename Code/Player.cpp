@@ -1015,7 +1015,8 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 
 void CPlayer::ProcessRoomscaleMovement()
 {
-	if (!m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
+	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
+	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
@@ -1074,10 +1075,12 @@ void CPlayer::ProcessRoomscaleMovement()
 
 void CPlayer::ProcessRoomscaleRotation()
 {
-	if (!m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
+	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
+	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
+
 
 	if (m_stats.onGround <= 0) // fixme: roomscale rotation feels off during the initial parachute jump
 		return;

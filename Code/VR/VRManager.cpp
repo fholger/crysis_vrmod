@@ -437,7 +437,8 @@ void VRManager::Update()
 		RecalibrateView();
 	}
 
-	if (gVRRenderer->ShouldRenderVR())
+	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
+	if (gVRRenderer->ShouldRenderVR() && !modalHudActive)
 		SetHudAttachedToHead();
 	else
 		SetHudInFrontOfPlayer();
