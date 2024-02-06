@@ -458,7 +458,7 @@ void VRManager::RecalibrateView()
 	angles.x = angles.y = 0;
 	m_fixedHudTransform.SetRotationXYZ(angles, hmdTransform.GetTranslation());
 	Vec3 dir = -m_fixedHudTransform.GetColumn1();
-	Vec3 pos = m_fixedHudTransform.GetTranslation() + 2 * dir;
+	Vec3 pos = m_fixedHudTransform.GetTranslation() + 5 * dir;
 	m_fixedHudTransform.SetTranslation(pos);
 }
 
@@ -473,6 +473,9 @@ void VRManager::SetHudInFrontOfPlayer()
 	}
 
 	gXR->SetHudPose(CrysisToOpenXR(m_fixedHudTransform));
+
+	Vec2i renderSize = GetRenderSize();
+	gXR->SetHudSize(4.f, 4.f * renderSize.y / renderSize.x);
 }
 
 void VRManager::SetHudAttachedToHead()
@@ -488,6 +491,9 @@ void VRManager::SetHudAttachedToHead()
 	Vec3 forward = -hudTransform.GetColumn1();
 	hudTransform.SetTranslation(hudTransform.GetTranslation() + 2 * forward);
 	gXR->SetHudPose(CrysisToOpenXR(hudTransform));
+
+	Vec2i renderSize = GetRenderSize();
+	gXR->SetHudSize(2.f, 2.f * renderSize.y / renderSize.x);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

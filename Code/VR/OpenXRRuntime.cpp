@@ -512,6 +512,12 @@ void OpenXRRuntime::SetHudPose(const XrPosef& pose)
 	m_hudPose = pose;
 }
 
+void OpenXRRuntime::SetHudSize(float width, float height)
+{
+	m_hudDisplayWidth = width;
+	m_hudDisplayHeight = height;
+}
+
 bool OpenXRRuntime::CreateInstance()
 {
 	CryLogAlways("Creating OpenXR instance...");

@@ -33,8 +33,9 @@ public:
 
 	XrPosef GetHudPose() const;
 	void SetHudPose(const XrPosef& pose);
-	float GetHudWidth() const { return 2.f; }
-	float GetHudHeight() const { return 2.f; }
+	void SetHudSize(float width, float height);
+	float GetHudWidth() const { return m_hudDisplayWidth; }
+	float GetHudHeight() const { return m_hudDisplayHeight; }
 
 private:
 	OpenXRInput m_input;
@@ -59,6 +60,8 @@ private:
 	std::vector<ID3D11Texture2D*> m_hudImages;
 
 	XrPosef m_hudPose;
+	float m_hudDisplayWidth = 2;
+	float m_hudDisplayHeight = 2;
 
 	bool CreateInstance();
 	void HandleSessionStateChange(XrEventDataSessionStateChanged* event);

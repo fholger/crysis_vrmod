@@ -1079,6 +1079,9 @@ void CPlayer::ProcessRoomscaleRotation()
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics())
 		return;
 
+	if (m_stats.onGround <= 0) // fixme: roomscale rotation feels off during the initial parachute jump
+		return;
+
 	float hmdYaw = gVR->GetHmdYawOffset();
 	CMovementRequest rot;
 	rot.AddDeltaRotation(Ang3(0, 0, hmdYaw));
