@@ -480,6 +480,11 @@ public:
 	// marcok: I know it's bad to even have this in the HUD, but the way gamerulessystem is currently used I don't want to duplicate this elsewhere
 	EHUDGAMERULES GetCurrentGameRules()	{	return m_currentGameRules;	}
 
+	bool ShouldDisplayHUDFixed() const
+	{
+		return m_pModalHUD && m_pModalHUD != &m_animQuickMenu;
+	}
+
 private:
 
 	//some Update functions

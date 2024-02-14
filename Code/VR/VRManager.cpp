@@ -437,10 +437,10 @@ void VRManager::Update()
 		RecalibrateView();
 	}
 
-	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
+	bool showHudFixed= g_pGame->GetHUD() && g_pGame->GetHUD()->ShouldDisplayHUDFixed();
 	if (gVRRenderer->AreBinocularsActive())
 		SetHudAttachedToOffHand();
-	else if (gVRRenderer->ShouldRenderVR() && !modalHudActive)
+	else if (gVRRenderer->ShouldRenderVR() && !showHudFixed)
 		SetHudAttachedToHead();
 	else
 		SetHudInFrontOfPlayer();
@@ -489,10 +489,11 @@ void VRManager::SetHudAttachedToHead()
 	Vec3 pos = hudTransform.GetTranslation();
 	Ang3 angles;
 	angles.SetAnglesXYZ((Matrix33)hudTransform);
-	CryLogAlways("Headset transform pos (%.3f, %.3f, %.3f) angles (%.3f, %.3f, %.3f)", pos.x, pos.y, pos.z, angles.x, angles.y, angles.z);
 	angles.x = -angles.x;
 	angles.y = -angles.y;
-	hudTransform.SetRotationXYZ(angles, hudTransform.GetTranslation());
+	pos.x = -pos.x;
+	pos.y = -pos.y;
+	hudTransform.SetRotationXYZ(angles, pos);
 	Vec3 forward = -hudTransform.GetColumn1();
 	hudTransform.SetTranslation(hudTransform.GetTranslation() + 2 * forward);
 	gXR->SetHudPose(CrysisToOpenXR(hudTransform));
