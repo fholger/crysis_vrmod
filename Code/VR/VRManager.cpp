@@ -315,7 +315,7 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (!weapon)
 		return;
 
-	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(g_pGameCVars->vr_weapon_hand);
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
 	Matrix33 refTransform = GetReferenceTransform();
 	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
 	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
@@ -438,7 +438,9 @@ void VRManager::Update()
 	}
 
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
-	if (gVRRenderer->ShouldRenderVR() && !modalHudActive)
+	if (gVRRenderer->AreBinocularsActive())
+		SetHudAttachedToOffHand();
+	else if (gVRRenderer->ShouldRenderVR() && !modalHudActive)
 		SetHudAttachedToHead();
 	else
 		SetHudInFrontOfPlayer();
@@ -484,8 +486,10 @@ void VRManager::SetHudAttachedToHead()
 	m_fixedPositionInitialized = false;
 
 	Matrix34 hudTransform = Matrix34(gXR->GetHmdTransform());
+	Vec3 pos = hudTransform.GetTranslation();
 	Ang3 angles;
 	angles.SetAnglesXYZ((Matrix33)hudTransform);
+	CryLogAlways("Headset transform pos (%.3f, %.3f, %.3f) angles (%.3f, %.3f, %.3f)", pos.x, pos.y, pos.z, angles.x, angles.y, angles.z);
 	angles.x = -angles.x;
 	angles.y = -angles.y;
 	hudTransform.SetRotationXYZ(angles, hudTransform.GetTranslation());
@@ -495,6 +499,33 @@ void VRManager::SetHudAttachedToHead()
 
 	Vec2i renderSize = GetRenderSize();
 	gXR->SetHudSize(2.f, 2.f * renderSize.y / renderSize.x);
+}
+
+void VRManager::SetHudAttachedToOffHand()
+{
+	float vr_binocular_size = 0.8f;
+	m_fixedPositionInitialized = false;
+	bool leftHanded = g_pGameCVars->vr_weapon_hand == 0;
+	Matrix34 transform = gXR->GetInput()->GetControllerTransform(leftHanded ? 1 : 0);
+
+	Vec3 pos = transform.GetTranslation();
+	Ang3 angles;
+	angles.SetAnglesXYZ((Matrix33)transform);
+	angles.x = -angles.x;
+	angles.y = -angles.y;
+	pos.x = -pos.x;
+	pos.y = -pos.y;
+	transform.SetRotationXYZ(angles, pos);
+
+	Vec3 forward = -transform.GetColumn1();
+	transform.SetTranslation(transform.GetTranslation() + 0.5f * forward);
+	transform = transform * Matrix34::CreateTranslationMat(Vec3((leftHanded ? 1 : -1) * vr_binocular_size / 2, 0, vr_binocular_size / 2));
+
+	XrPosef hudTransform = CrysisToOpenXR(transform);
+	gXR->SetHudPose(hudTransform);
+
+	Vec2i renderSize = GetRenderSize();
+	gXR->SetHudSize(vr_binocular_size, vr_binocular_size * renderSize.y / renderSize.x);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

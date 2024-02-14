@@ -184,10 +184,18 @@ Matrix34 OpenXRInput::GetControllerTransform(int hand)
 
 	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
 	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
-	// the grip pose has a peculiar orientation. This brings it in line with what we need for the weapon orientation
-	Matrix33 correction = Matrix33::CreateRotationXYZ(Ang3(gf_PI, gf_PI/2, 0));
-	Matrix33 gripAngleAdjust = Matrix33::CreateRotationXYZ(Ang3(DEG2RAD(g_pGameCVars->vr_weapon_angle_offset), 0, 0));
-	return OpenXRToCrysis(location.pose.orientation, location.pose.position) * gripAngleAdjust * correction;
+
+	// the grip pose has a peculiar orientation that we need to fix
+	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2);
+	return OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
+}
+
+Matrix34 OpenXRInput::GetControllerWeaponTransform(int hand)
+{
+	// Weapon bones are offset to what our grip pose is, so we need to rotate the pose a bit
+	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2) * Matrix33::CreateRotationY(-gf_PI/2);
+	Matrix33 gripAngleAdjust = Matrix33::CreateRotationX(DEG2RAD(g_pGameCVars->vr_weapon_angle_offset));
+	return GetControllerTransform(hand) * gripAngleAdjust * correction;
 }
 
 void OpenXRInput::CreateInputActions()

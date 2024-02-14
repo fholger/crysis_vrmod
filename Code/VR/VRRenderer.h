@@ -39,6 +39,8 @@ public:
 
 	bool ShouldRenderShadowMaps() const { return m_currentEye != 1; }
 
+	bool AreBinocularsActive() const { return m_binocularsActive; }
+
 private:
 	CCamera m_originalViewCamera;
 	bool m_viewCamOverridden = false;

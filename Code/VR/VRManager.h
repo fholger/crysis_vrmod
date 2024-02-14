@@ -53,6 +53,7 @@ public:
 
 	void SetHudInFrontOfPlayer();
 	void SetHudAttachedToHead();
+	void SetHudAttachedToOffHand();
 
 private:
 	bool m_initialized = false;

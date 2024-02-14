@@ -12,6 +12,7 @@ public:
 	void Update();
 
 	Matrix34 GetControllerTransform(int hand);
+	Matrix34 GetControllerWeaponTransform(int hand);
 
 private:
 	struct BooleanAction
