@@ -21,6 +21,7 @@ History:
 #include "HUD/HUD.h"
 #include "HUD/HUDScopes.h"
 #include "SoundMoods.h"
+#include "VR/VRManager.h"
 
 TActionHandler<CBinocular> CBinocular::s_actionHandler;
 
@@ -90,6 +91,13 @@ void CBinocular::UpdateFPView(float frameTime)
 		if(m_zm && IsZoomed() && gEnv->pSoundSystem)
 			gEnv->pSoundSystem->CalcDirectionalAttenuation(pOwner->GetEntity()->GetWorldPos(), pOwner->GetViewRotation().GetColumn1(), 0.35f - m_zm->GetCurrentStep() * 0.05f);
 	}
+}
+
+bool CBinocular::FilterView(SViewParams& viewParams)
+{
+	// TODO: modify view here for VR
+	gVR->ModifyViewForBinoculars(viewParams);
+	return CWeapon::FilterView(viewParams);
 }
 
 //-----------------------------------------------------------------------

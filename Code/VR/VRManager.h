@@ -34,6 +34,7 @@ public:
 
 	void ModifyViewCamera(int eye, CCamera& cam);
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
+	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 

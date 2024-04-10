@@ -34,6 +34,8 @@ public:
 	virtual void Select(bool select);
 	virtual void UpdateFPView(float frameTime);
 
+	bool FilterView(SViewParams& viewParams) override;
+
 	virtual void GetMemoryStatistics(ICrySizer * s) { s->Add(*this); CWeapon::GetMemoryStatistics(s); }
 
 private:

@@ -301,6 +301,17 @@ void VRManager::ModifyViewCameraFor3DCinema(int eye, CCamera& cam)
 	cam.SetMatrix(transform);
 }
 
+void VRManager::ModifyViewForBinoculars(SViewParams& view)
+{
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(1 - g_pGameCVars->vr_weapon_hand);
+	Matrix33 refTransform = GetReferenceTransform();
+	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
+	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
+	Matrix34 viewMatrix = Matrix34::Create(Vec3(1, 1, 1), view.rotation, view.position) * adjustedControllerTransform;
+	view.rotation = GetQuatFromMat33((Matrix33)viewMatrix);
+	view.position = viewMatrix.GetTranslation();
+}
+
 void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
