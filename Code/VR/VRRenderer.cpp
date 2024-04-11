@@ -238,6 +238,9 @@ VRRenderMode VRRenderer::GetRenderMode() const
 	if (ShouldRenderVR())
 		return RM_VR;
 
+	if (m_binocularsActive)
+		return RM_2D;
+
 	return g_pGameCVars->vr_cinema_3d ? RM_3D : RM_2D;
 }
 
