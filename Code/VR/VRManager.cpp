@@ -307,7 +307,9 @@ void VRManager::ModifyViewForBinoculars(SViewParams& view)
 	Matrix33 refTransform = GetReferenceTransform();
 	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
 	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
-	Matrix34 viewMatrix = Matrix34::Create(Vec3(1, 1, 1), view.rotation, view.position) * adjustedControllerTransform;
+	Ang3 viewAngles = Ang3(view.rotation);
+	viewAngles.x = viewAngles.y = 0;
+	Matrix34 viewMatrix = Matrix34::CreateRotationXYZ(viewAngles, view.position) * adjustedControllerTransform;
 	view.rotation = GetQuatFromMat33((Matrix33)viewMatrix);
 	view.position = viewMatrix.GetTranslation();
 }
