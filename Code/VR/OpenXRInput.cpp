@@ -403,6 +403,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	bool inHud = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD() != nullptr;
 	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
 	bool rendering2D = !gVRRenderer->ShouldRenderVR();
+	bool usingBinoculars = gVRRenderer->AreBinocularsActive();
 
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
@@ -441,7 +442,7 @@ void OpenXRInput::UpdatePlayerMovement()
 		return;
 	}
 
-	if (inHud || usingMountedGun || rendering2D)
+	if (inHud || usingMountedGun || (rendering2D && !usingBinoculars))
 	{
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
 		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
@@ -461,14 +462,14 @@ void OpenXRInput::UpdatePlayerMovement()
 
 	if (jumpCrouch < g_pGameCVars->vr_controller_stick_action_threshold)
 	{
-		if (m_wasJumpActive)
+		if (m_wasJumpActive && !usingBinoculars)
 			input->OnAction(g_pGameActions->jump, eAAM_OnRelease, 0);
 		m_wasJumpActive = false;
 	}
 	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
 	{
 		if (!m_wasJumpActive)
-			input->OnAction(g_pGameActions->jump, eAAM_OnPress, 1);
+			input->OnAction(usingBinoculars ? g_pGameActions->zoom_in : g_pGameActions->jump, eAAM_OnPress, 1);
 		m_wasJumpActive = true;
 	}
 	if (jumpCrouch > -g_pGameCVars->vr_controller_stick_action_threshold)
@@ -479,7 +480,11 @@ void OpenXRInput::UpdatePlayerMovement()
 	{
 		if (!m_wasCrouchActive)
 		{
-			if (pPlayer->GetStance() == STANCE_CROUCH)
+			if (usingBinoculars)
+			{
+				input->OnAction(g_pGameActions->zoom_out, eAAM_OnPress, 1);
+			}
+			else if (pPlayer->GetStance() == STANCE_CROUCH)
 			{
 				input->OnAction(g_pGameActions->crouch, eAAM_OnRelease, 0);
 				input->OnAction(g_pGameActions->prone, eAAM_OnPress, 1);
