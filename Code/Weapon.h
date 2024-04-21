@@ -738,6 +738,8 @@ private:
 	// VR CODE
 public:
 	virtual Matrix34 GetInverseGripTransform();
+	void PostProcessArms();
+	void HideLeftArm();
 };
 
 

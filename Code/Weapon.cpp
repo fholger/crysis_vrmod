@@ -108,6 +108,8 @@ CWeapon::~CWeapon()
 	if (m_xmlparams)
 		m_xmlparams->Release();
 
+	if (GetEntity()->GetCharacter(eIGS_FirstPerson))
+		GetEntity()->GetCharacter(eIGS_FirstPerson)->GetISkeletonPose()->SetPostProcessCallback0(0, 0);
 }
 
 //------------------------------------------------------------------------
@@ -826,6 +828,12 @@ void CWeapon::SerializeLTL(TSerialize ser)
 	}
 }
 
+int WeaponPostProcessSkeleton(ICharacterInstance* character, void* data)
+{
+	((CWeapon*)data)->PostProcessArms();
+	return 1;
+}
+
 //------------------------------------------------------------------------
 void CWeapon::Update( SEntityUpdateContext& ctx, int update)
 {
@@ -867,6 +875,13 @@ void CWeapon::Update( SEntityUpdateContext& ctx, int update)
 			}
 			gEnv->p3DEngine->SetPostEffectParam("Dof_BlurAmount", m_dofValue);
 		}
+	}
+
+	if (GetEntity()->GetCharacter(eIGS_FirstPerson))
+	{
+		ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
+		ISkeletonPose* skeleton = character->GetISkeletonPose();
+		skeleton->SetPostProcessCallback0(WeaponPostProcessSkeleton, this);
 	}
 }
 
@@ -3745,4 +3760,29 @@ Matrix34 CWeapon::GetInverseGripTransform()
 	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "hand_R_term", false));
 	transform.InvertFast();
 	return transform;
+}
+
+void CWeapon::PostProcessArms()
+{
+	HideLeftArm();
+	// TODO: Arm IK
+}
+
+void CWeapon::HideLeftArm()
+{
+	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
+	if (!character)
+		return;
+
+	ISkeletonPose* skeleton = character->GetISkeletonPose();
+	if (!skeleton)
+		return;
+
+	// hide left arm by moving the upper arm joint into nirvana
+	int16 boneId = skeleton->GetJointIDByName("upperarm_NEW_L");
+	if (boneId < 0)
+		return;
+	QuatT quat = skeleton->GetRelJointByID(boneId);
+	quat.t = Vec3(100, 100, 100);
+	skeleton->SetPostProcessQuat(boneId, quat);
 }
