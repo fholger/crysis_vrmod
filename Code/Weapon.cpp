@@ -43,6 +43,7 @@ History:
 #include "IPlayerInput.h"
 #include <IWorldQuery.h>
 
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 //------------------------------------------------------------------------
@@ -3764,8 +3765,34 @@ Matrix34 CWeapon::GetInverseGripTransform()
 
 void CWeapon::PostProcessArms()
 {
-	HideLeftArm();
+	//HideLeftArm();
 	// TODO: Arm IK
+
+	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
+	if (!character)
+		return;
+
+	ISkeletonPose* skeleton = character->GetISkeletonPose();
+	if (!skeleton)
+		return;
+
+	Matrix34 controllerWeaponTrans = gVR->GetControllerWeaponTransform();
+	Vec3 weaponWorldPos = GetEntity()->GetWorldPos();
+	Ang3 weaponWorldAng = GetEntity()->GetWorldAngles();
+	weaponWorldAng.x = weaponWorldAng.y = 0;
+	Matrix34 weaponWorldTrans = Matrix34::CreateRotationXYZ(weaponWorldAng, weaponWorldPos);
+	Matrix34 controllerWorldTrans = weaponWorldTrans * controllerWeaponTrans;
+	Matrix34 invEntityTrans = GetEntity()->GetWorldTM().GetInvertedFast();
+	controllerWeaponTrans = invEntityTrans * controllerWorldTrans;
+
+	// arm IK
+	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(0);
+	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos, this);
+	// right arm IK
+	shoulderWorldPos = gVR->EstimateShoulderPosition(1);
+	shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	gVR->CalcWeaponArmIK(1, skeleton, shoulderInWeaponPos, this);
 }
 
 void CWeapon::HideLeftArm()

@@ -32,10 +32,13 @@ public:
 
 	Vec2i GetRenderSize() const;
 
+	Vec3 EstimateShoulderPosition(int side);
+
 	void ModifyViewCamera(int eye, CCamera& cam);
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
 	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
+	Matrix34 GetControllerWeaponTransform();
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 
 	RectF GetEffectiveRenderLimits(int eye);
@@ -55,6 +58,8 @@ public:
 	void SetHudInFrontOfPlayer();
 	void SetHudAttachedToHead();
 	void SetHudAttachedToOffHand();
+
+	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon);
 
 private:
 	bool m_initialized = false;

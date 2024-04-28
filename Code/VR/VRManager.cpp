@@ -53,9 +53,6 @@ void VRManager::Shutdown()
 	m_context11.Reset();
 	m_device11.Reset();
 
-	if (!m_initialized)
-		return;
-
 	m_initialized = false;
 }
 
@@ -197,6 +194,18 @@ Vec2i VRManager::GetRenderSize() const
 	renderSize.y *= vertRenderScale;
 	renderSize.x = renderSize.y * horizontalFov / verticalFov;
 	return renderSize;
+}
+
+Vec3 VRManager::EstimateShoulderPosition(int side)
+{
+	CPlayer *player = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (!player)
+		return Vec3(0, 0, 0);
+
+	CCamera view = gVRRenderer->GetCurrentViewCamera();
+	ModifyViewCamera(side, view);
+
+	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.15f, +0.08f, -0.28f);
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -348,6 +357,15 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	Matrix34 trackedTransform = weaponWorldTransform * adjustedControllerTransform * inverseWeaponGripTransform;
 	weaponPosition = trackedTransform.GetTranslation();
 	weaponAngles = Ang3(trackedTransform);
+}
+
+Matrix34 VRManager::GetControllerWeaponTransform()
+{
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
+	Matrix33 refTransform = GetReferenceTransform();
+	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
+	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
+	return adjustedControllerTransform;
 }
 
 void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
@@ -549,6 +567,77 @@ void VRManager::SetHudAttachedToOffHand()
 
 	Vec2i renderSize = GetRenderSize();
 	gXR->SetHudSize(vr_binocular_size, vr_binocular_size * renderSize.y / renderSize.x);
+}
+
+void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
+{
+	QuatT wa = a;
+	QuatT wb = wa * b;
+	QuatT wc = wb * c;
+
+	Vec3 a2b = wb.t - wa.t;
+	Vec3 a2c = wc.t - wa.t;
+	Vec3 b2c = wc.t - wb.t;
+	Vec3 a2t = t - wa.t;
+
+	float lab = a2b.GetLength();
+	float lbc = b2c.GetLength();
+	float lac = a2c.GetLength();
+	float lat = clamp(a2t.GetLength(), 0, lab + lbc);
+
+	// get current interior angles
+	float ac_ab_0 = cry_acosf(a2c.Dot(a2b) / lab / lac);
+	float ba_bc_0 = cry_acosf((-a2b).Dot(b2c) / lab / lbc);
+	float ac_at_0 = cry_acosf(a2c.Dot(a2t) / lac / a2t.GetLength());
+
+	// desired angles based on the cosine rule
+	float ac_ab_1 = cry_acosf((lab*lab + lat*lat - lbc*lbc) / (2*lab*lat));
+	float ba_bc_1 = cry_acosf((lab*lab + lbc*lbc - lat*lat) / (2*lab*lbc));
+
+	// apply angles locally to the joints
+	Vec3 axis0 = a2c.Cross(a2b).GetNormalized();
+	Vec3 axis1 = a2c.Cross(a2t).GetNormalized();
+	Quat r0 = Quat::CreateRotationAA(ac_ab_1 - ac_ab_0, wa.q.GetInverted() * axis0);
+	Quat r1 = Quat::CreateRotationAA(ba_bc_1 - ba_bc_0, wb.q.GetInverted() * axis0);
+	Quat r2 = Quat::CreateRotationAA(ac_at_0, wa.q.GetInverted() * axis1);
+	a.q = a.q * (r0 * r2);
+	b.q = b.q * r1;
+}
+
+void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon)
+{
+	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
+	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
+	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
+
+	// the way this works is that the weapon and thus the hands are already positioned as intended
+	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
+	// ends up in its previous position
+	QuatT shoulderJoint = skeleton->GetAbsJointByID(shoulderJointId);
+	shoulderJoint.t = basePos;
+	QuatT elbowJoint = skeleton->GetRelJointByID(elbowJointId);
+	QuatT handJoint = skeleton->GetRelJointByID(handJointId);
+	QuatT target = skeleton->GetAbsJointByID(handJointId);
+	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
+	if (target.t.GetDistance(basePos) > maxDistance)
+	{
+		Vec3 dir = (basePos - target.t).GetNormalized();
+		shoulderJoint.t = target.t + dir * maxDistance;
+	}
+
+	TwoBoneIKSolve(shoulderJoint, elbowJoint, handJoint, target.t);
+
+	// make sure the hand joint really ends up in the same position and orientation, no matter what
+	handJoint.q = (shoulderJoint.q * elbowJoint.q).GetInverted() * target.q;
+	Vec3 diffToTarget = target.t - (shoulderJoint * elbowJoint * handJoint).t;
+	shoulderJoint.t += diffToTarget;
+
+	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
+	QuatT parentJoint = skeleton->GetAbsJointByID(parent);
+	shoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * shoulderJoint;
+	skeleton->SetPostProcessQuat(shoulderJointId, shoulderJoint);
+	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
+	skeleton->SetPostProcessQuat(handJointId, handJoint);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
