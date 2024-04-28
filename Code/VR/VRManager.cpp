@@ -199,6 +199,18 @@ Vec2i VRManager::GetRenderSize() const
 	return renderSize;
 }
 
+Vec3 VRManager::EstimateShoulderPosition(int side)
+{
+	CPlayer *player = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (!player)
+		return Vec3(0, 0, 0);
+
+	CCamera view = gVRRenderer->GetCurrentViewCamera();
+	ModifyViewCamera(side, view);
+
+	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, -0.1f, -0.15f);
+}
+
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 {
 	if (IsEquivalent(cam.GetPosition(), Vec3(0, 0, 0), VEC_EPSILON))
@@ -348,6 +360,18 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	Matrix34 trackedTransform = weaponWorldTransform * adjustedControllerTransform * inverseWeaponGripTransform;
 	weaponPosition = trackedTransform.GetTranslation();
 	weaponAngles = Ang3(trackedTransform);
+}
+
+Vec3 VRManager::GetControllerWeaponPosition(CWeapon* weapon)
+{
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
+	Matrix33 refTransform = GetReferenceTransform();
+	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
+	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
+
+	Matrix34 weaponWorldTransform = weapon->GetEntity()->GetWorldTM();
+	Matrix34 trackedTransform = weaponWorldTransform * adjustedControllerTransform;
+	return trackedTransform.GetTranslation();
 }
 
 void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
