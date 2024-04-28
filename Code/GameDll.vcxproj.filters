@@ -692,6 +692,7 @@
     <ClCompile Include="VR\D3DHooks.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
+    <ClCompile Include="VR\OpenXRInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1889,6 +1890,7 @@
     <ClInclude Include="VR\OpenXRRuntime.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
+    <ClInclude Include="VR\OpenXRInput.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameActions.actions">
