@@ -32,10 +32,13 @@ public:
 
 	Vec2i GetRenderSize() const;
 
+	Vec3 EstimateShoulderPosition(int side);
+
 	void ModifyViewCamera(int eye, CCamera& cam);
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
 	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
+	Vec3 GetControllerWeaponPosition(CWeapon* weapon);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 
 	RectF GetEffectiveRenderLimits(int eye);
