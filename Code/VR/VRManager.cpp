@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "VRManager.h"
+#include "ik/ik.h"
 
 #include "Cry_Camera.h"
 #include "GameCVars.h"
@@ -33,6 +34,21 @@ bool VRManager::Init()
 	if (m_initialized)
 		return true;
 
+	if (ik.init() != IK_OK)
+	{
+		CryLogAlways("Failed to initialize IK library");
+		return false;
+	}
+
+	m_ikSolver = ik.solver.create(IK_TWO_BONE);
+	m_ikSolver->flags |= IK_ENABLE_TARGET_ROTATIONS | IK_ENABLE_JOINT_ROTATIONS;
+
+	m_shoulderJoint = m_ikSolver->node->create(0);
+	m_elbowJoint = m_ikSolver->node->create_child(m_shoulderJoint, 1);
+	m_handJoint = m_ikSolver->node->create_child(m_elbowJoint, 2);
+	m_handTarget = m_ikSolver->effector->create();
+	m_ikSolver->effector->attach(m_handTarget, m_handJoint);
+
 	m_initialized = true;
 	return true;
 }
@@ -53,8 +69,13 @@ void VRManager::Shutdown()
 	m_context11.Reset();
 	m_device11.Reset();
 
-	if (!m_initialized)
-		return;
+	ik.solver.destroy(m_ikSolver);
+	m_ikSolver = nullptr;
+	m_shoulderJoint = nullptr;
+	m_elbowJoint = nullptr;
+	m_handJoint = nullptr;
+	m_handTarget = nullptr;
+	ik.deinit();
 
 	m_initialized = false;
 }

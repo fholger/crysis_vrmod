@@ -8,8 +8,8 @@
  * they are able to grow and shrink in size automatically.
  */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef IK_VECTOR_H
+#define IK_VECTOR_H
 
 #include "ik/config.h"
 
