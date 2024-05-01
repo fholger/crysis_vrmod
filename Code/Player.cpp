@@ -1761,7 +1761,7 @@ void CPlayer::PostUpdateView(SViewParams &viewParams)
 
 	m_stats.FPWeaponAngles = Ang3(wQuat);	
 
-	gVR->ModifyWeaponPosition(this, m_stats.FPWeaponAngles, m_stats.FPWeaponPos);
+	//gVR->ModifyWeaponPosition(this, m_stats.FPWeaponAngles, m_stats.FPWeaponPos);
 
 	m_stats.FPSecWeaponPos = m_stats.FPWeaponPos;
 	m_stats.FPSecWeaponAngles = m_stats.FPWeaponAngles;
