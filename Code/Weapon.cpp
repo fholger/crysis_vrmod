@@ -3772,34 +3772,19 @@ void CWeapon::PostProcessArms()
 	if (!character)
 		return;
 
-	const char* armsModel = character->GetIAttachmentManager()->GetInterfaceByName(ITEM_ARMS_ATTACHMENT_NAME)->GetIAttachmentObject()->GetICharacterInstance()->GetICharacterModel()->GetModelFilePath();
-	CryLogAlways("Weapon arms model: %s", armsModel);
-
 	ISkeletonPose* skeleton = character->GetISkeletonPose();
 	if (!skeleton)
 		return;
 
-	int16 root = skeleton->GetJointIDByName("root");
-	int16 upperArm = skeleton->GetJointIDByName("upperarm_R");
-	int16 foreArm = skeleton->GetJointIDByName("forearm_R");
-	int16 hand = skeleton->GetJointIDByName("hand_R");
-	Vec3 handInWeaponPos = skeleton->GetAbsJointByID(hand).t;
-
-	Vec3 shoulderPos = gVR->EstimateShoulderPosition(1);
-	Vec3 weaponPos = GetEntity()->GetWorldPos();
-	CryLogAlways("Weapon at (%.2f, %.2f, %.2f), estimated shoulder pos (%.2f, %.2f, %.2f)", weaponPos.x, weaponPos.y, weaponPos.z, shoulderPos.x, shoulderPos.y, shoulderPos.z);
-	Vec3 shoulderPosInWeaponSpace = GetEntity()->GetWorldTM().GetInverted() * shoulderPos;
-	Vec3 shoulderPosInSlotSpace = GetEntity()->GetSlotLocalTM(eIGS_FirstPerson, false).GetInvertedFast().TransformPoint(shoulderPosInWeaponSpace);
-	QuatT shoulderJoint = skeleton->GetRelJointByID(upperArm);
-	Vec3 before = shoulderJoint.t;
-	QuatT rootBone = skeleton->GetAbsJointByID(root);
-	shoulderJoint.t = rootBone.q.GetInverted() * (shoulderPosInSlotSpace - rootBone.t);
-	Vec3 after = shoulderJoint.t;
-	CryLogAlways("Moved shoulder joint from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)", before.x, before.y, before.z, after.x, after.y, after.z);
-	skeleton->SetPostProcessQuat(upperArm, shoulderJoint);
-
-	Vec3 goal = GetEntity()->GetWorldTM().GetInverted() * gVR->GetControllerWeaponPosition(this);
-	skeleton->SetCustomArmIK(handInWeaponPos, upperArm, foreArm, hand);
+	Matrix34 controllerWeaponTrans = gVR->GetControllerWeaponTransform();
+	Vec3 weaponWorldPos = GetEntity()->GetWorldPos();
+	Ang3 weaponWorldAng = GetEntity()->GetWorldAngles();
+	weaponWorldAng.x = weaponWorldAng.y = 0;
+	Matrix34 controllerWorldTrans = Matrix34::CreateRotationXYZ(weaponWorldAng, weaponWorldPos) * controllerWeaponTrans;
+	controllerWeaponTrans = GetEntity()->GetWorldTM().GetInvertedFast() * controllerWorldTrans;
+	Vec3 targetPos = controllerWeaponTrans.GetTranslation();
+	Quat targetRot = Quat(controllerWeaponTrans);
+	gVR->CalcWeaponArmIK(1, skeleton, targetPos, targetRot);
 }
 
 void CWeapon::HideLeftArm()
