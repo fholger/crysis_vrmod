@@ -60,7 +60,7 @@ public:
 	void SetHudAttachedToHead();
 	void SetHudAttachedToOffHand();
 
-	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& targetPos, const Quat& targetRot);
+	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos);
 
 private:
 	bool m_initialized = false;
