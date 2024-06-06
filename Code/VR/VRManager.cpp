@@ -49,13 +49,15 @@ bool VRManager::Init()
 	m_ikCallbacks.on_node_destroy = nullptr;
 	ik.implement_callbacks(&m_ikCallbacks);
 
-	m_ikSolver = ik.solver.create(IK_TWO_BONE);
+	m_ikSolver = ik.solver.create(IK_FABRIK);
 	m_ikSolver->flags |= IK_ENABLE_TARGET_ROTATIONS | IK_ENABLE_JOINT_ROTATIONS;
 
 	m_shoulderJoint = m_ikSolver->node->create(0);
 	m_elbowJoint = m_ikSolver->node->create_child(m_shoulderJoint, 1);
 	m_handJoint = m_ikSolver->node->create_child(m_elbowJoint, 2);
 	m_handTarget = m_ikSolver->effector->create();
+	m_handTarget->weight = 1;
+	m_handTarget->rotation_weight = 1;
 	m_ikSolver->effector->attach(m_handTarget, m_handJoint);
 	ik.solver.set_tree(m_ikSolver, m_shoulderJoint);
 	ik.solver.rebuild(m_ikSolver);
@@ -240,7 +242,7 @@ Vec3 VRManager::EstimateShoulderPosition(int side)
 	CCamera view = gVRRenderer->GetCurrentViewCamera();
 	ModifyViewCamera(side, view);
 
-	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, -0.1f, -0.15f);
+	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, +0.2f, -0.15f);
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -612,42 +614,43 @@ QuatT IKNodeToQuatT(ik_node_t* node)
 	return res;
 }
 
-void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& targetPos, const Quat& targetRot)
+void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos)
 {
-	if (targetPos.IsZero())
-		return;
+	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
+	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
+	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R_term" : "hand_L_term");
 
-	int16 shoulderJointId = skeleton->GetJointIDByName("upperarm_R");
-	int16 elbowJointId = skeleton->GetJointIDByName("forearm_R");
-	int16 handJointId = skeleton->GetJointIDByName("hand_R");
+	// the way this works is that the weapon and thus the hands are already positioned as intended
+	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
+	// ends up in its previous position
+	QuatT& shoulderJoint = const_cast<QuatT&>(skeleton->GetAbsJointByID(shoulderJointId));
+	shoulderJoint.t = basePos;
+	QuatT elbowJoint = skeleton->GetRelJointByID(elbowJointId);
+	QuatT handJoint = skeleton->GetRelJointByID(handJointId);
+	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	skeleton->SetCustomArmIK(targetPos, shoulderJointId, elbowJointId, handJointId);
-
-	QuatT shoulderJoint = skeleton->GetDefaultRelJointByID(shoulderJointId);
-	QuatT elbowJoint = skeleton->GetDefaultRelJointByID(elbowJointId);
-	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
-	Vec3 curHandPos = skeleton->GetAbsJointByID(handJointId).t;
-
-	CryLogAlways("IK solving to target position (%.2f, %.2f, %.2f), initial hand joint pos (%.2f, %.2f, %.2f)", targetPos.x, targetPos.y, targetPos.z, curHandPos.x, curHandPos.y, curHandPos.z);
-
-	return;
 	m_shoulderJoint->position = ik.vec3.vec3(shoulderJoint.t.x, shoulderJoint.t.y, shoulderJoint.t.z);
 	m_shoulderJoint->rotation = ik.quat.quat(shoulderJoint.q.v.x, shoulderJoint.q.v.y, shoulderJoint.q.v.z, shoulderJoint.q.w);
 	m_elbowJoint->position = ik.vec3.vec3(elbowJoint.t.x, elbowJoint.t.y, elbowJoint.t.z);
 	m_elbowJoint->rotation = ik.quat.quat(elbowJoint.q.v.x, elbowJoint.q.v.y, elbowJoint.q.v.z, elbowJoint.q.w);
 	m_handJoint->position = ik.vec3.vec3(handJoint.t.x, handJoint.t.y, handJoint.t.z);
 	m_handJoint->rotation = ik.quat.quat(handJoint.q.v.x, handJoint.q.v.y, handJoint.q.v.z, handJoint.q.w);
-	m_handTarget->target_position = ik.vec3.vec3(targetPos.x, targetPos.y, targetPos.z);
-	m_handTarget->target_rotation = ik.quat.quat(targetRot.v.x, targetRot.v.y, targetRot.v.z, targetRot.w);
+	m_handTarget->target_position = ik.vec3.vec3(target.t.x, target.t.y, target.t.z);
+	m_handTarget->target_rotation = ik.quat.quat(target.q.v.x, target.q.v.y, target.q.v.z, target.q.w);
 
 	ik.solver.update_distances(m_ikSolver);
+	ik.solver.rebuild(m_ikSolver);
 	ik.solver.solve(m_ikSolver);
 
-	CryLogAlways("Hand joint position after IK solve: (%.2f, %.2f, %.2f)", m_handJoint->position.x, m_handJoint->position.y, m_handJoint->position.z);
+	QuatT newShoulderJoint = IKNodeToQuatT(m_shoulderJoint);
+	QuatT newElbowJoint = IKNodeToQuatT(m_elbowJoint);
+	QuatT newHandJoint = IKNodeToQuatT(m_handJoint);
 
-	skeleton->SetPostProcessQuat(shoulderJointId, IKNodeToQuatT(m_shoulderJoint));
-	skeleton->SetPostProcessQuat(elbowJointId, IKNodeToQuatT(m_elbowJoint));
-	skeleton->SetPostProcessQuat(handJointId, IKNodeToQuatT(m_handJoint));
+	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
+	newShoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * newShoulderJoint;
+	skeleton->SetPostProcessQuat(shoulderJointId, newShoulderJoint);
+	skeleton->SetPostProcessQuat(elbowJointId, newElbowJoint);
+	skeleton->SetPostProcessQuat(handJointId, newHandJoint);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

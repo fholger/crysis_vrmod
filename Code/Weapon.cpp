@@ -3765,7 +3765,7 @@ Matrix34 CWeapon::GetInverseGripTransform()
 
 void CWeapon::PostProcessArms()
 {
-	HideLeftArm();
+	//HideLeftArm();
 	// TODO: Arm IK
 
 	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
@@ -3780,11 +3780,15 @@ void CWeapon::PostProcessArms()
 	Vec3 weaponWorldPos = GetEntity()->GetWorldPos();
 	Ang3 weaponWorldAng = GetEntity()->GetWorldAngles();
 	weaponWorldAng.x = weaponWorldAng.y = 0;
-	Matrix34 controllerWorldTrans = Matrix34::CreateRotationXYZ(weaponWorldAng, weaponWorldPos) * controllerWeaponTrans;
-	controllerWeaponTrans = GetEntity()->GetWorldTM().GetInvertedFast() * controllerWorldTrans;
-	Vec3 targetPos = controllerWeaponTrans.GetTranslation();
-	Quat targetRot = Quat(controllerWeaponTrans);
-	gVR->CalcWeaponArmIK(1, skeleton, targetPos, targetRot);
+	Matrix34 weaponWorldTrans = Matrix34::CreateRotationXYZ(weaponWorldAng, weaponWorldPos);
+	Matrix34 controllerWorldTrans = weaponWorldTrans * controllerWeaponTrans;
+	Matrix34 invEntityTrans = GetEntity()->GetWorldTM().GetInvertedFast();
+	controllerWeaponTrans = invEntityTrans * controllerWorldTrans;
+
+	// left arm IK
+	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(0);
+	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos);
 }
 
 void CWeapon::HideLeftArm()

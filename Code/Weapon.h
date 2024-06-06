@@ -740,6 +740,7 @@ public:
 	virtual Matrix34 GetInverseGripTransform();
 	void PostProcessArms();
 	void HideLeftArm();
+	void LeftArmVRIK();
 };
 
 
