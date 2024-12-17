@@ -618,16 +618,22 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 {
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
-	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R_term" : "hand_L_term");
+	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
 
 	// the way this works is that the weapon and thus the hands are already positioned as intended
 	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
 	// ends up in its previous position
-	QuatT& shoulderJoint = const_cast<QuatT&>(skeleton->GetAbsJointByID(shoulderJointId));
+	QuatT shoulderJoint = skeleton->GetAbsJointByID(shoulderJointId);
 	shoulderJoint.t = basePos;
 	QuatT elbowJoint = skeleton->GetRelJointByID(elbowJointId);
 	QuatT handJoint = skeleton->GetRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
+	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
+	if (target.t.GetDistance(basePos) > maxDistance)
+	{
+		Vec3 dir = (basePos - target.t).GetNormalized();
+		shoulderJoint.t = target.t + dir * maxDistance;
+	}
 
 	m_shoulderJoint->position = ik.vec3.vec3(shoulderJoint.t.x, shoulderJoint.t.y, shoulderJoint.t.z);
 	m_shoulderJoint->rotation = ik.quat.quat(shoulderJoint.q.v.x, shoulderJoint.q.v.y, shoulderJoint.q.v.z, shoulderJoint.q.w);
@@ -645,12 +651,21 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 	QuatT newShoulderJoint = IKNodeToQuatT(m_shoulderJoint);
 	QuatT newElbowJoint = IKNodeToQuatT(m_elbowJoint);
 	QuatT newHandJoint = IKNodeToQuatT(m_handJoint);
+	QuatT newAbsHand = newShoulderJoint * newElbowJoint * newHandJoint;
+	CryLogAlways("Target hand pos (%.2f, %.2f, %.2f), actual (%.2f, %.2f, %.2f)", target.t.x, target.t.y, target.t.z, newAbsHand.t.x, newAbsHand.t.y, newAbsHand.t.z);
 
 	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
 	newShoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * newShoulderJoint;
 	skeleton->SetPostProcessQuat(shoulderJointId, newShoulderJoint);
 	skeleton->SetPostProcessQuat(elbowJointId, newElbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, newHandJoint);
+
+	int16 par = skeleton->GetParentIDByID(handJointId);
+	while (par > 0)
+	{
+		CryLogAlways("%s", skeleton->GetJointNameByID(par));
+		par = skeleton->GetParentIDByID(par);
+	}
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
