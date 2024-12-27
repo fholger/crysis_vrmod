@@ -261,8 +261,8 @@ void OpenXRInput::SuggestBindings()
 {
 	SuggestedProfileBinding knuckles(m_instance, false);
 	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger/click");
-	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip");
-	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip");
+	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
+	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
 	knuckles.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
 	knuckles.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
 	knuckles.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
@@ -291,8 +291,8 @@ void OpenXRInput::SuggestBindings()
 
 	SuggestedProfileBinding touch(m_instance, true);
 	touch.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
-	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip");
-	touch.AddBinding(m_controller[1], "/user/hand/right/input/grip");
+	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
+	touch.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
 	touch.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
 	touch.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
 	touch.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
