@@ -41,6 +41,7 @@ public:
 
 	bool AreBinocularsActive() const { return m_binocularsActive; }
 
+	Vec3 Sphere1, Sphere2;
 private:
 	CCamera m_originalViewCamera;
 	bool m_viewCamOverridden = false;

@@ -50,7 +50,9 @@ bool VRManager::Init()
 	ik.implement_callbacks(&m_ikCallbacks);
 
 	m_ikSolver = ik.solver.create(IK_FABRIK);
-	m_ikSolver->flags |= IK_ENABLE_TARGET_ROTATIONS | IK_ENABLE_JOINT_ROTATIONS;
+	m_ikSolver->flags |= IK_ENABLE_JOINT_ROTATIONS | IK_ENABLE_TARGET_ROTATIONS;
+	m_ikSolver->max_iterations = 20;
+	m_ikSolver->tolerance = 0.01f;
 
 	m_shoulderJoint = m_ikSolver->node->create(0);
 	m_elbowJoint = m_ikSolver->node->create_child(m_shoulderJoint, 1);
@@ -614,7 +616,7 @@ QuatT IKNodeToQuatT(ik_node_t* node)
 	return res;
 }
 
-void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos)
+void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon)
 {
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
@@ -653,19 +655,15 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 	QuatT newHandJoint = IKNodeToQuatT(m_handJoint);
 	QuatT newAbsHand = newShoulderJoint * newElbowJoint * newHandJoint;
 	CryLogAlways("Target hand pos (%.2f, %.2f, %.2f), actual (%.2f, %.2f, %.2f)", target.t.x, target.t.y, target.t.z, newAbsHand.t.x, newAbsHand.t.y, newAbsHand.t.z);
+	QuatT newAbsElbow = newShoulderJoint * newElbowJoint;
+	gVRRenderer->Sphere1 = weapon->GetEntity()->GetWorldTM().TransformPoint(newAbsElbow.t);
+	gVRRenderer->Sphere2 = weapon->GetEntity()->GetWorldTM().TransformPoint(newAbsHand.t);
 
 	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
 	newShoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * newShoulderJoint;
 	skeleton->SetPostProcessQuat(shoulderJointId, newShoulderJoint);
 	skeleton->SetPostProcessQuat(elbowJointId, newElbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, newHandJoint);
-
-	int16 par = skeleton->GetParentIDByID(handJointId);
-	while (par > 0)
-	{
-		CryLogAlways("%s", skeleton->GetJointNameByID(par));
-		par = skeleton->GetParentIDByID(par);
-	}
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

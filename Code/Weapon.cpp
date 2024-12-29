@@ -3788,7 +3788,7 @@ void CWeapon::PostProcessArms()
 	// left arm IK
 	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(0);
 	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
-	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos);
+	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos, this);
 }
 
 void CWeapon::HideLeftArm()
