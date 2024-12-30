@@ -616,6 +616,35 @@ QuatT IKNodeToQuatT(ik_node_t* node)
 	return res;
 }
 
+void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
+{
+	QuatT wa = a;
+	QuatT wb = a * b;
+	QuatT wc = wb * c;
+
+	float lab = wa.t.GetDistance(wb.t);
+	float lcb = wc.t.GetDistance(wb.t);
+	float lat = clamp(wa.t.GetDistance(t), 0, lab + lcb);
+
+	// get current interior angles
+	float ac_ab_0 = cry_acosf((wc.t - wa.t).GetNormalized().Dot((wb.t - wa.t).GetNormalized()));
+	float ba_bc_0 = cry_acosf((wa.t - wb.t).GetNormalized().Dot((wc.t - wb.t).GetNormalized()));
+	float ac_at_0 = cry_acosf((wc.t - wa.t).GetNormalized().Dot((t - wa.t).GetNormalized()));
+
+	// desired angles based on the cosine rule
+	float ac_ab_1 = cry_acosf((lcb*lcb - lab*lab - lat*lat) / (-2*lab*lat));
+	float ba_bc_1 = cry_acosf((lat*lat - lab*lab - lcb*lcb) / (-2*lab*lcb));
+
+	// apply angles locally to the joints
+	Vec3 axis0 = (wc.t - wa.t).Cross(wb.t - wa.t).GetNormalized();
+	Vec3 axis1 = (wc.t - wa.t).Cross(t - wa.t).GetNormalized();
+	Quat r0 = Quat::CreateRotationAA(ac_ab_1 - ac_ab_0, wa.q.GetInverted() * axis0);
+	Quat r1 = Quat::CreateRotationAA(ba_bc_1 - ba_bc_0, wb.q.GetInverted() * axis0);
+	Quat r2 = Quat::CreateRotationAA(ac_at_0, wa.q.GetInverted() * axis1);
+	a.q = a.q * (r0 * r2);
+	b.q = b.q * r1;
+}
+
 void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon)
 {
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
@@ -637,33 +666,15 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 		shoulderJoint.t = target.t + dir * maxDistance;
 	}
 
-	m_shoulderJoint->position = ik.vec3.vec3(shoulderJoint.t.x, shoulderJoint.t.y, shoulderJoint.t.z);
-	m_shoulderJoint->rotation = ik.quat.quat(shoulderJoint.q.v.x, shoulderJoint.q.v.y, shoulderJoint.q.v.z, shoulderJoint.q.w);
-	m_elbowJoint->position = ik.vec3.vec3(elbowJoint.t.x, elbowJoint.t.y, elbowJoint.t.z);
-	m_elbowJoint->rotation = ik.quat.quat(elbowJoint.q.v.x, elbowJoint.q.v.y, elbowJoint.q.v.z, elbowJoint.q.w);
-	m_handJoint->position = ik.vec3.vec3(handJoint.t.x, handJoint.t.y, handJoint.t.z);
-	m_handJoint->rotation = ik.quat.quat(handJoint.q.v.x, handJoint.q.v.y, handJoint.q.v.z, handJoint.q.w);
-	m_handTarget->target_position = ik.vec3.vec3(target.t.x, target.t.y, target.t.z);
-	m_handTarget->target_rotation = ik.quat.quat(target.q.v.x, target.q.v.y, target.q.v.z, target.q.w);
+	TwoBoneIKSolve(shoulderJoint, elbowJoint, handJoint, target.t);
 
-	ik.solver.update_distances(m_ikSolver);
-	ik.solver.rebuild(m_ikSolver);
-	ik.solver.solve(m_ikSolver);
-
-	QuatT newShoulderJoint = IKNodeToQuatT(m_shoulderJoint);
-	QuatT newElbowJoint = IKNodeToQuatT(m_elbowJoint);
-	QuatT newHandJoint = IKNodeToQuatT(m_handJoint);
-	QuatT newAbsHand = newShoulderJoint * newElbowJoint * newHandJoint;
-	CryLogAlways("Target hand pos (%.2f, %.2f, %.2f), actual (%.2f, %.2f, %.2f)", target.t.x, target.t.y, target.t.z, newAbsHand.t.x, newAbsHand.t.y, newAbsHand.t.z);
-	QuatT newAbsElbow = newShoulderJoint * newElbowJoint;
-	gVRRenderer->Sphere1 = weapon->GetEntity()->GetWorldTM().TransformPoint(newAbsElbow.t);
-	gVRRenderer->Sphere2 = weapon->GetEntity()->GetWorldTM().TransformPoint(newAbsHand.t);
+	handJoint.q = (shoulderJoint.q * elbowJoint.q).GetInverted() * target.q;
 
 	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
-	newShoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * newShoulderJoint;
-	skeleton->SetPostProcessQuat(shoulderJointId, newShoulderJoint);
-	skeleton->SetPostProcessQuat(elbowJointId, newElbowJoint);
-	skeleton->SetPostProcessQuat(handJointId, newHandJoint);
+	shoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * shoulderJoint;
+	skeleton->SetPostProcessQuat(shoulderJointId, shoulderJoint);
+	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
+	skeleton->SetPostProcessQuat(handJointId, handJoint);
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

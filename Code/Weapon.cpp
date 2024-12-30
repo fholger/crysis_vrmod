@@ -3785,10 +3785,14 @@ void CWeapon::PostProcessArms()
 	Matrix34 invEntityTrans = GetEntity()->GetWorldTM().GetInvertedFast();
 	controllerWeaponTrans = invEntityTrans * controllerWorldTrans;
 
-	// left arm IK
+	// arm IK
 	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(0);
 	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
 	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos, this);
+	// right arm IK
+	shoulderWorldPos = gVR->EstimateShoulderPosition(1);
+	shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	//gVR->CalcWeaponArmIK(1, skeleton, shoulderInWeaponPos, this);
 }
 
 void CWeapon::HideLeftArm()
