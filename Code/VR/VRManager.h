@@ -2,7 +2,6 @@
 #include <d3d10_1.h>
 #include <dxgi.h>
 #include <d3d11.h>
-#include <ik/ik.h>
 #include <wrl/client.h>
 
 #include "HUD/HUD.h"
@@ -89,13 +88,6 @@ private:
 	bool m_fixedPositionInitialized = false;
 
 	bool m_wasInMenu = false;
-
-	ik_solver_t* m_ikSolver = nullptr;
-	ik_node_t* m_shoulderJoint = nullptr;
-	ik_node_t* m_elbowJoint = nullptr;
-	ik_node_t* m_handJoint = nullptr;
-	ik_effector_t* m_handTarget = nullptr;
-	ik_callback_interface_t m_ikCallbacks;
 };
 
 extern VRManager* gVR;

@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "VRManager.h"
-#include "ik/ik.h"
 
 #include "Cry_Camera.h"
 #include "GameCVars.h"
@@ -29,40 +28,10 @@ VRManager::~VRManager()
 	m_device11.Detach();
 }
 
-void OnIKLogMessage(const char* message)
-{
-	CryLogAlways("IK: %s", message);
-}
-
 bool VRManager::Init()
 {
 	if (m_initialized)
 		return true;
-
-	if (ik.init() != IK_OK)
-	{
-		CryLogAlways("Failed to initialize IK library");
-		return false;
-	}
-	ik.log.init();
-	m_ikCallbacks.on_log_message = &OnIKLogMessage;
-	m_ikCallbacks.on_node_destroy = nullptr;
-	ik.implement_callbacks(&m_ikCallbacks);
-
-	m_ikSolver = ik.solver.create(IK_FABRIK);
-	m_ikSolver->flags |= IK_ENABLE_JOINT_ROTATIONS | IK_ENABLE_TARGET_ROTATIONS;
-	m_ikSolver->max_iterations = 20;
-	m_ikSolver->tolerance = 0.01f;
-
-	m_shoulderJoint = m_ikSolver->node->create(0);
-	m_elbowJoint = m_ikSolver->node->create_child(m_shoulderJoint, 1);
-	m_handJoint = m_ikSolver->node->create_child(m_elbowJoint, 2);
-	m_handTarget = m_ikSolver->effector->create();
-	m_handTarget->weight = 1;
-	m_handTarget->rotation_weight = 1;
-	m_ikSolver->effector->attach(m_handTarget, m_handJoint);
-	ik.solver.set_tree(m_ikSolver, m_shoulderJoint);
-	ik.solver.rebuild(m_ikSolver);
 
 	m_initialized = true;
 	return true;
@@ -83,14 +52,6 @@ void VRManager::Shutdown()
 	m_device.Reset();
 	m_context11.Reset();
 	m_device11.Reset();
-
-	ik.solver.destroy(m_ikSolver);
-	m_ikSolver = nullptr;
-	m_shoulderJoint = nullptr;
-	m_elbowJoint = nullptr;
-	m_handJoint = nullptr;
-	m_handTarget = nullptr;
-	ik.deinit();
 
 	m_initialized = false;
 }
@@ -606,14 +567,6 @@ void VRManager::SetHudAttachedToOffHand()
 
 	Vec2i renderSize = GetRenderSize();
 	gXR->SetHudSize(vr_binocular_size, vr_binocular_size * renderSize.y / renderSize.x);
-}
-
-QuatT IKNodeToQuatT(ik_node_t* node)
-{
-	QuatT res;
-	res.t = Vec3(node->position.x, node->position.y, node->position.z);
-	res.q = Quat(node->rotation.w, node->rotation.x, node->rotation.y, node->rotation.z);
-	return res;
 }
 
 void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)

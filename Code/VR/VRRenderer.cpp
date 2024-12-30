@@ -353,9 +353,5 @@ void VRRenderer::DrawCrosshair()
 	geomMode.SetDrawInFrontMode(e_DrawInFrontOn);
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
 	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
-
-	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(Sphere1, 0.02f, ColorB(255, 0, 0));
-	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(Sphere2, 0.02f, ColorB(0, 255, 0));
-
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
 }
