@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.4.0'
+!define VERSION '0.5.0'
 
 Name "Crysis VR Mod"
 ; should not need admin privileges as the install folder should be user writable, anyway
