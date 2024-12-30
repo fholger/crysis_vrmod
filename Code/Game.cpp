@@ -385,6 +385,12 @@ bool CGame::Init(IGameFramework *pFramework)
 	gVRRenderer->Init();
 	gVRRenderer->SetDesiredWindowSize(gEnv->pRenderer->GetWidth(), gEnv->pRenderer->GetHeight());
 
+	// overwrite certain convars for VR
+	gEnv->pConsole->GetCVar("r_MotionBlur")->Set(0);
+	gEnv->pConsole->GetCVar("r_DepthOfField")->Set(0);
+	gEnv->pConsole->GetCVar("cl_bob")->Set(0);
+	gEnv->pConsole->GetCVar("cl_fpBody")->Set(0);
+
 	return true;
 }
 
