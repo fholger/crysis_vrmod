@@ -3792,7 +3792,7 @@ void CWeapon::PostProcessArms()
 	// right arm IK
 	shoulderWorldPos = gVR->EstimateShoulderPosition(1);
 	shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
-	//gVR->CalcWeaponArmIK(1, skeleton, shoulderInWeaponPos, this);
+	gVR->CalcWeaponArmIK(1, skeleton, shoulderInWeaponPos, this);
 }
 
 void CWeapon::HideLeftArm()

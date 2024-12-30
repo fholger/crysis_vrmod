@@ -244,7 +244,7 @@ Vec3 VRManager::EstimateShoulderPosition(int side)
 	CCamera view = gVRRenderer->GetCurrentViewCamera();
 	ModifyViewCamera(side, view);
 
-	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, +0.2f, -0.15f);
+	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.15f, +0.08f, -0.28f);
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -619,25 +619,31 @@ QuatT IKNodeToQuatT(ik_node_t* node)
 void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
 {
 	QuatT wa = a;
-	QuatT wb = a * b;
+	QuatT wb = wa * b;
 	QuatT wc = wb * c;
 
-	float lab = wa.t.GetDistance(wb.t);
-	float lcb = wc.t.GetDistance(wb.t);
-	float lat = clamp(wa.t.GetDistance(t), 0, lab + lcb);
+	Vec3 a2b = wb.t - wa.t;
+	Vec3 a2c = wc.t - wa.t;
+	Vec3 b2c = wc.t - wb.t;
+	Vec3 a2t = t - wa.t;
+
+	float lab = a2b.GetLength();
+	float lbc = b2c.GetLength();
+	float lac = a2c.GetLength();
+	float lat = clamp(a2t.GetLength(), 0, lab + lbc);
 
 	// get current interior angles
-	float ac_ab_0 = cry_acosf((wc.t - wa.t).GetNormalized().Dot((wb.t - wa.t).GetNormalized()));
-	float ba_bc_0 = cry_acosf((wa.t - wb.t).GetNormalized().Dot((wc.t - wb.t).GetNormalized()));
-	float ac_at_0 = cry_acosf((wc.t - wa.t).GetNormalized().Dot((t - wa.t).GetNormalized()));
+	float ac_ab_0 = cry_acosf(a2c.Dot(a2b) / lab / lac);
+	float ba_bc_0 = cry_acosf((-a2b).Dot(b2c) / lab / lbc);
+	float ac_at_0 = cry_acosf(a2c.Dot(a2t) / lac / a2t.GetLength());
 
 	// desired angles based on the cosine rule
-	float ac_ab_1 = cry_acosf((lcb*lcb - lab*lab - lat*lat) / (-2*lab*lat));
-	float ba_bc_1 = cry_acosf((lat*lat - lab*lab - lcb*lcb) / (-2*lab*lcb));
+	float ac_ab_1 = cry_acosf((lab*lab + lat*lat - lbc*lbc) / (2*lab*lat));
+	float ba_bc_1 = cry_acosf((lab*lab + lbc*lbc - lat*lat) / (2*lab*lbc));
 
 	// apply angles locally to the joints
-	Vec3 axis0 = (wc.t - wa.t).Cross(wb.t - wa.t).GetNormalized();
-	Vec3 axis1 = (wc.t - wa.t).Cross(t - wa.t).GetNormalized();
+	Vec3 axis0 = a2c.Cross(a2b).GetNormalized();
+	Vec3 axis1 = a2c.Cross(a2t).GetNormalized();
 	Quat r0 = Quat::CreateRotationAA(ac_ab_1 - ac_ab_0, wa.q.GetInverted() * axis0);
 	Quat r1 = Quat::CreateRotationAA(ba_bc_1 - ba_bc_0, wb.q.GetInverted() * axis0);
 	Quat r2 = Quat::CreateRotationAA(ac_at_0, wa.q.GetInverted() * axis1);
@@ -668,9 +674,13 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 
 	TwoBoneIKSolve(shoulderJoint, elbowJoint, handJoint, target.t);
 
+	// make sure the hand joint really ends up in the same position and orientation, no matter what
 	handJoint.q = (shoulderJoint.q * elbowJoint.q).GetInverted() * target.q;
+	Vec3 diffToTarget = target.t - (shoulderJoint * elbowJoint * handJoint).t;
+	shoulderJoint.t += diffToTarget;
 
 	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
+	QuatT parentJoint = skeleton->GetAbsJointByID(parent);
 	shoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * shoulderJoint;
 	skeleton->SetPostProcessQuat(shoulderJointId, shoulderJoint);
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
