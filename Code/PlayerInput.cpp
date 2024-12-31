@@ -1078,7 +1078,7 @@ bool CPlayerInput::OnActionRotatePitch(EntityId entityId, const ActionId& action
 	{
 	SPlayerStats *stats = static_cast<SPlayerStats*> (m_pPlayer->GetActorStats());
 	float absAngle = fabsf(acos_tpl(stats->upVector.Dot(stats->zeroGUp)));
-	if(absAngle > 1.57f) //90°
+	if(absAngle > 1.57f) //90ï¿½
 	{
 	if(value > 0)
 	m_deltaRotation.x -= value;
@@ -1216,30 +1216,16 @@ bool CPlayerInput::OnActionCrouch(EntityId entityId, const ActionId& actionId, i
 
 bool CPlayerInput::OnActionSprint(EntityId entityId, const ActionId& actionId, int activationMode, float value)
 {
-	if (CanMove())
+	if (CanMove() && value > 0.0f)
 	{
-		if (value > 0.0f)
+		// toggle sprint
+		if (m_actions & ACTION_SPRINT)
 		{
-			if ((m_moveButtonState & eMBM_Forward) || (m_bUseXIInput))
-			{
-				m_pPlayer->GetNanoSuit()->Tap(eNA_Forward);
-			} // end dt_enable
-
-			if (m_pPlayer->m_params.speedMultiplier*m_pPlayer->GetZoomSpeedMultiplier() > 0.99f)
-			{
-				m_actions |= ACTION_SPRINT;
-				m_pPlayer->m_stats.bIgnoreSprinting = false;
-			}
+			DisableSprint();
 		}
 		else
 		{
-			m_actions &= ~ACTION_SPRINT;
-			m_speedLean = 0.0f;
-			m_pPlayer->SetSpeedLean(0.0f);
-			CItem* pItem = static_cast<CItem*>(m_pPlayer->GetCurrentItem());
-			if(pItem)
-				pItem->ForcePendingActions();
-
+			EnableSprint();
 		}
 	}
 
@@ -1588,6 +1574,8 @@ bool CPlayerInput::OnActionXIMoveX(EntityId entityId, const ActionId& actionId, 
 	if (CanMove())
 	{
 		m_xi_deltaMovement.x = value;
+		if (m_xi_deltaMovement.len2() < 0.1f && (m_actions & ACTION_SPRINT))
+			DisableSprint();
 	}
 	return false;
 }
@@ -1609,6 +1597,8 @@ bool CPlayerInput::OnActionXIMoveY(EntityId entityId, const ActionId& actionId, 
 
 			m_deltaMovement.zero();
 		}
+		if (m_xi_deltaMovement.len2() < 0.1f && (m_actions & ACTION_SPRINT))
+			DisableSprint();
 	}
 
 	return false;
@@ -1642,6 +1632,30 @@ bool CPlayerInput::OnActionMenu(EntityId entityId, const ActionId& actionId, int
 	}
 
 	return false;
+}
+
+void CPlayerInput::EnableSprint()
+{
+	if ((m_moveButtonState & eMBM_Forward) || (m_bUseXIInput))
+	{
+		m_pPlayer->GetNanoSuit()->Tap(eNA_Forward);
+	} // end dt_enable
+
+	if (m_pPlayer->m_params.speedMultiplier * m_pPlayer->GetZoomSpeedMultiplier() > 0.99f)
+	{
+		m_actions |= ACTION_SPRINT;
+		m_pPlayer->m_stats.bIgnoreSprinting = false;
+	}
+}
+
+void CPlayerInput::DisableSprint()
+{
+	m_actions &= ~ACTION_SPRINT;
+	m_speedLean = 0.0f;
+	m_pPlayer->SetSpeedLean(0.0f);
+	CItem* pItem = static_cast<CItem*>(m_pPlayer->GetCurrentItem());
+	if (pItem)
+		pItem->ForcePendingActions();
 }
 
 

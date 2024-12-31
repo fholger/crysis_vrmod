@@ -148,6 +148,9 @@ private:
 
 	bool m_doubleJumped;
 
+	void EnableSprint();
+	void DisableSprint();
+
 	static TActionHandler<CPlayerInput>	s_actionHandler;
 };
 
