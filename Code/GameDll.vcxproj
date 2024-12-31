@@ -140,7 +140,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions>/OPT:NOICF</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VRMod.dll</OutputFile>
@@ -152,6 +153,7 @@
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
       <Command>..\install.bat</Command>
@@ -219,7 +221,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4091;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions>/OPT:NOICF</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)VRMod.dll</OutputFile>
@@ -227,7 +230,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)VRMod.pdb</ProgramDatabaseFile>
       <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
