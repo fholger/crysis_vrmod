@@ -160,7 +160,8 @@ static Vec3 ProjectPointToLine(const Vec3 &point,const Vec3 &lineStart,const Vec
 //-----------------------------------------------------------------------------------------------
 void CPlayerMovement::ProcessFlyMode()
 {
-	Vec3 move = m_viewQuat * m_movement.desiredVelocity;
+	Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+	Vec3 move = viewQuat * m_movement.desiredVelocity;
 
 	float zMove(0.0f);
 	if (m_actions & ACTION_JUMP)
@@ -168,7 +169,7 @@ void CPlayerMovement::ProcessFlyMode()
 	if (m_actions & ACTION_CROUCH)
 		zMove -= 1.0f;
 
-	move += m_viewQuat.GetColumn2() * zMove;
+	move += viewQuat.GetColumn2() * zMove;
 
 	//cap the movement vector to max 1
 	float moveModule(move.len());
@@ -294,9 +295,10 @@ void CPlayerMovement::ProcessFlyingZeroG()
 		desiredLocalVelocity.z = desiredLocalNormalizedVelocity.z * maxSpeed;
 
 		// The desired movement is applied in viewspace, not in entityspace, since entity does not nessecarily pitch while swimming.
-		desiredWorldVelocity += m_viewQuat.GetColumn0() * desiredLocalVelocity.x;
-		desiredWorldVelocity += m_viewQuat.GetColumn1() * desiredLocalVelocity.y;
-		desiredWorldVelocity += m_viewQuat.GetColumn2() * desiredLocalVelocity.z;
+		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+		desiredWorldVelocity += viewQuat.GetColumn0() * desiredLocalVelocity.x;
+		desiredWorldVelocity += viewQuat.GetColumn1() * desiredLocalVelocity.y;
+		desiredWorldVelocity += viewQuat.GetColumn2() * desiredLocalVelocity.z;
 
 		if (debug)
 			gEnv->pRenderer->DrawLabel(entityPos - vRight * 1.5f + Vec3(0,0,0.2f), 1.5f, "Move[%1.3f, %1.3f, %1.3f]", desiredWorldVelocity.x, desiredWorldVelocity.y, desiredWorldVelocity.z);
@@ -779,6 +781,8 @@ void CPlayerMovement::ProcessSwimming()
 		desiredLocalNormalizedVelocity.x = m_movement.desiredVelocity.x * g_pGameCVars->pl_swimSideSpeedMul;
 		desiredLocalNormalizedVelocity.y = m_movement.desiredVelocity.y * backwardMultiplier;
 
+ 		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+ 		
 		// AI can set a custom sprint value, so don't cap the movement vector
 		float sprintMultiplier = 1.0f;
 		if ((m_actions & ACTION_SPRINT) && (m_stats.relativeWaterLevel < 0.2f))
@@ -789,7 +793,7 @@ void CPlayerMovement::ProcessSwimming()
 				sprintMultiplier = g_pGameCVars->pl_swimSpeedSprintSpeedMul;
 
 			// Higher speed multiplier when sprinting while looking up, to get higher dolphin jumps.
-			float upFraction = CLAMP(m_viewQuat.GetFwdZ(), 0.0f, 1.0f);
+			float upFraction = CLAMP(viewQuat.GetFwdZ(), 0.0f, 1.0f);
 			sprintMultiplier *= LERP(1.0f, g_pGameCVars->pl_swimUpSprintSpeedMul, upFraction);
 		}
 
@@ -806,7 +810,6 @@ void CPlayerMovement::ProcessSwimming()
 		desiredLocalVelocity.z = desiredLocalNormalizedVelocity.z * g_pGameCVars->pl_swimVertSpeedMul * baseSpeed;
 
 		// The desired movement is applied in viewspace, not in entityspace, since entity does not necessarily pitch while swimming.
- 		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
 		desiredWorldVelocity += viewQuat.GetColumn0() * desiredLocalVelocity.x;
 		desiredWorldVelocity += viewQuat.GetColumn1() * desiredLocalVelocity.y;
 		
@@ -1118,12 +1121,13 @@ void CPlayerMovement::ProcessOnGroundOrJumping(CPlayer& player)
 				ENanoMode mode = pSuit->GetMode();
 				if(m_stats.inZeroG)
 				{
+					Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
 					if(mode == NANOMODE_SPEED)
-						jumpVec += m_viewQuat.GetColumn1() * 15.0f * m_stats.mass;
+						jumpVec += viewQuat.GetColumn1() * 15.0f * m_stats.mass;
 					else if(mode == NANOMODE_STRENGTH)
-						jumpVec += m_viewQuat.GetColumn1() * 25.0f * m_stats.mass;
+						jumpVec += viewQuat.GetColumn1() * 25.0f * m_stats.mass;
 					else
-						jumpVec += m_viewQuat.GetColumn1() * 10.0f * m_stats.mass;
+						jumpVec += viewQuat.GetColumn1() * 10.0f * m_stats.mass;
 				}
 				else if(mode == NANOMODE_STRENGTH)
 				{
