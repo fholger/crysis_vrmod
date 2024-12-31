@@ -806,8 +806,9 @@ void CPlayerMovement::ProcessSwimming()
 		desiredLocalVelocity.z = desiredLocalNormalizedVelocity.z * g_pGameCVars->pl_swimVertSpeedMul * baseSpeed;
 
 		// The desired movement is applied in viewspace, not in entityspace, since entity does not necessarily pitch while swimming.
-		desiredWorldVelocity += m_viewQuat.GetColumn0() * desiredLocalVelocity.x;
-		desiredWorldVelocity += m_viewQuat.GetColumn1() * desiredLocalVelocity.y;
+ 		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+		desiredWorldVelocity += viewQuat.GetColumn0() * desiredLocalVelocity.x;
+		desiredWorldVelocity += viewQuat.GetColumn1() * desiredLocalVelocity.y;
 		
 		// though, apply up/down in world space.
 		desiredWorldVelocity.z += desiredLocalVelocity.z;
@@ -1689,7 +1690,7 @@ void CPlayerMovement::AdjustPlayerPositionOnLadder(CPlayer &player)
 	{
 		//In some cases the rotation is not correct, force it if neccessary
 		if(!pEntity->GetRotation().IsEquivalent(m_stats.playerRotation))
-			pEntity->SetRotation(Quat(Matrix33::CreateOrientation(-m_stats.ladderOrientation,m_stats.ladderUpDir,g_PI)));
+			pEntity->SetRotation(Quat(Matrix33::CreateOrientation(-m_stats.ladderOrientation,m_stats.ladderUpDir,gf_PI)));
 
 		Vec3 projected = ProjectPointToLine(pEntity->GetWorldPos(),m_stats.ladderBottom,m_stats.ladderTop);
 		//Same problem with the position

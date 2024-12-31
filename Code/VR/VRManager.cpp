@@ -243,17 +243,17 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	{
 		// manage the aiming deadzone in which the camera should not be rotated
 		float yawDiff = angles.z - m_prevViewYaw;
-		if (yawDiff < -g_PI)
-			yawDiff += 2 * g_PI;
-		else if (yawDiff > g_PI)
-			yawDiff -= 2 * g_PI;
+		if (yawDiff < -gf_PI)
+			yawDiff += 2 * gf_PI;
+		else if (yawDiff > gf_PI)
+			yawDiff -= 2 * gf_PI;
 
-		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * g_PI / 180.f;
+		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * gf_PI / 180.f;
 		if (g_pGameCVars->vr_enable_motion_controllers)
 			maxDiff = 0;
 		if (isCutscene)
 		{
-			maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * g_PI / 180.f;
+			maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * gf_PI / 180.f;
 			if (g_pGameCVars->vr_cutscenes_2d)
 				maxDiff = 0;
 			if (yawDiff > maxDiff || yawDiff < -maxDiff)
@@ -265,10 +265,10 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 				m_prevViewYaw += yawDiff - maxDiff;
 			if (yawDiff < -maxDiff)
 				m_prevViewYaw += yawDiff + maxDiff;
-			if (m_prevViewYaw > g_PI)
-				m_prevViewYaw -= 2*g_PI;
-			if (m_prevViewYaw < -g_PI)
-				m_prevViewYaw += 2*g_PI;
+			if (m_prevViewYaw > gf_PI)
+				m_prevViewYaw -= 2*gf_PI;
+			if (m_prevViewYaw < -gf_PI)
+				m_prevViewYaw += 2*gf_PI;
 		}
 
 		CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
@@ -388,6 +388,11 @@ void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDi
 
 	eyePosition = 0.5f * (left.GetPosition() + right.GetPosition());
 	eyeDirection = 0.5f * (left.GetViewdir() + right.GetViewdir());
+}
+
+Quat VRManager::GetHMDQuat()
+{
+	return 0.5f * (Quat(GetEyeTransform(0)) + Quat(GetEyeTransform(1)));
 }
 
 RectF VRManager::GetEffectiveRenderLimits(int eye)

@@ -40,6 +40,7 @@ public:
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
 	Matrix34 GetControllerWeaponTransform();
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
+	Quat GetHMDQuat();
 
 	RectF GetEffectiveRenderLimits(int eye);
 
