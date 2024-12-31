@@ -205,7 +205,7 @@ Vec3 VRManager::EstimateShoulderPosition(int side)
 	CCamera view = gVRRenderer->GetCurrentViewCamera();
 	ModifyViewCamera(side, view);
 
-	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.15f, +0.08f, -0.28f);
+	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, +0.05f, -0.3f);
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -620,8 +620,8 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 	// ends up in its previous position
 	QuatT shoulderJoint = skeleton->GetAbsJointByID(shoulderJointId);
 	shoulderJoint.t = basePos;
-	QuatT elbowJoint = skeleton->GetRelJointByID(elbowJointId);
-	QuatT handJoint = skeleton->GetRelJointByID(handJointId);
+	QuatT elbowJoint = skeleton->GetDefaultRelJointByID(elbowJointId);
+	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
 	if (target.t.GetDistance(basePos) > maxDistance)
