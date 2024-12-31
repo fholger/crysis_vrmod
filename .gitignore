@@ -34,6 +34,7 @@
 *.pdb
 
 .vs
+.idea
 *.user
 Debug
 Release
