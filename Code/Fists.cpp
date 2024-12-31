@@ -220,6 +220,16 @@ void CFists::RequestAnimState(EFistAnimState eFAS, bool force /*=false*/)
 	}
 	else
 	{
+		// do not want swim animation in VR, so set back to relaxed idle
+		if (m_currentAnimState != eFAS_NOSTATE && m_currentAnimState != eFAS_RELAXED)
+		{
+			m_currentAnimState = eFAS_RELAXED;
+			m_timeOut = TIMEOUT;
+			PlayAction(g_pItemStrings->deselect);
+			SetDefaultIdleAnimation(CItem::eIGS_FirstPerson, g_pItemStrings->idle_relaxed);
+		}
+		return;
+
 		switch(eFAS)
 		{
 					case eFAS_SWIM_IDLE:		if(m_currentAnimState!=eFAS_SWIM_IDLE)

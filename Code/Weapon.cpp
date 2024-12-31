@@ -2955,6 +2955,8 @@ bool CWeapon::IsLamLightActivated()
 
 void CWeapon::RaiseWeapon(bool raise, bool faster /* = false */)
 {
+	return; // don't want this in VR
+
 	if(m_params.raiseable)
 	{
 		if(raise && !m_weaponRaised)
