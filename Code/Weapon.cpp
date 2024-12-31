@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 22:8:2005   12:50 : Created by Márcio Martins
+- 22:8:2005   12:50 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -3767,9 +3767,6 @@ Matrix34 CWeapon::GetInverseGripTransform()
 
 void CWeapon::PostProcessArms()
 {
-	//HideLeftArm();
-	// TODO: Arm IK
-
 	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
 	if (!character)
 		return;
@@ -3778,23 +3775,10 @@ void CWeapon::PostProcessArms()
 	if (!skeleton)
 		return;
 
-	Matrix34 controllerWeaponTrans = gVR->GetControllerWeaponTransform();
-	Vec3 weaponWorldPos = GetEntity()->GetWorldPos();
-	Ang3 weaponWorldAng = GetEntity()->GetWorldAngles();
-	weaponWorldAng.x = weaponWorldAng.y = 0;
-	Matrix34 weaponWorldTrans = Matrix34::CreateRotationXYZ(weaponWorldAng, weaponWorldPos);
-	Matrix34 controllerWorldTrans = weaponWorldTrans * controllerWeaponTrans;
-	Matrix34 invEntityTrans = GetEntity()->GetWorldTM().GetInvertedFast();
-	controllerWeaponTrans = invEntityTrans * controllerWorldTrans;
-
 	// arm IK
-	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(0);
-	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
-	gVR->CalcWeaponArmIK(0, skeleton, shoulderInWeaponPos, this);
+	gVR->CalcWeaponArmIK(0, skeleton, this);
 	// right arm IK
-	shoulderWorldPos = gVR->EstimateShoulderPosition(1);
-	shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
-	gVR->CalcWeaponArmIK(1, skeleton, shoulderInWeaponPos, this);
+	gVR->CalcWeaponArmIK(1, skeleton, this);
 }
 
 void CWeapon::HideLeftArm()

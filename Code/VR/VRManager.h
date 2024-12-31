@@ -38,7 +38,7 @@ public:
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
 	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
-	Matrix34 GetControllerWeaponTransform();
+	Matrix34 GetControllerWeaponTransform(int side);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 	Quat GetHMDQuat();
 
@@ -60,7 +60,7 @@ public:
 	void SetHudAttachedToHead();
 	void SetHudAttachedToOffHand();
 
-	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon);
+	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
 
 private:
 	bool m_initialized = false;
@@ -89,6 +89,8 @@ private:
 	bool m_fixedPositionInitialized = false;
 
 	bool m_wasInMenu = false;
+
+	bool m_offHandFollowsWeapon = false;
 };
 
 extern VRManager* gVR;

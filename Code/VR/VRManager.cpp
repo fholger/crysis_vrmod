@@ -283,7 +283,7 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	Matrix34 viewMat;
 	viewMat.SetRotationXYZ(angles, position);
 
-	Matrix34 eyeMat = gVR->GetEyeTransform(eye);
+	Matrix34 eyeMat = GetEyeTransform(eye);
 	viewMat = viewMat * eyeMat;
 
 	cam.SetMatrix(viewMat);
@@ -346,10 +346,7 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (!weapon)
 		return;
 
-	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
-	Matrix33 refTransform = GetReferenceTransform();
-	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
-	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
+	Matrix34 adjustedControllerTransform = GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
 
 	weaponAngles.x = weaponAngles.y = 0;
 	Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(weaponAngles, weaponPosition);
@@ -359,9 +356,9 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	weaponAngles = Ang3(trackedTransform);
 }
 
-Matrix34 VRManager::GetControllerWeaponTransform()
+Matrix34 VRManager::GetControllerWeaponTransform(int side)
 {
-	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(side);
 	Matrix33 refTransform = GetReferenceTransform();
 	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
 	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
@@ -609,8 +606,12 @@ void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
 	b.q = b.q * r1;
 }
 
-void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& basePos, CWeapon* weapon)
+void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon)
 {
+	Matrix34 invEntityTrans = weapon->GetEntity()->GetWorldTM().GetInvertedFast();
+	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(side);
+	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
 	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
@@ -619,14 +620,29 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
 	// ends up in its previous position
 	QuatT shoulderJoint = skeleton->GetAbsJointByID(shoulderJointId);
-	shoulderJoint.t = basePos;
+	shoulderJoint.t = shoulderInWeaponPos;
 	QuatT elbowJoint = skeleton->GetDefaultRelJointByID(elbowJointId);
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
-	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
-	if (target.t.GetDistance(basePos) > maxDistance)
+
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon)
 	{
-		Vec3 dir = (basePos - target.t).GetNormalized();
+		// off hand is detached from weapon, so position it towards the controller, instead
+		Matrix34 controllerTransform = GetControllerWeaponTransform(side);
+		Matrix34 view = gVRRenderer->GetCurrentViewCamera().GetMatrix();
+		Ang3 viewAngles (view);
+		viewAngles.x = viewAngles.y = 0;
+		view.SetRotationXYZ(viewAngles, view.GetTranslation());
+		Matrix34 controllerInWeapon = invEntityTrans * view * controllerTransform;
+		Quat rotDiff = Quat(controllerInWeapon) * target.q.GetInverted();
+		shoulderJoint.q = rotDiff * shoulderJoint.q;
+		target = QuatT(controllerInWeapon);
+	}
+	
+	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
+	if (target.t.GetDistance(shoulderInWeaponPos) > maxDistance)
+	{
+		Vec3 dir = (shoulderInWeaponPos - target.t).GetNormalized();
 		shoulderJoint.t = target.t + dir * maxDistance;
 	}
 
@@ -638,7 +654,6 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, const Vec3& b
 	shoulderJoint.t += diffToTarget;
 
 	int16 parent = skeleton->GetParentIDByID(shoulderJointId);
-	QuatT parentJoint = skeleton->GetAbsJointByID(parent);
 	shoulderJoint = skeleton->GetAbsJointByID(parent).GetInverted() * shoulderJoint;
 	skeleton->SetPostProcessQuat(shoulderJointId, shoulderJoint);
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
