@@ -6,6 +6,7 @@
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
+#include "VRManager.h"
 #include "VRRenderer.h"
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
@@ -198,6 +199,17 @@ Matrix34 OpenXRInput::GetControllerWeaponTransform(int hand)
 	return GetControllerTransform(hand) * gripAngleAdjust * correction;
 }
 
+void OpenXRInput::EnableHandMovementForQuickMenu()
+{
+	m_quickMenuActive = true;
+	m_quickMenuInitialHandPosition = GetControllerTransform(g_pGameCVars->vr_weapon_hand).GetTranslation();
+}
+
+void OpenXRInput::DisableHandMovementForQuickMenu()
+{
+	m_quickMenuActive = false;
+}
+
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, m_primaryFire, "primary_fire", "Primary Fire", &g_pGameActions->attack1);
@@ -271,7 +283,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_sprint.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
 	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
-	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<!weapon>/input/trigger/click");
+	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
 	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
@@ -301,12 +313,12 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_sprint.handle, "/user/hand/<weapon>/input/squeeze");
 	touch.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
 	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
-	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/thumbstick/click");
-	touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
+	//touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
@@ -444,6 +456,19 @@ void OpenXRInput::UpdatePlayerMovement()
 
 	if (inHud || usingMountedGun || (rendering2D && !usingBinoculars))
 	{
+		if (m_quickMenuActive)
+		{
+			// we are using movement of the main controller for the menu input, instead
+			Vec3 movementDiff = GetControllerTransform(g_pGameCVars->vr_weapon_hand).GetTranslation() - m_quickMenuInitialHandPosition;
+			Ang3 hmdAngles = Ang3(gVR->GetHMDQuat());
+			Vec3 hmdRight = Matrix33::CreateRotationZ(hmdAngles.z).GetColumn0();
+			Vec3 up = Vec3(0, 0, 1);
+
+			const float MaxMove = 0.03f;
+			yaw = clamp(movementDiff.Dot(hmdRight) / MaxMove, -1.f, 1.f);
+			pitch = clamp(movementDiff.Dot(up) / MaxMove, -1.f, 1.f);
+		}
+		
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
 		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
 		return;

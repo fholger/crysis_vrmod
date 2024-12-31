@@ -69,6 +69,7 @@ History:
 #include "Radio.h"
 
 #include "LCD/LCDWrapper.h"
+#include "VR/OpenXRRuntime.h"
 #include "VR/VRRenderer.h"
 
 static const float NIGHT_VISION_ENERGY = 30.0f;
@@ -2205,6 +2206,7 @@ bool CHUD::OnAction(const ActionId& action, int activationMode, float value)
 				UpdateCrosshairVisibility();
 				SwitchToModalHUD(&m_animQuickMenu,false);
 				m_animQuickMenu.CheckedInvoke("destroy", m_iBreakHUD);
+				gXR->GetInput()->EnableHandMovementForQuickMenu();
 			}
 			filterOut = false;
 		}
@@ -2219,6 +2221,7 @@ bool CHUD::OnAction(const ActionId& action, int activationMode, float value)
 	}
 	else if(action == rGameActions.hud_suit_menu && activationMode == eIS_Released)
 	{
+		gXR->GetInput()->DisableHandMovementForQuickMenu();
 		if(m_pModalHUD == &m_animPDA)
 		{
 			m_bMiniMapZooming = false;

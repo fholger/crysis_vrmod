@@ -14,6 +14,9 @@ public:
 	Matrix34 GetControllerTransform(int hand);
 	Matrix34 GetControllerWeaponTransform(int hand);
 
+	void EnableHandMovementForQuickMenu();
+	void DisableHandMovementForQuickMenu();
+
 private:
 	struct BooleanAction
 	{
@@ -68,6 +71,9 @@ private:
 	static const int MOUSE_SAMPLE_COUNT = 10;
 	Vec2 m_hudMousePosSamples[MOUSE_SAMPLE_COUNT];
 	int m_curMouseSampleIdx = 0;
+
+	bool m_quickMenuActive = false;
+	Vec3 m_quickMenuInitialHandPosition;
 
 	void CreateInputActions();
 	void SuggestBindings();
