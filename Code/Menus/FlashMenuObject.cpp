@@ -1439,6 +1439,12 @@ static int ChooseLocalizedAudioChannel()
 bool CFlashMenuObject::PlayVideo(const char* pVideoFile, bool origUpscaleMode, unsigned int videoOptions, int audioCh, int voiceCh, bool useSubtitles, bool exclusiveVideo)
 {
 	SAFE_RELEASE(m_pVideoPlayer);
+	if (strstr(pVideoFile, "Trailer_") != nullptr || strstr(pVideoFile, "Intro.sfd") != nullptr)
+	{
+		// skip trailer and intro videos, they just take time on start up
+		return false;
+	}
+	
 	m_bExclusiveVideo = false;
 	ICVar* pCVar = gEnv->pConsole->GetCVar("g_language");
 	bool french = false;
