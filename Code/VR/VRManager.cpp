@@ -349,6 +349,11 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 		return;
 
 	Matrix34 adjustedControllerTransform = GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
+	// if we are two-handing the weapon and it's not a pistol, apply a two hand orientation
+	if (IsOffHandGrabbingWeapon() && weapon->GetEntity()->GetClass() != CItem::sSOCOMClass)
+	{
+		adjustedControllerTransform = GetTwoHandWeaponTransform();
+	}
 
 	weaponAngles.x = weaponAngles.y = 0;
 	Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(weaponAngles, weaponPosition);
@@ -358,6 +363,15 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	weaponAngles = Ang3(trackedTransform);
 }
 
+Matrix34 VRManager::GetControllerTransform(int side)
+{
+	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(side);
+	Matrix33 refTransform = GetReferenceTransform();
+	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
+	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
+	return adjustedControllerTransform;
+}
+
 Matrix34 VRManager::GetControllerWeaponTransform(int side)
 {
 	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(side);
@@ -365,6 +379,28 @@ Matrix34 VRManager::GetControllerWeaponTransform(int side)
 	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
 	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
 	return adjustedControllerTransform;
+}
+
+Matrix34 VRManager::GetTwoHandWeaponTransform()
+{
+	int weaponHand = g_pGameCVars->vr_weapon_hand;
+	int offHand = 1 - weaponHand;
+
+	Matrix34 mainHandTransform = GetControllerTransform(weaponHand);
+	Matrix34 offHandTransform = GetControllerTransform(offHand);
+
+	// build rotation from main hand towards off hand
+	Vec3 fwd = offHandTransform.GetTranslation() - mainHandTransform.GetTranslation();
+	fwd.Normalize();
+	Vec3 right = mainHandTransform.GetColumn0().GetNormalized();
+	Vec3 up = right.Cross(fwd).GetNormalized();
+	right = fwd.Cross(up).GetNormalized();
+	mainHandTransform.SetFromVectors(right, fwd, up, mainHandTransform.GetTranslation());
+
+	// Weapon bones are offset to what our grip pose is, so we need to rotate the pose a bit
+	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2) * Matrix33::CreateRotationY(-gf_PI/2);
+	
+	return mainHandTransform * correction;
 }
 
 Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)

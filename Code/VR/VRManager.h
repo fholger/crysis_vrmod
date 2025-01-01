@@ -39,7 +39,9 @@ public:
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
 	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
+	Matrix34 GetControllerTransform(int side);
 	Matrix34 GetControllerWeaponTransform(int side);
+	Matrix34 GetTwoHandWeaponTransform();
 	Matrix34 GetWorldControllerWeaponTransform(int side);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 	Quat GetHMDQuat();
