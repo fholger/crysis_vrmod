@@ -21,6 +21,7 @@
 #include <IInteractor.h>
 
 #include "Menus/FlashMenuObject.h"
+#include "VR/VRManager.h"
 
 TActionHandler<CPlayerInput>	CPlayerInput::s_actionHandler;
 

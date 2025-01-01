@@ -70,6 +70,7 @@ History:
 
 #include "LCD/LCDWrapper.h"
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 static const float NIGHT_VISION_ENERGY = 30.0f;
@@ -2454,6 +2455,7 @@ bool CHUD::OnAction(const ActionId& action, int activationMode, float value)
 
 				if(m_bNightVisionActive && !m_animNightVisionBattery.IsLoaded())
 				{
+					gVR->dumpWeaponSkeleton = true;
 					PlaySound(ESound_NightVisionSelect);
 					PlaySound(ESound_NightVisionAmbience);
 					m_animNightVisionBattery.Load("Libs/UI/HUD_NightVision.gfx", eFD_Right);

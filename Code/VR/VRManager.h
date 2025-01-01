@@ -1,4 +1,5 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN
 #include <d3d10_1.h>
 #include <dxgi.h>
 #include <d3d11.h>
@@ -10,6 +11,9 @@
 #undef PlaySound
 #undef min
 #undef max
+#undef small
+#undef DrawText
+#undef GetMessage
 
 using Microsoft::WRL::ComPtr;
 
@@ -61,6 +65,8 @@ public:
 	void SetHudAttachedToOffHand();
 
 	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
+
+	bool dumpWeaponSkeleton = false;
 
 private:
 	bool m_initialized = false;

@@ -3775,6 +3775,21 @@ void CWeapon::PostProcessArms()
 	if (!skeleton)
 		return;
 
+	if (gVR->dumpWeaponSkeleton)
+	{
+		gVR->dumpWeaponSkeleton = false;
+
+		CryLogAlways("--- dumping weapon skeleton ---\n");
+		int numJoints = skeleton->GetJointCount();
+		for (int i = 0; i < numJoints; i++)
+		{
+			const char* jointName = skeleton->GetJointNameByID(i);
+			QuatT joint = skeleton->GetRelJointByID(i);
+			CryLogAlways("{ \"%s\", QuatT(Vec3(%.6ff, %.6ff, %.6ff), Quat(%.6ff, %.6ff, %.6ff, %.6ff)) },\n", jointName, joint.t.x, joint.t.y, joint.t.z, joint.q.w, joint.q.v.x, joint.q.v.y, joint.q.v.z);
+		}
+		CryLogAlways("--- dump complete ---\n");
+	}
+
 	// arm IK
 	gVR->CalcWeaponArmIK(0, skeleton, this);
 	// right arm IK
