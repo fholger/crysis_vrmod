@@ -120,6 +120,9 @@ private:
 	bool OnActionInvertMouse(EntityId entityId, const ActionId& actionId, int activationMode, float value);
 
 	bool OnActionMenu(EntityId entityId, const ActionId& actionId, int activationMode, float value);
+
+	bool OnActionOffHandWeaponGrab(EntityId entityId, const ActionId& actionId, int activationMode, float value);
+	
 private:
 	Vec3 m_lastPos;
 

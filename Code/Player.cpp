@@ -4074,6 +4074,8 @@ void CPlayer::SelectNextItem(int direction, bool keepHistory, const char *catego
 
 	EntityId oldItemId=GetCurrentItemId();
 
+	gVR->DetachOffHandFromWeapon();
+
 	CActor::SelectNextItem(direction,keepHistory,category);
 
 	if (GetCurrentItemId() && oldItemId!=GetCurrentItemId())

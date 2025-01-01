@@ -367,6 +367,16 @@ Matrix34 VRManager::GetControllerWeaponTransform(int side)
 	return adjustedControllerTransform;
 }
 
+Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)
+{
+	Matrix34 controllerTransform = GetControllerWeaponTransform(side);
+	Matrix34 view = gVRRenderer->GetCurrentViewCamera().GetMatrix();
+	Ang3 viewAngles (view);
+	viewAngles.x = viewAngles.y = 0;
+	view.SetRotationXYZ(viewAngles, view.GetTranslation());
+	return view * controllerTransform;
+}
+
 void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
@@ -627,15 +637,11 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon)
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading())
 	{
 		// off hand is detached from weapon, so position it towards the controller, instead
-		Matrix34 controllerTransform = GetControllerWeaponTransform(side);
-		Matrix34 view = gVRRenderer->GetCurrentViewCamera().GetMatrix();
-		Ang3 viewAngles (view);
-		viewAngles.x = viewAngles.y = 0;
-		view.SetRotationXYZ(viewAngles, view.GetTranslation());
-		Matrix34 controllerInWeapon = invEntityTrans * view * controllerTransform;
+		Matrix34 controllerTransform = GetWorldControllerWeaponTransform(side);
+		Matrix34 controllerInWeapon = invEntityTrans * controllerTransform;
 		Quat rotDiff = Quat(controllerInWeapon) * target.q.GetInverted();
 		shoulderJoint.q = rotDiff * shoulderJoint.q;
 		target = QuatT(controllerInWeapon);
@@ -669,6 +675,34 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
+}
+
+void VRManager::TryGrabWeaponWithOffHand()
+{
+	CPlayer* player = GetLocalPlayer();
+	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
+	if (!weapon)
+		return;
+	if (weapon->IsDualWield() || dynamic_cast<CFists*>(weapon) != nullptr || dynamic_cast<COffHand*>(weapon) != nullptr)
+		return;
+	
+	Vec3 controllerPos = GetWorldControllerWeaponTransform(1 - g_pGameCVars->vr_weapon_hand).GetTranslation();
+	float controllerFromWeapon = weapon->GetOffHandGrabLocation().GetDistance(controllerPos);
+
+	if (controllerFromWeapon <= 0.3f)
+	{
+		m_offHandFollowsWeapon = true;
+	}
+}
+
+void VRManager::DetachOffHandFromWeapon()
+{
+	m_offHandFollowsWeapon = false;
+}
+
+CPlayer* VRManager::GetLocalPlayer() const
+{
+	return static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

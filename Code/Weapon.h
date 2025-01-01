@@ -8,7 +8,7 @@ Description: C++ Weapon Implementation
 
 -------------------------------------------------------------------------
 History:
-- 22:8:2005   12:50 : Created by Márcio Martins
+- 22:8:2005   12:50 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #ifndef __WEAPON_H__
@@ -740,7 +740,11 @@ public:
 	virtual Matrix34 GetInverseGripTransform();
 	void PostProcessArms();
 	void HideLeftArm();
-	void LeftArmVRIK();
+
+	Vec3 GetOffHandGrabLocation() const { return m_offHandGrabLocation; }
+
+private:
+	Vec3 m_offHandGrabLocation;
 };
 
 

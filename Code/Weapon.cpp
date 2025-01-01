@@ -3775,6 +3775,8 @@ void CWeapon::PostProcessArms()
 	if (!skeleton)
 		return;
 
+	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L_term")).t);
+
 	// arm IK
 	gVR->CalcWeaponArmIK(0, skeleton, this);
 	// right arm IK

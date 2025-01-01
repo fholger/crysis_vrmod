@@ -10,6 +10,7 @@
 #undef PlaySound
 #undef min
 #undef max
+#undef small
 
 using Microsoft::WRL::ComPtr;
 
@@ -39,6 +40,7 @@ public:
 	void ModifyViewForBinoculars(SViewParams& view);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
 	Matrix34 GetControllerWeaponTransform(int side);
+	Matrix34 GetWorldControllerWeaponTransform(int side);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);
 	Quat GetHMDQuat();
 
@@ -61,6 +63,11 @@ public:
 	void SetHudAttachedToOffHand();
 
 	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
+	
+	void TryGrabWeaponWithOffHand();
+	void DetachOffHandFromWeapon();
+
+	CPlayer* GetLocalPlayer() const;
 
 private:
 	bool m_initialized = false;

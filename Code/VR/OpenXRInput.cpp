@@ -561,6 +561,8 @@ void OpenXRInput::UpdateGripAmount()
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
 	getInfo.subactionPath = XR_NULL_PATH;
 
+	int offHand = 1 - g_pGameCVars->vr_weapon_hand;
+	float prevOffHandGrip = m_gripAmount[offHand];
 	for (int side = 0; side < 2; ++side)
 	{
 		getInfo.action = m_grip[side];
@@ -570,6 +572,23 @@ void OpenXRInput::UpdateGripAmount()
 		getInfo.action = m_trigger[side];
 		xrGetActionStateFloat(m_session, &getInfo, &state);
 		m_triggerAmount[side] = state.isActive ? state.currentState : 0;
+	}
+
+	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
+	if (!pPlayer)
+		return;
+	IPlayerInput* input = pPlayer->GetPlayerInput();
+	if (!input)
+		return;
+	
+	const float gripActivationAmount = 0.6f;
+	if (m_gripAmount[offHand] >= gripActivationAmount && prevOffHandGrip < gripActivationAmount)
+	{
+		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnPress, 0);	
+	}
+	else if (m_gripAmount[offHand] < gripActivationAmount && prevOffHandGrip >= gripActivationAmount)
+	{
+		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnRelease, 0);	
 	}
 }
 

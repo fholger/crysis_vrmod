@@ -21,6 +21,7 @@
 #include <IInteractor.h>
 
 #include "Menus/FlashMenuObject.h"
+#include "VR/VRManager.h"
 
 TActionHandler<CPlayerInput>	CPlayerInput::s_actionHandler;
 
@@ -101,6 +102,8 @@ CPlayerInput::CPlayerInput( CPlayer * pPlayer ) :
 		ADD_HANDLER(invert_mouse, OnActionInvertMouse);
 
 		ADD_HANDLER(hud_menu, OnActionMenu);
+
+		ADD_HANDLER(off_hand_weapon_grab, OnActionOffHandWeaponGrab);
 
 	#undef ADD_HANDLER
 	}
@@ -1629,6 +1632,20 @@ bool CPlayerInput::OnActionMenu(EntityId entityId, const ActionId& actionId, int
 	{
 		bool currentlyInMenu = SAFE_MENU_FUNC_RET(IsMenuActive());
 		SAFE_MENU_FUNC(ShowInGameMenu(!currentlyInMenu));
+	}
+
+	return false;
+}
+
+bool CPlayerInput::OnActionOffHandWeaponGrab(EntityId entityId, const ActionId& actionId, int activationMode, float value)
+{
+	if (activationMode == eAAM_OnPress)
+	{
+		gVR->TryGrabWeaponWithOffHand();
+	}
+	else
+	{
+		gVR->DetachOffHandFromWeapon();
 	}
 
 	return false;

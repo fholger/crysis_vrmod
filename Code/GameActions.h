@@ -17,6 +17,7 @@ class CGameActions
 public:
 	CGameActions();
 #include "GameActions.actions"
+	ActionId off_hand_weapon_grab;
 
 	void Init();
 	ILINE IActionFilter*	FilterNoMove() const {	return m_pFilterNoMove;	}
