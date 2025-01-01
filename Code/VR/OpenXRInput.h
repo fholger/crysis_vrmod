@@ -17,6 +17,8 @@ public:
 	void EnableHandMovementForQuickMenu();
 	void DisableHandMovementForQuickMenu();
 
+	float GetGripAmount(int side) const;
+
 private:
 	struct BooleanAction
 	{
@@ -40,6 +42,8 @@ private:
 	XrAction m_rotateYaw = nullptr;
 	XrAction m_rotatePitch = nullptr;
 	XrAction m_jumpCrouch = nullptr;
+	XrAction m_grip[2] = {};
+	XrAction m_trigger[2] = {};
 	BooleanAction m_primaryFire;
 	BooleanAction m_sprint;
 	BooleanAction m_reload;
@@ -65,6 +69,9 @@ private:
 	BooleanAction m_vecExit;
 	BooleanAction m_vecSwitchSeatView;
 
+	float m_gripAmount[2] = {};
+	float m_triggerAmount[2] = {};
+
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
 
@@ -83,6 +90,7 @@ private:
 	void UpdateMenuActions();
 	void UpdateHUDActions();
 	void UpdatePlayerMovement();
+	void UpdateGripAmount();
 	void UpdateBooleanAction(BooleanAction& action);
 	void UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key);
 

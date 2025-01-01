@@ -2,7 +2,9 @@
 #include "VRManager.h"
 
 #include "Cry_Camera.h"
+#include "Fists.h"
 #include "GameCVars.h"
+#include "HandPoses.h"
 #include "OpenXRRuntime.h"
 #include "VRRenderer.h"
 #include "Weapon.h"
@@ -658,6 +660,15 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	skeleton->SetPostProcessQuat(shoulderJointId, shoulderJoint);
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, handJoint);
+
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon)
+	{
+		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
+	}
+	if (side == g_pGameCVars->vr_weapon_hand && dynamic_cast<CFists*>(weapon) != nullptr)
+	{
+		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
+	}
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

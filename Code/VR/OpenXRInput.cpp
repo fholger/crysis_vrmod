@@ -210,6 +210,11 @@ void OpenXRInput::DisableHandMovementForQuickMenu()
 	m_quickMenuActive = false;
 }
 
+float OpenXRInput::GetGripAmount(int side) const
+{
+	return max(m_gripAmount[side], m_triggerAmount[side]);
+}
+
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, m_primaryFire, "primary_fire", "Primary Fire", &g_pGameActions->attack1);
@@ -267,6 +272,19 @@ void OpenXRInput::CreateInputActions()
 	strcpy(createInfo.actionName, "jump_crouch");
 	strcpy(createInfo.localizedActionName, "Jump / Crouch / Prone");
 	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_jumpCrouch), "creating movement action");
+
+	strcpy(createInfo.actionName, "lgrip");
+	strcpy(createInfo.localizedActionName, "Left Grip");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_grip[0]), "creating movement action");
+	strcpy(createInfo.actionName, "ltrigger");
+	strcpy(createInfo.localizedActionName, "Left Trigger");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_trigger[0]), "creating movement action");
+	strcpy(createInfo.actionName, "rgrip");
+	strcpy(createInfo.localizedActionName, "Right Grip");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_grip[1]), "creating movement action");
+	strcpy(createInfo.actionName, "rtrigger");
+	strcpy(createInfo.localizedActionName, "Right Trigger");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_trigger[1]), "creating movement action");
 }
 
 void OpenXRInput::SuggestBindings()
@@ -299,6 +317,10 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	knuckles.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
 	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
+	knuckles.AddBinding(m_grip[0], "/user/hand/left/input/squeeze/value");
+	knuckles.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
+	knuckles.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
+	knuckles.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance, true);
@@ -329,6 +351,10 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
 	touch.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
+	touch.AddBinding(m_grip[0], "/user/hand/left/input/squeeze/value");
+	touch.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
+	touch.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
+	touch.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 
@@ -357,6 +383,7 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 void OpenXRInput::UpdateIngameActions()
 {
 	UpdatePlayerMovement();
+	UpdateGripAmount();
 	UpdateBooleanAction(m_sprint);
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_suitMenu);
@@ -373,6 +400,7 @@ void OpenXRInput::UpdateIngameActions()
 void OpenXRInput::UpdateVehicleActions()
 {
 	UpdatePlayerMovement();
+	UpdateGripAmount();
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_primaryFire);
 	UpdateBooleanAction(m_menuClick);
@@ -397,6 +425,7 @@ void OpenXRInput::UpdateMenuActions()
 void OpenXRInput::UpdateHUDActions()
 {
 	UpdatePlayerMovement();
+	UpdateGripAmount();
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_suitMenu);
 	UpdateBooleanAction(m_menuClick);
@@ -523,6 +552,24 @@ void OpenXRInput::UpdatePlayerMovement()
 			}
 		}
 		m_wasCrouchActive = true;
+	}
+}
+
+void OpenXRInput::UpdateGripAmount()
+{
+	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
+	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+	getInfo.subactionPath = XR_NULL_PATH;
+
+	for (int side = 0; side < 2; ++side)
+	{
+		getInfo.action = m_grip[side];
+		xrGetActionStateFloat(m_session, &getInfo, &state);
+		m_gripAmount[side] = state.isActive ? state.currentState : 0;
+		
+		getInfo.action = m_trigger[side];
+		xrGetActionStateFloat(m_session, &getInfo, &state);
+		m_triggerAmount[side] = state.isActive ? state.currentState : 0;
 	}
 }
 
