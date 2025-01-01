@@ -222,7 +222,7 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_menu, "menu_toggle", "Open menu / show objectives", &g_pGameActions->xi_hud_back);
 	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
-	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, &g_pGameActions->xi_zoom, false);
+	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, &g_pGameActions->xi_grenade, false, true);
 	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->xi_use);
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
@@ -234,10 +234,10 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_vehicleSet, m_vecBoost, "vec_boost", "Vehicle Boost", &g_pGameActions->v_boost);
 	CreateBooleanAction(m_vehicleSet, m_vecAfterburner, "vec_afterburner", "Vehicle Afterburner", &g_pGameActions->v_afterburner);
 	CreateBooleanAction(m_vehicleSet, m_vecBrake, "vec_brake", "Vehicle Brake", &g_pGameActions->v_brake);
-	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use, nullptr, false, true);
+	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use, nullptr, false, false, true);
 	CreateBooleanAction(m_vehicleSet, m_vecHorn, "vec_horn", "Vehicle horn", &g_pGameActions->v_horn);
 	CreateBooleanAction(m_vehicleSet, m_vecLights, "vec_lights", "Vehicle lights", &g_pGameActions->v_lights);
-	CreateBooleanAction(m_vehicleSet, m_vecSwitchSeatView, "vec_switch", "Switch vehicle seat / view", &g_pGameActions->v_changeseat, &g_pGameActions->v_changeview, false);
+	CreateBooleanAction(m_vehicleSet, m_vecSwitchSeatView, "vec_switch", "Switch vehicle seat / view", &g_pGameActions->v_changeseat, &g_pGameActions->v_changeview, false, false);
 
 	XrActionCreateInfo createInfo{ XR_TYPE_ACTION_CREATE_INFO };
 	createInfo.actionType = XR_ACTION_TYPE_POSE_INPUT;
@@ -303,7 +303,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
 	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
-	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze/force");
+	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
@@ -337,7 +337,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
-	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze");
+	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
 	//touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
@@ -360,7 +360,7 @@ void OpenXRInput::SuggestBindings()
 
 
 void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name,
-	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool pressOnRelease)
+	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool sendLongRelease, bool pressOnRelease)
 {
 	if (action.handle)
 	{
@@ -376,6 +376,7 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 	action.onPress = onPress;
 	action.onLongPress = onLongPress;
 	action.sendRelease = sendRelease;
+	action.sendLongRelease = sendLongRelease;
 	action.pressOnRelease = pressOnRelease;
 	action.longPressActive = false;
 }
@@ -628,7 +629,7 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 	}
 	else if (state.changedSinceLastSync && state.currentState == XR_FALSE)
 	{
-		if (action.longPressActive && action.onLongPress && action.sendRelease)
+		if (action.longPressActive && action.onLongPress && action.sendLongRelease)
 		{
 			input->OnAction(*action.onLongPress, eAAM_OnRelease, 0);
 		}
