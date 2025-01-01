@@ -66,6 +66,7 @@ public:
 	
 	void TryGrabWeaponWithOffHand();
 	void DetachOffHandFromWeapon();
+	bool IsOffHandGrabbingWeapon() const { return m_offHandFollowsWeapon; }
 
 	CPlayer* GetLocalPlayer() const;
 

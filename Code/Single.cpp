@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 11:9:2005   15:00 : Created by Márcio Martins
+- 11:9:2005   15:00 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -33,6 +33,7 @@ History:
 
 #include "IRenderer.h"
 #include "IRenderAuxGeom.h"	
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 struct DebugShoot{
@@ -777,7 +778,7 @@ void CSingle::Activate(bool activate)
 
 	ResetRecoil();  
 
-	if(m_pWeapon->IsZoomed())
+	if(m_pWeapon->IsZoomed() || gVR->IsOffHandGrabbingWeapon())
 	{
 		if(activate)
 		{

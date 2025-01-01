@@ -692,12 +692,28 @@ void VRManager::TryGrabWeaponWithOffHand()
 	if (controllerFromWeapon <= 0.3f)
 	{
 		m_offHandFollowsWeapon = true;
+
+		// apply benefits of the flat game's iron sights zoom for recoil and spread
+		weapon->SetCurrentZoomMode(0);
+		if (IZoomMode* zm = weapon->GetZoomMode(weapon->GetCurrentZoomMode()))
+		{
+			zm->ApplyZoomMod(weapon->GetFireMode(weapon->GetCurrentFireMode()));
+		}
 	}
 }
 
 void VRManager::DetachOffHandFromWeapon()
 {
 	m_offHandFollowsWeapon = false;
+	
+	CPlayer* player = GetLocalPlayer();
+	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
+	if (!weapon)
+		return;
+
+	weapon->SetCurrentZoomMode(0);
+	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetRecoilMod();
+	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetSpreadMod();
 }
 
 CPlayer* VRManager::GetLocalPlayer() const
