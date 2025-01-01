@@ -663,6 +663,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
 	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
+	int16 handTermJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R_term" : "hand_L_term");
 
 	// the way this works is that the weapon and thus the hands are already positioned as intended
 	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
@@ -681,6 +682,9 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 		Quat rotDiff = Quat(controllerInWeapon) * target.q.GetInverted();
 		shoulderJoint.q = rotDiff * shoulderJoint.q;
 		target = QuatT(controllerInWeapon);
+
+		// offset by the hand_term rotation, as that is our actual anchor point for the controller position
+		target = target * skeleton->GetRelJointByID(handTermJointId).GetInverted();
 	}
 	
 	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
