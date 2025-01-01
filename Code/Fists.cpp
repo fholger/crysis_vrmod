@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 26:04:2006   18:38 : Created by Márcio Martins
+- 26:04:2006   18:38 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -154,6 +154,9 @@ void CFists::UpdateAnimState(float frameTime)
 // eFAS - Requested anim state
 void CFists::RequestAnimState(EFistAnimState eFAS, bool force /*=false*/)
 {
+	// VR: don't really want these animations, so always go to the relaxed pose
+	if (eFAS != eFAS_NOSTATE)
+		eFAS = eFAS_RELAXED;
 
 	//Only if selected
 	if(!IsSelected() || m_frozen || IsWeaponRaised())
