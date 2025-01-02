@@ -334,7 +334,7 @@ void VRManager::ModifyViewForBinoculars(SViewParams& view)
 	view.position = viewMatrix.GetTranslation();
 }
 
-void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition)
+void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
 		|| g_pGame->GetMenu()->IsMenuActive()
@@ -348,7 +348,20 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (!weapon)
 		return;
 
-	Matrix34 adjustedControllerTransform = GetControllerWeaponTransform(g_pGameCVars->vr_weapon_hand);
+	if (slave)
+	{
+		weapon = dynamic_cast<CWeapon*>(weapon->GetDualWieldSlave());
+		if (!weapon)
+			return;
+	}
+
+	int weaponHand = g_pGameCVars->vr_weapon_hand;
+	if (weapon->IsDualWieldMaster())
+		weaponHand = 1;
+	if (weapon->IsDualWieldSlave())
+		weaponHand = 0;
+
+	Matrix34 adjustedControllerTransform = GetControllerWeaponTransform(weaponHand);
 	// if we are two-handing the weapon and it's not a pistol, apply a two hand orientation
 	if (IsOffHandGrabbingWeapon() && weapon->GetEntity()->GetClass() != CItem::sSOCOMClass)
 	{
@@ -663,7 +676,6 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
 	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
-	int16 handTermJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R_term" : "hand_L_term");
 
 	// the way this works is that the weapon and thus the hands are already positioned as intended
 	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
@@ -674,7 +686,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading())
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading() && !weapon->IsDualWieldSlave())
 	{
 		// off hand is detached from weapon, so position it towards the controller, instead
 		Quat origHandRot = target.q;

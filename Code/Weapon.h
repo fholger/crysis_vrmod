@@ -744,6 +744,8 @@ public:
 
 	Vec3 GetOffHandGrabLocation() const { return m_offHandGrabLocation; }
 
+	void GetFiringOriginAndDirection(Vec3& origin, Vec3& direction);
+
 private:
 	Vec3 m_offHandGrabLocation;
 };

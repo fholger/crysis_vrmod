@@ -3750,17 +3750,10 @@ void CWeapon::CacheRaisePose()
 
 Matrix34 CWeapon::GetInverseGripTransform()
 {
-	if (IsDualWieldMaster() && g_pGameCVars->vr_weapon_hand == 0)
-	{
-		CWeapon* slave = static_cast<CWeapon*>(GetDualWieldSlave());
-		Matrix34 transform = slave->GetSlotHelperRotation(eIGS_FirstPerson, "hand_L_term", false);
-		transform.SetTranslation(slave->GetSlotHelperPos(eIGS_FirstPerson, "hand_L_term", false));
-		transform.InvertFast();
-		return transform;
-	}
-
-	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, "hand_R_term", false);
-	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "hand_R_term", false));
+	const char* slot = IsDualWieldSlave() ? "hand_L_term" : "hand_R_term";
+	
+	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, slot, false);
+	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, slot, false));
 	transform.InvertFast();
 	return transform;
 }
@@ -3786,13 +3779,6 @@ void CWeapon::PostProcessArms()
 
 	if (IsDualWieldSlave())
 	{
-		QuatT newLeftHandPose = CalcHandFromControllerInWeapon(0);
-		QuatT handMoved = newLeftHandPose * skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L")).GetInverted();
-		int weaponBodyId = skeleton->GetJointIDByName("SOCOM_Body");
-		QuatT bodyJoint = skeleton->GetAbsJointByID(weaponBodyId);
-		bodyJoint = handMoved * bodyJoint;
-		skeleton->SetPostProcessQuat(weaponBodyId, skeleton->GetAbsJointByID(skeleton->GetParentIDByID(weaponBodyId)).GetInverted() * bodyJoint);
-
 		HideArm(1);
 	}
 	
@@ -3824,6 +3810,14 @@ QuatT CWeapon::CalcHandFromControllerInWeapon(int side)
 	return target;
 }
 
+void CWeapon::GetFiringOriginAndDirection(Vec3& origin, Vec3& direction)
+{
+	origin = GetSlotHelperPos(CItem::eIGS_FirstPerson, "weapon_term", true);
+	direction = GetEntity()->GetWorldTM().GetColumn1();
+	origin += 0.5f * direction; // avoid collisions with the weapon itself
+}
+
+
 
 void CWeapon::HideArm(int side)
 {
@@ -3836,7 +3830,7 @@ void CWeapon::HideArm(int side)
 		return;
 
 	// hide arm by moving the upper arm joint into nirvana
-	int16 boneId = skeleton->GetJointIDByName(side == 0 ? "upperarm_NEW_L" : "upperarm_R");
+	int16 boneId = skeleton->GetJointIDByName(side == 0 ? "upperarm_L" : "upperarm_R");
 	if (boneId < 0)
 		return;
 	QuatT quat = skeleton->GetRelJointByID(boneId);

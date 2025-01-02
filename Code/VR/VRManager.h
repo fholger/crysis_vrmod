@@ -40,7 +40,7 @@ public:
 	void ModifyViewCamera(int eye, CCamera& cam);
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
 	void ModifyViewForBinoculars(SViewParams& view);
-	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition);
+	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave = false);
 	Matrix34 GetControllerTransform(int side);
 	Matrix34 GetControllerWeaponTransform(int side);
 	Matrix34 GetTwoHandWeaponTransform();

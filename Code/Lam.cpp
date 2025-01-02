@@ -896,6 +896,15 @@ void CLam::UpdateFPLaser(float frameTime, CItem* parent)
 //------------------------------------------------------------------
 void CLam::AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos)
 {
+	if (dynamic_cast<CPlayer*>(parent->GetOwnerActor()))
+	{
+		if (CWeapon* weapon = dynamic_cast<CWeapon*>(parent))
+		{
+			weapon->GetFiringOriginAndDirection(pos, dir);
+			return;
+		}
+	}
+	
 	pos = parent->GetSlotHelperPos(eIGS_FirstPerson,m_laserHelperFP.c_str(),true);
 	Quat   lamRot = Quat(parent->GetSlotHelperRotation(eIGS_FirstPerson,m_laserHelperFP.c_str(),true));
 	dir = -lamRot.GetColumn0();

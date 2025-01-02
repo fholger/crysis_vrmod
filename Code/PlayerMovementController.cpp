@@ -1386,10 +1386,7 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 			CWeapon* weapon = m_pPlayer->GetWeapon(m_pPlayer->GetCurrentItemId());
 			if (weapon)
 			{
-				state.weaponPosition = weapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, "weapon_term", true);
-				//state.fireDirection = weapon->GetSlotHelperRotation(CItem::eIGS_FirstPerson, "weapon_term", true).GetColumn0();
-				state.fireDirection = weapon->GetEntity()->GetWorldRotation().GetColumn1();
-				state.weaponPosition += 0.5f * state.fireDirection;
+				weapon->GetFiringOriginAndDirection(state.weaponPosition, state.fireDirection);
 			}
 		}
 	}
