@@ -739,7 +739,8 @@ private:
 public:
 	virtual Matrix34 GetInverseGripTransform();
 	void PostProcessArms();
-	void HideLeftArm();
+	void HideArm(int side);
+	QuatT CalcHandFromControllerInWeapon(int side);
 
 	Vec3 GetOffHandGrabLocation() const { return m_offHandGrabLocation; }
 

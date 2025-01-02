@@ -677,14 +677,10 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading())
 	{
 		// off hand is detached from weapon, so position it towards the controller, instead
-		Matrix34 controllerTransform = GetWorldControllerWeaponTransform(side);
-		Matrix34 controllerInWeapon = invEntityTrans * controllerTransform;
-		Quat rotDiff = Quat(controllerInWeapon) * target.q.GetInverted();
+		Quat origHandRot = target.q;
+		target = weapon->CalcHandFromControllerInWeapon(side);
+		Quat rotDiff = target.q * origHandRot.GetInverted();
 		shoulderJoint.q = rotDiff * shoulderJoint.q;
-		target = QuatT(controllerInWeapon);
-
-		// offset by the hand_term rotation, as that is our actual anchor point for the controller position
-		target = target * skeleton->GetRelJointByID(handTermJointId).GetInverted();
 	}
 	
 	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
@@ -707,11 +703,11 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, handJoint);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon)
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsDualWield())
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
-	if (side == g_pGameCVars->vr_weapon_hand && dynamic_cast<CFists*>(weapon) != nullptr)
+	if (side == g_pGameCVars->vr_weapon_hand && dynamic_cast<CFists*>(weapon) != nullptr && !weapon->IsDualWield())
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}

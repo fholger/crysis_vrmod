@@ -11,6 +11,8 @@
 #undef min
 #undef max
 #undef small
+#undef DrawText
+#undef GetMessage
 
 using Microsoft::WRL::ComPtr;
 

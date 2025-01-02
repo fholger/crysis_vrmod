@@ -3778,12 +3778,54 @@ void CWeapon::PostProcessArms()
 	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L_term")).t);
 
 	// arm IK
-	gVR->CalcWeaponArmIK(0, skeleton, this);
+	if (!IsDualWieldMaster())
+		gVR->CalcWeaponArmIK(0, skeleton, this);
 	// right arm IK
-	gVR->CalcWeaponArmIK(1, skeleton, this);
+	if (!IsDualWieldSlave())
+		gVR->CalcWeaponArmIK(1, skeleton, this);
+
+	if (IsDualWieldSlave())
+	{
+		QuatT newLeftHandPose = CalcHandFromControllerInWeapon(0);
+		QuatT handMoved = newLeftHandPose * skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L")).GetInverted();
+		int weaponBodyId = skeleton->GetJointIDByName("SOCOM_Body");
+		QuatT bodyJoint = skeleton->GetAbsJointByID(weaponBodyId);
+		bodyJoint = handMoved * bodyJoint;
+		skeleton->SetPostProcessQuat(weaponBodyId, skeleton->GetAbsJointByID(skeleton->GetParentIDByID(weaponBodyId)).GetInverted() * bodyJoint);
+
+		HideArm(1);
+	}
+	
+	if (IsDualWieldMaster())
+	{
+		HideArm(0);
+	}
 }
 
-void CWeapon::HideLeftArm()
+QuatT CWeapon::CalcHandFromControllerInWeapon(int side)
+{
+	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
+	if (!character)
+		return QuatT();
+
+	ISkeletonPose* skeleton = character->GetISkeletonPose();
+	if (!skeleton)
+		return QuatT();
+	
+	int16 handTermJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R_term" : "hand_L_term");
+	
+	Matrix34 controllerTransform = gVR->GetWorldControllerWeaponTransform(side);
+	Matrix34 controllerInWeapon = GetEntity()->GetWorldTM().GetInvertedFast() * controllerTransform;
+	QuatT target = QuatT(controllerInWeapon);
+
+	// offset by the hand_term rotation, as that is our actual anchor point for the controller position
+	target = target * skeleton->GetRelJointByID(handTermJointId).GetInverted();
+
+	return target;
+}
+
+
+void CWeapon::HideArm(int side)
 {
 	ICharacterInstance* character = GetEntity()->GetCharacter(eIGS_FirstPerson);
 	if (!character)
@@ -3793,8 +3835,8 @@ void CWeapon::HideLeftArm()
 	if (!skeleton)
 		return;
 
-	// hide left arm by moving the upper arm joint into nirvana
-	int16 boneId = skeleton->GetJointIDByName("upperarm_NEW_L");
+	// hide arm by moving the upper arm joint into nirvana
+	int16 boneId = skeleton->GetJointIDByName(side == 0 ? "upperarm_NEW_L" : "upperarm_R");
 	if (boneId < 0)
 		return;
 	QuatT quat = skeleton->GetRelJointByID(boneId);
