@@ -7,6 +7,7 @@
 #include "OpenXRRuntime.h"
 
 #include "GameCVars.h"
+#include "VRManager.h"
 #include "VRRenderer.h"
 
 OpenXRRuntime g_xrRuntime;
@@ -273,6 +274,8 @@ void OpenXRRuntime::AwaitFrame()
 
 	if (eventData.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED)
 		HandleSessionStateChange(reinterpret_cast<XrEventDataSessionStateChanged*>(&eventData));
+	if (eventData.type == XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING)
+		HandleSpaceRecalibration(reinterpret_cast<XrEventDataReferenceSpaceChangePending*>(&eventData));
 
 	if (!m_sessionActive)
 		return;
@@ -386,6 +389,13 @@ void OpenXRRuntime::FinishFrame()
 
 	XrResult result = xrEndFrame(m_session, &endInfo);
 	XR_CheckResult(result, "submitting frame", m_instance);
+
+	if (m_recalibrationPending && m_recalibrationTime < m_predictedDisplayTime)
+	{
+		CryLogAlways("XR runtime space recalibration - reset view\n");
+		gVR->RecalibrateView();
+		m_recalibrationPending = false;
+	}
 }
 
 void OpenXRRuntime::Update()
@@ -607,6 +617,12 @@ void OpenXRRuntime::HandleSessionStateChange(XrEventDataSessionStateChanged* eve
 		Shutdown();
 		break;
 	}
+}
+
+void OpenXRRuntime::HandleSpaceRecalibration(XrEventDataReferenceSpaceChangePending* event)
+{
+	m_recalibrationPending = true;
+	m_recalibrationTime = event->changeTime;
 }
 
 void OpenXRRuntime::CreateStereoSwapchain(int width, int height)

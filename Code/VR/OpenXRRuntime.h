@@ -63,8 +63,12 @@ private:
 	float m_hudDisplayWidth = 2;
 	float m_hudDisplayHeight = 2;
 
+	bool m_recalibrationPending = false;
+	XrTime m_recalibrationTime = 0;
+
 	bool CreateInstance();
 	void HandleSessionStateChange(XrEventDataSessionStateChanged* event);
+	void HandleSpaceRecalibration(XrEventDataReferenceSpaceChangePending* event);
 	void CreateStereoSwapchain(int width, int height);
 	void CreateHudSwapchain(int width, int height);
 };
