@@ -1125,9 +1125,6 @@ void CHUD::UpdateVoiceChat()
 
 void CHUD::UpdateCrosshairVisibility()
 {
-	m_pHUDCrosshair->SetOpacity(0);
-	return;
-
 	// marcok: don't touch this, please
 	if (g_pGameCVars->goc_enable)
 	{

@@ -8,7 +8,7 @@ Description: Crosshair HUD object (refactored from old HUD code)
 
 -------------------------------------------------------------------------
 History:
-- 15:05:2007  11:00 : Created by Jan Müller
+- 15:05:2007  11:00 : Created by Jan Mï¿½ller
 
 *************************************************************************/
 
@@ -272,6 +272,8 @@ void CHUDCrosshair::SetCrosshair(int iCrosshair)
 {
 	if(g_pGameCVars->g_difficultyLevel>3 && !gEnv->bMultiplayer)
 		iCrosshair = 0;
+
+	iCrosshair = 0; // not desired in VR
 
 	iCrosshair = MAX(0,iCrosshair);
 	iCrosshair = MIN(13,iCrosshair);
