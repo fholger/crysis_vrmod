@@ -5,6 +5,7 @@
 #include "Fists.h"
 #include "GameCVars.h"
 #include "HandPoses.h"
+#include "Hooks.h"
 #include "OpenXRRuntime.h"
 #include "VRRenderer.h"
 #include "Weapon.h"
@@ -12,6 +13,19 @@
 
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
+
+int AI_SmartObjectEvent_Hook(IAISystem* self, const char* event, IEntity*& user, IEntity*& object, const Vec3* pExtraPoint, bool bHighPriority)
+{
+	CPlayer* player = gVR->GetLocalPlayer();
+	if (player && (player->GetEntity() == user || player->GetEntity() == object))
+	{
+		if (strcmp("OnUsed", event) == 0 || strcmp("OnUsedRelease", event) == 0)
+		{
+			player->SignalUsedEntity();
+		}
+	}
+	return hooks::CallOriginal(AI_SmartObjectEvent_Hook)(self, event, user, object, pExtraPoint, bHighPriority);
+}
 
 VRManager::~VRManager()
 {
@@ -34,6 +48,8 @@ bool VRManager::Init()
 {
 	if (m_initialized)
 		return true;
+
+	hooks::InstallVirtualFunctionHook("SmartObjectEvent", gEnv->pAISystem, &IAISystem::SmartObjectEvent, &AI_SmartObjectEvent_Hook);
 
 	m_initialized = true;
 	return true;

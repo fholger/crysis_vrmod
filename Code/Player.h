@@ -387,7 +387,7 @@ public:
 	virtual void SetViewInVehicle(Quat viewRotation);
 	virtual Vec3 GetVehicleViewDir() const { return m_vehicleViewDir; }
 
-	virtual void SupressViewBlending() { m_viewBlending = false; };
+	virtual void SupressViewBlending() { m_viewBlending = false; }
 
 	Vec3 GetLastRequestedVelocity() const { return m_lastRequestedVelocity; }
 	void SetDeathTimer() { m_fDeathTime = gEnv->pTimer->GetFrameStartTime().GetSeconds(); }
@@ -863,8 +863,14 @@ public:
 	IDebugHistoryManager* m_pDebugHistoryManager;
 	void DebugGraph_AddValue(const char* id, float value) const;
 
+	void SignalUsedEntity() { m_wasEntityUsed = true; }
+	bool WasEntityUsed() const { return m_wasEntityUsed; }
+	void ClearUsedEntityFlag() { m_wasEntityUsed = false; }
+	
 private:
 	int m_roomscaleMovementPause = 0;
+
+	bool m_wasEntityUsed = false;
 };
 
 

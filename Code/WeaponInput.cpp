@@ -61,6 +61,7 @@ void CWeapon::RegisterActions()
 		const CGameActions& actions = g_pGame->Actions();
 
 		ADD_HANDLER(attack1,OnActionAttack);
+		ADD_HANDLER(attack2,OnActionAttack2);
 		ADD_HANDLER(reload,OnActionReload);
 		ADD_HANDLER(special,OnActionSpecial);
 		ADD_HANDLER(modify,OnActionModify);
@@ -186,30 +187,30 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 				m_fire_alternation = !m_fire_alternation;
 				m_requestedFire = true;
 
-				if (!m_fire_alternation && dualWield->OutOfAmmo(false) && dualWield->CanReload())
+				if (m_fireOffHand && dualWield->OutOfAmmo(false) && dualWield->CanReload())
 				{
 					dualWield->Reload();
 					return true;
 				}
-				else if(m_fire_alternation && OutOfAmmo(false) && CanReload())
+				else if(!m_fireOffHand && OutOfAmmo(false) && CanReload())
 				{
 					Reload();
 					return true;
 				}
 
-				if (m_fire_alternation || (!dualWield->CanFire() || !dualWield->IsSelected()))
+				if (!m_fireOffHand) // || (!dualWield->CanFire() || !dualWield->IsSelected()))
 				{
 					if(!IsWeaponRaised() && CanFire())
 						StartFire();
-					else if(!dualWield->IsWeaponRaised() && dualWield->IsSelected())
-						dualWield->StartFire();
+					//else if(!dualWield->IsWeaponRaised() && dualWield->IsSelected())
+					//	dualWield->StartFire();
 				}
 				else if (dualWield->CanFire())
 				{
 					if(!dualWield->IsWeaponRaised() && dualWield->CanFire())
 						dualWield->StartFire();
-					else if(!IsWeaponRaised())
-						StartFire();
+					//else if(!IsWeaponRaised())
+					//	StartFire();
 				}
 
 			}
@@ -231,6 +232,19 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 	}
 
 	return true;
+}
+
+bool CWeapon::OnActionAttack2(EntityId actorId, const ActionId& actionId, int activationMode, float value)
+{
+	if (IsDualWieldMaster())
+	{
+		m_fireOffHand = true;
+		bool result = OnActionAttack(actorId, actionId, activationMode, value);
+		m_fireOffHand = false;
+		return result;
+	}
+
+	return false;
 }
 
 //---------------------------------------------------------

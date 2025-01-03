@@ -3228,7 +3228,7 @@ EntityId CSingle::RemoveProjectileId()
 //----------------------------------------------------------------------------------
 void CSingle::AutoFire()
 {
-	if(!m_pWeapon->IsDualWield())
+	if(!m_pWeapon->IsDualWield() || m_pWeapon->GetOwnerActor() == gVR->GetLocalPlayer())
 		Shoot(true);
 	else
 	{

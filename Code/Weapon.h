@@ -715,6 +715,7 @@ private:
 	void  RegisterActions();
 
 	bool OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value);
+	bool OnActionAttack2(EntityId actorId, const ActionId& actionId, int activationMode, float value);
 	bool OnActionReload(EntityId actorId, const ActionId& actionId, int activationMode, float value);
 	bool OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value);
 	bool OnActionModify(EntityId actorId, const ActionId& actionId, int activationMode, float value);
@@ -748,6 +749,7 @@ public:
 
 private:
 	Vec3 m_offHandGrabLocation;
+	bool m_fireOffHand = false;
 };
 
 

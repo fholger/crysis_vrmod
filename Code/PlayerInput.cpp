@@ -509,6 +509,8 @@ void CPlayerInput::OnAction( const ActionId& actionId, int activationMode, float
 	if(pOffHand && pOffHand->IsSelected())
 		filterOut = false;
 
+	m_pPlayer->ClearUsedEntityFlag();
+
 	//send the onAction to scripts, after filter the range of actions. for now just use and hold
 	if (filterOut && hudFilterOut)
 	{
@@ -546,6 +548,12 @@ void CPlayerInput::OnAction( const ActionId& actionId, int activationMode, float
 		}
 
 		gEnv->pScriptSystem->ReleaseFunc(scriptOnAction);
+	}
+
+	if (!m_pPlayer->WasEntityUsed() && (actionId == actions.use || actionId == actions.xi_use))
+	{
+		// reinterpret as potential attack for dual wield weapon
+		OnAction(actions.attack2, activationMode, value);
 	}
 
 	{
