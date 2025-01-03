@@ -550,7 +550,7 @@ void CPlayerInput::OnAction( const ActionId& actionId, int activationMode, float
 		gEnv->pScriptSystem->ReleaseFunc(scriptOnAction);
 	}
 
-	if (!m_pPlayer->WasEntityUsed() && (actionId == actions.use || actionId == actions.xi_use))
+	if (filterOut && hudFilterOut && !m_pPlayer->WasEntityUsed() && (actionId == actions.use || actionId == actions.xi_use))
 	{
 		// reinterpret as potential attack for dual wield weapon
 		OnAction(actions.attack2, activationMode, value);
