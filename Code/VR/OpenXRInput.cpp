@@ -62,7 +62,6 @@ public:
 				finalBinding.replace(pos, 2, "/y");
 		}
 
-		CryLogAlways("Final binding path: %s", finalBinding.c_str());
 		XrPath bindingPath;
 		XR_CheckResult(xrStringToPath(m_instance, finalBinding.c_str(), &bindingPath), "string to path");
 		m_bindings.push_back({ action, bindingPath });
@@ -146,7 +145,7 @@ void OpenXRInput::Update()
 		m_hudMousePosSamples[m_curMouseSampleIdx].y = pointerY;
 		m_curMouseSampleIdx = (m_curMouseSampleIdx + 1) % MOUSE_SAMPLE_COUNT;
 
-		Vec2 smoothedMousePos;
+		Vec2 smoothedMousePos (0, 0);
 		for (int i = 0; i < MOUSE_SAMPLE_COUNT; ++i)
 		{
 			smoothedMousePos += m_hudMousePosSamples[i];
@@ -498,7 +497,7 @@ void OpenXRInput::UpdatePlayerMovement()
 			yaw = clamp(movementDiff.Dot(hmdRight) / MaxMove, -1.f, 1.f);
 			pitch = clamp(movementDiff.Dot(up) / MaxMove, -1.f, 1.f);
 		}
-		
+
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
 		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
 		return;
@@ -569,7 +568,7 @@ void OpenXRInput::UpdateGripAmount()
 		getInfo.action = m_grip[side];
 		xrGetActionStateFloat(m_session, &getInfo, &state);
 		m_gripAmount[side] = state.isActive ? state.currentState : 0;
-		
+
 		getInfo.action = m_trigger[side];
 		xrGetActionStateFloat(m_session, &getInfo, &state);
 		m_triggerAmount[side] = state.isActive ? state.currentState : 0;
@@ -581,15 +580,15 @@ void OpenXRInput::UpdateGripAmount()
 	IPlayerInput* input = pPlayer->GetPlayerInput();
 	if (!input)
 		return;
-	
+
 	const float gripActivationAmount = 0.6f;
 	if (m_gripAmount[offHand] >= gripActivationAmount && prevOffHandGrip < gripActivationAmount)
 	{
-		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnPress, 0);	
+		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnPress, 0);
 	}
 	else if (m_gripAmount[offHand] < gripActivationAmount && prevOffHandGrip >= gripActivationAmount)
 	{
-		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnRelease, 0);	
+		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnRelease, 0);
 	}
 }
 
