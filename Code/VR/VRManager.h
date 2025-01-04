@@ -35,7 +35,7 @@ public:
 
 	Vec2i GetRenderSize() const;
 
-	Vec3 EstimateShoulderPosition(int side);
+	Vec3 EstimateShoulderPosition(int side, const Vec3& handPos, float minDistance, float maxDistance);
 
 	void ModifyViewCamera(int eye, CCamera& cam);
 	void ModifyViewCameraFor3DCinema(int eye, CCamera& cam);
@@ -67,7 +67,7 @@ public:
 	void SetHudAttachedToOffHand();
 
 	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
-	
+
 	void TryGrabWeaponWithOffHand();
 	void DetachOffHandFromWeapon();
 	bool IsOffHandGrabbingWeapon() const { return m_offHandFollowsWeapon; }

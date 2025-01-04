@@ -214,7 +214,7 @@ Vec2i VRManager::GetRenderSize() const
 	return renderSize;
 }
 
-Vec3 VRManager::EstimateShoulderPosition(int side)
+Vec3 VRManager::EstimateShoulderPosition(int side, const Vec3& handPos, float minDistance, float maxDistance)
 {
 	CPlayer *player = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (!player)
@@ -223,7 +223,29 @@ Vec3 VRManager::EstimateShoulderPosition(int side)
 	CCamera view = gVRRenderer->GetCurrentViewCamera();
 	ModifyViewCamera(side, view);
 
-	return view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, +0.05f, -0.3f);
+	Vec3 estimatedShoulderPos = view.GetMatrix() * Vec3((-1.f + 2.f * side) * 0.2f, +0.05f, -0.3f);
+	float distance = handPos.GetDistance(estimatedShoulderPos);
+	Vec3 handToShoulderDir = (estimatedShoulderPos - handPos).GetNormalized();
+
+	if (distance < minDistance)
+	{
+		// we'll need to adjust the shoulder position, but be careful that we don't accidentally put the shoulder
+		// in the player's face if the hand is behind the head
+		// move shoulder back from head
+		Vec3 fwd = view.GetMatrix().GetColumn1();
+		float angle = cry_acosf(fwd.Dot(handToShoulderDir));
+		float moveAmount = cry_cosf(angle) * distance + cry_sqrtf_fast(minDistance * minDistance - distance * distance * cry_sinf(angle) * cry_sinf(angle));
+		estimatedShoulderPos -= moveAmount * fwd;
+
+		distance = handPos.GetDistance(estimatedShoulderPos);
+	}
+
+	if (distance > maxDistance)
+	{
+		estimatedShoulderPos = handPos + handToShoulderDir * maxDistance;
+	}
+
+	return estimatedShoulderPos;
 }
 
 void VRManager::ModifyViewCamera(int eye, CCamera& cam)
@@ -428,7 +450,7 @@ Matrix34 VRManager::GetTwoHandWeaponTransform()
 
 	// Weapon bones are offset to what our grip pose is, so we need to rotate the pose a bit
 	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2) * Matrix33::CreateRotationY(-gf_PI/2);
-	
+
 	return mainHandTransform * correction;
 }
 
@@ -685,19 +707,15 @@ void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
 
 void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon)
 {
-	Matrix34 invEntityTrans = weapon->GetEntity()->GetWorldTM().GetInvertedFast();
-	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(side);
-	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
-	
+	// the way this works is that the weapon and thus the hands are already positioned as intended
+	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
+	// ends up in its previous position
+
 	int16 shoulderJointId = skeleton->GetJointIDByName(side == 1 ? "upperarm_R" : "upperarm_L");
 	int16 elbowJointId = skeleton->GetJointIDByName(side == 1 ? "forearm_R" : "forearm_L");
 	int16 handJointId = skeleton->GetJointIDByName(side == 1 ? "hand_R" : "hand_L");
 
-	// the way this works is that the weapon and thus the hands are already positioned as intended
-	// we merely set a new base position for the shoulder joint and then IK solve such that the hand joint
-	// ends up in its previous position
 	QuatT shoulderJoint = skeleton->GetAbsJointByID(shoulderJointId);
-	shoulderJoint.t = shoulderInWeaponPos;
 	QuatT elbowJoint = skeleton->GetDefaultRelJointByID(elbowJointId);
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
@@ -710,13 +728,17 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 		Quat rotDiff = target.q * origHandRot.GetInverted();
 		shoulderJoint.q = rotDiff * shoulderJoint.q;
 	}
-	
-	float maxDistance = elbowJoint.t.GetLength() + handJoint.t.GetLength();
-	if (target.t.GetDistance(shoulderInWeaponPos) > maxDistance)
-	{
-		Vec3 dir = (shoulderInWeaponPos - target.t).GetNormalized();
-		shoulderJoint.t = target.t + dir * maxDistance;
-	}
+
+	// if actual hand is too far from the estimated shoulder position, we need to move the whole arm forward
+	float maxDistance = 0.99f * (elbowJoint.t.GetLength() + handJoint.t.GetLength());
+	// also require a min distance / angle of > 90° at the elbow, since otherwise the IK can look really off
+	// better to just move back the whole arm then
+	float minDistance = 0.8f * cry_sqrtf_fast(elbowJoint.t.GetLengthSquared() + handJoint.t.GetLengthSquared());
+
+	Vec3 shoulderWorldPos = gVR->EstimateShoulderPosition(side, weapon->GetEntity()->GetWorldTM().TransformPoint(target.t), minDistance, maxDistance);
+	Matrix34 invEntityTrans = weapon->GetEntity()->GetWorldTM().GetInvertedFast();
+	Vec3 shoulderInWeaponPos = invEntityTrans.TransformPoint(shoulderWorldPos);
+	shoulderJoint.t = shoulderInWeaponPos;
 
 	TwoBoneIKSolve(shoulderJoint, elbowJoint, handJoint, target.t);
 
@@ -749,7 +771,7 @@ void VRManager::TryGrabWeaponWithOffHand()
 		return;
 	if (weapon->IsDualWield() || dynamic_cast<CFists*>(weapon) != nullptr || dynamic_cast<COffHand*>(weapon) != nullptr)
 		return;
-	
+
 	Vec3 controllerPos = GetWorldControllerWeaponTransform(1 - g_pGameCVars->vr_weapon_hand).GetTranslation();
 	float controllerFromWeapon = weapon->GetOffHandGrabLocation().GetDistance(controllerPos);
 
@@ -769,7 +791,7 @@ void VRManager::TryGrabWeaponWithOffHand()
 void VRManager::DetachOffHandFromWeapon()
 {
 	m_offHandFollowsWeapon = false;
-	
+
 	CPlayer* player = GetLocalPlayer();
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
 	if (!weapon)
