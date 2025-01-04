@@ -886,7 +886,7 @@ void CHUDVehicleInterface::ShowVehicleInterface(EVehicleHud type, bool forceFlas
 	sprintf(szAltitude,"%.0f",0.f);
 	sprintf(szDistance,"%.0f",0.f);
 
-	float fAltitude;
+	float fAltitude = 0;
 
 	if(((int)fSpeed) != m_statsSpeed)
 	{
