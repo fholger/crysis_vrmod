@@ -6,7 +6,7 @@
 #define __GAMECVARS_H__
 
 struct SCVars
-{	
+{
 	static const float v_altitudeLimitDefault()
 	{
 		return 600.0f;
@@ -97,7 +97,7 @@ struct SCVars
 	int		i_unlimitedammo;
 	int   i_iceeffects;
 	int		i_lighteffectsShadows;
-  
+
 	float int_zoomAmount;
 	float int_zoomInTime;
 	float int_moveZoomTime;
@@ -145,7 +145,7 @@ struct SCVars
 	float g_playerLowHealthThreshold;
 	float g_playerLowHealthThreshold2;
 	float g_playerLowHealthThresholdMultiplayer;
-	float g_playerLowHealthThreshold2Multiplayer;	
+	float g_playerLowHealthThreshold2Multiplayer;
 	int		g_punishFriendlyDeaths;
 	int		g_enableMPStealthOMeter;
 	int   g_meleeWhileSprinting;
@@ -197,7 +197,7 @@ struct SCVars
 	int		g_fraglimit;
   int		g_fraglead;
   float g_friendlyfireratio;
-  int   g_revivetime; 
+  int   g_revivetime;
   int   g_autoteambalance;
 	int		g_autoteambalance_threshold;
 	int   g_minplayerlimit;
@@ -218,7 +218,7 @@ struct SCVars
 	*/
 	float g_trooperTentacleAnimBlend;
 	float g_trooperBankingMultiplier;
-	float g_alienPhysicsAnimRatio;  
+	float g_alienPhysicsAnimRatio;
 
 	int		g_debug_fscommand;
 	int		g_debugDirectMPMenu;
@@ -245,12 +245,12 @@ struct SCVars
 	int		aln_debug_movement;
 	ICVar*aln_debug_filter;
 
-	int   v_profileMovement;  
+	int   v_profileMovement;
 	int   v_draw_suspension;
 	int   v_draw_slip;
-	int   v_pa_surface;    
-	int   v_invertPitchControl;  
-	float v_wind_minspeed; 
+	int   v_pa_surface;
+	int   v_invertPitchControl;
+	float v_wind_minspeed;
 	float v_sprintSpeed;
 	int   v_dumpFriction;
 	int   v_rockBoats;
@@ -287,7 +287,7 @@ struct SCVars
 	float pl_fallDamage_Strength_SpeedFatal;
 	float pl_fallDamage_SpeedBias;
 	int pl_debugFallDamage;
-	
+
   float pl_zeroGSpeedMultSpeed;
 	float pl_zeroGSpeedMultSpeedSprint;
 	float pl_zeroGSpeedMultNormal;
@@ -373,7 +373,7 @@ struct SCVars
 
   int aim_assistCrosshairSize;
   int aim_assistCrosshairDebug;
-		
+
 	float g_combatFadeTime;
 	float g_combatFadeTimeDelay;
 	float g_battleRange;
@@ -394,7 +394,7 @@ struct SCVars
   int   i_debug_turrets;
   int   i_debug_sounds;
 	int		i_debug_mp_flowgraph;
-  
+
 	float h_turnSpeed;
 	int		h_useIK;
 	int		h_drawSlippers;
@@ -445,6 +445,8 @@ struct SCVars
 	int vr_movement_hand;
 	float vr_weapon_angle_offset;
 	int vr_enable_crosshair;
+	int vr_haptics_enabled;
+	float vr_haptics_strength;
 
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;

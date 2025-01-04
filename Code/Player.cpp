@@ -68,6 +68,7 @@ History:
 
 #include "Binocular.h"
 #include "SoundMoods.h"
+#include "VR/OpenXRRuntime.h"
 #include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
@@ -4899,14 +4900,16 @@ void CPlayer::Landed(float fallSpeed)
 	{
 		m_pNanoSuit->PlaySound(ESound_GBootsLanded, min(fabsf((m_stats.velocity.z/10.0f)), 1.0f));
 		if(IsClient())
-			if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.1f, 0.2f, 1.0f*clamp_tpl(fallSpeed*0.1f, 0.0f, 1.0f) ) );
+			//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.1f, 0.2f, 1.0f*clamp_tpl(fallSpeed*0.1f, 0.0f, 1.0f) ) );
+			gXR->GetInput()->SendHapticEvent(0.1f, fallSpeed);
 	}
 	else if(IsClient())
 	{
 		if(fallSpeed > 7.0f)
 			PlaySound(ESound_Fall_Drop);
-		if (gEnv->pInput)
-			gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.09f + (fallSpeed * 0.01f), 0.5f, 0.9f*clamp_tpl(fallSpeed*0.2f, 0.1f, 1.0f) ) );
+		//if (gEnv->pInput)
+		//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.09f + (fallSpeed * 0.01f), 0.5f, 0.9f*clamp_tpl(fallSpeed*0.2f, 0.1f, 1.0f) ) );
+		gXR->GetInput()->SendHapticEvent(0.09f + (fallSpeed * 0.01f), 0.2f*fallSpeed);
 	}
 }
 
@@ -5379,17 +5382,20 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 	case ESound_Jump:
 		soundName = "Sounds/physics:player_foley:jump_feedback";
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
-		if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.05f, 0.1f) );
+		//if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.05f, 0.1f) );
+		if (play) gXR->GetInput()->SendHapticEvent(0.05f, 0.1f);
 		break;
 	case ESound_Fall_Drop:
 		soundName = "Sounds/physics:player_foley:bodyfall_feedback";
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
-		if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.2f, 0.3f, 0.2f) );
+		//if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.2f, 0.3f, 0.2f) );
+		if (play) gXR->GetInput()->SendHapticEvent(0.2f, 0.3f);
 		break;
 	case ESound_Melee:
 		soundName = "Sounds/physics:player_foley:melee_feedback";
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
-		if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.6f, 0.2f) );
+		//if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.6f, 0.2f) );
+		if (play) gXR->GetInput()->SendHapticEvent(0.15f, 0.6f);
 		break;
 	case ESound_Fear:
 		soundName = "Sounds/physics:player_foley:alien_feedback";

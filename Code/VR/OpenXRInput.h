@@ -1,6 +1,7 @@
 #pragma once
 #include <openxr/openxr.h>
 
+#include "EVRHand.h"
 #include "IActionMapManager.h"
 
 class OpenXRInput
@@ -18,6 +19,11 @@ public:
 	void DisableHandMovementForQuickMenu();
 
 	float GetGripAmount(int side) const;
+
+	void SendHapticEvent(EVRHand hand, float duration, float amplitude);
+	void SendHapticEvent(float duration, float amplitude);
+	void StopHaptics(EVRHand hand);
+	void StopHaptics();
 
 private:
 	struct BooleanAction
@@ -45,6 +51,7 @@ private:
 	XrAction m_jumpCrouch = nullptr;
 	XrAction m_grip[2] = {};
 	XrAction m_trigger[2] = {};
+	XrAction m_haptics[2] = {};
 	BooleanAction m_primaryFire;
 	BooleanAction m_sprint;
 	BooleanAction m_reload;

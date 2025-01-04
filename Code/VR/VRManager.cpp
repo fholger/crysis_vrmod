@@ -807,6 +807,21 @@ CPlayer* VRManager::GetLocalPlayer() const
 	return static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 }
 
+int VRManager::GetHandSide(EVRHand hand) const
+{
+	switch (hand)
+	{
+	case LEFT_HAND: return 0;
+	case RIGHT_HAND: return 1;
+	case WEAPON_HAND: return g_pGameCVars->vr_weapon_hand;
+	case OFF_HAND: return 1 - g_pGameCVars->vr_weapon_hand;
+	case MOVEMENT_HAND: return g_pGameCVars->vr_movement_hand;
+	case ROTATION_HAND: return 1 - g_pGameCVars->vr_movement_hand;
+	}
+
+	return 0;
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	m_hudTexture.Reset();

@@ -11,6 +11,8 @@
 #include "Projectile.h"
 #include "GameRules.h"
 #include "GameCVars.h"
+#include "VR/OpenXRRuntime.h"
+#include "VR/VRManager.h"
 
 CShotgun::CShotgun(void)
 {
@@ -138,7 +140,7 @@ void CShotgun::ReloadShell(int zoomed)
 		(isAI || (m_pWeapon->GetInventoryAmmoCount(m_fireparams.ammo_type_class) > 0)) ) // AI has unlimited ammo
 	{
 		m_max_shells --;
-		
+
 		// reload a shell
 		m_pWeapon->PlayAction(g_pItemStrings->reload_shell, 0, false, CItem::eIPAF_Default|CItem::eIPAF_RepeatLastFrame|CItem::eIPAF_RestartAnimation);
 		uint animTime = m_pWeapon->GetCurrentAnimationTime(CItem::eIGS_FirstPerson);
@@ -226,7 +228,7 @@ public:
 	{
 		_pWeapon = wep;
 	}
-	void execute(CItem *item) 
+	void execute(CItem *item)
 	{
 		_pWeapon->Reload();
 	}
@@ -262,7 +264,7 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 			m_pWeapon->PlayAction(m_actions.empty_clip);
 			//Auto reload
 			m_pWeapon->Reload();
-		}	
+		}
 		return false;
 	}
 	else if(m_pWeapon->IsWeaponLowered())
@@ -275,7 +277,7 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 	{
 		if(m_pWeapon->IsBusy())
 			m_pWeapon->SetBusy(false);
-		
+
 		if(CanFire(true) && !m_break_reload)
 		{
 			m_break_reload = true;
@@ -304,7 +306,7 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 	Vec3 dir;
 
 	CheckNearMisses(hit, pos, fdir, WEAPON_HIT_RANGE, m_shotgunparams.spread);
-	
+
 	bool serverSpawn = m_pWeapon->IsServerSpawn(ammo);
 	uint16 seqn=m_pWeapon->GenerateShootSeqN();
 	uint16 seqr=m_shotgunparams.pellets-1;
@@ -314,9 +316,9 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 		CProjectile *pAmmo = m_pWeapon->SpawnAmmo(ammo, false);
 		if (pAmmo)
 		{
-			dir = ApplySpread(fdir, m_shotgunparams.spread);      
-      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_fireparams.hit_type.c_str());			
-      
+			dir = ApplySpread(fdir, m_shotgunparams.spread);
+      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_fireparams.hit_type.c_str());
+
 			pAmmo->SetParams(m_pWeapon->GetOwnerId(), m_pWeapon->GetHostId(), m_pWeapon->GetEntityId(), m_pWeapon->GetFireModeIdx(GetName()),
 				m_shotgunparams.pelletdamage, hitTypeId);
 			pAmmo->SetSequence(m_pWeapon->GetShootSeqN());
@@ -371,8 +373,13 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 			}
 		}
 		if(pActor->IsClient())
-			if (gEnv->pInput) 
-				gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.0f, fabsf(m_recoilparams.back_impulse)*3.0f) );
+		{
+			//if (gEnv->pInput)
+			//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.0f, fabsf(m_recoilparams.back_impulse)*3.0f) );
+			gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.15f, fabsf(m_recoilparams.back_impulse)*3.0f);
+			if (gVR->IsOffHandGrabbingWeapon())
+				gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.15f, fabsf(m_recoilparams.back_impulse)*3.0f);
+		}
 	}
 	if (m_fireparams.clip_size != -1  && !g_pGameCVars->i_unlimitedammo)
 	{
@@ -432,7 +439,7 @@ void CShotgun::NetShootEx(const Vec3 &pos, const Vec3 &dir, const Vec3 &vel, con
 		if (pAmmo)
 		{
 			pdir = ApplySpread(dir, m_shotgunparams.spread);
-      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_fireparams.hit_type.c_str());			
+      int hitTypeId = g_pGame->GetGameRules()->GetHitTypeId(m_fireparams.hit_type.c_str());
 
 			pAmmo->SetParams(m_pWeapon->GetOwnerId(), m_pWeapon->GetHostId(), m_pWeapon->GetEntityId(), m_pWeapon->GetFireModeIdx(GetName()),
 				m_shotgunparams.pelletdamage, hitTypeId);

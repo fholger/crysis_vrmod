@@ -214,6 +214,47 @@ float OpenXRInput::GetGripAmount(int side) const
 	return max(m_gripAmount[side], m_triggerAmount[side]);
 }
 
+void OpenXRInput::SendHapticEvent(EVRHand hand, float duration, float amplitude)
+{
+	if (!g_pGameCVars->vr_haptics_enabled)
+		return;
+
+	int side = gVR->GetHandSide(hand);
+
+	XrHapticActionInfo hapticInfo{ XR_TYPE_HAPTIC_ACTION_INFO };
+	hapticInfo.action = m_haptics[side];
+	hapticInfo.subactionPath = XR_NULL_PATH;
+	XrHapticVibration hapticEvent{ XR_TYPE_HAPTIC_VIBRATION };
+	hapticEvent.duration = 1000000000.f * duration;
+	hapticEvent.amplitude = clamp(amplitude * g_pGameCVars->vr_haptics_strength, 0.f, 1.f);
+	hapticEvent.frequency = XR_FREQUENCY_UNSPECIFIED;
+
+	xrApplyHapticFeedback(m_session, &hapticInfo, reinterpret_cast<XrHapticBaseHeader*>(&hapticEvent));
+}
+
+void OpenXRInput::SendHapticEvent(float duration, float amplitude)
+{
+	SendHapticEvent(LEFT_HAND, duration, amplitude);
+	SendHapticEvent(RIGHT_HAND, duration, amplitude);
+}
+
+void OpenXRInput::StopHaptics(EVRHand hand)
+{
+	int side = gVR->GetHandSide(hand);
+
+	XrHapticActionInfo hapticInfo{ XR_TYPE_HAPTIC_ACTION_INFO };
+	hapticInfo.action = m_haptics[side];
+	hapticInfo.subactionPath = XR_NULL_PATH;
+
+	xrStopHapticFeedback(m_session, &hapticInfo);
+}
+
+void OpenXRInput::StopHaptics()
+{
+	StopHaptics(LEFT_HAND);
+	StopHaptics(RIGHT_HAND);
+}
+
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, m_primaryFire, "primary_fire", "Primary Fire", &g_pGameActions->attack1);
@@ -284,6 +325,14 @@ void OpenXRInput::CreateInputActions()
 	strcpy(createInfo.actionName, "rtrigger");
 	strcpy(createInfo.localizedActionName, "Right Trigger");
 	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_trigger[1]), "creating movement action");
+
+	createInfo.actionType = XR_ACTION_TYPE_VIBRATION_OUTPUT;
+	strcpy(createInfo.actionName, "lhaptics");
+	strcpy(createInfo.localizedActionName, "Left Haptics");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_haptics[0]), "creating haptics output action");
+	strcpy(createInfo.actionName, "rhaptics");
+	strcpy(createInfo.localizedActionName, "Right Haptics");
+	XR_CheckResult(xrCreateAction(m_ingameSet, &createInfo, &m_haptics[1]), "creating haptics output action");
 }
 
 void OpenXRInput::SuggestBindings()
@@ -320,6 +369,8 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
 	knuckles.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
 	knuckles.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
+	knuckles.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
+	knuckles.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 
 	SuggestedProfileBinding touch(m_instance, true);
@@ -354,6 +405,8 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
 	touch.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
 	touch.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
+	touch.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
+	touch.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 

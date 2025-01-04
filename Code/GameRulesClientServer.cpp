@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 23:5:2006   9:27 : Created by Márcio Martins
+- 23:5:2006   9:27 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -34,6 +34,8 @@ History:
 #include "ShotValidator.h"
 
 #include <StlUtils.h>
+
+#include "VR/OpenXRRuntime.h"
 
 
 //------------------------------------------------------------------------
@@ -74,7 +76,8 @@ void CGameRules::ClientHit(const HitInfo &hitInfo)
 	}
 
 	if(pActor == pClientActor)
-		if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f * hitInfo.damage * 0.01f, hitInfo.damage * 0.02f, 0.0f));
+		//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f * hitInfo.damage * 0.01f, hitInfo.damage * 0.02f, 0.0f));
+		gXR->GetInput()->SendHapticEvent(0.5f * hitInfo.damage * 0.01f, hitInfo.damage * 0.02f);
 
 /*	if (gEnv->pAISystem && !gEnv->bMultiplayer)
 	{
@@ -206,7 +209,7 @@ void CGameRules::ServerHit(const HitInfo &hitInfo)
 			}
 
 			info.damage=pWeapon->GetDamage(info.fmId, distance);
-			
+
 			if (info.type!=GetHitTypeId(pWeapon->GetDamageType(info.fmId)))
 			{
 //				CryLogAlways("WARNING: MISMATCHING DAMAGE TYPE!! (dmg: %d   weapon: %s   fmId: %d   type: %d)", info.damage, pWeapon->GetEntity()->GetClass()->GetName(), info.fmId, info.type);
@@ -298,22 +301,22 @@ void CGameRules::ServerExplosion(const ExplosionInfo &explosionInfo)
 
 //------------------------------------------------------------------------
 void CGameRules::ProcessServerExplosion(const ExplosionInfo &explosionInfo)
-{  
+{
   //CryLog("[ProcessServerExplosion] (frame %i) shooter %i, damage %.0f, radius %.1f", gEnv->pRenderer->GetFrameID(), explosionInfo.shooterId, explosionInfo.damage, explosionInfo.radius);
 
   GetGameObject()->InvokeRMI(ClExplosion(), explosionInfo, eRMI_ToRemoteClients);
-  ClientExplosion(explosionInfo);  
+  ClientExplosion(explosionInfo);
 }
 
 //------------------------------------------------------------------------
 void CGameRules::ProcessQueuedExplosions()
 {
   const static uint8 nMaxExp = 3;
-    
+
   for (uint8 exp=0; !m_queuedExplosions.empty() && exp<nMaxExp; ++exp)
-  { 
+  {
     ExplosionInfo info(m_queuedExplosions.front());
-    ProcessServerExplosion(info);	        
+    ProcessServerExplosion(info);
     m_queuedExplosions.pop();
   }
 }
@@ -486,7 +489,7 @@ void CGameRules::ClientExplosion(const ExplosionInfo &explosionInfo)
 			fHealthBeforeExplosion = pClientActor->GetHealth();
 		}
 
-		CallScript(m_serverStateScript, "OnExplosion", m_scriptExplosionInfo);    
+		CallScript(m_serverStateScript, "OnExplosion", m_scriptExplosionInfo);
 
 		if(pClientActor)
 		{
@@ -577,7 +580,7 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 		Vec3 eyeToExplosion = explosionInfo.pos - state.eyePosition;
 		eyeToExplosion.Normalize();
 		bool inFOV = (state.eyeDirection.Dot(eyeToExplosion) > 0.68f);
-		
+
 		// if in a vehicle eyeDirection is wrong
 		if(pActor && pActor->GetLinkedVehicle())
 		{
@@ -588,7 +591,7 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 		//All explosions have radial blur (default 30m radius, to make Sean happy =))
 		float maxBlurDistance = (explosionInfo.maxblurdistance>0.0f)?explosionInfo.maxblurdistance:30.0f;
 		if (maxBlurDistance>0.0f && g_pGameCVars->g_radialBlur>0.0f && m_explosionScreenFX && explosionInfo.radius>0.5f)
-		{		
+		{
 			if (inFOV && dist < maxBlurDistance)
 			{
 				ray_hit hit;
@@ -612,12 +615,13 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 					}
 
 					float distAmp = 1.0f - (dist / maxBlurDistance);
-					if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f, distAmp*3.0f, 0.0f));
+					//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f, distAmp*3.0f, 0.0f));
+					gXR->GetInput()->SendHapticEvent(0.5f, distAmp*3.0f);
 				}
 			}
 		}
 
-		//Flashbang effect 
+		//Flashbang effect
 		if(dist<explosionInfo.radius && inFOV &&
 			(!strcmp(explosionInfo.effect_class,"flashbang") || !strcmp(explosionInfo.effect_class,"FlashbangAI")))
 		{
@@ -657,7 +661,7 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 
 		float fDist2=(pClientActor->GetEntity()->GetWorldPos()-explosionInfo.pos).len2();
 		if (fDist2<250.0f*250.0f)
-		{		
+		{
 			SAFE_HUD_FUNC(ShowSoundOnRadar(explosionInfo.pos, explosionInfo.hole_size));
 			if (fDist2<sqr(SAFE_HUD_FUNC_RET(GetBattleRange())))
 				SAFE_HUD_FUNC(TickBattleStatus(1.0f));
@@ -690,7 +694,7 @@ void CGameRules::ProcessExplosionMaterialFX(const ExplosionInfo &explosionInfo)
 	params.inZeroG = (gravity.len2() < 0.0001f);
 	params.trgSurfaceId = 0;
 
-	static const int objTypes = ent_all;    
+	static const int objTypes = ent_all;
 	static const unsigned int flags = rwi_stop_at_pierceable|rwi_colltype_any;
 
 	ray_hit ray;
@@ -910,7 +914,7 @@ IMPLEMENT_RMI(CGameRules, ClSetTeam)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, ClTextMessage)
 {
-	OnTextMessage((ETextMessageType)params.type, params.msg.c_str(), 
+	OnTextMessage((ETextMessageType)params.type, params.msg.c_str(),
 		params.params[0].empty()?0:params.params[0].c_str(),
 		params.params[1].empty()?0:params.params[1].c_str(),
 		params.params[2].empty()?0:params.params[2].c_str(),

@@ -1,0 +1,11 @@
+#pragma once
+
+enum EVRHand
+{
+	LEFT_HAND,
+	RIGHT_HAND,
+	WEAPON_HAND,
+	OFF_HAND,
+	MOVEMENT_HAND,
+	ROTATION_HAND,
+};

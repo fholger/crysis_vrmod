@@ -853,6 +853,7 @@
     <ClInclude Include="VehicleMovementWarrior.h" />
     <ClInclude Include="VehicleWeapon.h" />
     <ClInclude Include="Voting.h" />
+    <ClInclude Include="VR\EVRHand.h" />
     <ClInclude Include="VR\HandPoses.h" />
     <ClInclude Include="VR\Hooks.h" />
     <ClInclude Include="VR\OpenXRInput.h" />

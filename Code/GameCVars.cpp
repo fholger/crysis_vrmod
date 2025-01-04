@@ -4,10 +4,10 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
-  - 11:8:2004   10:50 : Created by Márcio Martins
+  - 11:8:2004   10:50 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -61,7 +61,7 @@ void CmdGOCMode( IConsoleCmdArgs* cmdArgs)
 {
 	g_pGameCVars->goc_enable = 1;
 	g_pGameCVars->goc_tpcrosshair = 1;
-	
+
 	g_pGameCVars->bt_ironsight = 1;
 	g_pGameCVars->bt_speed = 0;
 	g_pGameCVars->bt_energy_decay = 0;
@@ -111,7 +111,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("goc_targety", &goc_targety, -2.5f, VF_CHEAT, "target position of camera");
 	pConsole->Register("goc_targetz", &goc_targetz, 0.2f, VF_CHEAT, "target position of camera");
 	pConsole->AddCommand("GOCMode", CmdGOCMode, VF_CHEAT, "Enable GOC mode");
-	
+
 	// BulletTime
 	pConsole->Register("bt_speed", &bt_speed, 0, VF_CHEAT, "bullet-time when in speed mode");
 	pConsole->Register("bt_ironsight", &bt_ironsight, 0, VF_CHEAT, "bullet-time when in ironsight");
@@ -143,7 +143,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	pConsole->Register("i_lighteffectShadows", &i_lighteffectsShadows, 0, VF_DUMPTODISK, "Enable/Disable shadow casting on weapon lights. 1 - Player only, 2 - Other players/AI, 3 - All (require i_lighteffects enabled).");
 
-	// marcok TODO: seem to be only used on script side ... 
+	// marcok TODO: seem to be only used on script side ...
 	pConsole->RegisterFloat("cl_motionBlur", 2, 0, "motion blur type (0=off, 1=accumulation-based, 2=velocity-based)");
 	pConsole->RegisterFloat("cl_sprintBlur", 0.6f, 0, "sprint blur");
 	pConsole->RegisterFloat("cl_hitShake", 1.25f, 0, "hit shake");
@@ -151,7 +151,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	pConsole->RegisterInt("cl_righthand", 1, 0, "Select right-handed weapon!");
 	pConsole->RegisterInt("cl_screeneffects", 1, 0, "Enable player screen effects (depth-of-field, motion blur, ...).");
-	
+
 	pConsole->Register("cl_debugSwimming", &cl_debugSwimming, 0, VF_CHEAT, "enable swimming debugging");
 	pConsole->Register("cl_g15lcdEnable", &cl_g15lcdEnable, 1, VF_DUMPTODISK, "enable support for Logitech G15 LCD");
 	pConsole->Register("cl_g15lcdTick", &cl_g15lcdTick, 250, VF_DUMPTODISK, "milliseconds between lcd updates");
@@ -189,8 +189,8 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("hr_fovTime", &hr_fovTime, .05f, VF_CHEAT, "fov time");
 
 	// frozen shake vars (for tweaking only)
-	pConsole->Register("cl_debugFreezeShake", &cl_debugFreezeShake, 0, VF_CHEAT|VF_DUMPTODISK, "Toggle freeze shake debug draw");  
-	pConsole->Register("cl_frozenSteps", &cl_frozenSteps, 3, VF_CHEAT, "Number of steps for unfreeze shaking");  
+	pConsole->Register("cl_debugFreezeShake", &cl_debugFreezeShake, 0, VF_CHEAT|VF_DUMPTODISK, "Toggle freeze shake debug draw");
+	pConsole->Register("cl_frozenSteps", &cl_frozenSteps, 3, VF_CHEAT, "Number of steps for unfreeze shaking");
 	pConsole->Register("cl_frozenSensMin", &cl_frozenSensMin, 1.0f, VF_CHEAT, "Frozen sensitivity min"); // was 0.2
 	pConsole->Register("cl_frozenSensMax", &cl_frozenSensMax, 1.0f, VF_CHEAT, "Frozen sensitivity max"); // was 0.4
 	pConsole->Register("cl_frozenAngleMin", &cl_frozenAngleMin, 1.f, VF_CHEAT, "Frozen clamp angle min");
@@ -198,7 +198,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("cl_frozenMouseMult", &cl_frozenMouseMult, 0.00015f, VF_CHEAT, "Frozen mouseshake multiplier");
   pConsole->Register("cl_frozenKeyMult", &cl_frozenKeyMult, 0.02f, VF_CHEAT, "Frozen movement keys multiplier");
 	pConsole->Register("cl_frozenSoundDelta", &cl_frozenSoundDelta, 0.004f, VF_CHEAT, "Threshold for unfreeze shake to trigger a crack sound");
-	
+
 	pConsole->Register("g_frostDecay", &g_frostDecay, 0.25f, VF_CHEAT, "Frost decay speed when freezing actors");
 
 	pConsole->Register("g_stanceTransitionSpeed", &g_stanceTransitionSpeed, 15.0f, VF_CHEAT, "Set speed of camera transition from stance to stance");
@@ -238,7 +238,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_energy_scale_price", &g_energy_scale_price, 0, 0, "Scales energy prices.");
 	pConsole->Register("g_energy_scale_income", &g_energy_scale_income, 1, 0, "Scales incoming energy.");
 	pConsole->Register("g_enableFriendlyFallAndPlay", &g_enableFriendlyFallAndPlay, 0, 0, "Enables fall&play feedback for friendly actors.");
-	
+
 	pConsole->Register("g_playerRespawns", &g_playerRespawns, 0, VF_SAVEGAME, "Sets the player lives.");
 	pConsole->Register("g_playerLowHealthThreshold", &g_playerLowHealthThreshold, 40.0f, VF_CHEAT, "The player health threshold when the low health effect kicks in.");
 	pConsole->Register("g_playerLowHealthThreshold2", &g_playerLowHealthThreshold2, 60.0f, VF_CHEAT, "The player health threshold when the low health effect reaches maximum.");
@@ -271,7 +271,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	pConsole->Register("g_radialBlur", &g_radialBlur, 1.0f, VF_CHEAT, "Radial blur on explosions. Default = 1, 0 to disable");
 	pConsole->Register("g_playerFallAndPlay", &g_playerFallAndPlay, 0, 0, "When enabled, the player doesn't die from direct damage, but goes to fall and play.");
-	
+
 	pConsole->Register("g_enableTracers", &g_enableTracers, 1, 0, "Enable/Disable tracers.");
 	pConsole->Register("g_enableAlternateIronSight", &g_enableAlternateIronSight, 0, 0, "Enable/Disable alternate ironsight mode");
 	pConsole->Register("g_ragdollMinTime", &g_ragdollMinTime, 10.0f, 0, "minimum time in seconds that a ragdoll will be visible");
@@ -322,11 +322,11 @@ void SCVars::InitCVars(IConsole *pConsole)
 //	pConsole->Register("g_trooperPhysicsAnimBlendSpeed", &g_trooperPhysicAnimBlendSpeed, 100.f, VF_DUMPTODISK, "Trooper tentacle dynamic physics/anim blending speed");
 	pConsole->Register("g_trooperTentacleAnimBlend", &g_trooperTentacleAnimBlend, 0, VF_DUMPTODISK, "Trooper tentacle physic_anim blend (0..1) - overrides the physic_blend AG parameter when it's not 0");
 	pConsole->Register("g_trooperBankingMultiplier", &g_trooperBankingMultiplier, 1, VF_DUMPTODISK, "Trooper banking multiplier coeff (0..x)");
-	pConsole->Register("g_alienPhysicsAnimRatio", &g_alienPhysicsAnimRatio, 0.0f, VF_CHEAT ); 
+	pConsole->Register("g_alienPhysicsAnimRatio", &g_alienPhysicsAnimRatio, 0.0f, VF_CHEAT );
 
 	pConsole->Register("g_spRecordGameplay", &g_spRecordGameplay, 0, 0, "Write sp gameplay information to harddrive.");
 	pConsole->Register("g_spGameplayRecorderUpdateRate", &g_spGameplayRecorderUpdateRate, 1.0f, 0, "Update-delta of gameplay recorder in seconds.");
-  
+
 	pConsole->Register("pl_debug_ladders", &pl_debug_ladders, 0, VF_CHEAT);
 	pConsole->Register("pl_debug_movement", &pl_debug_movement, 0, VF_CHEAT);
 	pConsole->Register("pl_debug_jumping", &pl_debug_jumping, 0, VF_CHEAT);
@@ -392,7 +392,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("aim_assistRestrictionTimeout", &aim_assistRestrictionTimeout, 20.0f, 0, "The restriction timeout on aim assistance after user uses a mouse");
 
 
-	
+
 	// Controller control
 	pConsole->Register("hud_aspectCorrection", &hud_aspectCorrection, 2, 0, "Aspect ratio corrections for controller rotation: 0-off, 1-direct, 2-inverse");
 	pConsole->Register("hud_ctrl_Curve_X", &hud_ctrl_Curve_X, 3.0f, 0, "Analog controller X rotation curve");
@@ -412,14 +412,14 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("hit_assistMultiplayerEnabled", &hit_assistMultiplayerEnabled, 1, 0, "Enable/disable minimum damage hit assistance in multiplayer games");
 
 	//movement cvars
-  pConsole->Register("v_profileMovement", &v_profileMovement, 0, 0, "Used to enable profiling of the current vehicle movement (1 to enable)");    
+  pConsole->Register("v_profileMovement", &v_profileMovement, 0, 0, "Used to enable profiling of the current vehicle movement (1 to enable)");
   pConsole->Register("v_pa_surface", &v_pa_surface, 1, VF_CHEAT, "Enables/disables vehicle surface particles");
   pConsole->Register("v_wind_minspeed", &v_wind_minspeed, 0.f, VF_CHEAT, "If non-zero, vehicle wind areas always set wind >= specified value");
   pConsole->Register("v_draw_suspension", &v_draw_suspension, 0, VF_DUMPTODISK, "Enables/disables display of wheel suspension, for the vehicle that has v_profileMovement enabled");
-  pConsole->Register("v_draw_slip", &v_draw_slip, 0, VF_DUMPTODISK, "Draw wheel slip status");  
+  pConsole->Register("v_draw_slip", &v_draw_slip, 0, VF_DUMPTODISK, "Draw wheel slip status");
   pConsole->Register("v_invertPitchControl", &v_invertPitchControl, 0, VF_DUMPTODISK, "Invert the pitch control for driving some vehicles, including the helicopter and the vtol");
   pConsole->Register("v_sprintSpeed", &v_sprintSpeed, 0.f, 0, "Set speed for acceleration measuring");
-  pConsole->Register("v_rockBoats", &v_rockBoats, 1, 0, "Enable/disable boats idle rocking");  
+  pConsole->Register("v_rockBoats", &v_rockBoats, 1, 0, "Enable/disable boats idle rocking");
   pConsole->Register("v_dumpFriction", &v_dumpFriction, 0, 0, "Dump vehicle friction status");
   pConsole->Register("v_debugSounds", &v_debugSounds, 0, 0, "Enable/disable vehicle sound debug drawing");
   pConsole->Register("v_debugMountedWeapon", &v_debugMountedWeapon, 0, 0, "Enable/disable vehicle mounted weapon camera debug draw");
@@ -432,7 +432,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	pConsole->Register("v_stabilizeVTOL", &v_stabilizeVTOL, 0.35f, VF_DUMPTODISK, "Specifies if the air movements should automatically stabilize");
 
-  	
+
 	pConsole->Register("pl_swimBaseSpeed", &pl_swimBaseSpeed, 4.0f, VF_CHEAT, "Swimming base speed.");
 	pConsole->Register("pl_swimBackSpeedMul", &pl_swimBackSpeedMul, 0.8f, VF_CHEAT, "Swimming backwards speed mul.");
 	pConsole->Register("pl_swimSideSpeedMul", &pl_swimSideSpeedMul, 0.9f, VF_CHEAT, "Swimming sideways speed mul.");
@@ -451,7 +451,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("pl_fallDamage_SpeedFatal", &pl_fallDamage_Normal_SpeedFatal, 13.7f, VF_CHEAT, "Fatal fall speed in armor mode (13.5 m/s after falling freely for ca 20m).");
 	pConsole->Register("pl_fallDamage_SpeedBias", &pl_fallDamage_SpeedBias, 1.5f, VF_CHEAT, "Damage bias for medium fall speed: =1 linear, <1 more damage, >1 less damage.");
 	pConsole->Register("pl_debugFallDamage", &pl_debugFallDamage, 0, VF_CHEAT, "Enables console output of fall damage information.");
-	
+
 
 	pConsole->Register("pl_zeroGSpeedMultNormal", &pl_zeroGSpeedMultNormal, 1.2f, VF_CHEAT, "Modify movement speed in zeroG, in normal mode.");
 	pConsole->Register("pl_zeroGSpeedMultNormalSprint", &pl_zeroGSpeedMultNormalSprint, 1.7f, VF_CHEAT, "Modify movement speed in zeroG, in normal sprint.");
@@ -491,18 +491,18 @@ void SCVars::InitCVars(IConsole *pConsole)
 
 	pConsole->Register("i_debug_zoom_mods", &i_debug_zoom_mods, 0, VF_CHEAT, "Use zoom mode spread/recoil mods");
   pConsole->Register("i_debug_sounds", &i_debug_sounds, 0, VF_CHEAT, "Enable item sound debugging");
-  pConsole->Register("i_debug_turrets", &i_debug_turrets, 0, VF_CHEAT, 
+  pConsole->Register("i_debug_turrets", &i_debug_turrets, 0, VF_CHEAT,
     "Enable GunTurret debugging.\n"
     "Values:\n"
     "0:  off"
     "1:  basics\n"
     "2:  prediction\n"
     "3:  sweeping\n"
-    "4:  searching\n"      
-    "5:  deviation\n"    
+    "4:  searching\n"
+    "5:  deviation\n"
     );
 	pConsole->Register("i_debug_mp_flowgraph", &i_debug_mp_flowgraph, 0, VF_CHEAT, "Displays info on the MP flowgraph node");
-  
+
 	pConsole->Register("h_turnSpeed", &h_turnSpeed, 1.3f, 0);
 
   // quick game
@@ -517,7 +517,7 @@ void SCVars::InitCVars(IConsole *pConsole)
   pConsole->Register("g_quickGame_ping2_level",&g_quickGame_ping2_level,170,VF_DUMPTODISK,"QuickGame option");
 
 	pConsole->Register("g_quickGame_debug",&g_quickGame_debug,0,VF_CHEAT,"QuickGame option");
-	
+
 	pConsole->Register("g_displayIgnoreList",&g_displayIgnoreList,1,VF_DUMPTODISK,"Display ignore list in chat tab.");
   pConsole->Register("g_buddyMessagesIngame",&g_buddyMessagesIngame,1,VF_DUMPTODISK,"Output incoming buddy messages in chat while playing game.");
 
@@ -527,7 +527,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_battleDust_enable", &g_battleDust_enable, 1, 0, "Enable/Disable battledust");
 	pConsole->Register("g_battleDust_debug", &g_battleDust_debug, 0, 0, "0: off, 1: text, 2: text+gfx");
 	g_battleDust_effect = pConsole->RegisterString("g_battleDust_effect", "misc.battledust.light", 0, "Sets the effect to use for battledust");
-	
+
 	pConsole->Register("g_PSTutorial_Enabled", &g_PSTutorial_Enabled, 1, 0, "Enable/disable powerstruggle tutorial");
 
 	pConsole->Register("g_proneNotUsableWeapon_FixType", &g_proneNotUsableWeapon_FixType, 1, 0, "Test various fixes for not selecting hurricane while prone");
@@ -553,7 +553,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("g_MPDeathEffects", &g_deathEffects, 0, 0, "Enables / disables the MP death screen-effects");
 
 	pConsole->Register("sv_pacifist", &sv_pacifist, 0, 0, "Pacifist mode (only works on dedicated server)");
- 
+
 	pVehicleQuality = pConsole->GetCVar("v_vehicle_quality");		assert(pVehicleQuality);
 
 	InitVRCVars(pConsole);
@@ -624,8 +624,8 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("hr_fovAmt", true);
 	pConsole->UnregisterVariable("hr_fovTime", true);
 
-	pConsole->UnregisterVariable("cl_debugFreezeShake", true);  
-	pConsole->UnregisterVariable("cl_frozenSteps", true);  
+	pConsole->UnregisterVariable("cl_debugFreezeShake", true);
+	pConsole->UnregisterVariable("cl_frozenSteps", true);
 	pConsole->UnregisterVariable("cl_frozenSensMin", true);
 	pConsole->UnregisterVariable("cl_frozenSensMax", true);
 	pConsole->UnregisterVariable("cl_frozenAngleMin", true);
@@ -633,7 +633,7 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("cl_frozenMouseMult", true);
 	pConsole->UnregisterVariable("cl_frozenKeyMult", true);
 	pConsole->UnregisterVariable("cl_frozenSoundDelta", true);
-	
+
 	pConsole->UnregisterVariable("g_frostDecay", true);
 
 	pConsole->UnregisterVariable("g_stanceTransitionSpeed", true);
@@ -706,15 +706,15 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("g_trooperTentacleAnimBlend", true);
 	pConsole->UnregisterVariable("g_trooperBankingMultiplier", true);
 
-	pConsole->UnregisterVariable("v_profileMovement", true);    
+	pConsole->UnregisterVariable("v_profileMovement", true);
 	pConsole->UnregisterVariable("v_pa_surface", true);
 	pConsole->UnregisterVariable("v_wind_minspeed", true);
 	pConsole->UnregisterVariable("v_draw_suspension", true);
-	pConsole->UnregisterVariable("v_draw_slip", true);  
+	pConsole->UnregisterVariable("v_draw_slip", true);
 	pConsole->UnregisterVariable("v_invertPitchControl", true);
 	pConsole->UnregisterVariable("v_sprintSpeed", true);
-	pConsole->UnregisterVariable("v_rockBoats", true);  
-  pConsole->UnregisterVariable("v_debugMountedWeapon", true);  
+	pConsole->UnregisterVariable("v_rockBoats", true);
+  pConsole->UnregisterVariable("v_debugMountedWeapon", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultSpeed", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultSpeedSprint", true);
 	pConsole->UnregisterVariable("v_zeroGSpeedMultNormal", true);
@@ -812,7 +812,7 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("aim_assistTriggerEnabled", true);
 	pConsole->UnregisterVariable("hit_assistSingleplayerEnabled", true);
 	pConsole->UnregisterVariable("hit_assistMultiplayerEnabled", true);
-		
+
 	// weapon system
 	pConsole->UnregisterVariable("i_debuggun_1", true);
 	pConsole->UnregisterVariable("i_debuggun_2", true);
@@ -885,6 +885,8 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_cutscenes_angle_snap", &vr_cutscenes_angle_snap, 60, VF_RESTRICTEDMODE|VF_SAVEGAME, "Ignores camera rotation in cutscenes until the angle difference reaches this value, then snaps the angle to the new value");
 	pConsole->Register("vr_cinema_3d", &vr_cinema_3d, 1, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, whenever the game switches to a cinema mode (e.g. binoculars, weapon scopes or cutscenes), the cinema will render in 3D");
 	pConsole->Register("vr_cinema_3d_eye_dist", &vr_cinema_3d_eye_dist, 0.032f, VF_RESTRICTEDMODE|VF_SAVEGAME, "Determines the distance between the stereoscopic cameras in 3D cinema render mode");
+	pConsole->Register("vr_haptics_enabled", &vr_haptics_enabled, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Send haptic feedback to the motion controllers");
+	pConsole->Register("vr_haptics_strength", &vr_haptics_strength, 0.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Modify the strength of haptic feedback events");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
@@ -919,7 +921,7 @@ void CGame::RegisterConsoleVars()
 
 	if (m_pCVars)
 	{
-		m_pCVars->InitCVars(m_pConsole);    
+		m_pCVars->InitCVars(m_pConsole);
 	}
 }
 
@@ -1113,7 +1115,7 @@ void CGame::CmdJoinGame(IConsoleCmdArgs *pArgs)
 
 	if (g_pGame->GetGameRules()->GetTeamCount()>0)
 		return;
-	
+
 	CGameRules *pGameRules = g_pGame->GetGameRules();
 	if (pGameRules)
 		pGameRules->ChangeSpectatorMode(pGameRules->GetActorByEntityId(pClientActor->GetEntityId()), 0, 0, true);
@@ -1153,7 +1155,7 @@ void CGame::CmdVehicleKill(IConsoleCmdArgs *pArgs)
   IVehicle* pVehicle = pClientActor->GetLinkedVehicle();
   if (!pVehicle)
     return;
-  
+
   CGameRules *pGameRules = g_pGame->GetGameRules();
   if (pGameRules)
   {
@@ -1215,27 +1217,27 @@ void CGame::CmdReloadGameRules(IConsoleCmdArgs *pArgs)
 
   IGameRulesSystem* pGameRulesSystem = g_pGame->GetIGameFramework()->GetIGameRulesSystem();
   IGameRules* pGameRules = pGameRulesSystem->GetCurrentGameRules();
-    
+
   const char* name = "SinglePlayer";
-  IEntityClass* pEntityClass = 0; 
-  
-  if (pGameRules)    
+  IEntityClass* pEntityClass = 0;
+
+  if (pGameRules)
   {
     pEntityClass = pGameRules->GetEntity()->GetClass();
     name = pEntityClass->GetName();
-  }  
+  }
   else
     pEntityClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(name);
 
   if (pEntityClass)
   {
     pEntityClass->LoadScript(true);
-  
+
     if (pGameRulesSystem->CreateGameRules(name))
       CryLog("reloaded GameRules <%s>", name);
     else
       GameWarning("reloading GameRules <%s> failed!", name);
-  }  
+  }
 }
 
 void CGame::CmdNextLevel(IConsoleCmdArgs* pArgs)
@@ -1323,7 +1325,7 @@ void CGame::CmdQuickGame(IConsoleCmdArgs* pArgs)
 
 void CGame::CmdQuickGameStop(IConsoleCmdArgs* pArgs)
 {
-  
+
 }
 
 void CGame::CmdBattleDustReload(IConsoleCmdArgs* pArgs)
@@ -1360,7 +1362,7 @@ void CGame::CmdLogin(IConsoleCmdArgs* pArgs)
 			if(INetworkProfile* profile = serv->GetNetworkProfile())
 			{
 				profile->Login(pArgs->GetArg(1),pArgs->GetArg(2));
-			}			
+			}
 		}
 		else
 		{
@@ -1411,7 +1413,7 @@ void CGame::CmdRegisterNick(IConsoleCmdArgs* pArgs)
 		}
 	}
 	else
-		GameWarning("Invalid parameters.");	
+		GameWarning("Invalid parameters.");
 }
 
 void CGame::CmdLoginProfile(IConsoleCmdArgs* pArgs)
@@ -1442,12 +1444,12 @@ struct SCryNetConnectListener : public IServerListener
   virtual void UpdateComplete(bool cancelled){}
 
   //we only need this thing to connect to server
-  
+
   virtual void OnError(const EServerBrowserError)
   {
     End(false);
   }
-  
+
   virtual void NewServer(const int id,const SBasicServerInfo* info)
   {
     UpdateServer(id, info);
@@ -1463,7 +1465,7 @@ struct SCryNetConnectListener : public IServerListener
     End(false);
   }
   virtual void ServerUpdateComplete(const int id)
-  { 
+  {
     m_browser->CheckDirectConnect(id,m_port);
   }
 

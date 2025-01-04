@@ -4,17 +4,17 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
   - 22:11:2005: Created by Filippo De Luca
-	- 31:01:2006: taken over by Jan Müller
+	- 31:01:2006: taken over by Jan Mï¿½ller
 
 *************************************************************************/
 #include "StdAfx.h"
 #include "Game.h"
 #include "GameCVars.h"
-#include "Player.h" 
+#include "Player.h"
 #include "GameUtils.h"
 #include "HUD/HUD.h"
 #include "GameRules.h"
@@ -28,6 +28,8 @@
 #include <ISerialize.h>
 #include <IGameTokens.h>
 #include <IMaterialEffects.h>
+
+#include "VR/OpenXRRuntime.h"
 
 CNanoSuit::SNanoMaterial g_USNanoMats[NANOMODE_LAST];
 CNanoSuit::SNanoMaterial g_AsianNanoMats[NANOMODE_LAST];
@@ -187,7 +189,7 @@ void SNanoCloak::Update(CNanoSuit *pNano)
 	//disable cloaking if health is too low (for the temperature camo) or suit energy goes too low (for any camo type I suppose)
 	bool disableNormal(GetState() && pNano->GetSuitEnergy()<20);
 	bool disableHeat(GetState()==3 && pOwner->GetHealth()<25);
-	
+
 	if (disableNormal || disableHeat)
 	{
 		CHUD *pHUD = g_pGame->GetHUD();
@@ -197,7 +199,7 @@ void SNanoCloak::Update(CNanoSuit *pNano)
 			msg.append("_disabled");
 
 			pHUD->TextMessage(msg);
-			
+
 			//FIXME:special message for the temperature cloak
 			if (disableHeat)
 			{
@@ -254,7 +256,7 @@ void CNanoSuit::Reset(CPlayer *owner)
 		m_slots[k].desiredVal = 50.0f;
 
 	ResetEnergy();
-	
+
 	m_energyRechargeRate = 0.0f;
 	m_healthRegenRate = 0.0f;
 	m_healthAccError = 0.0f;
@@ -274,7 +276,7 @@ void CNanoSuit::Reset(CPlayer *owner)
 			if(gEnv->pSoundSystem)
 				if(ISound *pSound = gEnv->pSoundSystem->GetSound(m_sounds[i].ID))
 					pSound->Stop();
-			
+
 			m_sounds[i].ID = INVALID_SOUNDID;
 			m_sounds[i].bLooping = false;
 			m_sounds[i].b3D = false;
@@ -308,13 +310,13 @@ void CNanoSuit::SetParams(SmartScriptTable &rTable,bool resetFirst)
 	//
 	int mode = 1;
 	rTable->GetValue("cloakType", mode);
-	m_cloak.m_mode = ENanoCloakMode(mode);	
+	m_cloak.m_mode = ENanoCloakMode(mode);
 	rTable->GetValue("cloakEnergyCost",m_cloak.m_energyCost);
 	rTable->GetValue("cloakHealthCost",m_cloak.m_healthCost);
 	rTable->GetValue("cloakVisualDamp",m_cloak.m_visualDamp);
 	rTable->GetValue("cloakSoundDamp",m_cloak.m_soundDamp);
 	rTable->GetValue("cloakHeatDamp",m_cloak.m_heatDamp);
-	
+
 	const char *pHUDMessage;
 	if (rTable->GetValue("cloakHudMessage",pHUDMessage))
 		m_cloak.m_HUDMessage = string(pHUDMessage);
@@ -325,7 +327,7 @@ void CNanoSuit::SetInvulnerability(bool invulnerable)
 	m_invulnerable=invulnerable;
 	m_invulnerabilityTimeout=0.0f;
 	SelectSuitMaterial();
-	
+
 	if (m_pOwner)
 		m_pOwner->GetGameObject()->ChangedNetworkState(CPlayer::ASPECT_NANO_SUIT_INVULNERABLE);
 }
@@ -483,7 +485,7 @@ void CNanoSuit::Update(float frameTime)
 
 		m_healthRegenRate -= (m_cloak.m_active?m_cloak.m_healthCost:0.0f);
 	}
-	
+
 	//subtract energy from suit for cloaking
 	if(m_cloak.m_active)
 	{
@@ -580,12 +582,12 @@ void CNanoSuit::Update(float frameTime)
 
 	IEntityRenderProxy * pRenderProxy = (IEntityRenderProxy*)m_pOwner->GetEntity()->GetProxy(ENTITY_PROXY_RENDER);
 	if (pRenderProxy && stats.bSprinting)
-	{ 
+	{
 		float amt(pRenderProxy->GetMotionBlurAmount());
 		amt += (motionBlurAmt - amt) * frameTime * 3.3f;
 		pRenderProxy->SetMotionBlurAmount(amt);
 	}
-			
+
 	CItem *currentItem = (CItem *)gEnv->pGame->GetIGameFramework()->GetIItemSystem()->GetItem(m_pOwner->GetInventory()->GetCurrentItem());
 	if (currentItem)
 	{
@@ -950,7 +952,7 @@ void CNanoSuit::SetCloak(bool on, bool force)
 			}
 
 			m_pOwner->CreateScriptEvent("cloaking",on?cloakMode:0);
-								
+
 			// player's squadmates mimicking nanosuit modifications
 			if (m_pOwner->GetEntity()->GetAI())
 				gEnv->pAISystem->SendSignal(SIGNALFILTER_SENDER,1, (on?"OnNanoSuitCloak":"OnNanoSuitUnCloak"),m_pOwner->GetEntity()->GetAI());
@@ -1050,13 +1052,15 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		soundName = "Sounds/interface:suit:suit_speed_use";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.6f) );
+			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.6f) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.6f);
 		break;
 	case SPEED_IN_WATER_SOUND:
 		soundName = "Sounds/interface:suit:suit_speed_use_underwater";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.9f) );
+			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.9f) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.9f);
 		break;
 	case SPEED_SOUND_STOP:
 		soundName = "Sounds/interface:suit:suit_speed_stop";
@@ -1071,7 +1075,8 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		eSemantic = eSoundSemantic_NanoSuit;
 		setParam = true;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 1.0f, 0.5f) );
+			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 1.0f, 0.5f) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 1.0f);
 		break;
 	case STRENGTH_LIFT_SOUND:
 		soundName = "Sounds/interface:suit:suit_strength_lift";
@@ -1082,28 +1087,32 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		soundName = "Sounds/interface:suit:suit_strength_use";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound)  gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.1f, 0.0f, 0.3f*param) );
+			//if (gEnv->pInput && !stopSound)  gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.1f, 0.0f, 0.3f*param) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.1f, 0.3f * param);
 		setParam = true;
 		break;
 	case STRENGTH_JUMP_SOUND:
 		soundName = "Sounds/interface:suit:suit_strength_jump";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound)  gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.10f, 0.2f*param, 0.1f*param) );
+			//if (gEnv->pInput && !stopSound)  gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.10f, 0.2f*param, 0.1f*param) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.1f, 0.2f * param);
 		setParam = true;
 		break;
 	case STRENGTH_MELEE_SOUND:
 		soundName = "Sounds/interface:suit:suit_strength_punch";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 1.0f*param, 0.5f*param) );
+			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 1.0f*param, 0.5f*param) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 1.0f * param);
 		setParam = true;
 		break;
 	case ARMOR_SOUND:
 		soundName = "Sounds/interface:suit:suit_armor_use";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
-			if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.02f, 0.8f, 0.0f) );
+			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.02f, 0.8f, 0.0f) );
+			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.02f, 0.8f);
 		break;
 	case MEDICAL_SOUND:
 		soundName = "Sounds/interface:suit:suit_medical_repair";
@@ -1181,7 +1190,7 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		if (bAppendPostfix)
 			soundName.append("_fp");
 	}
-	
+
 	IEntitySoundProxy* pSoundProxy = (IEntitySoundProxy*)m_pOwner->GetEntity()->CreateProxy(ENTITY_PROXY_SOUND);
 	if (!pSoundProxy)
 		return;
@@ -1226,7 +1235,7 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		{
 			if (m_sounds[sound].nMassIndex != -1)
 				pSound->SetParam(m_sounds[sound].nMassIndex, param);
-			
+
 			if (m_sounds[sound].nSpeedIndex != -1)
 				pSound->SetParam(m_sounds[sound].nSpeedIndex, param);
 
@@ -1287,7 +1296,7 @@ void CNanoSuit::Serialize(TSerialize ser, unsigned aspects)
 		}
 		ser.EndGroup();
 	}
-	else 
+	else
 	{
 		if (aspects&CPlayer::ASPECT_NANO_SUIT_SETTING)
 		{

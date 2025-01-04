@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "EVRHand.h"
 #include "HUD/HUD.h"
 
 #undef GetUserName
@@ -73,6 +74,8 @@ public:
 	bool IsOffHandGrabbingWeapon() const { return m_offHandFollowsWeapon; }
 
 	CPlayer* GetLocalPlayer() const;
+
+	int GetHandSide(EVRHand hand) const;
 
 private:
 	bool m_initialized = false;
