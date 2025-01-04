@@ -58,6 +58,7 @@ private:
 	int m_hudWidth = 0;
 	int m_hudHeight = 0;
 	std::vector<ID3D11Texture2D*> m_hudImages;
+	XrSessionState m_lastSessionState = XR_SESSION_STATE_UNKNOWN;
 
 	XrPosef m_hudPose;
 	float m_hudDisplayWidth = 2;

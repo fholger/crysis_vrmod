@@ -289,7 +289,7 @@ void OpenXRInput::CreateInputActions()
 void OpenXRInput::SuggestBindings()
 {
 	SuggestedProfileBinding knuckles(m_instance, false);
-	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger/click");
+	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
 	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
 	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
 	knuckles.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");

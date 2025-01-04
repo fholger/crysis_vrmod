@@ -9,6 +9,7 @@
 #include "GameCVars.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
+#include "Menus/FlashMenuObject.h"
 
 OpenXRRuntime g_xrRuntime;
 OpenXRRuntime *gXR = &g_xrRuntime;
@@ -596,9 +597,20 @@ void OpenXRRuntime::HandleSessionStateChange(XrEventDataSessionStateChanged* eve
 		break;
 
 	case XR_SESSION_STATE_SYNCHRONIZED:
+		CryLogAlways("XR session state changed to synchronized");
+		m_sessionActive = true;
+		break;
 	case XR_SESSION_STATE_VISIBLE:
+		CryLogAlways("XR session state changed to visible");
+		m_sessionActive = true;
+		if (m_lastSessionState == XR_SESSION_STATE_FOCUSED)
+		{
+			// happens when e.g. the SteamVR system menu is opened. In this case we want to pause the game and go to the menu
+			SAFE_MENU_FUNC(ShowInGameMenu(true));
+		}
+		break;
 	case XR_SESSION_STATE_FOCUSED:
-		CryLogAlways("XR session restored");
+		CryLogAlways("XR session state changed to focused");
 		m_sessionActive = true;
 		break;
 
@@ -607,16 +619,20 @@ void OpenXRRuntime::HandleSessionStateChange(XrEventDataSessionStateChanged* eve
 		break;
 
 	case XR_SESSION_STATE_STOPPING:
+	case XR_SESSION_STATE_LOSS_PENDING:
 		m_sessionActive = false;
 		CryLogAlways("XR session lost or stopped");
 		result = xrEndSession(m_session);
 		XR_CheckResult(result, "ending session", m_instance);
 		break;
-	case XR_SESSION_STATE_LOSS_PENDING:
-		CryLogAlways("Error: XR session lost");
-		Shutdown();
+
+	case XR_SESSION_STATE_EXITING:
+		CryLogAlways("Received quit request from XR runtime, shutting down...");
+		gEnv->pSystem->Quit();
 		break;
 	}
+
+	m_lastSessionState = event->state;
 }
 
 void OpenXRRuntime::HandleSpaceRecalibration(XrEventDataReferenceSpaceChangePending* event)
@@ -714,4 +730,3 @@ void OpenXRRuntime::CreateHudSwapchain(int width, int height)
 		m_hudImages.push_back(image.texture);
 	}
 }
-
