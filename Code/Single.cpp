@@ -2965,9 +2965,16 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 		{
 			//if (gEnv->pInput)
 			//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, max(0.35f, fabsf(m_recoilparams.back_impulse)*2.0f) ));
-			gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
-			if (gVR->IsOffHandGrabbingWeapon())
-				gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+			if (m_pWeapon->IsDualWield())
+			{
+				gXR->GetInput()->SendHapticEvent(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+			}
+			else
+			{
+				gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				if (gVR->IsOffHandGrabbingWeapon())
+					gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+			}
 		}
   }
 }
