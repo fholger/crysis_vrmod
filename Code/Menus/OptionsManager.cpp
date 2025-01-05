@@ -8,7 +8,7 @@ Description: Handles options setting, getting, saving and loading.
 
 -------------------------------------------------------------------------
 History:
-- 03/2007: Created by Jan Müller
+- 03/2007: Created by Jan Mï¿½ller
 
 *************************************************************************/
 
@@ -67,7 +67,7 @@ ECrysisProfileColor COptionsManager::GetCrysisProfileColor()
 
 void COptionsManager::SetProfileManager(IPlayerProfileManager* pProfileMgr)
 {
-	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated()) 
+	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated())
 		return;
 
 	m_pPlayerProfileManager = pProfileMgr;
@@ -191,7 +191,7 @@ void COptionsManager::InitProfileOptions(bool switchProfiles)
 					GetProfileValue(attrib.name, value);
 					SetDifficulty(value);
 				}
-				
+
 				ICVar *pCVar = gEnv->pConsole->GetCVar(attribCVar);
 				if(pCVar && GetProfileValue(attrib.name, value))
 				{
@@ -214,7 +214,7 @@ void COptionsManager::InitProfileOptions(bool switchProfiles)
 	}
 
 	WriteGameCfg();
-	
+
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -356,9 +356,9 @@ void COptionsManager::UpdateFlashOptions()
 				pCurrentMenu->Invoke("Root.MainMenu.Options.SetOption", option, 3);
 			}
 		}
-		
+
 	}
-	pCurrentMenu->CheckedInvoke("_root.Root.MainMenu.Options.updateOptions");  
+	pCurrentMenu->CheckedInvoke("_root.Root.MainMenu.Options.updateOptions");
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -405,7 +405,7 @@ void COptionsManager::UpdateToProfile()
 //-----------------------------------------------------------------------------------------------------
 bool COptionsManager::HandleFSCommand(const char *szCommand,const char *szArgs)
 {
-	
+
 	if(!m_pPlayerProfileManager)
 		return false;
 
@@ -718,7 +718,7 @@ void COptionsManager::SetAntiAliasingMode(const char* params)
 			}
 			else
 			{
-				gEnv->pConsole->ExecuteString("r_fsaa 1");	
+				gEnv->pConsole->ExecuteString("r_fsaa 1");
 				CryFixedStringT<32> command = "r_fsaa_samples ";
 				char buffer[16];
 				itoa(mode.samples, buffer, 10);
@@ -800,7 +800,7 @@ void COptionsManager::SystemConfigChanged(bool silent)
 		UpdateToProfile();
 		SaveProfile();
 	}
-	
+
 	if(!silent)
 	{
 		if(CFlashMenuScreen *pCurrentMenu = GetCurrentMenu())
@@ -872,16 +872,21 @@ void COptionsManager::CCVarSink::OnElementFound(ICVar *pCVar)
 	}
 
 	// only save if we have an option to it
-	std::map<string, SOptionEntry>::const_iterator iter = m_pOptionsManager->m_profileOptions.find(CONST_TEMP_STRING(pCVar->GetName()));
-	if (iter == m_pOptionsManager->m_profileOptions.end())
-		return;
-	const SOptionEntry& entry = iter->second;
-	if (entry.bWriteToConfig == false)
-		return;
+	// or if it's a VR option that should be saved
+	bool isVROption = (pCVar->GetFlags() & VF_DUMPTODISK) && strnicmp(pCVar->GetName(), "vr_", 3) == 0;
+	if (!isVROption)
+	{
+		std::map<string, SOptionEntry>::const_iterator iter = m_pOptionsManager->m_profileOptions.find(CONST_TEMP_STRING(pCVar->GetName()));
+		if (iter == m_pOptionsManager->m_profileOptions.end())
+			return;
+		const SOptionEntry& entry = iter->second;
+		if (entry.bWriteToConfig == false)
+			return;
+	}
 
 	size_t pos;
 
-	// replace \ with \\ 
+	// replace \ with \\
 	pos = 1;
 	for(;;)
 	{
@@ -896,7 +901,7 @@ void COptionsManager::CCVarSink::OnElementFound(ICVar *pCVar)
 		pos+=2;
 	}
 
-	// replace " with \" 
+	// replace " with \"
 	pos = 1;
 	for(;;)
 	{

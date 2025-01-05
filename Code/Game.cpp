@@ -4,10 +4,10 @@
  -------------------------------------------------------------------------
   $Id$
   $DateTime$
-  
+
  -------------------------------------------------------------------------
   History:
-  - 3:8:2004   11:26 : Created by Márcio Martins
+  - 3:8:2004   11:26 : Created by Mï¿½rcio Martins
   - 17:8:2005        : Modified - NickH: Factory registration moved to GameFactory.cpp
 
 *************************************************************************/
@@ -73,8 +73,8 @@
 #endif
 
 //FIXME: really horrible. Remove ASAP
-int OnImpulse( const EventPhys *pEvent ) 
-{ 
+int OnImpulse( const EventPhys *pEvent )
+{
 	//return 1;
 	return 0;
 }
@@ -187,7 +187,7 @@ bool CGame::Init(IGameFramework *pFramework)
   InitGameFactory(m_pFramework);
 
 	//FIXME: horrible, remove this ASAP
-	//gEnv->pPhysicalWorld->AddEventClient( EventPhysImpulse::id,OnImpulse,0 );  
+	//gEnv->pPhysicalWorld->AddEventClient( EventPhysImpulse::id,OnImpulse,0 );
 
 	m_pWeaponSystem = new CWeaponSystem(this, GetISystem());
 
@@ -198,7 +198,7 @@ bool CGame::Init(IGameFramework *pFramework)
 	m_pOptionsManager = COptionsManager::CreateOptionsManager();
 
 	m_pSPAnalyst = new CSPAnalyst();
- 
+
 	gEnv->pConsole->CreateKeyBind("f12", "r_getscreenshot 2");
 
 	//Ivo: initialites the Crysis conversion file.
@@ -480,7 +480,7 @@ void CGame::EditorResetGame(bool bStart)
 		}
 		m_pHUD = new CHUD;
 		m_pHUD->Init();
-		m_pHUD->PlayerIdSet(m_uiPlayerID);	
+		m_pHUD->PlayerIdSet(m_uiPlayerID);
 	}
 	else
 	{
@@ -505,7 +505,7 @@ void CGame::PlayerIdSet(EntityId playerId)
 
 	if(m_pHUD)
 	{
-		m_pHUD->PlayerIdSet(playerId);	
+		m_pHUD->PlayerIdSet(playerId);
 	}
 	else
 	{
@@ -536,7 +536,7 @@ string CGame::InitMapReloading()
 				levelFileName = prefix + levelFileName;
 			}
 			ISaveGameEnumeratorPtr pSGE = pProfile->CreateSaveGameEnumerator();
-			ISaveGameEnumerator::SGameDescription desc;	
+			ISaveGameEnumerator::SGameDescription desc;
 			const int nSaveGames = pSGE->GetCount();
 			for (int i=0; i<nSaveGames; ++i)
 			{
@@ -565,6 +565,7 @@ void CGame::Shutdown()
 	{
 		m_pPlayerProfileManager->LogoutUser(m_pPlayerProfileManager->GetCurrentUser());
 	}
+	GetOptions()->WriteGameCfg();
 
 	delete m_pServerSynchedStorage;
 	m_pServerSynchedStorage	= 0;
@@ -983,7 +984,7 @@ const string& CGame::GetLastSaveGame(string &levelName)
 		if (pProfile)
 		{
 			ISaveGameEnumeratorPtr pSGE = pProfile->CreateSaveGameEnumerator();
-			ISaveGameEnumerator::SGameDescription desc;	
+			ISaveGameEnumerator::SGameDescription desc;
 			time_t curLatestTime = (time_t) 0;
 			const char* lastSaveGame = "";
 			const int nSaveGames = pSGE->GetCount();
@@ -1076,7 +1077,7 @@ const char* CGame::CreateSaveGameName()
 }
 
 const char* CGame::GetMappedLevelName(const char *levelName) const
-{ 
+{
 	TLevelMapMap::const_iterator iter = m_mapNames.find(CONST_TEMP_STRING(levelName));
 	return (iter == m_mapNames.end()) ? levelName : iter->second.c_str();
 }
