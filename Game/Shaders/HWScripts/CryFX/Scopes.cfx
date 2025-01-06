@@ -1,0 +1,237 @@
+
+#include "Common.cfi"
+#include "ShadeLib.cfi"
+#include "ModificatorVT.cfi"
+#include "ModificatorTC.cfi"
+
+// Shader global descriptions
+float Script : STANDARDSGLOBAL
+<
+  string Script =
+           "Public;"             
+           "ShaderDrawType = General;"
+           "AfterHDRPostProcess;"
+           "ShaderType = FX;"
+>;
+
+/// Common stuff  //////////////////////
+
+////////////////////////////////////////////////////////////////
+
+OPACITYMAP
+ENVIRONMENTMAP
+ENVIRONMENTCUBEMAP
+
+float4  AnimGenParams = { PB_time 1.0, PB_time 0.5, PB_time 0.25, PB_time 0.125};
+
+
+sampler2D reflexSightSampler 
+{ 
+  Texture = $Diffuse; 
+  sRGBLookup = true; 
+  MinFilter = LINEAR;
+  MagFilter = LINEAR;
+  MipFilter = NONE;
+  AddressU = Clamp;
+  AddressV = Clamp;   
+};
+
+sampler2D noiseMapSampler
+{
+  Texture = textures\defaults\JumpNoiseHighFrequency_x27y19.dds;
+  MinFilter = POINT;
+  MagFilter = POINT;
+  MipFilter = POINT; 
+  AddressU = Wrap;
+  AddressV = Wrap;	
+};
+
+/// Specific data ////////////////////////
+
+#if %REFLEX_SIGHT
+
+float ScopeScale
+<  
+  psregister = PS_REG_PM_3.x;
+  string UIName = "Scope scale";        
+  string UIWidget = "slider";
+  float UIMin = 0.0;
+  float UIMax = 100.0;
+  float UIStep = 0.05;
+> = 60;
+
+float ScopeColorMultiplier
+<  
+  psregister = PS_REG_PM_3.y;
+  string UIName = "Scope color multiplier";        
+  string UIWidget = "slider";
+  float UIMin = 0.0;
+  float UIMax = 256.0;
+  float UIStep = 0.05;
+> = 160;
+
+float NoiseScale
+<  
+  psregister = PS_REG_PM_3.z;
+  string UIName = "Noise scale";        
+  string UIWidget = "slider";
+  float UIMin = 0.0;
+  float UIMax = 1.0;
+  float UIStep = 0.05;
+> = 0.75;
+
+float4 ScopePos
+<
+  vsregister = VS_REG_PM_4;
+  string UIName = "Scope position";
+  string UIWidget = "color";
+> = {0.5, 0.5, 0, 1};
+
+#endif
+/// Constants ////////////////////////////
+
+/// Samplers //////////////////////////
+
+///////////////// vertex shader //////////////////
+
+struct v2Frag
+{
+  float4 HPosition : POSITION;
+  float2 baseTC    : TEXCOORDN;    
+  float4 screenPos : TEXCOORDN;  
+   
+  float4 viewVec   : TEXCOORDN;    
+  float3 tangVec      : TEXCOORDN;
+  float3 binormVec    : TEXCOORDN;  
+  float4 normalVec  : TEXCOORDN;
+
+  float4 scopePos : TEXCOORDN;
+};
+
+///////////////// vertex shader //////////////////
+v2Frag ScopeVS(app2vertGeneral IN)
+{
+  v2Frag OUT = (v2Frag)0; 
+
+  // Position in screen space.
+  streamPos vertPassPos = (streamPos)0;
+  streamPos_FromGeneral(IN, vertPassPos);
+
+  OUT.HPosition = Pos_VS_General(g_VS_ViewProjZeroMatr, vertPassPos);
+
+  OUT.baseTC.xy=IN.baseTC.xy;
+  
+  // Output projected refraction texture
+  OUT.screenPos.x = (OUT.HPosition.x  + OUT.HPosition.w)*0.5;    
+  OUT.screenPos.y = (-OUT.HPosition.y  + OUT.HPosition.w)*0.5;      
+  OUT.screenPos.zw = OUT.HPosition.w;  	
+
+  // Output world to tangent matrix and world space position  
+  float3 worldTangentS = mul((const float3x3)vertPassPos.InstMatrix, vertPassPos.ObjToTangentSpace[0]);
+  float3 worldTangentT = mul((const float3x3)vertPassPos.InstMatrix, vertPassPos.ObjToTangentSpace[1]);
+  float3 worldTangentN = mul((const float3x3)vertPassPos.InstMatrix, vertPassPos.ObjToTangentSpace[2]);
+  OUT.tangVec.xyz = worldTangentS.xyz;    
+  OUT.binormVec.xyz = worldTangentT;
+  OUT.normalVec.xyz = worldTangentN;
+  OUT.viewVec.xyz = vertPassPos.WorldPos.xyz;
+#if %_RT_FOG
+  float4 fogColor = GetVolumetricFogColor(vertPassPos.WorldPos.xyz + g_VS_WorldViewPos.xyz);
+  OUT.viewVec.w = fogColor.w;
+#endif
+
+  float4 scopeScreen = mul(g_VS_ViewProjMatr, ScopePos);
+  OUT.scopePos.x = (scopeScreen.x + scopeScreen.w) * 0.5;
+  OUT.scopePos.y = (-scopeScreen.y + scopeScreen.w) * 0.5;
+  OUT.scopePos.zw = scopeScreen.w;
+
+  return OUT;
+}
+
+///////////////// pixel shader //////////////////
+
+pixout ScopePS(v2Frag IN)
+{
+  pixout OUT;
+
+   // Debug output
+ #if %_RT_DEBUG0 || %_RT_DEBUG1 || %_RT_DEBUG2 || %_RT_DEBUG3
+   DebugOutput(OUT.Color, float4(IN.baseTC, 0, 1));
+   return OUT;
+ #endif
+
+   half4 cFinal = 1;
+
+#if %REFLEX_SIGHT
+   float2 tcProj = (IN.screenPos/IN.screenPos.w) ;
+   float2 scopeProj = IN.scopePos/IN.scopePos.w;
+   half fNoise = tex2D(noiseMapSampler, tcProj *(PS_ScreenSize.xy/ 64) + AnimGenParams.x);
+   fNoise += tex2D(noiseMapSampler, (tcProj *(PS_ScreenSize.xy/ 64) - AnimGenParams.x)*1.05);
+   fNoise *= 0.5;
+
+   half fAspectRatio = PS_ScreenSize.x / PS_ScreenSize.y;
+
+   
+   float2 tcReflSight =  (tcProj - scopeProj)*(ScopeScale + NoiseScale * ScopeScale * (fNoise*2-1))*float2(1,fAspectRatio) + 0.5;
+   tcReflSight = saturate( tcReflSight );
+
+   // add fake glow
+   NoiseScale = 1;
+   ScopeScale *= 0.25;
+   float2 tcReflSightGlow =  (tcProj - scopeProj)*(ScopeScale + NoiseScale * ScopeScale * (fNoise*2-1))*float2(1,fAspectRatio) + 0.5;
+   tcReflSightGlow = saturate( tcReflSightGlow );
+
+#ifndef D3D10
+   cFinal = tex2D(reflexSightSampler, tcReflSight );
+   cFinal += 0.25 * tex2D(reflexSightSampler, tcReflSightGlow );
+#else
+   cFinal = tex2Dlod(reflexSightSampler, float4(tcReflSight, 0, 0) );
+   cFinal += 0.25 *tex2Dlod(reflexSightSampler, float4(tcReflSightGlow, 0, 0) );
+#endif
+
+   cFinal.w = saturate( cFinal.w *0.75);
+
+   // 0.0001 -> workaround to work on d3d10..
+   half pClipper = 0.0001-saturate(1-dot(cFinal.xyz, 1));
+   //clip( pClipper  );
+
+#endif
+
+  HDROutput(OUT, cFinal, 1);
+   
+  return OUT;
+}
+
+//////////////////////////////// technique ////////////////
+
+technique General
+<
+  string Script = 
+        "TechniqueZ=ZPass;"
+>
+{
+  pass p0
+  {    
+    VertexShader = compile vs_Auto ScopeVS() GeneralVS;
+    PixelShader = compile ps_Auto ScopePS() GeneralPS;
+
+    ZEnable = true; 
+    ZFunc = LEqual; 
+    ZWriteEnable = false; 
+    CullMode = None;
+
+#if %REFLEX_SIGHT
+    SrcBlend = ONE;//SRC_ALPHA; //ONE; 
+    DestBlend = ONE_MINUS_SRC_ALPHA;
+    AlphaBlendEnable = true;        
+    IgnoreMaterialState = true;
+#endif
+
+  }
+}
+
+//===========================================================================
+// Common passes support (zpass/fog)
+
+#include "CommonZPass.cfi"
+
+/////////////////////// eof ///

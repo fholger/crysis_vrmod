@@ -123,6 +123,8 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
+	UpdateShaderParamsForReflexSight();
+
 	IDXGISwapChain *currentSwapChain = g_latestCreatedSwapChain;
 	int64 milliSecsSinceLastPresentCall = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64() - m_lastPresentCallTime;
 	if (currentSwapChain != gVR->GetSwapChain() || milliSecsSinceLastPresentCall > 1000)
@@ -353,4 +355,54 @@ void VRRenderer::DrawCrosshair()
 	gEnv->pRenderer->GetIRenderAuxGeom()->SetRenderFlags(geomMode);
 	gEnv->pRenderer->GetIRenderAuxGeom()->DrawSphere(crosshairPos, 0.03f, ColorB(240, 240, 240));
 	gEnv->pRenderer->GetIRenderAuxGeom()->Flush();
+}
+
+void VRRenderer::UpdateShaderParamsForReflexSight()
+{
+	// hack to get the reflex sights working
+	// added a new public param to the shader that we need to feed with a world position for where the dot should be
+
+	CPlayer* player = gVR->GetLocalPlayer();
+	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
+
+	if (!weapon)
+		return;
+
+	auto* matMgr = gEnv->p3DEngine->GetMaterialManager();
+	IMaterial* mat = matMgr->FindMaterial("objects/weapons/attachments/reflex_rifle/reflex_rifle");
+	if (!mat)
+		return;
+	mat = mat->GetSubMtl(1);
+	if (!mat)
+		return;
+
+	SInputShaderResources updatedRes(mat->GetShaderItem().m_pShaderResources);
+	auto& params = updatedRes.m_ShaderParams;
+	// find or insert the ScopePos parameter
+	SShaderParam* parm = nullptr;
+	for (auto& param : params)
+	{
+		if (stricmp(param.m_Name, "ScopePos") == 0)
+		{
+			parm = &param;
+			break;
+		}
+	}
+	if (!parm)
+	{
+		parm = &(*params.push_back());
+		strcpy(parm->m_Name, "ScopePos");
+		parm->m_Type = eType_VECTOR;
+	}
+
+	// calc position for the reflex sight dot
+	SMovementState moveState;
+	player->GetMovementController()->GetMovementState(moveState);
+	Vec3 dotPos = moveState.weaponPosition + 10 * moveState.fireDirection;
+
+	parm->m_Value.m_Vector[0] = dotPos.x;
+	parm->m_Value.m_Vector[1] = dotPos.y;
+	parm->m_Value.m_Vector[2] = dotPos.z;
+
+	mat->GetShaderItem().m_pShaderResources->SetShaderParams(&updatedRes, mat->GetShaderItem().m_pShader);
 }

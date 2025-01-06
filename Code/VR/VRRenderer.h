@@ -54,6 +54,8 @@ private:
 
 	void RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem);
 	void DrawCrosshair();
+
+	void UpdateShaderParamsForReflexSight();
 };
 
 extern VRRenderer* gVRRenderer;
