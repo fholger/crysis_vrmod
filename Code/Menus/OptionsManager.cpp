@@ -884,7 +884,7 @@ void COptionsManager::CCVarSink::OnElementFound(ICVar *pCVar)
 			return;
 	}
 
-	size_t pos;
+	size_t pos = 0;
 
 	// replace \ with \\
 	pos = 1;

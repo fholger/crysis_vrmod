@@ -1381,7 +1381,7 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 		state.fireTarget = m_fireTarget;
 
 		// VR adjustments
-		if (g_pGameCVars->vr_enable_motion_controllers)
+		if (m_pPlayer->IsClient())
 		{
 			CWeapon* weapon = m_pPlayer->GetWeapon(m_pPlayer->GetCurrentItemId());
 			if (weapon)
@@ -1521,10 +1521,17 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 	IVehicle *pVehicle = m_pPlayer->GetLinkedVehicle();
 	if (pVehicle)
 	{
+        IVehiclePart* gun = pVehicle->GetWeaponParentPart(pVehicle->GetCurrentWeaponId(m_pPlayer->GetEntityId()));
 		IMovementController *pVehicleMovementController = pVehicle->GetPassengerMovementController(m_pPlayer->GetEntityId());
 		if (pVehicleMovementController)
 			pVehicleMovementController->GetMovementState(state);
-	}	
+
+		if (m_pPlayer->IsClient())
+		{
+		    // wip: use head aiming for vehicles; this only works in first person while driving, not 3rd person or in the weapon seat
+			state.aimDirection = state.fireDirection = m_pPlayer->GetEntity()->GetWorldTM().TransformVector(gVR->GetHMDQuat().GetColumn1());
+		}
+	}
 
 	const IAnimatedCharacter* pAC = m_pPlayer->GetAnimatedCharacter();
 	state.slopeAngle = (pAC != NULL) ? pAC->GetGroundSlopeAngle() : 0.0f;
