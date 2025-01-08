@@ -262,7 +262,7 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_menu, "menu_toggle", "Open menu / show objectives", &g_pGameActions->xi_hud_back);
 	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
-	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, &g_pGameActions->xi_grenade, false, true);
+	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, nullptr, false);
 	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->xi_use);
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
@@ -350,7 +350,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
 	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
-	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
+	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	//knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
@@ -386,7 +386,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_menu.handle, "/user/hand/left/input/b");
 	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
-	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/b");
+	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze");
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	//touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");

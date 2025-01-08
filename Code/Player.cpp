@@ -4062,6 +4062,9 @@ void CPlayer::SelectNextItem(int direction, bool keepHistory, const char *catego
 	if (m_health && m_stats.animationControlled || ShouldSwim() || /*m_bSprinting || */m_stats.inFreefall)
 		return;
 
+	if (!gVR->IsHandNearShoulder(WEAPON_HAND) || gVR->IsOffHandGrabbingWeapon())
+		return;
+
 	COffHand* pOffHand = static_cast<COffHand*>(GetWeaponByClass(CItem::sOffHandClass));
 	if(pOffHand && pOffHand->IsSelected())
 	{

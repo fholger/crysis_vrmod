@@ -830,6 +830,36 @@ bool VRManager::IsHandNearHead(EVRHand hand)
 	return handPosition.GetDistance(headPosition) < .25f;
 }
 
+bool VRManager::IsHandNearShoulder(EVRHand hand)
+{
+	int handSide = GetHandSide(hand);
+	Vec3 handLocation = gXR->GetInput()->GetControllerTransform(handSide).GetTranslation();
+	Matrix44 headTransform = gXR->GetHmdTransform();
+	Vec3 headLocation = headTransform.GetTranslation();
+
+	Ang3 headRot = Ang3::GetAnglesXYZ((Matrix33)headTransform);
+	headRot.x = headRot.y = 0;
+	Quat headQuat = Quat::CreateRotationXYZ(headRot);
+	Vec3 headFwd = headQuat.GetColumn1();
+	Vec3 headUp = headQuat.GetColumn2();
+	Vec3 headRight = headQuat.GetColumn0();
+
+	Vec3 fromHead = handLocation - headLocation;
+	float fwd = fromHead.Dot(headFwd);
+	float up = fromHead.Dot(headUp);
+	float right = fromHead.Dot(headRight);
+
+	if (fwd > .15f || up < -.15f)
+	{
+		return false;
+	}
+
+	if (handSide == 0)
+		return right < 0;
+	else
+		return right > 0;
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	m_hudTexture.Reset();
