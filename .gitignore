@@ -41,5 +41,8 @@ Release
 Release64
 x64
 Bin64/VRMod*
+Bin64
+
+Code/Shaders/generated
 
 Installer/assembly

@@ -452,6 +452,7 @@
     <ClCompile Include="VR\OpenXRRuntime.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
+    <ClCompile Include="VR\VRRenderUtils.cpp" />
     <ClCompile Include="Weapon.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="WeaponClientServer.cpp" />
@@ -860,6 +861,7 @@
     <ClInclude Include="VR\OpenXRRuntime.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />
+    <ClInclude Include="VR\VRRenderUtils.h" />
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="WeaponSystem.h" />
@@ -875,6 +877,28 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameDll.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\DrawTexture.ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.1</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_ShaderDrawTexturePS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\generated\ShaderDrawTexturePS.h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_ShaderDrawTexturePS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\generated\ShaderDrawTexturePS.h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\FullScreenTri.vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.1</ShaderModel>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_ShaderFullScreenTriVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\generated\ShaderFullScreenTriVS.h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_ShaderFullScreenTriVS</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\generated\ShaderFullScreenTriVS.h</HeaderFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -106,6 +106,9 @@
     <Filter Include="VR Mod">
       <UniqueIdentifier>{bf94d4ab-3695-4814-98b1-c16bd6070fdd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{e24cbd17-c658-43d1-ba0f-5c10d38cddeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -695,6 +698,8 @@
     <ClCompile Include="VR\OpenXRInput.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
+    <ClCompile Include="VR\HandPoses.cpp" />
+    <ClCompile Include="VR\VRRenderUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1895,6 +1900,9 @@
     <ClInclude Include="VR\OpenXRInput.h">
       <Filter>VR Mod</Filter>
     </ClInclude>
+    <ClInclude Include="VR\EVRHand.h" />
+    <ClInclude Include="VR\HandPoses.h" />
+    <ClInclude Include="VR\VRRenderUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameActions.actions">
@@ -1919,5 +1927,13 @@
     <CustomBuild Include="Alien.h">
       <Filter>Actor Files\aliens</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\DrawTexture.ps.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FullScreenTri.vs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
