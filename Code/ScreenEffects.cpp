@@ -109,6 +109,8 @@ float CScreenEffects::GetCurrentFOV()
 //---------------------------------
 void CScreenEffects::CamShake(Vec3 shiftShake, Vec3 rotateShake, float freq, float shakeTime, float randomness, int shakeID)
 {
+	return; // no shake in VR
+
 	if (m_ownerActor->IsClient())
 	{
 		IView *view = gEnv->pGame->GetIGameFramework()->GetIViewSystem()->GetActiveView();

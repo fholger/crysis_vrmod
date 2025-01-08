@@ -56,6 +56,8 @@ void CShake::FullSerialize(TSerialize ser)
 //------------------------------------------------------------------------
 void CShake::Update(SEntityUpdateContext &ctx, int updateSlot)
 {
+	return; // no shaking in VR
+
 	IActor *pClient = g_pGame->GetIGameFramework()->GetClientActor();
 	if (pClient)
 	{
