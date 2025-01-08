@@ -291,9 +291,6 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 void VRRenderer::DrawCrosshair()
 {
-	if (!g_pGameCVars->vr_enable_crosshair)
-		return;
-
 	// don't show crosshair during cutscenes
 	if (gEnv->pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return;
@@ -327,6 +324,9 @@ void VRRenderer::DrawCrosshair()
 	skipEntities.push_back(pPlayer->GetEntity()->GetPhysics());
 	if (pPlayer->GetLinkedVehicle())
 	{
+		if (!g_pGameCVars->vr_vehicle_crosshair)
+			return;
+
 		skipEntities.push_back(pPlayer->GetLinkedVehicle()->GetEntity()->GetPhysics());
 		IPhysicalEntity* vecSkipEnts[8];
 		int numSkips = pPlayer->GetLinkedVehicle()->GetSkipEntities(vecSkipEnts, 8);
@@ -334,9 +334,14 @@ void VRRenderer::DrawCrosshair()
 			skipEntities.push_back(vecSkipEnts[i]);
 		maxDistance = 16.f;
 	}
+	else
+	{
+		if (!g_pGameCVars->vr_weapon_crosshair)
+			return;
+	}
+
 	const int objects = ent_all;
 	const int flags = (geom_colltype_ray << rwi_colltype_bit) | rwi_colltype_any | (10 & rwi_pierceability_mask) | (geom_colltype14 << rwi_colltype_bit);
-
 	ray_hit hit;
 	if (gEnv->pPhysicalWorld->RayWorldIntersection(crosshairPos, dir*maxDistance, objects, flags, &hit, 1, skipEntities.data(), skipEntities.size()))
 	{
