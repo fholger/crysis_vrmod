@@ -822,6 +822,14 @@ int VRManager::GetHandSide(EVRHand hand) const
 	return 0;
 }
 
+bool VRManager::IsHandNearHead(EVRHand hand)
+{
+	Vec3 headPosition = gXR->GetHmdTransform().GetTranslation();
+	Vec3 handPosition = gXR->GetInput()->GetControllerTransform(GetHandSide(hand)).GetTranslation();
+
+	return handPosition.GetDistance(headPosition) < .25f;
+}
+
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	m_hudTexture.Reset();

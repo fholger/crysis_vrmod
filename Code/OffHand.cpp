@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 12:04:2006   17:22 : Created by Márcio Martins
+- 12:04:2006   17:22 : Created by Mï¿½rcio Martins
 - 18:02:2007	 13:30 : Refactored Offhand by Benito G.R.
 
 *************************************************************************/
@@ -26,6 +26,7 @@ History:
 #include "HUD/HUDCrosshair.h"
 #include "WeaponSystem.h"
 #include "Projectile.h"
+#include "VR/VRManager.h"
 
 #define KILL_NPC_TIMEOUT	7.25f
 #define TIME_TO_UPDATE_CH 0.25f
@@ -1227,6 +1228,13 @@ bool COffHand::ProcessOffHandActions(EOffHandActions eOHA, int input, int activa
 	{
 		if(m_currentState&eOHS_INIT_STATE)
 		{
+			if (activationMode == eAAM_OnPress && gVR->IsHandNearHead(OFF_HAND))
+			{
+				SAFE_HUD_FUNC(OnAction(g_pGameActions->hud_night_vision, eAAM_OnPress, 1));
+				CancelAction();
+				return false;
+			}
+
 			int typ = CanPerformPickUp(GetOwnerActor(),NULL,true);
 			if(typ==OH_GRAB_ITEM)
 			{
