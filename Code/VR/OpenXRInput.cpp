@@ -267,6 +267,7 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
 	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
+	CreateBooleanAction(m_ingameSet, m_grenades, "grenades", "Switch and throw grenades", &g_pGameActions->handgrenade, &g_pGameActions->grenade);
 
 	CreateBooleanAction(m_menuSet, m_menuClick, "click", "Menu Click", &g_pGameActions->hud_mouseclick);
 	CreateBooleanAction(m_menuSet, m_menuBack, "back", "Menu Back", nullptr);
@@ -353,6 +354,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
+	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	//knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
@@ -383,12 +385,13 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
 	touch.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
 	touch.AddBinding(m_sprint.handle, "/user/hand/<movement>/input/thumbstick/click");
-	touch.AddBinding(m_menu.handle, "/user/hand/left/input/b");
+	touch.AddBinding(m_menu.handle, "/user/hand/<!weaon>/input/b");
 	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze");
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
+	touch.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	//touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
 	//touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
@@ -447,6 +450,7 @@ void OpenXRInput::UpdateIngameActions()
 	UpdateBooleanAction(m_binoculars);
 	UpdateBooleanAction(m_nightvision);
 	UpdateBooleanAction(m_melee);
+	UpdateBooleanAction(m_grenades);
 	UpdateBooleanAction(m_menuClick);
 }
 

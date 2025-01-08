@@ -62,6 +62,7 @@ private:
 	BooleanAction m_use;
 	BooleanAction m_nightvision;
 	BooleanAction m_melee;
+	BooleanAction m_grenades;
 	XrSpace m_gripSpace[2] = {};
 
 	XrActionSet m_menuSet = nullptr;
