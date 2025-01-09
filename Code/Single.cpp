@@ -2746,7 +2746,8 @@ void CSingle::UpdateRecoil(float frameTime)
 				float t = m_recoil/m_recoilparams.max_recoil;
 				Vec2 new_offset = Vec2(m_recoil_dir.x*m_recoilparams.max.x, m_recoil_dir.y*m_recoilparams.max.y)*t*3.141592f/180.0f;
 				m_recoil_offset = new_offset*0.66f+m_recoil_offset*0.33f;
-				pOwner->SetViewAngleOffset(Vec3(m_recoil_offset.x, 0.0f, m_recoil_offset.y));
+				// do not want this in VR
+				//pOwner->SetViewAngleOffset(Vec3(m_recoil_offset.x, 0.0f, m_recoil_offset.y));
 
 				m_pWeapon->RequireUpdate(eIUS_FireMode);
 			}
@@ -2925,7 +2926,8 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
       pe_action_impulse impulse;
       impulse.impulse = -firingDir * m_recoilparams.impulse;
       impulse.point = firingPos;
-      pEntity->GetPhysics()->Action(&impulse);
+	  if (!m_pWeapon->GetOwnerActor()->IsClient()) // not wanted in VR in regular environment
+        pEntity->GetPhysics()->Action(&impulse);
     }
   }
 
