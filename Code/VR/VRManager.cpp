@@ -567,7 +567,7 @@ void VRManager::Update()
 	if (!g_pGameCVars->vr_enable_motion_controllers)
 		return;
 
-	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()))
+	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()) || g_pGame->GetMenu()->IsLoadingScreenActive())
 	{
 		if (!m_wasInMenu)
 		{

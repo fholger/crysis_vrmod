@@ -219,6 +219,9 @@ bool VRRenderer::ShouldRenderVR() const
 	if (g_pGameCVars->vr_cutscenes_2d && g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return false;
 
+	if (SAFE_MENU_FUNC_RET(IsLoadingScreenActive()))
+		return false;
+
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (pPlayer)
 	{
