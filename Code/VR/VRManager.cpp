@@ -8,6 +8,7 @@
 #include "Hooks.h"
 #include "OpenXRRuntime.h"
 #include "VRRenderer.h"
+#include "VRRenderUtils.h"
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
 
@@ -33,6 +34,7 @@ VRManager::~VRManager()
 	// the game already shut down. So just let go here to avoid that
 	for (int eye = 0; eye < 2; ++eye)
 	{
+		m_eyeViews[eye].Detach();
 		m_eyeTextures[eye].Detach();
 		m_eyeTextures11[eye].Detach();
 	}
@@ -59,8 +61,11 @@ void VRManager::Shutdown()
 {
 	CryLogAlways("Shutting down VRManager...");
 
+	gVRRenderUtils->Shutdown();
+
 	for (int eye = 0; eye < 2; ++eye)
 	{
+		m_eyeViews[eye].Reset();
 		m_eyeTextures[eye].Reset();
 		m_eyeTextures11[eye].Reset();
 	}
@@ -80,6 +85,7 @@ void VRManager::AwaitFrame()
 		return;
 
 	gXR->AwaitFrame();
+	AcquireRenderSyncs();
 }
 
 void VRManager::CaptureEye(int eye)
@@ -138,8 +144,14 @@ void VRManager::CaptureHUD()
 			return;
 	}
 
+	AcquireRenderSyncs();
+
 	// acquire and copy the current swap chain buffer to the HUD texture
 	CopyBackbufferToTexture(m_hudTexture.Get());
+
+	// mirror the current eye texture to the backbuffer
+	int mirrorEye = g_pGameCVars->vr_mirror_eye == 1 ? 1 : 0;
+	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get());
 }
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
@@ -165,32 +177,26 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 		gXR->AwaitFrame();
 	}
 
+	ReleaseRenderSyncs();
+
+	AcquireSubmissionSyncs();
+
 	ComPtr<IDXGIKeyedMutex> mutexHud;
-	m_hudTexture11->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexHud.GetAddressOf());
-	mutexHud->AcquireSync(1, 1000);
 	gXR->SubmitHud(m_hudTexture11.Get());
-	mutexHud->ReleaseSync(0);
 
 	if (!didRenderThisFrame)
 	{
+		ReleaseSubmissionSyncs();
 		gXR->FinishFrame();
 		return;
 	}
-
-	ComPtr<IDXGIKeyedMutex> mutexLeft, mutexRight;
-	m_eyeTextures11[0]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexLeft.GetAddressOf());
-	mutexLeft->AcquireSync(1, 1000);
-	m_eyeTextures11[1]->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutexRight.GetAddressOf());
-	mutexRight->AcquireSync(1, 1000);
 
 	// game is currently using symmetric projection, we need to cut off the texture accordingly
 	RectF leftBounds = GetEffectiveRenderLimits(0);
 	RectF rightBounds = GetEffectiveRenderLimits(1);
 	gXR->SubmitEyes(m_eyeTextures11[0].Get(), leftBounds, m_eyeTextures11[1].Get(), rightBounds);
 
-	mutexLeft->ReleaseSync(0);
-	mutexRight->ReleaseSync(0);
-
+	ReleaseSubmissionSyncs();
 	gXR->FinishFrame();
 }
 
@@ -863,6 +869,8 @@ bool VRManager::IsHandNearShoulder(EVRHand hand)
 void VRManager::InitDevice(IDXGISwapChain* swapchain)
 {
 	m_hudTexture.Reset();
+	m_eyeViews[0].Reset();
+	m_eyeViews[1].Reset();
 	m_eyeTextures[0].Reset();
 	m_eyeTextures[1].Reset();
 
@@ -921,6 +929,9 @@ void VRManager::InitDevice(IDXGISwapChain* swapchain)
 	}
 
 	gXR->CreateSession(m_device11.Get());
+
+	gVRRenderUtils->Shutdown();
+	gVRRenderUtils->Init(m_device.Get());
 }
 
 void VRManager::CreateEyeTexture(int eye)
@@ -928,6 +939,13 @@ void VRManager::CreateEyeTexture(int eye)
 	Vec2i size = GetRenderSize();
 	CryLogAlways("Creating eye texture %i: %i x %i", eye, size.x, size.y);
 	CreateSharedTexture(m_eyeTextures[eye], m_eyeTextures11[eye], size.x, size.y);
+
+	D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	CHECK_D3D10(m_device->CreateShaderResourceView(m_eyeTextures[eye].Get(), &srvDesc, m_eyeViews[eye].ReleaseAndGetAddressOf()));
 }
 
 void VRManager::CreateHUDTexture()
@@ -950,7 +968,7 @@ void VRManager::CreateSharedTexture(ComPtr<ID3D10Texture2D> &texture, ComPtr<ID3
 	desc.ArraySize = 1;
 	desc.MipLevels = 1;
 	desc.Usage = D3D10_USAGE_DEFAULT;
-	desc.BindFlags = 0;
+	desc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
 	desc.MiscFlags = D3D10_RESOURCE_MISC_SHARED_KEYEDMUTEX;
 	HRESULT hr = m_device->CreateTexture2D(&desc, nullptr, texture.ReleaseAndGetAddressOf());
 	if (hr != S_OK)
@@ -982,14 +1000,6 @@ void VRManager::CopyBackbufferToTexture(ID3D10Texture2D *target)
 		return;
 	}
 
-	ComPtr<IDXGIKeyedMutex> mutex;
-	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	HRESULT hr = mutex->AcquireSync(0, 1000);
-	if (hr != S_OK)
-	{
-		CryLogAlways("Error while waiting for mutex during copy: %i", hr);
-	}
-
 	D3D10_TEXTURE2D_DESC rtDesc;
 	backbuffer->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
@@ -1000,6 +1010,71 @@ void VRManager::CopyBackbufferToTexture(ID3D10Texture2D *target)
 	{
 		m_device->CopyResource(target, backbuffer.Get());
 	}
+}
 
-	mutex->ReleaseSync(1);
+void VRManager::AcquireRenderSyncs()
+{
+	if (m_acquiredRenderSyncs)
+		return;
+
+	AcquireTextureSync(m_eyeTextures[0].Get(), 0);
+	AcquireTextureSync(m_eyeTextures[1].Get(), 0);
+	AcquireTextureSync(m_hudTexture.Get(), 0);
+
+	m_acquiredRenderSyncs = true;
+}
+
+void VRManager::ReleaseRenderSyncs()
+{
+	ReleaseTextureSync(m_eyeTextures[0].Get(), 1);
+	ReleaseTextureSync(m_eyeTextures[1].Get(), 1);
+	ReleaseTextureSync(m_hudTexture.Get(), 1);
+
+	m_acquiredRenderSyncs = false;
+}
+
+void VRManager::AcquireSubmissionSyncs()
+{
+	AcquireTextureSync(m_eyeTextures11[0].Get(), 1);
+	AcquireTextureSync(m_eyeTextures11[1].Get(), 1);
+	AcquireTextureSync(m_hudTexture11.Get(), 1);
+}
+
+void VRManager::ReleaseSubmissionSyncs()
+{
+	ReleaseTextureSync(m_eyeTextures11[0].Get(), 0);
+	ReleaseTextureSync(m_eyeTextures11[1].Get(), 0);
+	ReleaseTextureSync(m_hudTexture11.Get(), 0);
+}
+
+void VRManager::AcquireTextureSync(ID3D10Texture2D* target, int key)
+{
+	if (target == nullptr) return;
+	ComPtr<IDXGIKeyedMutex> mutex;
+	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	CHECK_D3D10(mutex->AcquireSync(key, 1000));
+}
+
+void VRManager::AcquireTextureSync(ID3D11Texture2D* target, int key)
+{
+	if (target == nullptr) return;
+	ComPtr<IDXGIKeyedMutex> mutex;
+	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	CHECK_D3D10(mutex->AcquireSync(key, 1000));
+}
+
+void VRManager::ReleaseTextureSync(ID3D10Texture2D* target, int key)
+{
+	if (target == nullptr) return;
+	ComPtr<IDXGIKeyedMutex> mutex;
+	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	CHECK_D3D10(mutex->ReleaseSync(key));
+}
+
+void VRManager::ReleaseTextureSync(ID3D11Texture2D* target, int key)
+{
+	if (target == nullptr) return;
+	ComPtr<IDXGIKeyedMutex> mutex;
+	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
+	CHECK_D3D10(mutex->ReleaseSync(key));
 }

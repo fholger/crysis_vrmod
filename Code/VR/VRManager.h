@@ -84,6 +84,7 @@ private:
 	ComPtr<ID3D10Device1> m_device;
 	ComPtr<IDXGISwapChain> m_swapchain;
 	ComPtr<ID3D10Texture2D> m_eyeTextures[2];
+	ComPtr<ID3D10ShaderResourceView> m_eyeViews[2];
 	ComPtr<ID3D10Texture2D> m_hudTexture;
 
 	// D3D11 resources for OpenXR submission
@@ -91,6 +92,7 @@ private:
 	ComPtr<ID3D11DeviceContext> m_context11;
 	ComPtr<ID3D11Texture2D> m_eyeTextures11[2];
 	ComPtr<ID3D11Texture2D> m_hudTexture11;
+	bool m_acquiredRenderSyncs = false;
 
 	float m_prevViewYaw = 0;
 
@@ -99,6 +101,17 @@ private:
 	void CreateHUDTexture();
 	void CreateSharedTexture(ComPtr<ID3D10Texture2D>& texture, ComPtr<ID3D11Texture2D>& texture11, int width, int height);
 	void CopyBackbufferToTexture(ID3D10Texture2D *target);
+
+	void AcquireRenderSyncs();
+	void ReleaseRenderSyncs();
+
+	void AcquireSubmissionSyncs();
+	void ReleaseSubmissionSyncs();
+
+	void AcquireTextureSync(ID3D10Texture2D* target, int key);
+	void AcquireTextureSync(ID3D11Texture2D* target, int key);
+	void ReleaseTextureSync(ID3D10Texture2D* target, int key);
+	void ReleaseTextureSync(ID3D11Texture2D* target, int key);
 
 	Vec3 m_referencePosition;
 	float m_referenceYaw = 0;

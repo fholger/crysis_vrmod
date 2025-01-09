@@ -448,6 +448,7 @@ struct SCVars
 	int vr_vehicle_crosshair;
 	int vr_haptics_enabled;
 	float vr_haptics_strength;
+	int vr_mirror_eye;
 
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;

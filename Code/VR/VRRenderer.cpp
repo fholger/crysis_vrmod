@@ -12,6 +12,7 @@
 #include "Player.h"
 #include "RocketLauncher.h"
 #include "VRManager.h"
+#include "VRRenderUtils.h"
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
 
@@ -168,6 +169,7 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 
 	gVR->SetSwapChain(swapChain);
 	gVR->CaptureHUD();
+
 	return true;
 }
 
