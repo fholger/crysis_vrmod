@@ -726,7 +726,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading() && !weapon->IsDualWieldSlave())
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading() && !weapon->IsDualWieldSlave() && !weapon->IsMounted())
 	{
 		// off hand is detached from weapon, so position it towards the controller, instead
 		Quat origHandRot = target.q;
@@ -759,7 +759,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, handJoint);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsDualWield())
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsDualWield() && !weapon->IsMounted())
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}

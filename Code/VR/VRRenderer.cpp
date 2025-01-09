@@ -336,6 +336,11 @@ void VRRenderer::DrawCrosshair()
 			skipEntities.push_back(vecSkipEnts[i]);
 		maxDistance = 16.f;
 	}
+	else if (pPlayer->GetActorStats()->mountedWeaponID)
+	{
+		if (!g_pGameCVars->vr_vehicle_crosshair)
+			return;
+	}
 	else
 	{
 		if (!g_pGameCVars->vr_weapon_crosshair)
