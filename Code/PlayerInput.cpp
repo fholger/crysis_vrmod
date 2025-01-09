@@ -442,7 +442,7 @@ void CPlayerInput::OnAction( const ActionId& actionId, int activationMode, float
 				}
 				else if (actions.xi_binoculars == actionId)
 				{
-					if(activationMode == eAAM_OnPress)
+					if(activationMode == eAAM_OnPress && !m_pPlayer->GetActorStats()->mountedWeaponID)
 					{
 						m_pPlayer->SelectItemByName("Binoculars", true);
 					}
