@@ -385,7 +385,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
 	touch.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
 	touch.AddBinding(m_sprint.handle, "/user/hand/<movement>/input/thumbstick/click");
-	touch.AddBinding(m_menu.handle, "/user/hand/<!weaon>/input/b");
+	touch.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
 	touch.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze");
