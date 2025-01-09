@@ -85,7 +85,6 @@ void VRManager::AwaitFrame()
 		return;
 
 	gXR->AwaitFrame();
-	AcquireRenderSyncs();
 }
 
 void VRManager::CaptureEye(int eye)
@@ -144,8 +143,6 @@ void VRManager::CaptureHUD()
 			return;
 	}
 
-	AcquireRenderSyncs();
-
 	// acquire and copy the current swap chain buffer to the HUD texture
 	CopyBackbufferToTexture(m_hudTexture.Get());
 
@@ -177,26 +174,29 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 		gXR->AwaitFrame();
 	}
 
-	ReleaseRenderSyncs();
+	ReleaseTextureSync(m_hudTexture.Get(), 1);
 
-	AcquireSubmissionSyncs();
-
-	ComPtr<IDXGIKeyedMutex> mutexHud;
+	AcquireTextureSync(m_hudTexture11.Get(), 1);
 	gXR->SubmitHud(m_hudTexture11.Get());
+	ReleaseTextureSync(m_hudTexture11.Get(), 0);
 
 	if (!didRenderThisFrame)
 	{
-		ReleaseSubmissionSyncs();
 		gXR->FinishFrame();
 		return;
 	}
 
+	ReleaseTextureSync(m_eyeTextures[0].Get(), 1);
+	ReleaseTextureSync(m_eyeTextures[1].Get(), 1);
+	AcquireTextureSync(m_eyeTextures11[0].Get(), 1);
+	AcquireTextureSync(m_eyeTextures11[1].Get(), 1);
 	// game is currently using symmetric projection, we need to cut off the texture accordingly
 	RectF leftBounds = GetEffectiveRenderLimits(0);
 	RectF rightBounds = GetEffectiveRenderLimits(1);
 	gXR->SubmitEyes(m_eyeTextures11[0].Get(), leftBounds, m_eyeTextures11[1].Get(), rightBounds);
+	ReleaseTextureSync(m_eyeTextures11[0].Get(), 0);
+	ReleaseTextureSync(m_eyeTextures11[1].Get(), 0);
 
-	ReleaseSubmissionSyncs();
 	gXR->FinishFrame();
 }
 
@@ -1000,6 +1000,8 @@ void VRManager::CopyBackbufferToTexture(ID3D10Texture2D *target)
 		return;
 	}
 
+	AcquireTextureSync(target, 0);
+
 	D3D10_TEXTURE2D_DESC rtDesc;
 	backbuffer->GetDesc(&rtDesc);
 	if (rtDesc.SampleDesc.Count > 1)
@@ -1012,47 +1014,12 @@ void VRManager::CopyBackbufferToTexture(ID3D10Texture2D *target)
 	}
 }
 
-void VRManager::AcquireRenderSyncs()
-{
-	if (m_acquiredRenderSyncs)
-		return;
-
-	AcquireTextureSync(m_eyeTextures[0].Get(), 0);
-	AcquireTextureSync(m_eyeTextures[1].Get(), 0);
-	AcquireTextureSync(m_hudTexture.Get(), 0);
-
-	m_acquiredRenderSyncs = true;
-}
-
-void VRManager::ReleaseRenderSyncs()
-{
-	ReleaseTextureSync(m_eyeTextures[0].Get(), 1);
-	ReleaseTextureSync(m_eyeTextures[1].Get(), 1);
-	ReleaseTextureSync(m_hudTexture.Get(), 1);
-
-	m_acquiredRenderSyncs = false;
-}
-
-void VRManager::AcquireSubmissionSyncs()
-{
-	AcquireTextureSync(m_eyeTextures11[0].Get(), 1);
-	AcquireTextureSync(m_eyeTextures11[1].Get(), 1);
-	AcquireTextureSync(m_hudTexture11.Get(), 1);
-}
-
-void VRManager::ReleaseSubmissionSyncs()
-{
-	ReleaseTextureSync(m_eyeTextures11[0].Get(), 0);
-	ReleaseTextureSync(m_eyeTextures11[1].Get(), 0);
-	ReleaseTextureSync(m_hudTexture11.Get(), 0);
-}
-
 void VRManager::AcquireTextureSync(ID3D10Texture2D* target, int key)
 {
 	if (target == nullptr) return;
 	ComPtr<IDXGIKeyedMutex> mutex;
 	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	CHECK_D3D10(mutex->AcquireSync(key, 1000));
+	CHECK_D3D10(mutex->AcquireSync(key, 100));
 }
 
 void VRManager::AcquireTextureSync(ID3D11Texture2D* target, int key)
@@ -1060,7 +1027,7 @@ void VRManager::AcquireTextureSync(ID3D11Texture2D* target, int key)
 	if (target == nullptr) return;
 	ComPtr<IDXGIKeyedMutex> mutex;
 	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	CHECK_D3D10(mutex->AcquireSync(key, 1000));
+	CHECK_D3D10(mutex->AcquireSync(key, 100));
 }
 
 void VRManager::ReleaseTextureSync(ID3D10Texture2D* target, int key)

@@ -102,12 +102,6 @@ private:
 	void CreateSharedTexture(ComPtr<ID3D10Texture2D>& texture, ComPtr<ID3D11Texture2D>& texture11, int width, int height);
 	void CopyBackbufferToTexture(ID3D10Texture2D *target);
 
-	void AcquireRenderSyncs();
-	void ReleaseRenderSyncs();
-
-	void AcquireSubmissionSyncs();
-	void ReleaseSubmissionSyncs();
-
 	void AcquireTextureSync(ID3D10Texture2D* target, int key);
 	void AcquireTextureSync(ID3D11Texture2D* target, int key);
 	void ReleaseTextureSync(ID3D10Texture2D* target, int key);
