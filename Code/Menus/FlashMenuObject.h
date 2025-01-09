@@ -140,6 +140,8 @@ public:
 	void DestroyMenusAtNextFrame();
 	bool IsMenuActive();
 
+	bool IsLoadingScreenActive();
+
 	ILINE bool WaitingForStart() const { return m_bLoadingDone; }
 
 	string* GetLastInGameSave() { return &m_sLastSaveGame; }

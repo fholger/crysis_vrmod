@@ -1,6 +1,7 @@
 #pragma once
 #include "Cry_Camera.h"
 #include "HUD/HUD.h"
+#include "Menus/FlashMenuObject.h"
 
 struct IDXGISwapChain;
 
@@ -35,7 +36,7 @@ public:
 
 	void OnBinoculars(bool bShown) override { m_binocularsActive = bShown; }
 
-	bool ShouldIgnoreWindowSizeChanges() const { return m_ignoreWindowSizeChanges; }
+	bool ShouldIgnoreWindowSizeChanges() const { return m_ignoreWindowSizeChanges || SAFE_MENU_FUNC_RET(IsLoadingScreenActive()); }
 
 	bool ShouldRenderShadowMaps() const { return m_currentEye != 1; }
 

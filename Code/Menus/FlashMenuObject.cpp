@@ -2901,6 +2901,11 @@ bool CFlashMenuObject::IsMenuActive()
 	return m_pCurrentFlashMenuScreen && m_bUpdate;
 }
 
+bool CFlashMenuObject::IsLoadingScreenActive()
+{
+	return m_pCurrentFlashMenuScreen == m_apFlashMenuScreens[MENUSCREEN_FRONTENDLOADING];
+}
+
 //-----------------------------------------------------------------------------------------------------
 
 void CFlashMenuObject::HardwareEvaluation()
