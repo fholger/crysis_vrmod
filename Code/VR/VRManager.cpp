@@ -480,8 +480,8 @@ void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDi
 		return;
 	}
 
-	//if (pPlayer->GetActorStats()->mountedWeaponID)
-	//	return;
+	if (pPlayer->GetActorStats()->mountedWeaponID && !pPlayer->GetLinkedVehicle())
+		return;
 
 	CCamera left = gVRRenderer->GetCurrentViewCamera();
 	ModifyViewCamera(0, left);
