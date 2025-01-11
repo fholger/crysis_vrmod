@@ -786,8 +786,8 @@ void VRManager::TryGrabWeaponWithOffHand()
 		m_offHandFollowsWeapon = true;
 
 		// apply benefits of the flat game's iron sights zoom for recoil and spread
-		weapon->SetCurrentZoomMode(0);
-		if (IZoomMode* zm = weapon->GetZoomMode(weapon->GetCurrentZoomMode()))
+		//weapon->SetCurrentZoomMode(0);
+		if (IZoomMode* zm = weapon->GetZoomMode(0))
 		{
 			zm->ApplyZoomMod(weapon->GetFireMode(weapon->GetCurrentFireMode()));
 		}
@@ -803,7 +803,7 @@ void VRManager::DetachOffHandFromWeapon()
 	if (!weapon)
 		return;
 
-	weapon->SetCurrentZoomMode(0);
+	//weapon->SetCurrentZoomMode(0);
 	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetRecoilMod();
 	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetSpreadMod();
 }
@@ -828,12 +828,12 @@ int VRManager::GetHandSide(EVRHand hand) const
 	return 0;
 }
 
-bool VRManager::IsHandNearHead(EVRHand hand)
+bool VRManager::IsHandNearHead(EVRHand hand, float maxDist)
 {
 	Vec3 headPosition = gXR->GetHmdTransform().GetTranslation();
 	Vec3 handPosition = gXR->GetInput()->GetControllerTransform(GetHandSide(hand)).GetTranslation();
 
-	return handPosition.GetDistance(headPosition) < .25f;
+	return handPosition.GetDistance(headPosition) < maxDist;
 }
 
 bool VRManager::IsHandNearShoulder(EVRHand hand)

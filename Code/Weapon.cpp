@@ -3697,6 +3697,19 @@ bool CWeapon::GetScopePosition(Vec3& pos)
 	return false;
 }
 
+bool CWeapon::HasScope() const
+{
+	if (m_useViewMode)
+		return false;
+
+	if (CIronSight* sight = dynamic_cast<CIronSight*>(m_zm))
+	{
+		return sight->IsScope() || sight->GetMaxZoomSteps() > 1 || sight->GetZoomFoVScale(1) <= 0.5f;
+	}
+
+	return false;
+}
+
 //------------------------------------------------------
 void CWeapon::SetNextShotTime(bool activate)
 {

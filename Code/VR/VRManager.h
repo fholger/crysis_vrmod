@@ -76,7 +76,7 @@ public:
 	CPlayer* GetLocalPlayer() const;
 
 	int GetHandSide(EVRHand hand) const;
-	bool IsHandNearHead(EVRHand hand);
+	bool IsHandNearHead(EVRHand hand, float maxDist = .25f);
 	bool IsHandNearShoulder(EVRHand hand);
 
 private:

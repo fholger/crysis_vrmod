@@ -321,6 +321,8 @@ public:
 	void    OnZoomOut();
 	bool    GetScopePosition(Vec3& pos);
 
+	bool HasScope() const;
+
 	// network
 	struct WeaponRaiseParams
 	{

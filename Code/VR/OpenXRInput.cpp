@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
+#include "Weapon.h"
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
 
@@ -440,6 +441,7 @@ void OpenXRInput::UpdateIngameActions()
 {
 	UpdatePlayerMovement();
 	UpdateGripAmount();
+	UpdateWeaponScopes();
 	UpdateBooleanAction(m_sprint);
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_suitMenu);
@@ -646,6 +648,37 @@ void OpenXRInput::UpdateGripAmount()
 	else if (m_gripAmount[offHand] < gripActivationAmount && prevOffHandGrip >= gripActivationAmount)
 	{
 		input->OnAction(g_pGameActions->off_hand_weapon_grab, eAAM_OnRelease, 0);
+	}
+}
+
+void OpenXRInput::UpdateWeaponScopes()
+{
+	CPlayer* player = gVR->GetLocalPlayer();
+	if (!player)
+		return;
+	IPlayerInput* input = player->GetPlayerInput();
+	if (!input)
+		return;
+
+	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
+	if (!weapon || !weapon->HasScope())
+		return;
+
+	if (!weapon->IsZoomed() && !weapon->IsZooming())
+	{
+		// if scope is close to eyes, activate weapon zoom mode
+		if (!player->IsSwimming() && !player->IsSprinting() && gVR->IsOffHandGrabbingWeapon() && gVR->IsHandNearHead(WEAPON_HAND, 0.25f))
+		{
+			input->OnAction(g_pGameActions->xi_zoom, eAAM_OnPress, 1);
+		}
+	}
+	else
+	{
+		if (!gVR->IsOffHandGrabbingWeapon() || !gVR->IsHandNearHead(WEAPON_HAND, 0.35f))
+		{
+			// either moved away from eye or let go with off hand, so stop zooming
+			input->OnAction(g_pGameActions->xi_zoom, eAAM_OnPress, 1);
+		}
 	}
 }
 

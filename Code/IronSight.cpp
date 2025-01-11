@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 28:10:2005   16:00 : Created by Márcio Martins
+- 28:10:2005   16:00 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -16,6 +16,7 @@ History:
 #include "GameCVars.h"
 #include "Single.h"
 #include "BulletTime.h"
+#include "VR/VRManager.h"
 
 #define PHYS_FOREIGN_ID_DOF_QUERY PHYS_FOREIGN_ID_USER+3
 
@@ -751,6 +752,14 @@ void CIronSight::OnZoomedOut()
 	if(m_zoomparams.scope_mode)
 		ResetFovAndPosition();
 
+	if (m_pWeapon->GetOwnerActor()->IsClient() && gVR->IsOffHandGrabbingWeapon())
+	{
+		// reenable basic recoil and spread reduction
+		if (IZoomMode* zm = m_pWeapon->GetZoomMode(0))
+		{
+			zm->ApplyZoomMod(m_pWeapon->GetFireMode(m_pWeapon->GetCurrentFireMode()));
+		}
+	}
 }
 
 //------------------------------------------------------------------------

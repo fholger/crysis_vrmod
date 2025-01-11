@@ -100,6 +100,7 @@ private:
 	void UpdateHUDActions();
 	void UpdatePlayerMovement();
 	void UpdateGripAmount();
+	void UpdateWeaponScopes();
 	void UpdateBooleanAction(BooleanAction& action);
 	void UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key);
 

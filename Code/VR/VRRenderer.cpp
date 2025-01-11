@@ -225,14 +225,10 @@ bool VRRenderer::ShouldRenderVR() const
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (pPlayer)
 	{
-		if (CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(true)))
+		if (CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(false)))
 		{
-			IZoomMode* zoom = weapon->GetZoomMode(weapon->GetCurrentZoomMode());
-			if (CIronSight *sight = dynamic_cast<CIronSight*>(zoom))
-			{
-				if (sight->IsScope() && (sight->IsZoomed() || sight->IsZooming()))
-					return false;
-			}
+			if (weapon->IsZoomed() || weapon->IsZooming())
+				return false;
 		}
 	}
 
@@ -246,6 +242,15 @@ VRRenderMode VRRenderer::GetRenderMode() const
 
 	if (m_binocularsActive)
 		return RM_2D;
+
+	if (CPlayer* player = gVR->GetLocalPlayer())
+	{
+		if (CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId()))
+		{
+			if (weapon->IsZoomed() || weapon->IsZooming())
+				return RM_2D;
+		}
+	}
 
 	return g_pGameCVars->vr_cinema_3d ? RM_3D : RM_2D;
 }
