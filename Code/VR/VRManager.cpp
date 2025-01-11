@@ -405,6 +405,16 @@ void VRManager::ModifyCameraFor2D(CCamera& cam)
 	cam.SetMatrix(weaponView);
 }
 
+inline float GetAngleDifference360( float a1, float a2 )
+{
+	float res = a1-a2;
+	if (res > gf_PI)
+		res = res - gf_PI2;
+	else if (res < -gf_PI)
+		res = gf_PI2 + res;
+	return res;
+}
+
 void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
@@ -447,7 +457,19 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	weaponAngles = Ang3(trackedTransform);
 
 	if (weapon->IsZoomed())
+	{
 		weaponAngles.y = 0;
+		// smooth weapon orientation with exponential decay, since otherwise zoom is extremely unstable
+		IZoomMode* zm = weapon->GetZoomMode(weapon->GetCurrentZoomMode());
+		float factor = 0.03f * cry_powf(1.f / zm->GetZoomFoVScale(zm->GetCurrentStep()), 1.5f);
+		Ang3 smoothedAngles = weaponAngles;
+		float yawPitchDecay = powf(2.f, -gEnv->pSystem->GetITimer()->GetFrameTime() / factor);
+		smoothedAngles.z = weaponAngles.z + GetAngleDifference360(m_smoothedWeaponAngles.z, weaponAngles.z) * yawPitchDecay;
+		smoothedAngles.x = weaponAngles.x + GetAngleDifference360(m_smoothedWeaponAngles.x, weaponAngles.x) * yawPitchDecay;
+		weaponAngles = smoothedAngles;
+	}
+
+	m_smoothedWeaponAngles = weaponAngles;
 }
 
 Matrix34 VRManager::GetControllerTransform(int side)

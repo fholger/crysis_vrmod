@@ -109,6 +109,8 @@ private:
 	void ReleaseTextureSync(ID3D10Texture2D* target, int key);
 	void ReleaseTextureSync(ID3D11Texture2D* target, int key);
 
+	Ang3 m_smoothedWeaponAngles;
+
 	Vec3 m_referencePosition;
 	float m_referenceYaw = 0;
 	Matrix34 m_fixedHudTransform;

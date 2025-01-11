@@ -3314,6 +3314,7 @@ void CHUD::OnPostUpdate(float frameTime)
 
 			float x = vScreenSpace.x*width*0.01f;
 			float y = vScreenSpace.y*height*0.01f;
+			x = y = 0;
 
 			//gEnv->pRenderer->Draw2dLabel(100,125,2,color,false,"%f, %f",x,y);
 
