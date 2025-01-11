@@ -109,6 +109,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{e24cbd17-c658-43d1-ba0f-5c10d38cddeb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\Imgui">
+      <UniqueIdentifier>{f696d6e2-d969-4003-9d6d-db2c491aa569}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -700,6 +703,21 @@
     </ClCompile>
     <ClCompile Include="VR\HandPoses.cpp" />
     <ClCompile Include="VR\VRRenderUtils.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx10.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1903,6 +1921,27 @@
     <ClInclude Include="VR\EVRHand.h" />
     <ClInclude Include="VR\HandPoses.h" />
     <ClInclude Include="VR\VRRenderUtils.h" />
+    <ClInclude Include="ThirdParty\imgui\imconfig.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imgui_internal.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_textedit.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\imgui\backends\imgui_impl_dx10.h">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GameActions.actions">
@@ -1910,6 +1949,9 @@
     </None>
     <None Include="..\Launcher\Cursor_White.cur">
       <Filter>Resources</Filter>
+    </None>
+    <None Include="ThirdParty\imgui\misc\debuggers\imgui.natstepfilter">
+      <Filter>ThirdParty\Imgui</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1935,5 +1977,10 @@
     <FxCompile Include="Shaders\FullScreenTri.vs.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">
+      <Filter>ThirdParty\Imgui</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>
