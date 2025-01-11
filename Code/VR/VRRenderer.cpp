@@ -156,8 +156,12 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 
 	if (GetRenderMode() == RM_2D)
 	{
+		CCamera cam = m_originalViewCamera;
+		gVR->ModifyCameraFor2D(cam);
+		pSystem->SetViewCamera(cam);
 		// for things like the binoculars, we skip the stereo rendering and instead render to the 2D screen
 		renderFunc(pSystem);
+		pSystem->SetViewCamera(m_originalViewCamera);
 	}
 
 	m_didRenderThisFrame = true;

@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 18:12:2005   14:01 : Created by Márcio Martins
+- 18:12:2005   14:01 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -95,7 +95,6 @@ void CBinocular::UpdateFPView(float frameTime)
 
 bool CBinocular::FilterView(SViewParams& viewParams)
 {
-	// TODO: modify view here for VR
 	gVR->ModifyViewForBinoculars(viewParams);
 	return CWeapon::FilterView(viewParams);
 }

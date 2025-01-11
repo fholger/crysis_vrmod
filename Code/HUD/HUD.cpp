@@ -3284,6 +3284,7 @@ void CHUD::OnPostUpdate(float frameTime)
 			{
 				//vWorldPos = gEnv->pRenderer->GetCamera().GetPosition();
 				vWorldPos = gVRRenderer->GetCurrentViewCamera().GetPosition();
+				//vWorldPos = static_cast<SPlayerStats*>(pPlayer->GetActorStats())->FPWeaponPos;
 			}
 
 			//float color[] = {1,1,1,0.5f};
@@ -3299,7 +3300,7 @@ void CHUD::OnPostUpdate(float frameTime)
 			//}
 
 			Vec3 vScreenSpace;
-			gVRRenderer->ProjectToScreenPlayerCam(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
+			gEnv->pRenderer->ProjectToScreen(vWorldPos.x,vWorldPos.y,vWorldPos.z,&vScreenSpace.x,&vScreenSpace.y,&vScreenSpace.z);
 			Vec3 vCenter(50.0f, 50.0f,1.0f);
 			vScreenSpace -=vCenter;
 

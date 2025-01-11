@@ -378,18 +378,40 @@ void VRManager::ModifyViewForBinoculars(SViewParams& view)
 	view.position = viewMatrix.GetTranslation();
 }
 
+void VRManager::ModifyCameraFor2D(CCamera& cam)
+{
+	CPlayer* player = GetLocalPlayer();
+	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
+	if (!weapon || !(weapon->IsZoomed() || weapon->IsZooming()))
+		return;
+
+	Vec3 scopePos;
+	const SPlayerStats &stats = *static_cast<const SPlayerStats*>(player->GetActorStats());
+	Matrix34 weaponView = Matrix34::CreateRotationXYZ(stats.FPWeaponAngles);
+	if (!weapon->GetScopePosition(scopePos))
+	{
+		scopePos = stats.FPWeaponPos;
+	}
+	else
+	{
+		scopePos -= 0.1f * weaponView.GetColumn1();
+	}
+	weaponView.SetTranslation(scopePos);
+	cam.SetMatrix(weaponView);
+}
+
 void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
 		|| g_pGame->GetMenu()->IsMenuActive()
 		|| g_pGame->GetHUD()->GetModalHUD()
-		|| !gVRRenderer->ShouldRenderVR())
+		)
 	{
 		return;
 	}
 
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
-	if (!weapon)
+	if (!weapon || (!gVRRenderer->ShouldRenderVR() && ! weapon->IsZoomed() && !weapon->IsZooming()))
 		return;
 
 	if (slave)
