@@ -67,6 +67,7 @@ public:
 	void SetHudInFrontOfPlayer();
 	void SetHudAttachedToHead();
 	void SetHudAttachedToOffHand();
+	void SetHudAttachedToWeaponHand();
 
 	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
 

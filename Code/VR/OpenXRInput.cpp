@@ -504,6 +504,9 @@ void OpenXRInput::UpdatePlayerMovement()
 	bool usingMountedGun = pPlayer->GetActorStats()->mountedWeaponID != 0;
 	bool rendering2D = !gVRRenderer->ShouldRenderVR();
 	bool usingBinoculars = gVRRenderer->AreBinocularsActive();
+	CWeapon* weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId());
+	bool usingWeaponZoom = weapon && weapon->IsZoomed();
+	bool isZoomed = usingBinoculars || usingWeaponZoom;
 
 	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
 	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
@@ -542,7 +545,7 @@ void OpenXRInput::UpdatePlayerMovement()
 		return;
 	}
 
-	if (inHud || usingMountedGun || (rendering2D && !usingBinoculars))
+	if (inHud || usingMountedGun || (rendering2D && !isZoomed))
 	{
 		if (m_quickMenuActive)
 		{
@@ -575,14 +578,14 @@ void OpenXRInput::UpdatePlayerMovement()
 
 	if (jumpCrouch < g_pGameCVars->vr_controller_stick_action_threshold)
 	{
-		if (m_wasJumpActive && !usingBinoculars)
+		if (m_wasJumpActive && !isZoomed)
 			input->OnAction(g_pGameActions->jump, eAAM_OnRelease, 0);
 		m_wasJumpActive = false;
 	}
 	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
 	{
 		if (!m_wasJumpActive)
-			input->OnAction(usingBinoculars ? g_pGameActions->zoom_in : g_pGameActions->jump, eAAM_OnPress, 1);
+			input->OnAction(isZoomed ? g_pGameActions->zoom_in : g_pGameActions->jump, eAAM_OnPress, 1);
 		m_wasJumpActive = true;
 	}
 	if (jumpCrouch > -g_pGameCVars->vr_controller_stick_action_threshold)
@@ -593,7 +596,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	{
 		if (!m_wasCrouchActive)
 		{
-			if (usingBinoculars)
+			if (isZoomed)
 			{
 				input->OnAction(g_pGameActions->zoom_out, eAAM_OnPress, 1);
 			}

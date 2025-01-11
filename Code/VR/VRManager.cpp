@@ -380,6 +380,9 @@ void VRManager::ModifyViewForBinoculars(SViewParams& view)
 
 void VRManager::ModifyCameraFor2D(CCamera& cam)
 {
+	if (gVRRenderer->AreBinocularsActive())
+		return;
+
 	CPlayer* player = GetLocalPlayer();
 	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
 	if (!weapon || !(weapon->IsZoomed() || weapon->IsZooming()))
@@ -387,7 +390,9 @@ void VRManager::ModifyCameraFor2D(CCamera& cam)
 
 	Vec3 scopePos;
 	const SPlayerStats &stats = *static_cast<const SPlayerStats*>(player->GetActorStats());
-	Matrix34 weaponView = Matrix34::CreateRotationXYZ(stats.FPWeaponAngles);
+	Ang3 angles = stats.FPWeaponAngles;
+	angles.y = 0;
+	Matrix34 weaponView = Matrix34::CreateRotationXYZ(angles);
 	if (!weapon->GetScopePosition(scopePos))
 	{
 		scopePos = stats.FPWeaponPos;
@@ -440,6 +445,9 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	Matrix34 trackedTransform = weaponWorldTransform * adjustedControllerTransform * inverseWeaponGripTransform;
 	weaponPosition = trackedTransform.GetTranslation();
 	weaponAngles = Ang3(trackedTransform);
+
+	if (weapon->IsZoomed())
+		weaponAngles.y = 0;
 }
 
 Matrix34 VRManager::GetControllerTransform(int side)
@@ -607,8 +615,13 @@ void VRManager::Update()
 	}
 
 	bool showHudFixed= g_pGame->GetHUD() && g_pGame->GetHUD()->ShouldDisplayHUDFixed();
+	CPlayer* player = GetLocalPlayer();
+	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
+	bool isWeaponZoom = weapon && (weapon->IsZoomed() || weapon->IsZooming());
 	if (gVRRenderer->AreBinocularsActive())
 		SetHudAttachedToOffHand();
+	else if (isWeaponZoom)
+		SetHudInFrontOfPlayer();
 	else if (gVRRenderer->ShouldRenderVR() && !showHudFixed)
 		SetHudAttachedToHead();
 	else
@@ -696,6 +709,38 @@ void VRManager::SetHudAttachedToOffHand()
 
 	Vec2i renderSize = GetRenderSize();
 	gXR->SetHudSize(vr_binocular_size, vr_binocular_size * renderSize.y / renderSize.x);
+}
+
+void VRManager::SetHudAttachedToWeaponHand()
+{
+	float vr_scope_size = 0.25f;
+	m_fixedPositionInitialized = false;
+	Matrix34 transform = gXR->GetInput()->GetControllerTransform(GetHandSide(WEAPON_HAND));
+	Vec3 headPos = gXR->GetHmdTransform().GetTranslation() - Vec3(0, 0, vr_scope_size/2);
+	Vec3 fwd = transform.GetTranslation() - headPos;
+	Vec3 up = Vec3(0, 0, 1);
+	Vec3 right = fwd.Cross(up).GetNormalized();
+	up = right.Cross(fwd).GetNormalized();
+
+	transform.SetFromVectors(right, fwd, up, transform.GetTranslation());
+	Ang3 angles = Ang3::GetAnglesXYZ((Matrix33)transform);
+	angles.y = 0;
+	transform.SetRotationXYZ(angles, transform.GetTranslation());
+	transform = transform * Matrix34::CreateTranslationMat(Vec3(0, 0.1f, vr_scope_size / 2));
+
+	angles.SetAnglesXYZ((Matrix33)transform);
+	angles.x = -angles.x;
+	angles.y = -angles.y;
+	Vec3 pos = transform.GetTranslation();
+	pos.x = -pos.x;
+	pos.y = -pos.y;
+	transform.SetRotationXYZ(angles, pos);
+
+	XrPosef hudTransform = CrysisToOpenXR(transform);
+	gXR->SetHudPose(hudTransform);
+
+	Vec2i renderSize = GetRenderSize();
+	gXR->SetHudSize(vr_scope_size, vr_scope_size * renderSize.y / renderSize.x);
 }
 
 void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)
