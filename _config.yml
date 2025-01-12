@@ -28,7 +28,7 @@ search: false
 
 url: "https://crysis.vrmods.eu"
 repository: "fholger/crysis_vrmod"
-logo: "/assets/images/fc_logo.png"
+logo: "/assets/images/crysis_logo.png"
 
 # Build settings
 markdown: kramdown
@@ -65,7 +65,7 @@ plugins:
 
 author:
   name   : "Holger Frydrych"
-  avatar : "/assets/images/game.ico"
+  avatar : "/assets/images/favicon.ico"
   bio    : "I am a developer and VR enthusiast, working on VR conversions in my spare time"
   links:
     - label: "Website"
@@ -76,7 +76,7 @@ footer:
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/fholger/farcry_vrmod"
+      url: "https://github.com/fholger/crysis_vrmod"
     - label: "Discord"
       icon: "fab fa-fw fa-discord"
       url: "http://flat2vr.com/"
@@ -97,7 +97,7 @@ defaults:
       share: true
       related: true
       header:
-        image: /assets/images/title.jpg
+        image: /assets/images/crysisvr_logo.png
   # _pages
   - scope:
       path: "_pages"
@@ -106,7 +106,7 @@ defaults:
       layout: single
       author_profile: false
       header:
-        image: /assets/images/title.jpg
+        image: /assets/images/crysisvr_logo.png
 
 category_archive:
   type: liquid

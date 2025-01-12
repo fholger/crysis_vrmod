@@ -3,7 +3,7 @@ layout: splash
 author_profile: false
 
 header:
-  #overlay_image: /assets/images/page_bg_raw.jpg
+  overlay_image: /assets/images/crysisvr_logo.png
   overlay_filter: 0.5
   actions:
     - label: "Download"
