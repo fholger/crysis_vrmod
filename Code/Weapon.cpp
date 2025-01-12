@@ -3784,7 +3784,7 @@ void CWeapon::PostProcessArms()
 
 	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L_term")).t);
 
-	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this))
+	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this) && !IsDualWield())
 	{
 		// this whole setup does not work for left handed mode, so we unfortunately have to hide the arms
 		HideArms(true);

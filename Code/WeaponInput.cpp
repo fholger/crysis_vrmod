@@ -187,18 +187,21 @@ bool CWeapon::OnActionAttack(EntityId actorId, const ActionId& actionId, int act
 				m_fire_alternation = !m_fire_alternation;
 				m_requestedFire = true;
 
-				if (m_fireOffHand && dualWield->OutOfAmmo(false) && dualWield->CanReload())
+				bool fireOffhand = m_fireOffHand;
+				if (g_pGameCVars->vr_weapon_hand == 0)
+					fireOffhand = !fireOffhand;
+				if (fireOffhand && dualWield->OutOfAmmo(false) && dualWield->CanReload())
 				{
 					dualWield->Reload();
 					return true;
 				}
-				else if(!m_fireOffHand && OutOfAmmo(false) && CanReload())
+				else if(!fireOffhand && OutOfAmmo(false) && CanReload())
 				{
 					Reload();
 					return true;
 				}
 
-				if (!m_fireOffHand) // || (!dualWield->CanFire() || !dualWield->IsSelected()))
+				if (!fireOffhand) // || (!dualWield->CanFire() || !dualWield->IsSelected()))
 				{
 					if(!IsWeaponRaised() && CanFire())
 						StartFire();
