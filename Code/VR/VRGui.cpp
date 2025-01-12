@@ -3,6 +3,7 @@
 
 #include "GameCVars.h"
 #include "imgui.h"
+#include "imgui_markdown.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "backends/imgui_impl_dx10.h"
@@ -10,6 +11,7 @@
 
 void VRGui::Init(ID3D10Device* device)
 {
+	LoadManualSections();
 	ImGui::CreateContext();
 	ImGui_ImplDX10_Init(device);
 	ImGui::StyleColorsDark();
@@ -35,6 +37,7 @@ void VRGui::SetScale(float scale)
 void VRGui::ClickedNoFocus()
 {
 	m_settingsMenuOpen = false;
+	m_manualWindowOpen = false;
 }
 
 void VRGui::Render()
@@ -69,6 +72,10 @@ void VRGui::ReloadFonts(float scale)
 	fonts->Clear();
 
 	LoadFont("fonts/DroidSans.ttf", 20 * scale);
+	m_fontText = LoadFont("fonts/Karla-Regular.ttf", 16 * scale);
+	m_fontH1 = LoadFont("fonts/Roboto-Medium.ttf", 32 * scale);
+	m_fontH2 = LoadFont("fonts/Roboto-Medium.ttf", 26 * scale);
+	m_fontH3 = LoadFont("fonts/Roboto-Medium.ttf", 20 * scale);
 
 	ImGui_ImplDX10_InvalidateDeviceObjects();
 	fonts->Build();
@@ -81,12 +88,17 @@ void VRGui::Draw()
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
 	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.1f * windowSize.y));
 	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
-	ImGui::Button("VR Manual");
+	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
 	ImGui::End();
 
 	if (m_settingsMenuOpen)
 	{
 		DrawSettingsMenu();
+	}
+
+	if (m_manualWindowOpen)
+	{
+		DrawManualWindow();
 	}
 }
 
@@ -158,6 +170,68 @@ void VRGui::DrawSettingsMenu()
 	{
 		// make sure any changes we made get saved to the game.cfg file
 		g_pGame->GetOptions()->WriteGameCfg();
+	}
+}
+
+void VRGui::DrawManualWindow()
+{
+	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+
+	ImGui::Begin("VR Manual", &m_manualWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::Spacing();
+	ImGui::SetWindowPos(ImVec2(0.1f * windowSize.x, 0.1f * windowSize.y));
+	ImGui::SetWindowSize(ImVec2(0.8f * windowSize.x, 0.8f * windowSize.y));
+
+	ImGui::BeginGroup();
+	for (int i = 0; i < m_manualSections.size(); i++)
+	{
+		if (ImGui::Selectable(m_manualSections[i].name.c_str(), m_currentManualSection == i, 0, ImVec2(.15f * windowSize.x, 0)))
+			m_currentManualSection = i;
+	}
+	ImGui::EndGroup();
+	ImGui::SameLine();
+
+	ImGui::MarkdownConfig config;
+	config.headingFormats[0] = { m_fontH1, true };
+	config.headingFormats[1] = { m_fontH2, true };
+	config.headingFormats[2] = { m_fontH3, false };
+	ImGui::BeginChild("manual_text");
+	ImGui::PushFont(m_fontText);
+	if (m_currentManualSection >= 0 && m_currentManualSection < m_manualSections.size())
+	{
+		const ManualSection& section = m_manualSections[m_currentManualSection];
+		ImGui::Markdown(section.content.data(), section.content.size(), config);
+	}
+	ImGui::PopFont();
+	ImGui::EndChild();
+
+	ImGui::End();
+}
+
+void VRGui::LoadManualSections()
+{
+	_finddata_t fd;
+	intptr_t handle = gEnv->pCryPak->FindFirst("Manual/*.md", &fd, ICryPak::FLAGS_ONLY_MOD_DIRS);
+	if (handle >= 0)
+	{
+		do
+		{
+			CryLogAlways("Found manual file: %s", fd.name);
+			ManualSection section;
+			section.filename = fd.name;
+			section.name = section.filename.substr(3, section.filename.length() - 6).replace('_', ' ');
+
+			CryStringLocal filepath = "Manual/" + section.filename;
+			CCryFile file(filepath.c_str(), "r");
+			size_t fileSize = file.GetLength();
+
+			section.content.resize(fileSize);
+			file.ReadRaw(section.content.data(), fileSize);
+
+			m_manualSections.emplace_back(section);
+		}
+		while (gEnv->pCryPak->FindNext(handle, &fd) >= 0);
+		gEnv->pCryPak->FindClose(handle);
 	}
 }
 

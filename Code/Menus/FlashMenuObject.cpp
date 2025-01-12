@@ -535,14 +535,16 @@ bool CFlashMenuObject::OnInputEvent(const SInputEvent &rInputEvent)
 	if(rInputEvent.deviceId==eDI_Mouse && rInputEvent.keyId==eKI_Mouse1)
 	{
 		if (rInputEvent.state & eIS_Pressed)
+		{
 			ImGui::GetIO().AddMouseButtonEvent(0, true);
+			if (!ImGui::GetIO().WantCaptureMouse)
+				gVRRenderer->GuiClickedUnfocussed();
+		}
 		else if (rInputEvent.state & eIS_Released)
 			ImGui::GetIO().AddMouseButtonEvent(0, false);
-		if (ImGui::GetIO().WantCaptureMouse)
-			return false;
-		else
-			gVRRenderer->GuiClickedUnfocussed();
 	}
+	if (ImGui::GetIO().WantCaptureMouse)
+		return false;
 
 	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated() || rInputEvent.keyId == eKI_SYS_Commit)
 		return false;
@@ -1639,6 +1641,9 @@ bool CFlashMenuObject::IsOnScreen(EMENUSCREEN screen)
 
 void CFlashMenuObject::OnHardwareMouseEvent(int iX,int iY,EHARDWAREMOUSEEVENT eHardwareMouseEvent)
 {
+	if (ImGui::GetIO().WantCaptureMouse)
+		return;
+
 	Vec2i windowSize = gVRRenderer->GetWindowSize();
 	float scaleX = ((float)gEnv->pRenderer->GetWidth()) / windowSize.x;
 	float scaleY = ((float)gEnv->pRenderer->GetHeight()) / windowSize.y;
