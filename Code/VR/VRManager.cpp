@@ -79,6 +79,17 @@ void VRManager::Shutdown()
 	m_initialized = false;
 }
 
+void VRManager::ReinitializeXR()
+{
+	gXR->Shutdown();
+	gXR->Init();
+	LUID requiredAdapterLuid;
+	D3D_FEATURE_LEVEL requiredLevel;
+	// need to call this, otherwise creating session results in error
+	gXR->GetD3D11Requirements(&requiredAdapterLuid, &requiredLevel);
+	gXR->CreateSession(m_device11.Get());
+}
+
 void VRManager::AwaitFrame()
 {
 	if (!m_initialized)

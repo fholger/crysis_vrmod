@@ -25,6 +25,8 @@ public:
 	bool Init();
 	void Shutdown();
 
+	void ReinitializeXR();
+
 	void AwaitFrame();
 
 	void CaptureEye(int eye);

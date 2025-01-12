@@ -200,7 +200,7 @@ void VRGui::DrawSettingsMenu()
 	if (origWeaponHand != g_pGameCVars->vr_weapon_hand || origMovementHand != g_pGameCVars->vr_movement_hand)
 	{
 		// we need to update controller bindings based on the chosen hand settings
-		gXR->GetInput()->SuggestBindings();
+		gVR->ReinitializeXR();
 	}
 }
 

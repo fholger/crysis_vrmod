@@ -103,19 +103,44 @@ void OpenXRInput::Init(XrInstance instance, XrSession session, XrSpace space)
 
 	CreateInputActions();
 	SuggestBindings();
-
-	XrSessionActionSetsAttachInfo attachInfo{ XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
-	std::vector<XrActionSet> actionSets;
-	actionSets.push_back(m_ingameSet);
-	actionSets.push_back(m_menuSet);
-	actionSets.push_back(m_vehicleSet);
-	attachInfo.actionSets = actionSets.data();
-	attachInfo.countActionSets = actionSets.size();
-	XR_CheckResult(xrAttachSessionActionSets(m_session, &attachInfo), "attaching action set", m_instance);
+	AttachActionSets();
 }
 
 void OpenXRInput::Shutdown()
 {
+	DestroyAction(m_jumpCrouch);
+	DestroyAction(m_moveX);
+	DestroyAction(m_moveY);
+	DestroyAction(m_rotatePitch);
+	DestroyAction(m_rotateYaw);
+	for (int i = 0; i < 2; ++i)
+	{
+		DestroyAction(m_controller[i]);
+		DestroyAction(m_grip[i]);
+		DestroyAction(m_trigger[i]);
+		DestroyAction(m_haptics[i]);
+	}
+	DestroyAction(m_primaryFire.handle);
+	DestroyAction(m_sprint.handle);
+	DestroyAction(m_reload.handle);
+	DestroyAction(m_menu.handle);
+	DestroyAction(m_suitMenu.handle);
+	DestroyAction(m_binoculars.handle);
+	DestroyAction(m_nextWeapon.handle);
+	DestroyAction(m_use.handle);
+	DestroyAction(m_nightvision.handle);
+	DestroyAction(m_melee.handle);
+	DestroyAction(m_grenades.handle);
+	DestroyAction(m_menuClick.handle);
+	DestroyAction(m_menuBack.handle);
+	DestroyAction(m_vecBoost.handle);
+	DestroyAction(m_vecAfterburner.handle);
+	DestroyAction(m_vecBrake.handle);
+	DestroyAction(m_vecHorn.handle);
+	DestroyAction(m_vecLights.handle);
+	DestroyAction(m_vecExit.handle);
+	DestroyAction(m_vecSwitchSeatView.handle);
+
 	xrDestroySpace(m_gripSpace[0]);
 	xrDestroySpace(m_gripSpace[1]);
 	xrDestroyActionSet(m_ingameSet);
@@ -425,9 +450,21 @@ void OpenXRInput::SuggestBindings()
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
 }
 
+void OpenXRInput::AttachActionSets()
+{
+	XrSessionActionSetsAttachInfo attachInfo{ XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
+	std::vector<XrActionSet> actionSets;
+	actionSets.push_back(m_ingameSet);
+	actionSets.push_back(m_menuSet);
+	actionSets.push_back(m_vehicleSet);
+	attachInfo.actionSets = actionSets.data();
+	attachInfo.countActionSets = actionSets.size();
+	XR_CheckResult(xrAttachSessionActionSets(m_session, &attachInfo), "attaching action set", m_instance);
+}
+
 
 void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name,
-	const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool sendLongRelease, bool pressOnRelease)
+                                      const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool sendLongRelease, bool pressOnRelease)
 {
 	if (action.handle)
 	{
@@ -837,4 +874,10 @@ bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)
 	x = intersection.x;
 	y = 1 - intersection.y;
 	return (x >= 0 && x <= 1 && y >= 0 && y <= 1);
+}
+
+void OpenXRInput::DestroyAction(XrAction& action)
+{
+	xrDestroyAction(action);
+	action = nullptr;
 }
