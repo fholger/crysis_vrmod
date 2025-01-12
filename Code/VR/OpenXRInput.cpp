@@ -3,6 +3,7 @@
 
 #include "GameActions.h"
 #include "GameCVars.h"
+#include "imgui.h"
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
@@ -155,6 +156,14 @@ void OpenXRInput::Update()
 
 		Vec2i windowSize = gVRRenderer->GetWindowSize();
 		gEnv->pHardwareMouse->SetHardwareMouseClientPosition(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
+		Vec2i renderSize = gVR->GetRenderSize();
+		ImGui::GetIO().AddMousePosEvent(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
+	}
+	else
+	{
+		float mouseX, mouseY;
+		gEnv->pHardwareMouse->GetHardwareMouseClientPosition(&mouseX, &mouseY);
+		ImGui::GetIO().AddMousePosEvent(mouseX, mouseY);
 	}
 
 	if (g_pGame->GetMenu()->IsMenuActive())
@@ -766,11 +775,19 @@ void OpenXRInput::UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId de
 	if (!state.isActive || !state.changedSinceLastSync)
 		return;
 
-	SInputEvent event;
-	event.deviceId = device;
-	event.keyId = key;
-	event.state = state.currentState ? eIS_Pressed : eIS_Released;
-	menu->OnInputEvent(event);
+	if (key == eKI_XI_A)
+	{
+		// forward mouse clicks to ImGui
+		ImGui::GetIO().AddMouseButtonEvent(0, state.currentState);
+	}
+	if (!ImGui::GetIO().WantCaptureMouse)
+	{
+		SInputEvent event;
+		event.deviceId = device;
+		event.keyId = key;
+		event.state = state.currentState ? eIS_Pressed : eIS_Released;
+		menu->OnInputEvent(event);
+	}
 }
 
 bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)

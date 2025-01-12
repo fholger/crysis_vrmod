@@ -469,6 +469,8 @@ void VRRenderer::RenderImGui()
 	ImGui_ImplDX10_NewFrame();
 	ImGui::NewFrame();
 
+	ImGui::GetIO().MouseDrawCursor = ImGui::GetIO().WantCaptureMouse;
+
 	DrawImGui();
 
 	ImGui::Render();
@@ -478,10 +480,17 @@ void VRRenderer::RenderImGui()
 void VRRenderer::DrawImGui()
 {
 	Vec2i windowSize = GetWindowSize();
-	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoInputs);
+	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar);
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
 	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.1f * windowSize.y));
-	ImGui::Button("VR Settings");
+	bool settingsClicked = ImGui::Button("VR Settings");
 	ImGui::Button("VR Manual");
 	ImGui::End();
+
+	if (settingsClicked)
+	{
+		ImGui::Begin("VR Settings");
+		ImGui::Text("This is a stub for a VR settings menu");
+		ImGui::End();
+	}
 }

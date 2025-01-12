@@ -42,6 +42,7 @@ History:
 #include "IViewSystem.h"
 #include "LaptopUtil.h"
 #include "GameNetworkProfile.h"
+#include "imgui.h"
 #include "SPAnalyst.h"
 #include "VR/VRRenderer.h"
 
@@ -531,6 +532,13 @@ SFlashKeyEvent CFlashMenuObject::MapToFlashKeyEvent(const SInputEvent &inputEven
 
 bool CFlashMenuObject::OnInputEvent(const SInputEvent &rInputEvent)
 {
+	if(rInputEvent.deviceId==eDI_Mouse && rInputEvent.keyId==eKI_Mouse1)
+	{
+		ImGui::GetIO().AddMouseButtonEvent(0, rInputEvent.state==eIS_Pressed);
+		if (ImGui::GetIO().WantCaptureMouse)
+			return false;
+	}
+
 	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated() || rInputEvent.keyId == eKI_SYS_Commit)
 		return false;
 
