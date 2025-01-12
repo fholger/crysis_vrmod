@@ -490,6 +490,14 @@ void OpenXRInput::UpdateMenuActions()
 	UpdateBooleanActionForMenu(m_menu, eDI_Keyboard, eKI_Escape);
 	// this is needed to potentially debounce the suit menu and not have it active in the background still
 	UpdateBooleanAction(m_suitMenu);
+
+	XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
+	XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+	getInfo.subactionPath = XR_NULL_PATH;
+	getInfo.action = m_rotatePitch;
+	xrGetActionStateFloat(m_session, &getInfo, &state);
+	float pitch = state.isActive ? state.currentState : 0;
+	ImGui::GetIO().AddMouseWheelEvent(0, pitch * .25f);
 }
 
 void OpenXRInput::UpdateHUDActions()

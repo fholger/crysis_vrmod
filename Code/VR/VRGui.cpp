@@ -11,7 +11,9 @@
 
 static void OpenLinkInBrowser(const std::string& url)
 {
-	ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+	ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNOACTIVATE);
+	Sleep(5000);
+	SwitchToThisWindow((HWND)gEnv->pRenderer->GetHWND(), TRUE);
 }
 
 static void MarkdownLinkCallback(ImGui::MarkdownLinkCallbackData data)
