@@ -789,6 +789,7 @@ void OpenXRInput::UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId de
 		event.keyId = key;
 		event.state = state.currentState ? eIS_Pressed : eIS_Released;
 		menu->OnInputEvent(event);
+		gVRRenderer->GuiClickedUnfocussed();
 	}
 }
 

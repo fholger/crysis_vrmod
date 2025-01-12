@@ -10,6 +10,7 @@ public:
     void Shutdown();
 
     void SetScale(float scale);
+    void ClickedNoFocus();
 
     void Render();
 
@@ -18,7 +19,10 @@ private:
     void ReloadFonts(float scale);
     void Draw();
 
+    void DrawSettingsMenu();
+
     ImFont* LoadFont(const char* filename, float x);
 
     float m_currentScale = 0.0f;
+    bool m_settingsMenuOpen = false;
 };

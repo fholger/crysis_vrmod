@@ -6,6 +6,7 @@
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "backends/imgui_impl_dx10.h"
+#include "Menus/OptionsManager.h"
 
 void VRGui::Init(ID3D10Device* device)
 {
@@ -31,13 +32,17 @@ void VRGui::SetScale(float scale)
 	}
 }
 
+void VRGui::ClickedNoFocus()
+{
+	m_settingsMenuOpen = false;
+}
+
 void VRGui::Render()
 {
 	Vec2i windowSize = gVRRenderer->GetWindowSize();
 	Vec2i renderSize = gVR->GetRenderSize();
-	SetScale(g_pGameCVars->vr_gui_scale * max(renderSize.y / windowSize.y, renderSize.x / windowSize.x));
+	SetScale(g_pGameCVars->vr_gui_scale * windowSize.y / 1080.f * max(renderSize.y / windowSize.y, renderSize.x / windowSize.x));
 	ImGui::GetIO().DisplaySize = ImVec2((float)renderSize.x, (float)renderSize.y);
-	//ImGui::GetIO().DisplayFramebufferScale = ImVec2((float)renderSize.x / windowSize.x, (float)renderSize.y / windowSize.y);
 	ImGui_ImplDX10_NewFrame();
 	ImGui::NewFrame();
 
@@ -54,6 +59,7 @@ void VRGui::SetupStyle(float scale)
 	ImGuiStyle& style = ImGui::GetStyle();
 	style = ImGuiStyle();
 	ImGui::StyleColorsDark();
+	style.ItemSpacing = ImVec2(16, 16);
 	style.ScaleAllSizes(scale);
 }
 
@@ -70,19 +76,88 @@ void VRGui::ReloadFonts(float scale)
 
 void VRGui::Draw()
 {
-	Vec2i windowSize = gVR->GetRenderSize();
+	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar);
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
 	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.1f * windowSize.y));
-	bool settingsClicked = ImGui::Button("VR Settings");
+	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
 	ImGui::Button("VR Manual");
 	ImGui::End();
 
-	if (settingsClicked)
+	if (m_settingsMenuOpen)
 	{
-		ImGui::Begin("VR Settings");
-		ImGui::Text("This is a stub for a VR settings menu");
-		ImGui::End();
+		DrawSettingsMenu();
+	}
+}
+
+void VRGui::DrawSettingsMenu()
+{
+	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+
+	ImGui::Begin("VR Settings", &m_settingsMenuOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::SetWindowPos(ImVec2(0.25f * windowSize.x, 0.25f * windowSize.y));
+	ImGui::SetWindowSize(ImVec2(0.7f * windowSize.x, 0.7f * windowSize.y));
+	ImGui::Text("Configure your VR experience here");
+	ImGui::Separator();
+
+	ImGui::Text("Weapon hand");
+	ImGui::SetItemTooltip("Choose which hand will hold and fire weapons");
+	ImGui::SameLine(0.2f * windowSize.x);
+	ImGui::RadioButton("Left##weapon", &g_pGameCVars->vr_weapon_hand, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Right##weapon", &g_pGameCVars->vr_weapon_hand, 1);
+	ImGui::Text("Movement hand");
+	ImGui::SetItemTooltip("This hand's thumbstick is used for moving, other hand for turning");
+	ImGui::SameLine(0.2f * windowSize.x);
+	ImGui::RadioButton("Left##movement", &g_pGameCVars->vr_movement_hand, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
+	ImGui::Separator();
+
+	bool weaponCrosshair = g_pGameCVars->vr_weapon_crosshair;
+	ImGui::Checkbox("Crosshair helper for player weapons", &weaponCrosshair);
+	ImGui::SetItemTooltip("Draws a small sphere to help you aim");
+	g_pGameCVars->vr_weapon_crosshair = weaponCrosshair;
+	bool vehicleCrosshair = g_pGameCVars->vr_vehicle_crosshair;
+	ImGui::Checkbox("Crosshair helper for mounted/vehicle weapons", &vehicleCrosshair);
+	ImGui::SetItemTooltip("Draws a small sphere to help you aim");
+	g_pGameCVars->vr_vehicle_crosshair = vehicleCrosshair;
+
+	ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
+	ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
+	ImGui::Separator();
+
+	bool hapticsEnabled = g_pGameCVars->vr_haptics_enabled;
+	ImGui::Checkbox("Enable controller haptics", &hapticsEnabled);
+	g_pGameCVars->vr_haptics_enabled = hapticsEnabled;
+	ImGui::SliderFloat("Haptics strength", &g_pGameCVars->vr_haptics_strength, 0.f, 2.f);
+	ImGui::Separator();
+
+	ImGui::Text("Mirrored eye");
+	ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
+	ImGui::SameLine(0.2f * windowSize.x);
+	ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
+
+	const char* CutsceneOptions[] = {"VR", "2D Cinema", "3D Cinema"};
+	int cutsceneMode = g_pGameCVars->vr_cutscenes_2d ? (g_pGameCVars->vr_cinema_3d ? 2 : 1) : 0;
+	ImGui::Combo("Cutscene mode", &cutsceneMode, CutsceneOptions, IM_ARRAYSIZE(CutsceneOptions));
+	g_pGameCVars->vr_cutscenes_2d = cutsceneMode > 0;
+	g_pGameCVars->vr_cinema_3d = cutsceneMode == 2;
+
+	ImGui::Separator();
+	if (ImGui::Button("Close"))
+	{
+		m_settingsMenuOpen = false;
+	}
+
+	ImGui::End();
+
+	if (!m_settingsMenuOpen)
+	{
+		// make sure any changes we made get saved to the game.cfg file
+		g_pGame->GetOptions()->WriteGameCfg();
 	}
 }
 

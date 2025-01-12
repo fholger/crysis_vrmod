@@ -534,9 +534,14 @@ bool CFlashMenuObject::OnInputEvent(const SInputEvent &rInputEvent)
 {
 	if(rInputEvent.deviceId==eDI_Mouse && rInputEvent.keyId==eKI_Mouse1)
 	{
-		ImGui::GetIO().AddMouseButtonEvent(0, rInputEvent.state==eIS_Pressed);
+		if (rInputEvent.state & eIS_Pressed)
+			ImGui::GetIO().AddMouseButtonEvent(0, true);
+		else if (rInputEvent.state & eIS_Released)
+			ImGui::GetIO().AddMouseButtonEvent(0, false);
 		if (ImGui::GetIO().WantCaptureMouse)
 			return false;
+		else
+			gVRRenderer->GuiClickedUnfocussed();
 	}
 
 	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated() || rInputEvent.keyId == eKI_SYS_Commit)

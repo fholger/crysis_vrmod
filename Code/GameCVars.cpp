@@ -870,7 +870,7 @@ void SCVars::ReleaseCVars()
 
 void SCVars::InitVRCVars(IConsole* pConsole)
 {
-	pConsole->Register("vr_cutscenes_2d", &vr_cutscenes_2d, 0, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, plays cutscenes on a 2D screen instead of in VR");
+	pConsole->Register("vr_cutscenes_2d", &vr_cutscenes_2d, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, plays cutscenes on a 2D screen instead of in VR");
 	pConsole->Register("vr_yaw_deadzone_angle", &vr_yaw_deadzone_angle, 30, VF_RESTRICTEDMODE|VF_SAVEGAME, "Controls the deadzone angle in front of the player where weapon aim does not rotate the camera");
 	pConsole->Register("vr_shadow_optimization", &vr_shadow_optimization, 1, VF_RESTRICTEDMODE, "If enabled, only draws shadow maps once for the first eye, hopefully improving performance without any side effects");
 	pConsole->Register("vr_resolution_scale", &vr_resolution_scale, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Allows changing the VR render resolution");
@@ -880,12 +880,12 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_controller_stick_zone_cutoff", &vr_controller_stick_zone_cutoff, 0.35f, VF_RESTRICTEDMODE, "If stick is extended this far in one axis, disable any input actions in the other axis");
 	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
 	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE, "Which hand controls player movement: 0 (left) or 1 (right)");
-	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE, "Adjust weapon holding angle");
+	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust weapon holding angle");
 	pConsole->Register("vr_weapon_crosshair", &vr_weapon_crosshair, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for player weapons to assist with aiming in VR");
 	pConsole->Register("vr_vehicle_crosshair", &vr_vehicle_crosshair, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for vehicle weapons to assist with aiming in VR");
-	pConsole->Register("vr_cutscenes_angle_snap", &vr_cutscenes_angle_snap, 60, VF_RESTRICTEDMODE|VF_SAVEGAME, "Ignores camera rotation in cutscenes until the angle difference reaches this value, then snaps the angle to the new value");
-	pConsole->Register("vr_cinema_3d", &vr_cinema_3d, 1, VF_RESTRICTEDMODE|VF_SAVEGAME, "If enabled, whenever the game switches to a cinema mode (e.g. binoculars, weapon scopes or cutscenes), the cinema will render in 3D");
-	pConsole->Register("vr_cinema_3d_eye_dist", &vr_cinema_3d_eye_dist, 0.032f, VF_RESTRICTEDMODE|VF_SAVEGAME, "Determines the distance between the stereoscopic cameras in 3D cinema render mode");
+	pConsole->Register("vr_cutscenes_angle_snap", &vr_cutscenes_angle_snap, 60, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Ignores camera rotation in cutscenes until the angle difference reaches this value, then snaps the angle to the new value");
+	pConsole->Register("vr_cinema_3d", &vr_cinema_3d, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, whenever the game switches to a cinema mode (e.g. binoculars, weapon scopes or cutscenes), the cinema will render in 3D");
+	pConsole->Register("vr_cinema_3d_eye_dist", &vr_cinema_3d_eye_dist, 0.032f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Determines the distance between the stereoscopic cameras in 3D cinema render mode");
 	pConsole->Register("vr_haptics_enabled", &vr_haptics_enabled, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Send haptic feedback to the motion controllers");
 	pConsole->Register("vr_haptics_strength", &vr_haptics_strength, 0.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Modify the strength of haptic feedback events");
 	pConsole->Register("vr_mirror_eye", &vr_mirror_eye, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which eye to mirror in the game window (0 - left, 1 - right)");

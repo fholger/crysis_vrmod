@@ -42,6 +42,7 @@ public:
 	bool ShouldRenderShadowMaps() const { return m_currentEye != 1; }
 
 	bool AreBinocularsActive() const { return m_binocularsActive; }
+	void GuiClickedUnfocussed() { m_gui.ClickedNoFocus(); }
 
 private:
 	VRGui m_gui;
