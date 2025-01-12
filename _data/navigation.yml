@@ -1,6 +1,10 @@
 main:
   - title: "Download"
     url: "https://github.com/fholger/crysis_vrmod/releases/"
+  - title: "Donate"
+    url: "https://ko-fi.com/fholger"
+  - title: "FarCry VR"
+    url: "https://farcryvr.de"
 #  - title: "News"
 #    url: /news/
 #  - title: "Manual"

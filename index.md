@@ -48,3 +48,7 @@ To do so, right-click on it and select "Run as administrator".
 ### Update instructions
 
 Simply download the installer for the new release and repeat the installation instructions. The installer will automatically replace the mod files with the latest version, and afterwards you are ready to go. You should not lose any saves or settings in the process.
+
+### Legal notices
+
+This site is not endorsed by or affiliated with Crytek or Electronic Arts.  Trademarks are the property of their respective owners. Game content copyright Crytek.
