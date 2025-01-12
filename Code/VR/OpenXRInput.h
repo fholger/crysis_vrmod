@@ -25,6 +25,8 @@ public:
 	void StopHaptics(EVRHand hand);
 	void StopHaptics();
 
+	void SuggestBindings();
+
 private:
 	struct BooleanAction
 	{
@@ -92,7 +94,6 @@ private:
 	Vec3 m_quickMenuInitialHandPosition;
 
 	void CreateInputActions();
-	void SuggestBindings();
 	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true, bool sendLongRelease = true, bool pressOnRelease = false);
 	void UpdateIngameActions();
 	void UpdateVehicleActions();

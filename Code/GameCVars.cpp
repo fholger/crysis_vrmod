@@ -878,8 +878,8 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_controller_yaw_deadzone", &vr_controller_yaw_deadzone, 0.15f, VF_RESTRICTEDMODE, "Deadzone for stick turning");
 	pConsole->Register("vr_controller_stick_action_threshold", &vr_controller_stick_action_threshold, 0.75f, VF_RESTRICTEDMODE, "How far a stick needs to be extended to trigger an input action");
 	pConsole->Register("vr_controller_stick_zone_cutoff", &vr_controller_stick_zone_cutoff, 0.35f, VF_RESTRICTEDMODE, "If stick is extended this far in one axis, disable any input actions in the other axis");
-	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
-	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE, "Which hand controls player movement: 0 (left) or 1 (right)");
+	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
+	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand controls player movement: 0 (left) or 1 (right)");
 	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust weapon holding angle");
 	pConsole->Register("vr_weapon_crosshair", &vr_weapon_crosshair, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for player weapons to assist with aiming in VR");
 	pConsole->Register("vr_vehicle_crosshair", &vr_vehicle_crosshair, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for vehicle weapons to assist with aiming in VR");

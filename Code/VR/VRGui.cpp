@@ -4,6 +4,7 @@
 #include "GameCVars.h"
 #include "imgui.h"
 #include "imgui_markdown.h"
+#include "OpenXRRuntime.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "backends/imgui_impl_dx10.h"
@@ -127,6 +128,8 @@ void VRGui::Draw()
 void VRGui::DrawSettingsMenu()
 {
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
+	int origWeaponHand = g_pGameCVars->vr_weapon_hand;
+	int origMovementHand = g_pGameCVars->vr_movement_hand;
 
 	ImGui::Begin("VR Settings", &m_settingsMenuOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 	ImGui::SetWindowPos(ImVec2(0.25f * windowSize.x, 0.25f * windowSize.y));
@@ -192,6 +195,12 @@ void VRGui::DrawSettingsMenu()
 	{
 		// make sure any changes we made get saved to the game.cfg file
 		g_pGame->GetOptions()->WriteGameCfg();
+	}
+
+	if (origWeaponHand != g_pGameCVars->vr_weapon_hand || origMovementHand != g_pGameCVars->vr_movement_hand)
+	{
+		// we need to update controller bindings based on the chosen hand settings
+		gXR->GetInput()->SuggestBindings();
 	}
 }
 
