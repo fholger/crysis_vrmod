@@ -9,6 +9,20 @@
 #include "backends/imgui_impl_dx10.h"
 #include "Menus/OptionsManager.h"
 
+static void OpenLinkInBrowser(const std::string& url)
+{
+	ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+}
+
+static void MarkdownLinkCallback(ImGui::MarkdownLinkCallbackData data)
+{
+	std::string url(data.link, data.linkLength);
+	if (!data.isImage)
+	{
+		OpenLinkInBrowser(url);
+	}
+}
+
 void VRGui::Init(ID3D10Device* device)
 {
 	LoadManualSections();
@@ -86,9 +100,15 @@ void VRGui::Draw()
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar);
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
-	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.1f * windowSize.y));
+	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.2f * windowSize.y));
 	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
 	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
+
+	ImGui::Spacing();
+	if (ImGui::Button("Donate"))
+	{
+		OpenLinkInBrowser("https://ko-fi.com/fholger");
+	}
 	ImGui::End();
 
 	if (m_settingsMenuOpen)
@@ -195,6 +215,7 @@ void VRGui::DrawManualWindow()
 	config.headingFormats[0] = { m_fontH1, true };
 	config.headingFormats[1] = { m_fontH2, true };
 	config.headingFormats[2] = { m_fontH3, false };
+	config.linkCallback = &MarkdownLinkCallback;
 	ImGui::BeginChild("manual_text");
 	ImGui::PushFont(m_fontText);
 	if (m_currentManualSection >= 0 && m_currentManualSection < m_manualSections.size())

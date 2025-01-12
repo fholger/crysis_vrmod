@@ -1,7 +1,13 @@
 # About Crysis VR
 
 This mod allows you to experience Crysis as a full 6dof motion-controlled
-VR game.
+VR game. It was created by Holger "cabalistic" Frydrych with the help of the Crysis Mod SDK.
+For more information, visit the [website](https://crysis.vrmods.eu) or check out the [GitHub repository](https://github.com/fholger/crysis_vrmod).
+
+The mod is and forever will be free to download and play. If you paid for getting access, you were scammed.
+That being said, if you enjoyed your playtime in VR and would like to say thank you, you can leave me a tip on [Ko-Fi](https://ko-fi.com/fholger).
+
+This work is not endorsed by or affiliated with Crytek or Electronic Arts.  Trademarks are the property of their respective owners. Game content copyright Crytek.
 
 ## Notes about performance
 
