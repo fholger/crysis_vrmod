@@ -1,0 +1,116 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+title: "Crysis VR"
+email: holger@frydrych.org
+name: Holger Frydrych
+description: >- # this means to ignore newlines until "baseurl:"
+  Crysis VR is a third-party mod for the 2007 PC gaming classic by
+  Crytek. It allows players to experience the world of Crysis
+  in virtual reality.
+twitter_username: username
+github_username: fholger
+minimal_mistakes_skin: mint
+locale: en
+search: false
+
+url: "https://crysis.vrmods.eu"
+repository: "fholger/crysis_vrmod"
+logo: "/assets/images/fc_logo.png"
+
+# Build settings
+markdown: kramdown
+remote_theme: mmistakes/minimal-mistakes
+# Outputting
+permalink: /:categories/:title/
+paginate: 10 # amount of posts to show
+paginate_path: /news/page:num
+timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+include:
+  - _pages
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
+
+# Plugins (previously gems:)
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
+
+author:
+  name   : "Holger Frydrych"
+  avatar : "/assets/images/game.ico"
+  bio    : "I am a developer and VR enthusiast, working on VR conversions in my spare time"
+  links:
+    - label: "Website"
+      icon: "fas fa-fw fa-link"
+      url: "https://frydrych.org"
+
+footer:
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/fholger/farcry_vrmod"
+    - label: "Discord"
+      icon: "fab fa-fw fa-discord"
+      url: "http://flat2vr.com/"
+    - label: "Site notice"
+      icon: "fa-solid fa-envelope"
+      url: "https://frydrych.org/contact/"
+
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: false
+      read_time: true
+      comments: true
+      share: true
+      related: true
+      header:
+        image: /assets/images/title.jpg
+  # _pages
+  - scope:
+      path: "_pages"
+      type: pages
+    values:
+      layout: single
+      author_profile: false
+      header:
+        image: /assets/images/title.jpg
+
+category_archive:
+  type: liquid
+  path: /categories/
+tag_archive:
+  type: liquid
+  path: /tags/
