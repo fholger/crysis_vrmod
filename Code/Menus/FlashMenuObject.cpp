@@ -3388,6 +3388,9 @@ void CFlashMenuObject::OnPostUpdate(float fDeltaTime)
 			gEnv->pRenderer->Draw2dLabel( 10, 750, 1, white, false, "Connection State: %s", status );
 	}*/
 
+	if (ImGui::GetIO().WantCaptureMouse)
+		return;
+
 	// display a simple mouse cursor since the Windows cursor is not visible in VR
 	float x, y;
 	SAFE_HARDWARE_MOUSE_FUNC(GetHardwareMouseClientPosition(&x, &y));

@@ -121,15 +121,12 @@ void VRRenderer::Init()
 
 	ComPtr<ID3D10Device1> device;
 	swapChain->GetDevice(__uuidof(ID3D10Device1), (void**)device.ReleaseAndGetAddressOf());
-	ImGui::CreateContext();
-	ImGui_ImplDX10_Init(device.Get());
-	ImGui::StyleColorsDark();
+	m_gui.Init(device.Get());
 }
 
 void VRRenderer::Shutdown()
 {
-	ImGui_ImplDX10_Shutdown();
-	ImGui::DestroyContext();
+	m_gui.Shutdown();
 }
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
@@ -181,9 +178,9 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 {
 	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
 
-	if (SAFE_MENU_FUNC_RET(IsMenuActive()))
+	if (SAFE_MENU_FUNC_RET(IsMenuActive()) && !SAFE_MENU_FUNC_RET(IsLoadingScreenActive()))
 	{
-		RenderImGui();
+		m_gui.Render();
 	}
 
 	gVR->SetSwapChain(swapChain);
@@ -453,44 +450,8 @@ void VRRenderer::UpdateShaderParamsForReflexSight()
 
 void VRRenderer::RenderImGui()
 {
-	Vec2i windowSize = GetWindowSize();
-	Vec2i renderSize = gVR->GetRenderSize();
-	ImGui::GetIO().DisplaySize = ImVec2((float)renderSize.x, (float)renderSize.y);
-	ImGui::GetIO().DisplayFramebufferScale = ImVec2((float)renderSize.x / windowSize.x, (float)renderSize.y / windowSize.y);
-	float imguiScale = (float)renderSize.y / (float)windowSize.y;
-	if (imguiScale != m_imguiScale)
-	{
-		ImGui::GetIO().FontGlobalScale = 1.5f;
-		ImGui::GetStyle() = ImGuiStyle();
-		ImGui::StyleColorsDark();
-		ImGui::GetStyle().ScaleAllSizes(imguiScale);
-		m_imguiScale = imguiScale;
-	}
-	ImGui_ImplDX10_NewFrame();
-	ImGui::NewFrame();
-
-	ImGui::GetIO().MouseDrawCursor = ImGui::GetIO().WantCaptureMouse;
-
-	DrawImGui();
-
-	ImGui::Render();
-	ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData());
 }
 
 void VRRenderer::DrawImGui()
 {
-	Vec2i windowSize = GetWindowSize();
-	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar);
-	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
-	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.1f * windowSize.y));
-	bool settingsClicked = ImGui::Button("VR Settings");
-	ImGui::Button("VR Manual");
-	ImGui::End();
-
-	if (settingsClicked)
-	{
-		ImGui::Begin("VR Settings");
-		ImGui::Text("This is a stub for a VR settings menu");
-		ImGui::End();
-	}
 }

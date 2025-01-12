@@ -1,5 +1,6 @@
 #pragma once
 #include "Cry_Camera.h"
+#include "VRGui.h"
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
 
@@ -43,6 +44,7 @@ public:
 	bool AreBinocularsActive() const { return m_binocularsActive; }
 
 private:
+	VRGui m_gui;
 	CCamera m_originalViewCamera;
 	bool m_viewCamOverridden = false;
 	bool m_binocularsActive = false;

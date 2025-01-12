@@ -889,6 +889,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_haptics_enabled", &vr_haptics_enabled, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Send haptic feedback to the motion controllers");
 	pConsole->Register("vr_haptics_strength", &vr_haptics_strength, 0.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Modify the strength of haptic feedback events");
 	pConsole->Register("vr_mirror_eye", &vr_mirror_eye, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which eye to mirror in the game window (0 - left, 1 - right)");
+	pConsole->Register("vr_gui_scale", &vr_gui_scale, 1.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "General size scaling for the VR ImGui settings menu");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

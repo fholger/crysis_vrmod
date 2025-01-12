@@ -157,13 +157,15 @@ void OpenXRInput::Update()
 		Vec2i windowSize = gVRRenderer->GetWindowSize();
 		gEnv->pHardwareMouse->SetHardwareMouseClientPosition(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
 		Vec2i renderSize = gVR->GetRenderSize();
-		ImGui::GetIO().AddMousePosEvent(smoothedMousePos.x * windowSize.x, smoothedMousePos.y * windowSize.y);
+		ImGui::GetIO().AddMousePosEvent(smoothedMousePos.x * renderSize.x, smoothedMousePos.y * renderSize.y);
 	}
 	else
 	{
+		Vec2i windowSize = gVRRenderer->GetWindowSize();
+		Vec2i renderSize = gVR->GetRenderSize();
 		float mouseX, mouseY;
 		gEnv->pHardwareMouse->GetHardwareMouseClientPosition(&mouseX, &mouseY);
-		ImGui::GetIO().AddMousePosEvent(mouseX, mouseY);
+		ImGui::GetIO().AddMousePosEvent(mouseX / windowSize.x * renderSize.x, mouseY / windowSize.y * renderSize.y);
 	}
 
 	if (g_pGame->GetMenu()->IsMenuActive())

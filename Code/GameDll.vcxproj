@@ -474,6 +474,7 @@
     <ClCompile Include="VR\Hooks.cpp" />
     <ClCompile Include="VR\OpenXRInput.cpp" />
     <ClCompile Include="VR\OpenXRRuntime.cpp" />
+    <ClCompile Include="VR\VRGui.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
     <ClCompile Include="VR\VRRenderUtils.cpp" />
@@ -890,6 +891,7 @@
     <ClInclude Include="VR\Hooks.h" />
     <ClInclude Include="VR\OpenXRInput.h" />
     <ClInclude Include="VR\OpenXRRuntime.h" />
+    <ClInclude Include="VR\VRGui.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />
     <ClInclude Include="VR\VRRenderUtils.h" />
