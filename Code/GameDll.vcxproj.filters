@@ -718,6 +718,9 @@
     <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx10.cpp">
       <Filter>ThirdParty\Imgui</Filter>
     </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
+      <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">

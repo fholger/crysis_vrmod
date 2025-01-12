@@ -179,9 +179,9 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
             return;
         VERTEX_CONSTANT_BUFFER_DX10* constant_buffer = (VERTEX_CONSTANT_BUFFER_DX10*)mapped_resource;
         float L = draw_data->DisplayPos.x;
-        float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
+        float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x / draw_data->FramebufferScale.x;
         float T = draw_data->DisplayPos.y;
-        float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+        float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y / draw_data->FramebufferScale.y;
         float mvp[4][4] =
         {
             { 2.0f/(R-L),   0.0f,           0.0f,       0.0f },
@@ -266,7 +266,7 @@ void ImGui_ImplDX10_RenderDrawData(ImDrawData* draw_data)
                     continue;
 
                 // Apply scissor/clipping rectangle
-                const D3D10_RECT r = { (LONG)clip_min.x, (LONG)clip_min.y, (LONG)clip_max.x, (LONG)clip_max.y };
+                const D3D10_RECT r = { (LONG)(clip_min.x * draw_data->FramebufferScale.x), (LONG)(clip_min.y * draw_data->FramebufferScale.y), (LONG)(clip_max.x * draw_data->FramebufferScale.x), (LONG)(clip_max.y * draw_data->FramebufferScale.y) };
                 device->RSSetScissorRects(1, &r);
 
                 // Bind texture, Draw

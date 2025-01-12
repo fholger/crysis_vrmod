@@ -52,11 +52,15 @@ private:
 	bool m_didRenderThisFrame = false;
 	int64 m_lastPresentCallTime = 0;
 	int m_currentEye = -1;
+	float m_imguiScale = 1.f;
 
 	void RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem);
 	void DrawCrosshair();
 
 	void UpdateShaderParamsForReflexSight();
+
+	void RenderImGui();
+	void DrawImGui();
 };
 
 extern VRRenderer* gVRRenderer;
