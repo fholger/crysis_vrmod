@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+### Fixed
+- Fix startup crash of Warhead launcher when Logitech G15 keyboard is connected
+([#39](https://github.com/ccomrade/c1-launcher/issues/39)).
+
+## [v6] - 2024-02-15
+### Added
+- Crysis Editor (Sandbox 2) support.
+- Crysis Warhead support (64-bit only).
+- Crysis Wars executable with correct icon. No other differences. All executables always support all game variants.
+- DX10 renderer now supports [overriding d3d10.dll and dxgi.dll](https://github.com/ccomrade/c1-launcher/issues/34)
+by placing them into the same directory.
+- `-userpath` to change user directory path.
+- `-userdirname` to change name of user directory in `Documents/My Games/`.
+- Mods can now request their own user directory in `Documents/My Games/` by exporting `GetUserDirName` function:
+```cpp
+extern "C" __declspec(dllexport) const char* GetUserDirName()
+{
+    return "My Mod";  // -> "Documents/My Games/My Mod"
+}
+```
+- Path information in the log:
+```
+Main directory: C:\Crysis
+Root directory: C:\Crysis
+User directory: C:\Users\User\Documents\My Games\Crysis
+```
+### Fixed
+- Fixed [the two broken panels in Editor](https://github.com/ccomrade/c1-launcher/pull/38).
+- Fixed incorrectly trimmed spaces from CPU model name in specific cases.
+- Fixed rare crash in the engine due to out-of-bounds access of the `CPUInfo::cores` array.
+
+### Changed
+- Each game variant now has its own release ZIP with all available executables:
+    - `c1-launcher-v6-build.zip` => Crysis => game + dedicated server + headless server + editor
+    - `c1-launcher-v6-build-wars.zip` => Crysis Wars => game + dedicated server + headless server + editor
+    - `c1-launcher-v6-build-warhead.zip` => Crysis Warhead => game (64-bit)
+        - Both dedicated and headless server launchers also support Crysis Warhead, which is singleplayer-only and has
+no server launcher by default. However, it ships without CryRenderNULL DLL, so both server launchers fail to start the
+engine there.
+
 ## [v5] - 2023-11-03
 ### Added
 - GPU information in the log:

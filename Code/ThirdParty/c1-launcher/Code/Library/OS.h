@@ -39,39 +39,25 @@ extern "C"
 	__declspec(dllimport) char* __stdcall GetCommandLineA();
 
 	__declspec(dllimport) DWORD __stdcall GetLastError();
-	__declspec(dllimport) DWORD __stdcall FormatMessageA(
-		DWORD flags,
-		const void* source,
-		DWORD message,
-		DWORD language,
-		char* buffer,
-		DWORD bufferSize,
-		va_list* args
-	);
+	__declspec(dllimport) DWORD __stdcall FormatMessageA(DWORD, const void*, DWORD, DWORD, char*, DWORD, va_list*);
 
-	__declspec(dllimport) HMODULE __stdcall GetModuleHandleA(const char* name);
-	__declspec(dllimport) HMODULE __stdcall LoadLibraryA(const char* name);
-	__declspec(dllimport) int __stdcall FreeLibrary(HMODULE handle);
-	__declspec(dllimport) FARPROC __stdcall GetProcAddress(HMODULE handle, const char* name);
-	__declspec(dllimport) DWORD __stdcall GetModuleFileNameA(HMODULE handle, char* buffer, DWORD bufferSize);
+	__declspec(dllimport) HMODULE __stdcall GetModuleHandleA(const char*);
+	__declspec(dllimport) HMODULE __stdcall LoadLibraryA(const char*);
+	__declspec(dllimport) int __stdcall FreeLibrary(HMODULE);
+	__declspec(dllimport) FARPROC __stdcall GetProcAddress(HMODULE, const char*);
 
-	__declspec(dllimport) int __stdcall MessageBoxA(
-		HWND parentWindow,
-		const char* text,
-		const char* title,
-		unsigned int type
-	);
+	__declspec(dllimport) int __stdcall MessageBoxA(HWND, const char*, const char*, unsigned int);
 
 	__declspec(dllimport) DWORD __stdcall GetCurrentThreadId();
-	__declspec(dllimport) void __stdcall InitializeCriticalSection(CRITICAL_SECTION* cs);
-	__declspec(dllimport) void __stdcall DeleteCriticalSection(CRITICAL_SECTION* cs);
-	__declspec(dllimport) void __stdcall EnterCriticalSection(CRITICAL_SECTION* cs);
-	__declspec(dllimport) void __stdcall LeaveCriticalSection(CRITICAL_SECTION* cs);
+	__declspec(dllimport) void __stdcall InitializeCriticalSection(CRITICAL_SECTION*);
+	__declspec(dllimport) void __stdcall DeleteCriticalSection(CRITICAL_SECTION*);
+	__declspec(dllimport) void __stdcall EnterCriticalSection(CRITICAL_SECTION*);
+	__declspec(dllimport) void __stdcall LeaveCriticalSection(CRITICAL_SECTION*);
 
-	__declspec(dllimport) int __stdcall CopyFileA(const char* source, const char* destination, int failIfExists);
-	__declspec(dllimport) int __stdcall CreateDirectoryA(const char* path, SECURITY_ATTRIBUTES*);
+	__declspec(dllimport) int __stdcall CopyFileA(const char*, const char*, int);
+	__declspec(dllimport) int __stdcall CreateDirectoryA(const char*, SECURITY_ATTRIBUTES*);
 
-	__declspec(dllimport) int __stdcall GetLocaleInfoA(DWORD locale, DWORD type, char* buffer, int bufferSize);
+	__declspec(dllimport) int __stdcall GetLocaleInfoA(DWORD, DWORD, char*, int);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,30 +77,30 @@ namespace OS
 	{
 		inline const char* Get()
 		{
-			return ::GetCommandLineA();
+			return GetCommandLineA();
 		}
 
 		const char* GetOnlyArgs();
 
 		bool HasArg(const char* arg);
 
-		const char* GetArgValue(const char* arg, const char* defaultValue = "");
+		const char* GetArgValue(const char* arg, const char* defaultValue);
 	}
 
 	////////////
 	// Errors //
 	////////////
 
-	inline unsigned long GetCurrentErrorCode()
+	inline unsigned long GetSysError()
 	{
-		return ::GetLastError();
+		return GetLastError();
 	}
 
-	inline std::size_t GetErrorDescription(char* buffer, std::size_t bufferSize, unsigned long code)
+	inline std::size_t GetSysErrorDescription(char* buffer, std::size_t bufferSize, unsigned long sysError)
 	{
-		const DWORD flags = 0x200 | 0x1000;  // FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS
+		const DWORD flags = 0x200 | 0x1000;  // FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM
 
-		return ::FormatMessageA(flags, NULL, code, 0, buffer, static_cast<DWORD>(bufferSize), NULL);
+		return FormatMessageA(flags, NULL, sysError, 0, buffer, static_cast<DWORD>(bufferSize), NULL);
 	}
 
 	/////////////
@@ -125,53 +111,56 @@ namespace OS
 	{
 		inline void* Get(const char* name)
 		{
-			return ::GetModuleHandleA(name);
+			return GetModuleHandleA(name);
 		}
 
 		inline void* Load(const char* name)
 		{
-			return ::LoadLibraryA(name);
+			return LoadLibraryA(name);
 		}
 
-		inline void Unload(void* mod)
+		inline void Unload(void* dll)
 		{
-			::FreeLibrary(static_cast<HMODULE>(mod));
+			FreeLibrary(static_cast<HMODULE>(dll));
 		}
 
-		inline void* FindSymbol(void* mod, const char* symbolName)
+		inline void* FindSymbol(void* dll, const char* symbolName)
 		{
-			return ::GetProcAddress(static_cast<HMODULE>(mod), symbolName);
+			return GetProcAddress(static_cast<HMODULE>(dll), symbolName);
 		}
 
-		inline std::size_t GetPath(char* buffer, std::size_t bufferSize, void* mod)
-		{
-			return ::GetModuleFileNameA(static_cast<HMODULE>(mod), buffer, static_cast<DWORD>(bufferSize));
-		}
+		std::size_t GetPath(void* dll, char* buffer, std::size_t bufferSize);
 
-		namespace Version
+		struct Version
 		{
-			int GetMajor(void* mod);
-			int GetMinor(void* mod);
-			int GetTweak(void* mod);
-			int GetPatch(void* mod);
-		}
+			unsigned short major;
+			unsigned short minor;
+			unsigned short tweak;
+			unsigned short patch;
+
+			Version() : major(), minor(), tweak(), patch() {}
+		};
+
+		bool GetVersion(void* dll, Version& result);
 	}
 
 	namespace EXE
 	{
+		using DLL::Version;
+
 		inline void* Get()
 		{
-			return ::GetModuleHandleA(NULL);
+			return DLL::Get(NULL);
 		}
 
 		inline std::size_t GetPath(char* buffer, std::size_t bufferSize)
 		{
-			return ::GetModuleFileNameA(NULL, buffer, static_cast<DWORD>(bufferSize));
+			return DLL::GetPath(NULL, buffer, bufferSize);
 		}
 
-		namespace Version
+		inline bool GetVersion(Version& result)
 		{
-			using namespace DLL::Version;
+			return DLL::GetVersion(NULL, result);
 		}
 	}
 
@@ -181,7 +170,7 @@ namespace OS
 
 	inline void ErrorBox(const char* message, const char* title = "Error")
 	{
-		::MessageBoxA(NULL, message, title, 0x0 | 0x10);  // MB_OK | MB_ICONERROR
+		MessageBoxA(NULL, message, title, 0x0 | 0x10);  // MB_OK | MB_ICONERROR
 	}
 
 	///////////
@@ -200,7 +189,7 @@ namespace OS
 
 	inline unsigned long GetCurrentThreadID()
 	{
-		return ::GetCurrentThreadId();
+		return GetCurrentThreadId();
 	}
 
 	class Mutex
@@ -214,22 +203,22 @@ namespace OS
 	public:
 		Mutex()
 		{
-			::InitializeCriticalSection(&m_cs);
+			InitializeCriticalSection(&m_cs);
 		}
 
 		~Mutex()
 		{
-			::DeleteCriticalSection(&m_cs);
+			DeleteCriticalSection(&m_cs);
 		}
 
 		void Lock()
 		{
-			::EnterCriticalSection(&m_cs);
+			EnterCriticalSection(&m_cs);
 		}
 
 		void Unlock()
 		{
-			::LeaveCriticalSection(&m_cs);
+			LeaveCriticalSection(&m_cs);
 		}
 	};
 
@@ -265,11 +254,14 @@ namespace OS
 
 		inline bool CreateDirectory(const char* path)
 		{
-			return ::CreateDirectoryA(path, NULL) != 0 || ::GetLastError() == 183;  // ERROR_ALREADY_EXISTS
+			return ::CreateDirectoryA(path, NULL) != 0 || GetLastError() == 183;  // ERROR_ALREADY_EXISTS
 		}
 	}
 
+	std::size_t GetWorkingDirectory(char* buffer, std::size_t bufferSize);
 	std::size_t GetDocumentsPath(char* buffer, std::size_t bufferSize);
+
+	std::size_t PretiffyPath(const char* path, char* buffer, std::size_t bufferSize);
 
 	//////////
 	// Time //
@@ -286,9 +278,7 @@ namespace OS
 		unsigned short second;
 		unsigned short millisecond;
 
-		DateTime() : year(0), month(0), dayOfWeek(0), day(0), hour(0), minute(0), second(0), millisecond(0)
-		{
-		}
+		DateTime() : year(), month(), dayOfWeek(), day(), hour(), minute(), second(), millisecond() {}
 	};
 
 	DateTime GetCurrentDateTimeUTC();
@@ -307,10 +297,9 @@ namespace OS
 	// https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 	inline std::size_t GetSystemLanguageCode(char* buffer, std::size_t bufferSize)
 	{
-		return static_cast<std::size_t>(::GetLocaleInfoA(
-			0x800,  // LOCALE_SYSTEM_DEFAULT
-			0x59,   // LOCALE_SISO639LANGNAME
-			buffer, static_cast<int>(bufferSize)
-		));
+		const DWORD locale = 0x800;  // LOCALE_SYSTEM_DEFAULT
+		const DWORD type = 0x59;     // LOCALE_SISO639LANGNAME
+
+		return static_cast<std::size_t>(GetLocaleInfoA(locale, type, buffer, static_cast<int>(bufferSize)));
 	}
 }

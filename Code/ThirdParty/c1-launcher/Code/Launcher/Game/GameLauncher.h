@@ -10,6 +10,7 @@ class GameLauncher
 
 	struct DLLs
 	{
+		void* pEXE;
 		void* pCryGame;
 		void* pCryAction;
 		void* pCryNetwork;
@@ -19,6 +20,7 @@ class GameLauncher
 		void* pVRMod;
 
 		int gameBuild;
+		bool isWarhead;
 	};
 
 	DLLs m_dlls;

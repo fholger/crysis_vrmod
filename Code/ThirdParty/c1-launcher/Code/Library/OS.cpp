@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 
 #define WIN32_LEAN_AND_MEAN
 #include <shlobj.h>
@@ -27,7 +27,7 @@ static int FindArgIndex(const char* arg)
 const char* OS::CmdLine::GetOnlyArgs()
 {
 	char separator = ' ';
-	const char* args = ::GetCommandLineA();
+	const char* args = GetCommandLineA();
 
 	if (*args == '"')
 	{
@@ -86,33 +86,44 @@ const char* OS::CmdLine::GetArgValue(const char* arg, const char* defaultValue)
 // Modules //
 /////////////
 
-static __declspec(noinline) const VS_FIXEDFILEINFO* GetFileInfo(void* mod)
+std::size_t OS::DLL::GetPath(void* dll, char* buffer, std::size_t bufferSize)
 {
-	HMODULE hMod = static_cast<HMODULE>(mod);
+	std::size_t length = GetModuleFileNameA(static_cast<HMODULE>(dll), buffer, static_cast<DWORD>(bufferSize));
 
-	HRSRC resInfo = FindResourceA(hMod, MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-	if (!resInfo)
+	if (length >= bufferSize)
 	{
-		return NULL;
+		SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		length = 0;
 	}
 
-	HGLOBAL resData = LoadResource(hMod, resInfo);
+	return length;
+}
+
+bool OS::DLL::GetVersion(void* dll, Version& result)
+{
+	HRSRC resInfo = FindResourceA(static_cast<HMODULE>(dll), MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
+	if (!resInfo)
+	{
+		return false;
+	}
+
+	HGLOBAL resData = LoadResource(static_cast<HMODULE>(dll), resInfo);
 	if (!resData)
 	{
-		return NULL;
+		return false;
 	}
 
 	const void* versionRes = LockResource(resData);
 	if (!versionRes)
 	{
-		return NULL;
+		return false;
 	}
 
 	const void* versionResKey = static_cast<const unsigned char*>(versionRes) + 0x6;
-	if (memcmp(versionResKey, L"VS_VERSION_INFO", 0x20) != 0)
+	if (std::memcmp(versionResKey, L"VS_VERSION_INFO", 0x20) != 0)
 	{
 		SetLastError(ERROR_INVALID_DATA);
-		return NULL;
+		return false;
 	}
 
 	const void* versionResValue = static_cast<const unsigned char*>(versionResKey) + 0x20 + 0x2;
@@ -121,38 +132,15 @@ static __declspec(noinline) const VS_FIXEDFILEINFO* GetFileInfo(void* mod)
 	if (fileInfo->dwSignature != 0xFEEF04BD)
 	{
 		SetLastError(ERROR_INVALID_DATA);
-		return NULL;
+		return false;
 	}
 
-	return fileInfo;
-}
+	result.major = HIWORD(fileInfo->dwProductVersionMS);
+	result.minor = LOWORD(fileInfo->dwProductVersionMS);
+	result.tweak = HIWORD(fileInfo->dwProductVersionLS);
+	result.patch = LOWORD(fileInfo->dwProductVersionLS);
 
-int OS::DLL::Version::GetMajor(void* mod)
-{
-	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
-
-	return (fileInfo) ? HIWORD(fileInfo->dwProductVersionMS) : -1;
-}
-
-int OS::DLL::Version::GetMinor(void* mod)
-{
-	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
-
-	return (fileInfo) ? LOWORD(fileInfo->dwProductVersionMS) : -1;
-}
-
-int OS::DLL::Version::GetTweak(void* mod)
-{
-	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
-
-	return (fileInfo) ? HIWORD(fileInfo->dwProductVersionLS) : -1;
-}
-
-int OS::DLL::Version::GetPatch(void* mod)
-{
-	const VS_FIXEDFILEINFO* fileInfo = GetFileInfo(mod);
-
-	return (fileInfo) ? LOWORD(fileInfo->dwProductVersionLS) : -1;
+	return true;
 }
 
 ///////////
@@ -168,7 +156,7 @@ bool OS::Hack::FillNop(void* address, std::size_t size)
 	}
 
 	// 0x90 is the opcode of NOP instruction on both x86 and x86-64
-	memset(address, '\x90', size);
+	std::memset(address, '\x90', size);
 
 	if (!VirtualProtect(address, size, oldProtection, &oldProtection))
 	{
@@ -186,7 +174,7 @@ bool OS::Hack::FillMem(void* address, const void* data, std::size_t dataSize)
 		return false;
 	}
 
-	memcpy(address, data, dataSize);
+	std::memcpy(address, data, dataSize);
 
 	if (!VirtualProtect(address, dataSize, oldProtection, &oldProtection))
 	{
@@ -200,27 +188,92 @@ bool OS::Hack::FillMem(void* address, const void* data, std::size_t dataSize)
 // Files //
 ///////////
 
+std::size_t OS::GetWorkingDirectory(char* buffer, std::size_t bufferSize)
+{
+	std::size_t length = GetCurrentDirectoryA(static_cast<DWORD>(bufferSize), buffer);
+
+	if (length >= bufferSize)
+	{
+		SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		length = 0;
+	}
+
+	return length;
+}
+
 std::size_t OS::GetDocumentsPath(char* buffer, std::size_t bufferSize)
 {
-	const int id = CSIDL_PERSONAL | CSIDL_FLAG_CREATE;
-	const DWORD flags = SHGFP_TYPE_CURRENT;
-
-	char safeBuffer[MAX_PATH + 1];
-	if (SHGetFolderPathA(NULL, id, NULL, flags, safeBuffer) != S_OK)
+	char safeBuffer[MAX_PATH];
+	if (SHGetFolderPathA(NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, safeBuffer) != S_OK)
 	{
 		SetLastError(ERROR_PATH_NOT_FOUND);
 		return 0;
 	}
 
-	const std::size_t length = strlen(safeBuffer);
+	const std::size_t length = std::strlen(safeBuffer);
 
 	if (length >= bufferSize)
 	{
-		SetLastError(ERROR_BUFFER_OVERFLOW);
+		SetLastError(ERROR_INSUFFICIENT_BUFFER);
 		return 0;
 	}
 
-	memcpy(buffer, safeBuffer, length + 1);
+	std::memcpy(buffer, safeBuffer, length + 1);
+
+	return length;
+}
+
+std::size_t OS::PretiffyPath(const char* path, char* buffer, std::size_t bufferSize)
+{
+	HMODULE kernel32 = GetModuleHandleA("kernel32.dll");
+	if (!kernel32)
+	{
+		return 0;
+	}
+
+	typedef DWORD (__stdcall *TGetFinalPathNameByHandleA)(HANDLE, LPSTR, DWORD, DWORD);
+
+	// WinVista+
+	TGetFinalPathNameByHandleA pGetFinalPathNameByHandleA =
+		reinterpret_cast<TGetFinalPathNameByHandleA>(GetProcAddress(kernel32, "GetFinalPathNameByHandleA"));
+	if (!pGetFinalPathNameByHandleA)
+	{
+		return 0;
+	}
+
+	const DWORD fileAccess = FILE_READ_ATTRIBUTES;
+	const DWORD fileShare = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+	const DWORD fileFlags = FILE_FLAG_BACKUP_SEMANTICS;  // required to open directories
+
+	HANDLE file = CreateFileA(path, fileAccess, fileShare, NULL, OPEN_EXISTING, fileFlags, NULL);
+	if (!file)
+	{
+		return 0;
+	}
+
+	std::size_t length = pGetFinalPathNameByHandleA(file, buffer, static_cast<DWORD>(bufferSize), 0);
+
+	CloseHandle(file);
+
+	if (length >= bufferSize)
+	{
+		SetLastError(ERROR_INSUFFICIENT_BUFFER);
+		length = 0;
+	}
+
+	if (length >= 4 && buffer[0] == '\\' && buffer[1] == '\\' && buffer[2] == '?' && buffer[3] == '\\')
+	{
+		if (length >= 6 && buffer[5] == ':')
+		{
+			// "\\?\C:\..." -> "C:\..."
+			std::memmove(buffer, buffer + 4, (length - 4) + 1);
+		}
+		else if (length >= 8 && buffer[4] == 'U' && buffer[5] == 'N' && buffer[6] == 'C' && buffer[7] == '\\')
+		{
+			// "\\?\UNC\..." -> "\\..."
+			std::memmove(buffer + 1, buffer + 7, (length - 6) + 1);
+		}
+	}
 
 	return length;
 }

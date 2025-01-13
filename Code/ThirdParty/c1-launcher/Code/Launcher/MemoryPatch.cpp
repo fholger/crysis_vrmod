@@ -23,7 +23,7 @@ static NOINLINE void FillNop(void* base, std::size_t offset, std::size_t size)
 
 	if (!OS::Hack::FillNop(address, size))
 	{
-		throw StringFormat_OSError("Failed to apply patch at %p", address);
+		throw StringFormat_SysError("Failed to apply patch at %p", address);
 	}
 }
 
@@ -33,7 +33,7 @@ static NOINLINE void FillMem(void* base, std::size_t offset, const void* data, s
 
 	if (!OS::Hack::FillMem(address, data, dataSize))
 	{
-		throw StringFormat_OSError("Failed to apply patch at %p", address);
+		throw StringFormat_SysError("Failed to apply patch at %p", address);
 	}
 }
 
@@ -49,6 +49,13 @@ void MemoryPatch::CryAction::AllowDX9ImmersiveMultiplayer(void* pCryAction, int 
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCryAction, 0x23799D, 0x1E);
+			FillNop(pCryAction, 0x23B6A1, 0x1A);
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryAction, 0x2AF92D, 0x1E);
@@ -104,6 +111,13 @@ void MemoryPatch::CryAction::AllowDX9ImmersiveMultiplayer(void* pCryAction, int 
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryAction, 0x1D4ADA, 0x1A);
@@ -188,6 +202,12 @@ void MemoryPatch::CryAction::DisableGameplayStats(void* pCryAction, int gameBuil
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCryAction, 0x1E6706, code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCryAction, 0x2F21D6, code, sizeof(code));
@@ -209,6 +229,13 @@ void MemoryPatch::CryAction::DisableGameplayStats(void* pCryAction, int gameBuil
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryAction, 0x2016ED, 0x7);
@@ -255,6 +282,12 @@ void MemoryPatch::CryGame::DisableIntros(void* pCryGame, int gameBuild)
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCryGame, 0x59739B, 0x9);
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryGame, 0x2EDF9D, 0x10);
@@ -301,6 +334,13 @@ void MemoryPatch::CryGame::DisableIntros(void* pCryGame, int gameBuild)
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryGame, 0x21A91D, 0xD);
@@ -372,6 +412,13 @@ void MemoryPatch::CryGame::CanJoinDX10Servers(void* pCryGame, int gameBuild)
 {
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// no multiplayer menu in Crysis Warhead
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -487,6 +534,13 @@ void MemoryPatch::CryGame::EnableDX10Menu(void* pCryGame, int gameBuild)
 
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead has this by default
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -628,6 +682,13 @@ void MemoryPatch::CryNetwork::EnablePreordered(void* pCryNetwork, int gameBuild)
 
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead does not have a pre-order version
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -680,7 +741,7 @@ void MemoryPatch::CryNetwork::EnablePreordered(void* pCryNetwork, int gameBuild)
 		case 6670:
 		case 6729:
 		{
-			// Crysis Wars does not have pre-ordered version
+			// Crysis Wars does not have a pre-order version
 			break;
 		}
 	}
@@ -695,6 +756,13 @@ void MemoryPatch::CryNetwork::AllowSameCDKeys(void* pCryNetwork, int gameBuild)
 {
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// no GameSpy in Crysis Warhead
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -787,6 +855,13 @@ void MemoryPatch::CryNetwork::FixInternetConnect(void* pCryNetwork, int gameBuil
 {
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// no GameSpy in Crysis Warhead
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -909,6 +984,13 @@ void MemoryPatch::CryNetwork::FixFileCheckCrash(void* pCryNetwork, int gameBuild
 
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead does not have file check
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -1069,6 +1151,13 @@ void MemoryPatch::CryNetwork::DisableServerProfile(void* pCryNetwork, int gameBu
 #else
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// already disabled in Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryNetwork, 0x9F435, 0x5);
@@ -1127,6 +1216,12 @@ void MemoryPatch::CrySystem::RemoveSecuROM(void* pCrySystem, int gameBuild)
 #ifdef BUILD_64BIT
 	switch (gameBuild)
 	{
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead has no SecuROM crap in CrySystem DLL
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x4659E, 0x16);
@@ -1153,7 +1248,7 @@ void MemoryPatch::CrySystem::RemoveSecuROM(void* pCrySystem, int gameBuild)
 		case 6670:
 		case 6729:
 		{
-			// Crysis Wars has no SecuROM crap in its CrySystem DLL
+			// Crysis Wars has no SecuROM crap in CrySystem DLL
 			break;
 		}
 	}
@@ -1167,6 +1262,13 @@ void MemoryPatch::CrySystem::AllowDX9VeryHighSpec(void* pCrySystem, int gameBuil
 {
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead allows Very High settings in DX9 mode by default
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -1248,7 +1350,7 @@ void MemoryPatch::CrySystem::AllowDX9VeryHighSpec(void* pCrySystem, int gameBuil
 		case 6670:
 		case 6729:
 		{
-			// Crysis Wars 1.4+ allows Very High settings in DX9 mode
+			// Crysis Wars 1.4+ allows Very High settings in DX9 mode by default
 			break;
 		}
 	}
@@ -1264,6 +1366,12 @@ void MemoryPatch::CrySystem::AllowMultipleInstances(void* pCrySystem, int gameBu
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCrySystem, 0x421EF, 0x6B);
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x420DF, 0x68);
@@ -1306,6 +1414,13 @@ void MemoryPatch::CrySystem::AllowMultipleInstances(void* pCrySystem, int gameBu
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x57ABF, 0x58);
@@ -1370,6 +1485,14 @@ void MemoryPatch::CrySystem::DisableCrashHandler(void* pCrySystem, int gameBuild
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCrySystem, 0x22BD6, 0x6);
+			FillNop(pCrySystem, 0x22BE2, 0x7);
+			FillNop(pCrySystem, 0x45EDC, 0x16);
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x22986, 0x6);
@@ -1428,6 +1551,13 @@ void MemoryPatch::CrySystem::DisableCrashHandler(void* pCrySystem, int gameBuild
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x182B7, 0x5);
@@ -1503,6 +1633,123 @@ void MemoryPatch::CrySystem::DisableCrashHandler(void* pCrySystem, int gameBuild
 }
 
 /**
+ * Prevents out-of-bounds access of the CPUInfo::cores array.
+ */
+void MemoryPatch::CrySystem::FixCPUInfoOverflow(void* pCrySystem, int gameBuild)
+{
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCrySystem, 0x3746D, 0x1A);
+			break;
+		}
+		case 5767:
+		{
+			FillNop(pCrySystem, 0x3809D, 0x1A);
+			break;
+		}
+		case 5879:
+		{
+			FillNop(pCrySystem, 0x3893D, 0x1A);
+			break;
+		}
+		case 6115:
+		{
+			FillNop(pCrySystem, 0x37F8D, 0x1A);
+			break;
+		}
+		case 6156:
+		{
+			FillNop(pCrySystem, 0x3801D, 0x1A);
+			break;
+		}
+		case 6566:
+		{
+			FillNop(pCrySystem, 0x3F24D, 0x1A);
+			break;
+		}
+		case 6586:
+		{
+			FillNop(pCrySystem, 0x3976D, 0x1A);
+			break;
+		}
+		case 6627:
+		{
+			FillNop(pCrySystem, 0x3C4DD, 0x1A);
+			break;
+		}
+		case 6670:
+		case 6729:
+		{
+			FillNop(pCrySystem, 0x3C6AD, 0x1A);
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillNop(pCrySystem, 0x4B970, 0x9);
+			break;
+		}
+		case 5879:
+		{
+			FillNop(pCrySystem, 0x4BA50, 0x9);
+			break;
+		}
+		case 6115:
+		{
+			FillNop(pCrySystem, 0x4B8A0, 0x9);
+			break;
+		}
+		case 6156:
+		{
+			FillNop(pCrySystem, 0x4B4A0, 0x9);
+			break;
+		}
+		case 6527:
+		{
+			FillNop(pCrySystem, 0x4BEF0, 0x9);
+			break;
+		}
+		case 6566:
+		{
+			FillNop(pCrySystem, 0x4E950, 0x9);
+			break;
+		}
+		case 6586:
+		{
+			FillNop(pCrySystem, 0x4C060, 0x9);
+			break;
+		}
+		case 6627:
+		{
+			FillNop(pCrySystem, 0x4CFD0, 0x9);
+			break;
+		}
+		case 6670:
+		{
+			FillNop(pCrySystem, 0x4D380, 0x9);
+			break;
+		}
+		case 6729:
+		{
+			FillNop(pCrySystem, 0x4D390, 0x9);
+			break;
+		}
+#endif
+	}
+}
+
+/**
  * Hooks CryEngine CPU detection.
  */
 void MemoryPatch::CrySystem::HookCPUDetect(void* pCrySystem, int gameBuild,
@@ -1546,13 +1793,27 @@ void MemoryPatch::CrySystem::HookCPUDetect(void* pCrySystem, int gameBuild,
 
 #ifdef BUILD_64BIT
 	std::memcpy(&code[15], &handler, 8);
+
+	// CPUInfo pointer is stored at offset 0x630 instead of 0x628 in Crysis Warhead
+	if (gameBuild == 710 || gameBuild == 711)
+	{
+		code[3] = 0x30;
+	}
 #else
 	std::memcpy(&code[9], &handler, 4);
+
+	// TODO: 32-bit Crysis Warhead
 #endif
 
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCrySystem, 0x45AE0, &code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCrySystem, 0x45851, &code, sizeof(code));
@@ -1597,6 +1858,13 @@ void MemoryPatch::CrySystem::HookCPUDetect(void* pCrySystem, int gameBuild,
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCrySystem, 0x59CD7, &code, sizeof(code));
@@ -1692,6 +1960,12 @@ void MemoryPatch::CrySystem::HookError(void* pCrySystem, int gameBuild,
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCrySystem, 0x52340, &code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCrySystem, 0x52180, &code, sizeof(code));
@@ -1734,6 +2008,13 @@ void MemoryPatch::CrySystem::HookError(void* pCrySystem, int gameBuild,
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCrySystem, 0x655C0, &code, sizeof(code));
@@ -1816,6 +2097,10 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 	{
 		code[9] = 0x58;
 	}
+	else if (gameBuild == 710 || gameBuild == 711)  // ...and 108 in Crysis Warhead
+	{
+		code[9] = 0x60;
+	}
 #else
 	unsigned char code[] = {
 		// call ISystem::GetLocalizationManager
@@ -1838,11 +2123,19 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 	{
 		code[4] = 0xAC;
 	}
+	// TODO: 32-bit Crysis Warhead vtable index
 #endif
 
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCrySystem, 0x44A59, 0x146);
+			FillMem(pCrySystem, 0x44A59, &code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x448D9, 0x146);
@@ -1893,6 +2186,13 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCrySystem, 0x56C66, 0x7B);
@@ -1957,6 +2257,148 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 	}
 }
 
+/**
+ * Hooks ISystem::ChangeUserPath for changing user directory location.
+ *
+ * The handler is called early during engine initialization right after Game/Config/Folders.ini is parsed.
+ *
+ * @param userPath Relative to the current user's Documents directory. For example, "My Games/Crysis".
+ */
+void MemoryPatch::CrySystem::HookChangeUserPath(void* pCrySystem, int gameBuild,
+	void (*handler)(ISystem* pSystem, const char* userPath))
+{
+#ifdef BUILD_64BIT
+	unsigned char code[] = {
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0xFF, 0xE0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	unsigned char code[] = {
+		0xB8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0x0
+		0xFF, 0x74, 0x24, 0x04,        // push dword ptr ss:[esp+0x4]
+		0x51,                          // push ecx
+		0xFF, 0xD0,                    // call eax
+		0x83, 0xC4, 0x08,              // add esp, 0x8
+		0xC2, 0x04, 0x00,              // ret 0x4
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCrySystem, 0x54230, &code, sizeof(code));
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCrySystem, 0x54080, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCrySystem, 0x55750, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCrySystem, 0x54C50, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCrySystem, 0x54BF0, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCrySystem, 0x5BA60, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCrySystem, 0x563B0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCrySystem, 0x590A0, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCrySystem, 0x59160, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCrySystem, 0x63E30, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCrySystem, 0x644C0, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCrySystem, 0x64190, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCrySystem, 0x61B00, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCrySystem, 0x62800, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCrySystem, 0x651A0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCrySystem, 0x62550, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCrySystem, 0x634E0, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pCrySystem, 0x635F0, &code, sizeof(code));
+			break;
+		}
+		case 6729:
+		{
+			FillMem(pCrySystem, 0x63600, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CryRenderD3D9
 ////////////////////////////////////////////////////////////////////////////////
@@ -1965,7 +2407,7 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
  * Hooks D3D9 adapter information logging.
  */
 void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameBuild,
-	void (*handler)(MemoryPatch::CryRenderD3D9::AdapterInfo* info))
+	void (*handler)(CryRender_D3D9_AdapterInfo* info))
 {
 #ifdef BUILD_64BIT
 	unsigned char code[] = {
@@ -1976,7 +2418,18 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 	};
 
 	std::memcpy(&code[5], &handler, 8);
+
+	unsigned char code_Warhead[] = {
+		0x48, 0x8B, 0xC8,                                            // mov rcx, rax
+		0x4C, 0x8B, 0xE0,                                            // mov r12, rax
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0xFF, 0xD0                                                   // call rax
+	};
+
+	std::memcpy(&code_Warhead[8], &handler, 8);
 #else
+	// TODO: 32-bit Crysis Warhead
+
 	unsigned char code[] = {
 		0x55,                               // push ebp
 		0xB8, 0x00, 0x00, 0x00, 0x00,       // mov eax, 0x0
@@ -1991,6 +2444,13 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillNop(pCryRenderD3D9, 0xC8E6D, 0x19C);
+			FillMem(pCryRenderD3D9, 0xC8E6D, &code_Warhead, sizeof(code_Warhead));
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D9, 0xC6A7E, 0x18B);
@@ -2036,6 +2496,13 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D9, 0x93E8D, 0x137);
@@ -2101,9 +2568,34 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
  */
 void MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(void* pCryRenderD3D10, int gameBuild)
 {
+#ifdef BUILD_64BIT
+	unsigned char code[] = {
+		0x31, 0xC0,              // xor eax, eax
+		0x90,                    // nop
+		0x90,                    // nop
+		0x41, 0x89, 0x40, 0x08,  // mov dword ptr ds:[r8+0x8], eax
+		0x90,                    // nop
+		0x90,                    // nop
+		0x90,                    // nop
+		0x90,                    // nop
+	};
+#else
+	// TODO: 32-bit Crysis Warhead
+#endif
+
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		{
+			FillMem(pCryRenderD3D10, 0x1B8AE4, &code, sizeof(code));
+			break;
+		}
+		case 711:
+		{
+			FillMem(pCryRenderD3D10, 0x1B8BE4, &code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D10, 0x1C5ED5, 0x4);
@@ -2142,6 +2634,13 @@ void MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(void* pCryRenderD3D10, in
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D10, 0x16CE00, 0x6);
@@ -2198,7 +2697,7 @@ void MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(void* pCryRenderD3D10, in
  * It also fixes crash of 64-bit DX10 renderer on nVidia driver version 545.92 and possibly others.
  */
 void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gameBuild,
-	void (*handler)(MemoryPatch::CryRenderD3D10::AdapterInfo* info))
+	void (*handler)(CryRender_D3D10_AdapterInfo* info))
 {
 #ifdef BUILD_64BIT
 	unsigned char codeA[] = {
@@ -2223,6 +2722,14 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 	};
 
 	std::memcpy(&codeA[8], &handler, 8);
+
+	unsigned char codeA_Warhead[] = {
+		0x48, 0x8D, 0x48, 0xF8,                                      // lea rcx, qword ptr ds:[rax-0x8]
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0xFF, 0xD0                                                   // call rax
+	};
+
+	std::memcpy(&codeA_Warhead[6], &handler, 8);
 #else
 	unsigned char code[] = {
 		0x50,                          // push eax
@@ -2238,6 +2745,18 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 	switch (gameBuild)
 	{
 #ifdef BUILD_64BIT
+		case 710:
+		{
+			FillNop(pCryRenderD3D10, 0xC5BFE, 0xEC);
+			FillMem(pCryRenderD3D10, 0xC5BFE, &codeA_Warhead, sizeof(codeA_Warhead));
+			break;
+		}
+		case 711:
+		{
+			FillNop(pCryRenderD3D10, 0xC5F9E, 0xEC);
+			FillMem(pCryRenderD3D10, 0xC5F9E, &codeA_Warhead, sizeof(codeA_Warhead));
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D10, 0xC48E7, 0xFF);
@@ -2296,6 +2815,13 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 			break;
 		}
 #else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
 		case 5767:
 		{
 			FillNop(pCryRenderD3D10, 0x95F28, 0xC8);
@@ -2360,6 +2886,142 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 	}
 }
 
+/**
+ * Hooks D3D10 API initialization.
+ *
+ * CryRenderD3D10 loads d3d10.dll and dxgi.dll with absolute paths (GetSystemDirectoryW) for some reason.
+ * This patch is used to load these DLLs normally, so placing them next to CryRenderD3D10.dll works as expected.
+ */
+void MemoryPatch::CryRenderD3D10::HookInitAPI(void* pCryRenderD3D10, int gameBuild,
+	bool (*handler)(CryRender_D3D10_SystemAPI* api))
+{
+#ifdef BUILD_64BIT
+	unsigned char code[] = {
+		0x48, 0x8D, 0x0D, 0xF3, 0xFF, 0xFF, 0xFF,                    // lea rcx, qword ptr ds:[rip-0xD]
+		0x03, 0x0D, 0xE8, 0xFF, 0xFF, 0xFF,                          // add ecx, dword ptr ds:[rip-0x18]
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0xFF, 0xD0,                                                  // call rax
+		0x48, 0x81, 0xC4, 0x38, 0x02, 0x00, 0x00,                    // add rsp, 0x238
+		0xC3,                                                        // ret
+		0x90,                                                        // nop
+		0x90,                                                        // nop
+	};
+
+	std::memcpy(&code[15], &handler, 8);
+#else
+	unsigned char code[] = {
+		0xE8, 0x12, 0x00, 0x00, 0x00,        // call get_pc -----------------------+
+		0x8B, 0x40, 0xF0,                    // mov eax, dword ptr ds:[eax-0x10]   |
+		0x50,                                // push eax                           |
+		0xB8, 0x00, 0x00, 0x00, 0x00,        // mov eax, 0x0                       |
+		0xFF, 0xD0,                          // call eax                           |
+		0x81, 0xC4, 0x10, 0x02, 0x00, 0x00,  // add esp, 0x210                     |
+		0xC3,                                // ret                                |
+		0x8B, 0x04, 0x24,                    // mov eax, dword ptr ss:[esp]  <-----+
+		0xC3,                                // ret
+	};
+
+	std::memcpy(&code[10], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead loads Direct3D DLLs normally by default
+			break;
+		}
+#ifdef BUILD_64BIT
+		case 5767:
+		{
+			FillMem(pCryRenderD3D10, 0x1C6963, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryRenderD3D10, 0x1C6853, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryRenderD3D10, 0x1C95F3, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryRenderD3D10, 0x1C99D3, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryRenderD3D10, 0x1BB4B3, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryRenderD3D10, 0x1CADC3, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryRenderD3D10, 0x1CADD3, &code, sizeof(code));
+			break;
+		}
+#else
+		case 5767:
+		{
+			FillMem(pCryRenderD3D10, 0x16EAA0, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryRenderD3D10, 0x170030, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryRenderD3D10, 0x171110, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryRenderD3D10, 0x171080, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCryRenderD3D10, 0x170F30, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryRenderD3D10, 0x17B570, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryRenderD3D10, 0x170DB0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCryRenderD3D10, 0x170DF0, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryRenderD3D10, 0x170E10, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CryRenderNULL
 ////////////////////////////////////////////////////////////////////////////////
@@ -2392,6 +3054,13 @@ void MemoryPatch::CryRenderNULL::DisableDebugRenderer(void* pCryRenderNULL, int 
 
 	switch (gameBuild)
 	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead has no CryRenderNULL DLL
+			break;
+		}
 #ifdef BUILD_64BIT
 		case 5767:
 		{
@@ -2568,5 +3237,167 @@ void MemoryPatch::CryRenderNULL::DisableDebugRenderer(void* pCryRenderNULL, int 
 
 		// install the new vtable
 		FillMem(pCryRenderNULL, renderAuxGeomVTableOffset, newVTable, sizeof(newVTable));
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// WarheadEXE
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Initializes the global hInstance pointer in the Warhead EXE.
+ *
+ * Normally, WinMain initializes it, but we load Warhead EXE as a DLL without executing its WinMain function.
+ * Only the Logitech G15 display interface uses it to obtain its bitmap resources from the EXE.
+ *
+ * Only game launcher needs this.
+ */
+void MemoryPatch::WarheadEXE::FixHInstance(void* pEXE, int gameBuild)
+{
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			*static_cast<void**>(ByteOffset(pEXE, 0x80BBE8)) = pEXE;
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Editor
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Fixes the top right and bottom left panels of the main viewport.
+ *
+ * In modern windows, these two panels have all their buttons stacked on top of each other.
+ */
+void MemoryPatch::Editor::FixBrokenPanels(void* pEditor, int editorBuild)
+{
+#ifdef BUILD_64BIT
+	const unsigned char codeA[] = {
+		0x48, 0xC7, 0x44, 0x24, 0x58, 0x00, 0x00, 0x00, 0x00,  // mov qword ptr ss:[rsp+0x58], 0x0
+	};
+
+	const unsigned char codeB[] = {
+		0x83, 0xC9, 0xFF,              // or ecx, 0xFFFFFFFF
+		0x48, 0x83, 0xC1, 0x02,        // add rcx, 0x2
+		0x48, 0x89, 0x4C, 0x24, 0x60,  // mov qword ptr ss:[rsp+0x60], rcx
+		0x90,                          // nop
+	};
+#else
+	const unsigned char codeA[] = {
+		0x33, 0xFF,        // xor edi, edi
+		0x33, 0xC0,        // xor eax, eax
+		0xB0, 0x01,        // mov al, 0x1
+		0x89, 0x45, 0xE8,  // mov dword ptr ss:[ebp-0x18], eax
+		0x89, 0x45, 0xEC,  // mov dword ptr ss:[ebp-0x14], eax
+	};
+
+	const unsigned char codeB[] = {
+		0x83, 0x65, 0xE0, 0x00,  // and dword ptr ss:[ebp-0x20], 0x0
+		0x83, 0x65, 0xE4, 0x00,  // and dword ptr ss:[ebp-0x1C], 0x0
+	};
+#endif
+
+	switch (editorBuild)
+	{
+#ifdef BUILD_64BIT
+		case 5767:
+		{
+			FillMem(pEditor, 0x36DB6, &codeA, sizeof(codeA));
+			FillMem(pEditor, 0x36DCC, &codeB, sizeof(codeB));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pEditor, 0x36336, &codeA, sizeof(codeA));
+			FillMem(pEditor, 0x3634C, &codeB, sizeof(codeB));
+			break;
+		}
+#else
+		case 5767:
+		{
+			FillMem(pEditor, 0x336CF, &codeA, sizeof(codeA));
+			FillMem(pEditor, 0x336E0, &codeB, sizeof(codeB));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pEditor, 0x32CC1, &codeA, sizeof(codeA));
+			FillMem(pEditor, 0x32CD2, &codeB, sizeof(codeB));
+			break;
+		}
+#endif
+	}
+}
+
+/**
+ * Hooks Editor version initialization.
+ *
+ * This hook is needed because the original code reads version resource of the main EXE.
+ * We load Editor EXE as a DLL, so it tries to read our version resource instead of its own.
+ */
+void MemoryPatch::Editor::HookVersionInit(void* pEditor, int editorBuild,
+	void (*handler)(MemoryPatch::Editor::Version* version))
+{
+#ifdef BUILD_64BIT
+	unsigned char code[] = {
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0x48, 0x81, 0xC1, 0x10, 0x01, 0x00, 0x00,                    // add rcx, 0x110
+		0xFF, 0xE0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	unsigned char code[] = {
+		0xB8, 0x00, 0x00, 0x00, 0x00,        // mov eax, 0x0
+		0x81, 0xC1, 0xE4, 0x00, 0x00, 0x00,  // add ecx, 0xE4
+		0x51,                                // push ecx
+		0xFF, 0xD0,                          // call eax
+		0x83, 0xC4, 0x04,                    // add esp, 0x4
+		0xC3,                                // ret
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (editorBuild)
+	{
+#ifdef BUILD_64BIT
+		case 5767:
+		{
+			FillMem(pEditor, 0x28720, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pEditor, 0x27BB0, &code, sizeof(code));
+			break;
+		}
+#else
+		case 5767:
+		{
+			FillMem(pEditor, 0x2CBA4, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pEditor, 0x2C1BC, &code, sizeof(code));
+			break;
+		}
+#endif
 	}
 }

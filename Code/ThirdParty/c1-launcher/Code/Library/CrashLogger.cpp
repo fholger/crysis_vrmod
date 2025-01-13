@@ -172,15 +172,14 @@ static void DumpCallStack(std::FILE* file, const CONTEXT* context)
 
 	CONTEXT localContext = *context;
 
-	DWORD options = 0;
-	options |= SYMOPT_DEFERRED_LOADS;
-	options |= SYMOPT_EXACT_SYMBOLS;
-	options |= SYMOPT_FAIL_CRITICAL_ERRORS;
-	options |= SYMOPT_LOAD_LINES;
-	options |= SYMOPT_NO_PROMPTS;
-	options |= SYMOPT_UNDNAME;
-
-	SymSetOptions(options);
+	SymSetOptions(
+		SYMOPT_DEFERRED_LOADS |
+		SYMOPT_EXACT_SYMBOLS |
+		SYMOPT_FAIL_CRITICAL_ERRORS |
+		SYMOPT_LOAD_LINES |
+		SYMOPT_NO_PROMPTS |
+		SYMOPT_UNDNAME
+	);
 
 	if (SymInitialize(process, NULL, TRUE))
 	{
@@ -189,46 +188,37 @@ static void DumpCallStack(std::FILE* file, const CONTEXT* context)
 		{
 			const std::size_t address = frame.AddrPC.Offset;
 
-			std::fprintf(file, ADDR_FMT ":", address);
+			const char* moduleName = "??";
+			IMAGEHLP_MODULE moduleInfo = {};
+			moduleInfo.SizeOfStruct = sizeof(moduleInfo);
+			if (SymGetModuleInfo(process, address, &moduleInfo))
+			{
+				moduleName = BaseName(moduleInfo.ImageName);
+			}
 
+			const char* symbolName = "??";
 			unsigned char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME] = {};
 			SYMBOL_INFO& symbol = *reinterpret_cast<SYMBOL_INFO*>(symbolBuffer);
 			symbol.SizeOfStruct = sizeof(SYMBOL_INFO);
 			symbol.MaxNameLen = MAX_SYM_NAME;
 			DWORD64 symbolOffset = 0;
-
 			if (SymFromAddr(process, address, &symbolOffset, &symbol))
 			{
-				std::fprintf(file, " %s + 0x%I64X", symbol.Name, symbolOffset);
+				symbolName = symbol.Name;
 			}
-			else
-			{
-				std::fprintf(file, " ??");
-			}
+
+			std::fprintf(file, ADDR_FMT " %s: %s", address, moduleName, symbolName);
 
 			IMAGEHLP_LINE line = {};
 			line.SizeOfStruct = sizeof(line);
 			DWORD lineOffset = 0;
-
 			if (SymGetLineFromAddr(process, address, &lineOffset, &line))
 			{
-				std::fprintf(file, " (%s:%u)", line.FileName, line.LineNumber);
+				std::fprintf(file, " (%s:%u)\n", BaseName(line.FileName), line.LineNumber);
 			}
 			else
 			{
-				std::fprintf(file, " ()");
-			}
-
-			IMAGEHLP_MODULE moduleInfo = {};
-			moduleInfo.SizeOfStruct = sizeof(moduleInfo);
-
-			if (SymGetModuleInfo(process, address, &moduleInfo))
-			{
-				std::fprintf(file, " in %s\n", BaseName(moduleInfo.ImageName));
-			}
-			else
-			{
-				std::fprintf(file, " in ?\n");
+				std::fprintf(file, " ()\n");
 			}
 		}
 
@@ -487,4 +477,25 @@ void CrashLogger::Enable(CrashLogger::Handler handler)
 
 	_set_purecall_handler(&PureCallHandler);
 	_set_invalid_parameter_handler(&InvalidParameterHandler);
+
+#if !defined(_MSC_VER) || _MSC_VER != 1400
+	// for non-VS2005 compilers
+	HMODULE msvcr80 = LoadLibraryA("msvcr80.dll");
+	if (msvcr80)
+	{
+		void* vs2005_set_purecall_handler = GetProcAddress(msvcr80, "_set_purecall_handler");
+		if (vs2005_set_purecall_handler)
+		{
+			static_cast<_purecall_handler(*)(_purecall_handler)>
+				(vs2005_set_purecall_handler)(&PureCallHandler);
+		}
+
+		void* vs2005_set_invalid_parameter_handler = GetProcAddress(msvcr80, "_set_invalid_parameter_handler");
+		if (vs2005_set_invalid_parameter_handler)
+		{
+			static_cast<_invalid_parameter_handler(*)(_invalid_parameter_handler)>
+				(vs2005_set_invalid_parameter_handler)(&InvalidParameterHandler);
+		}
+	}
+#endif
 }
