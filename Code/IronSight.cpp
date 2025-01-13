@@ -752,7 +752,7 @@ void CIronSight::OnZoomedOut()
 	if(m_zoomparams.scope_mode)
 		ResetFovAndPosition();
 
-	if (m_pWeapon->GetOwnerActor()->IsClient() && gVR->IsOffHandGrabbingWeapon())
+	if (m_pWeapon && m_pWeapon->GetOwnerActor() && m_pWeapon->GetOwnerActor()->IsClient() && gVR->IsOffHandGrabbingWeapon())
 	{
 		// reenable basic recoil and spread reduction
 		if (IZoomMode* zm = m_pWeapon->GetZoomMode(0))
