@@ -107,6 +107,16 @@ void VRGui::Draw()
 	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
 	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
 
+	if (SAFE_MENU_FUNC_RET(IsIngameMenuActive()))
+	{
+		ImGui::SameLine();
+		if (ImGui::Button("Quick Save"))
+		{
+			gEnv->pConsole->ExecuteString("save");
+			SAFE_MENU_FUNC(ShowInGameMenu(false));
+		}
+	}
+
 	ImGui::Spacing();
 	if (ImGui::Button("Donate"))
 	{

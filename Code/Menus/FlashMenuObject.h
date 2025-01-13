@@ -141,6 +141,7 @@ public:
 	bool IsMenuActive();
 
 	bool IsLoadingScreenActive();
+	bool IsIngameMenuActive();
 
 	ILINE bool WaitingForStart() const { return m_bLoadingDone; }
 
