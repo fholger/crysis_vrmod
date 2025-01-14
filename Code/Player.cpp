@@ -480,6 +480,7 @@ void CPlayer::EnableTimeDemo( bool bTimeDemo )
 //////////////////////////////////////////////////////////////////////////
 void CPlayer::SetViewAngleOffset(const Vec3 &offset)
 {
+	return;
 	if (!m_ignoreRecoil)
 		m_viewAnglesOffset = Ang3(offset);
 }
