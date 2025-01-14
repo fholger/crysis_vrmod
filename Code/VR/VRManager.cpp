@@ -694,8 +694,9 @@ bool VRManager::RecalibrateView()
 
 	// recalibrate menu positioning
 	angles.x = angles.y = 0;
+	//angles.z += gf_PI;
 	m_fixedHudTransform.SetRotationXYZ(angles, hmdTransform.GetTranslation());
-	Vec3 dir = -m_fixedHudTransform.GetColumn1();
+	Vec3 dir = m_fixedHudTransform.GetColumn1();
 	Vec3 pos = m_fixedHudTransform.GetTranslation() + 5 * dir;
 	m_fixedHudTransform.SetTranslation(pos);
 
@@ -703,6 +704,7 @@ bool VRManager::RecalibrateView()
 }
 
 extern XrPosef CrysisToOpenXR(const Matrix34& transform);
+extern Matrix34 OpenXRToCrysis(const XrQuaternionf& a, const XrVector3f& b);
 
 void VRManager::SetHudInFrontOfPlayer()
 {
@@ -726,12 +728,8 @@ void VRManager::SetHudAttachedToHead()
 	Vec3 pos = hudTransform.GetTranslation();
 	Ang3 angles;
 	angles.SetAnglesXYZ((Matrix33)hudTransform);
-	angles.x = -angles.x;
-	angles.y = -angles.y;
-	pos.x = -pos.x;
-	pos.y = -pos.y;
 	hudTransform.SetRotationXYZ(angles, pos);
-	Vec3 forward = -hudTransform.GetColumn1();
+	Vec3 forward = hudTransform.GetColumn1();
 	hudTransform.SetTranslation(hudTransform.GetTranslation() + 2 * forward);
 	gXR->SetHudPose(CrysisToOpenXR(hudTransform));
 
@@ -749,15 +747,11 @@ void VRManager::SetHudAttachedToOffHand()
 	Vec3 pos = transform.GetTranslation();
 	Ang3 angles;
 	angles.SetAnglesXYZ((Matrix33)transform);
-	angles.x = -angles.x;
-	angles.y = -angles.y;
-	pos.x = -pos.x;
-	pos.y = -pos.y;
 	transform.SetRotationXYZ(angles, pos);
 
-	Vec3 forward = -transform.GetColumn1();
+	Vec3 forward = transform.GetColumn1();
 	transform.SetTranslation(transform.GetTranslation() + 0.5f * forward);
-	transform = transform * Matrix34::CreateTranslationMat(Vec3((leftHanded ? 1 : -1) * vr_binocular_size / 2, 0, vr_binocular_size / 2));
+	transform = transform * Matrix34::CreateTranslationMat(Vec3((leftHanded ? -1 : 1) * vr_binocular_size / 2, 0, vr_binocular_size / 2));
 
 	XrPosef hudTransform = CrysisToOpenXR(transform);
 	gXR->SetHudPose(hudTransform);
@@ -784,11 +778,7 @@ void VRManager::SetHudAttachedToWeaponHand()
 	transform = transform * Matrix34::CreateTranslationMat(Vec3(0, 0.1f, vr_scope_size / 2));
 
 	angles.SetAnglesXYZ((Matrix33)transform);
-	angles.x = -angles.x;
-	angles.y = -angles.y;
 	Vec3 pos = transform.GetTranslation();
-	pos.x = -pos.x;
-	pos.y = -pos.y;
 	transform.SetRotationXYZ(angles, pos);
 
 	XrPosef hudTransform = CrysisToOpenXR(transform);

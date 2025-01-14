@@ -60,17 +60,17 @@ XrPosef CrysisToOpenXR(const Matrix34& transform)
 {
 	Matrix34 m;
 	m.m00 = transform.m00;
-	m.m01 = -transform.m02;
+	m.m01 = transform.m02;
 	m.m02 = -transform.m01;
-	m.m03 = -transform.m03;
-	m.m10 = -transform.m20;
+	m.m03 = transform.m03;
+	m.m10 = transform.m20;
 	m.m11 = transform.m22;
-	m.m12 = transform.m21;
+	m.m12 = -transform.m21;
 	m.m13 = transform.m23;
 	m.m20 = -transform.m10;
-	m.m21 = transform.m12;
+	m.m21 = -transform.m12;
 	m.m22 = transform.m11;
-	m.m23 = transform.m13;
+	m.m23 = -transform.m13;
 
 	Vec3 pos = m.GetTranslation();
 	Quat rot = GetQuatFromMat33((Matrix33)m);
