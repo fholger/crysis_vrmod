@@ -64,7 +64,7 @@ public:
 	Matrix34 GetEyeTransform(int eye) const;
 
 	void Update();
-	void RecalibrateView();
+	bool RecalibrateView();
 
 	void SetHudInFrontOfPlayer();
 	void SetHudAttachedToHead();
@@ -117,6 +117,7 @@ private:
 	float m_referenceYaw = 0;
 	Matrix34 m_fixedHudTransform;
 	bool m_fixedPositionInitialized = false;
+	float m_hmdReferenceHeight = 0;
 
 	bool m_wasInMenu = false;
 

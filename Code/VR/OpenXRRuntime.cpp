@@ -250,14 +250,10 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 
 	XrReferenceSpaceCreateInfo spaceCreateInfo{};
 	spaceCreateInfo.type = XR_TYPE_REFERENCE_SPACE_CREATE_INFO;
-	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
+	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
 	spaceCreateInfo.poseInReferenceSpace.orientation.w = 1;
 	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_space);
-	XR_CheckResult(result, "creating seated reference space", m_instance);
-
-	spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
-	result = xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_viewSpace);
-	XR_CheckResult(result, "creating HMD reference space", m_instance);
+	XR_CheckResult(result, "creating roomscale reference space", m_instance);
 
 	m_input.Init(m_instance, m_session, m_space);
 }
@@ -306,6 +302,8 @@ void OpenXRRuntime::AwaitFrame()
 	}
 	result = xrLocateViews(m_session, &viewLocateInfo, &viewState, 2, &viewCount, m_renderViews);
 	XR_CheckResult(result, "getting eye views", m_instance);
+
+	m_posesValid = viewState.viewStateFlags & (XR_VIEW_STATE_POSITION_TRACKED_BIT | XR_VIEW_STATE_ORIENTATION_TRACKED_BIT);
 }
 
 void OpenXRRuntime::FinishFrame()

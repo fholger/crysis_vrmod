@@ -37,19 +37,21 @@ public:
 	float GetHudWidth() const { return m_hudDisplayWidth; }
 	float GetHudHeight() const { return m_hudDisplayHeight; }
 
+	bool ArePosesValid() const { return m_posesValid; }
+
 private:
 	OpenXRInput m_input;
 	XrInstance m_instance = nullptr;
 	XrSystemId m_system = 0;
 	XrSession m_session = nullptr;
 	XrSpace m_space = nullptr;
-	XrSpace m_viewSpace = nullptr;
 	bool m_sessionActive = false;
 	bool m_frameStarted = false;
 	bool m_shouldRender = false;
 	XrTime m_predictedDisplayTime = 0;
 	XrTime m_predictedNextFrameDisplayTime = 0;
 	XrView m_renderViews[2] = {};
+	bool m_posesValid = false;
 	XrSwapchain m_stereoSwapchain = nullptr;
 	int m_stereoWidth = 0;
 	int m_stereoHeight = 0;

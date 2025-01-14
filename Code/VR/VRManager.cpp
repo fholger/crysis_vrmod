@@ -341,6 +341,9 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	viewMat.SetRotationXYZ(angles, position);
 
 	Matrix34 eyeMat = GetEyeTransform(eye);
+	Vec3 eyePos = eyeMat.GetTranslation();
+	eyePos.z -= m_hmdReferenceHeight;
+	eyeMat.SetTranslation(eyePos);
 	viewMat = viewMat * eyeMat;
 
 	cam.SetMatrix(viewMat);
@@ -661,12 +664,16 @@ void VRManager::Update()
 		SetHudInFrontOfPlayer();
 }
 
-void VRManager::RecalibrateView()
+bool VRManager::RecalibrateView()
 {
+	if (!gXR->ArePosesValid())
+		return false;
+
 	Matrix34 hmdTransform = Matrix34(gXR->GetHmdTransform());
 
 	m_referencePosition = hmdTransform.GetTranslation();
 	m_referencePosition.z = 0;
+	m_hmdReferenceHeight = hmdTransform.GetTranslation().z;
 
 	Ang3 angles;
 	angles.SetAnglesXYZ((Matrix33)hmdTransform);
@@ -678,6 +685,8 @@ void VRManager::RecalibrateView()
 	Vec3 dir = -m_fixedHudTransform.GetColumn1();
 	Vec3 pos = m_fixedHudTransform.GetTranslation() + 5 * dir;
 	m_fixedHudTransform.SetTranslation(pos);
+
+	return true;
 }
 
 extern XrPosef CrysisToOpenXR(const Matrix34& transform);
@@ -686,8 +695,8 @@ void VRManager::SetHudInFrontOfPlayer()
 {
 	if (!m_fixedPositionInitialized)
 	{
-		RecalibrateView();
-		m_fixedPositionInitialized = true;
+		if (RecalibrateView())
+			m_fixedPositionInitialized = true;
 	}
 
 	gXR->SetHudPose(CrysisToOpenXR(m_fixedHudTransform));
