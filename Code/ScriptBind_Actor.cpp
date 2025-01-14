@@ -7,7 +7,7 @@
   
  -------------------------------------------------------------------------
   History:
-  - 7:10:2004   14:19 : Created by Márcio Martins
+  - 7:10:2004   14:19 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -228,7 +228,7 @@ int CScriptBind_Actor::SetViewAngleOffset(IFunctionHandler *pH)
 	Vec3 offset(0,0,0);
 	pH->GetParam(1, offset);
 
-	pActor->SetViewAngleOffset(offset);
+	//pActor->SetViewAngleOffset(offset);
 
 	return pH->EndFunction();
 }
