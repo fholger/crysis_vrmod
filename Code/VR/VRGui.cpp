@@ -105,7 +105,6 @@ void VRGui::Draw()
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
 	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.2f * windowSize.y));
 	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
-	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
 
 	if (SAFE_MENU_FUNC_RET(IsIngameMenuActive()))
 	{
@@ -117,7 +116,9 @@ void VRGui::Draw()
 		}
 	}
 
-	ImGui::Spacing();
+	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
+	ImGui::SameLine();
+
 	if (ImGui::Button("Donate"))
 	{
 		OpenLinkInBrowser("https://ko-fi.com/fholger");
@@ -145,55 +146,66 @@ void VRGui::DrawSettingsMenu()
 	ImGui::SetWindowPos(ImVec2(0.25f * windowSize.x, 0.25f * windowSize.y));
 	ImGui::SetWindowSize(ImVec2(0.7f * windowSize.x, 0.7f * windowSize.y));
 	ImGui::Text("Configure your VR experience here");
-	ImGui::Separator();
 
-	ImGui::Text("Weapon hand");
-	ImGui::SetItemTooltip("Choose which hand will hold and fire weapons");
-	ImGui::SameLine(0.2f * windowSize.x);
-	ImGui::RadioButton("Left##weapon", &g_pGameCVars->vr_weapon_hand, 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("Right##weapon", &g_pGameCVars->vr_weapon_hand, 1);
-	ImGui::Text("Movement hand");
-	ImGui::SetItemTooltip("This hand's thumbstick is used for moving, other hand for turning");
-	ImGui::SameLine(0.2f * windowSize.x);
-	ImGui::RadioButton("Left##movement", &g_pGameCVars->vr_movement_hand, 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
-	ImGui::Separator();
+	if (ImGui::CollapsingHeader("Hand configuration"))
+	{
+		ImGui::Text("Weapon hand");
+		ImGui::SetItemTooltip("Choose which hand will hold and fire weapons");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Left##weapon", &g_pGameCVars->vr_weapon_hand, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Right##weapon", &g_pGameCVars->vr_weapon_hand, 1);
+		ImGui::Text("Movement hand");
+		ImGui::SetItemTooltip("This hand's thumbstick is used for moving, other hand for turning");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Left##movement", &g_pGameCVars->vr_movement_hand, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
+	}
 
-	bool weaponCrosshair = g_pGameCVars->vr_weapon_crosshair;
-	ImGui::Checkbox("Crosshair helper for player weapons", &weaponCrosshair);
-	ImGui::SetItemTooltip("Draws a small sphere to help you aim");
-	g_pGameCVars->vr_weapon_crosshair = weaponCrosshair;
-	bool vehicleCrosshair = g_pGameCVars->vr_vehicle_crosshair;
-	ImGui::Checkbox("Crosshair helper for mounted/vehicle weapons", &vehicleCrosshair);
-	ImGui::SetItemTooltip("Draws a small sphere to help you aim");
-	g_pGameCVars->vr_vehicle_crosshair = vehicleCrosshair;
+	if (ImGui::CollapsingHeader("Weapons"))
+	{
+		bool weaponCrosshair = g_pGameCVars->vr_weapon_crosshair;
+		ImGui::Checkbox("Crosshair helper for player weapons", &weaponCrosshair);
+		ImGui::SetItemTooltip("Draws a small sphere to help you aim");
+		g_pGameCVars->vr_weapon_crosshair = weaponCrosshair;
+		bool vehicleCrosshair = g_pGameCVars->vr_vehicle_crosshair;
+		ImGui::Checkbox("Crosshair helper for mounted/vehicle weapons", &vehicleCrosshair);
+		ImGui::SetItemTooltip("Draws a small sphere to help you aim");
+		g_pGameCVars->vr_vehicle_crosshair = vehicleCrosshair;
 
-	ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
-	ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
-	ImGui::Separator();
+		ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
+		ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
+	}
 
-	bool hapticsEnabled = g_pGameCVars->vr_haptics_enabled;
-	ImGui::Checkbox("Enable controller haptics", &hapticsEnabled);
-	g_pGameCVars->vr_haptics_enabled = hapticsEnabled;
-	ImGui::SliderFloat("Haptics strength", &g_pGameCVars->vr_haptics_strength, 0.f, 2.f);
-	ImGui::Separator();
+	if (ImGui::CollapsingHeader("Haptics"))
+	{
+		bool hapticsEnabled = g_pGameCVars->vr_haptics_enabled;
+		ImGui::Checkbox("Enable controller haptics", &hapticsEnabled);
+		g_pGameCVars->vr_haptics_enabled = hapticsEnabled;
+		ImGui::SliderFloat("Haptics strength", &g_pGameCVars->vr_haptics_strength, 0.f, 2.f);
+	}
 
-	ImGui::Text("Mirrored eye");
-	ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
-	ImGui::SameLine(0.2f * windowSize.x);
-	ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
+	if (ImGui::CollapsingHeader("Miscellaneous"))
+	{
+		ImGui::Text("Mirrored eye");
+		ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
 
-	const char* CutsceneOptions[] = {"VR", "2D Cinema", "3D Cinema"};
-	int cutsceneMode = g_pGameCVars->vr_cutscenes_2d ? (g_pGameCVars->vr_cinema_3d ? 2 : 1) : 0;
-	ImGui::Combo("Cutscene mode", &cutsceneMode, CutsceneOptions, IM_ARRAYSIZE(CutsceneOptions));
-	g_pGameCVars->vr_cutscenes_2d = cutsceneMode > 0;
-	g_pGameCVars->vr_cinema_3d = cutsceneMode == 2;
+		const char* CutsceneOptions[] = {"VR", "2D Cinema", "3D Cinema"};
+		int cutsceneMode = g_pGameCVars->vr_cutscenes_2d ? (g_pGameCVars->vr_cinema_3d ? 2 : 1) : 0;
+		ImGui::Combo("Cutscene mode", &cutsceneMode, CutsceneOptions, IM_ARRAYSIZE(CutsceneOptions));
+		g_pGameCVars->vr_cutscenes_2d = cutsceneMode > 0;
+		g_pGameCVars->vr_cinema_3d = cutsceneMode == 2;
 
-	ImGui::Separator();
+		bool disableScreenShake = g_pGameCVars->vr_disable_camerashakes;
+		ImGui::Checkbox("Disable screen shakes", &disableScreenShake);
+		g_pGameCVars->vr_disable_camerashakes = disableScreenShake;
+	}
+
 	if (ImGui::Button("Close"))
 	{
 		m_settingsMenuOpen = false;

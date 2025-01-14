@@ -450,6 +450,7 @@ struct SCVars
 	float vr_haptics_strength;
 	int vr_mirror_eye;
 	float vr_gui_scale;
+	int vr_disable_camerashakes;
 
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;

@@ -1273,6 +1273,13 @@ void CPlayerView::ViewShakePostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 	if (pView)
 	pView->SetViewShake(ZERO,Vec3(m_stats.flatSpeed*0.0035f,0,m_stats.flatSpeed*0.0035f) * shake,0.1f,0.05f,0.5f,1);
 	}*/
+
+	if (g_pGameCVars->vr_disable_camerashakes)
+	{
+		IView *pView = g_pGame->GetIGameFramework()->GetIViewSystem()->GetViewByEntityId(rPlayer.GetEntityId());
+		if (pView)
+			pView->ResetShaking();
+	}
 }
 
 // If there are first person hands present, then position and orient them relative to the view
