@@ -15,7 +15,7 @@ When you look at something you can interact with, the center of your HUD should 
 This way, you can also pick up weapons and ammo dropped by your enemies. But keep in mind that you have to be looking at what you want to interact with, so if you are having issues, you may have to look further down or even crouch to reach those weapons.
 
 ## Activating nightvision
-Bring your off hand close to your head, then press trigger to toggle nightvision. Note this does not currently work during the intro parachute jump.
+Bring your off hand close to your head, then press trigger to toggle nightvision.
 
 ## Using the binoculars
 Press and hold your off hand's A/X button to bring up your binoculars. While active, the VR world will stop rendering, and instead the binoculars will be shown attached to your off hand. You can move your hand around and turn physically or with the right thumbstick to look around. Push the right thumbstick up or down to zoom in or out.

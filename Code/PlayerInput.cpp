@@ -340,6 +340,10 @@ void CPlayerInput::OnAction( const ActionId& actionId, int activationMode, float
 //			m_deltaRotation.Set(0,0,0);
 				m_deltaMovement.Set(0,0,0);
 			}
+			else if (IsActionUseNearHead(actionId, activationMode))
+			{
+				SAFE_HUD_FUNC(OnAction(g_pGameActions->hud_night_vision, eAAM_OnPress, 1));
+			}
 			else if (m_pPlayer->GetHealth() > 0 && !m_pPlayer->m_stats.isFrozen.Value() && !m_pPlayer->m_stats.inFreefall.Value() && !m_pPlayer->m_stats.isOnLadder 
 				&& !m_pPlayer->m_stats.isStandingUp && m_pPlayer->GetGameObject()->GetAspectProfile(eEA_Physics)!=eAP_Sleep)
 			{
@@ -1657,6 +1661,16 @@ bool CPlayerInput::OnActionOffHandWeaponGrab(EntityId entityId, const ActionId& 
 	}
 
 	return false;
+}
+
+bool CPlayerInput::IsActionUseNearHead(const ActionId& actionId, int activationMode)
+{
+	if (!m_pPlayer->IsClient() || actionId != g_pGameActions->xi_use || activationMode != eAAM_OnPress)
+		return false;
+	if (m_pPlayer->GetHealth() <= 0 || m_pPlayer->m_stats.isFrozen.Value() || m_pPlayer->m_stats.isOnLadder || m_pPlayer->m_stats.isStandingUp || m_pPlayer->GetGameObject()->GetAspectProfile(eEA_Physics)==eAP_Sleep)
+		return false;
+
+	return gVR->IsHandNearHead(OFF_HAND);
 }
 
 void CPlayerInput::EnableSprint()
