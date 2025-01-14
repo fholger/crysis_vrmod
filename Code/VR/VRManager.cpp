@@ -559,10 +559,11 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
 	bool isCutscene = system && system->IsPlayingCutScene();
 	CPlayer *pPlayer = GetLocalPlayer();
+	bool isNonPlayerView = pPlayer && system && system->GetActiveView() && system->GetActiveView()->GetLinkedId() != pPlayer->GetEntityId();
 	bool inVehicle = pPlayer && pPlayer->GetLinkedVehicle();
 	bool mountedWeapon = pPlayer && pPlayer->GetActorStats()->mountedWeaponID;
 
-	if (isCutscene || inVehicle || !pPlayer || mountedWeapon)
+	if (isCutscene || isNonPlayerView || inVehicle || !pPlayer || mountedWeapon)
 	{
 		CCamera cam = gVRRenderer->GetCurrentViewCamera();
 		Ang3 angles = cam.GetAngles();
