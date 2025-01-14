@@ -96,6 +96,7 @@ void VRManager::AwaitFrame()
 		return;
 
 	gXR->AwaitFrame();
+	m_prevViewYaw = m_updatedViewYaw;
 }
 
 void VRManager::CaptureEye(int eye)
@@ -284,65 +285,10 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 		return;
 	}
 
-	Ang3 angles = cam.GetAngles();
-	Vec3 position = cam.GetPosition();
-
-	// eliminate pitch and roll
-	// switch around, because these functions do not agree on which angle is what...
-	angles.z = angles.x;
-	angles.y = 0;
-	angles.x = 0;
-
-	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
-	bool isCutscene = system && system->IsPlayingCutScene();
-
-	if (eye == 0)
-	{
-		// manage the aiming deadzone in which the camera should not be rotated
-		float yawDiff = angles.z - m_prevViewYaw;
-		if (yawDiff < -gf_PI)
-			yawDiff += 2 * gf_PI;
-		else if (yawDiff > gf_PI)
-			yawDiff -= 2 * gf_PI;
-
-		float maxDiff = g_pGameCVars->vr_yaw_deadzone_angle * gf_PI / 180.f;
-		if (g_pGameCVars->vr_enable_motion_controllers)
-			maxDiff = 0;
-		if (isCutscene)
-		{
-			maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * gf_PI / 180.f;
-			if (g_pGameCVars->vr_cutscenes_2d)
-				maxDiff = 0;
-			if (yawDiff > maxDiff || yawDiff < -maxDiff)
-				m_prevViewYaw = angles.z;
-		}
-		else
-		{
-			if (yawDiff > maxDiff)
-				m_prevViewYaw += yawDiff - maxDiff;
-			if (yawDiff < -maxDiff)
-				m_prevViewYaw += yawDiff + maxDiff;
-			if (m_prevViewYaw > gf_PI)
-				m_prevViewYaw -= 2*gf_PI;
-			if (m_prevViewYaw < -gf_PI)
-				m_prevViewYaw += 2*gf_PI;
-		}
-
-		CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
-		if (pPlayer && pPlayer->GetLinkedVehicle())
-		{
-			// don't use this while in a vehicle, it feels off
-			m_prevViewYaw = angles.z;
-		}
-	}
-	angles.z = m_prevViewYaw;
-
-	Matrix34 viewMat;
-	viewMat.SetRotationXYZ(angles, position);
+	Matrix34 viewMat = GetBaseVRTransform();
 
 	Matrix34 eyeMat = GetEyeTransform(eye);
 	Vec3 eyePos = eyeMat.GetTranslation();
-	eyePos.z -= m_hmdReferenceHeight;
 	eyeMat.SetTranslation(eyePos);
 	viewMat = viewMat * eyeMat;
 
@@ -456,17 +402,15 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (weapon->IsDualWieldSlave())
 		weaponHand = 0;
 
-	Matrix34 adjustedControllerTransform = GetControllerWeaponTransform(weaponHand);
+	Matrix34 adjustedControllerTransform = GetWorldControllerWeaponTransform(weaponHand);
 	// if we are two-handing the weapon and it's not a pistol, apply a two hand orientation
 	if (IsOffHandGrabbingWeapon() && weapon->GetEntity()->GetClass() != CItem::sSOCOMClass)
 	{
 		adjustedControllerTransform = GetTwoHandWeaponTransform();
 	}
 
-	weaponAngles.x = weaponAngles.y = 0;
-	Matrix34 weaponWorldTransform = Matrix34::CreateRotationXYZ(weaponAngles, weaponPosition);
 	Matrix34 inverseWeaponGripTransform = weapon->GetInverseGripTransform();
-	Matrix34 trackedTransform = weaponWorldTransform * adjustedControllerTransform * inverseWeaponGripTransform;
+	Matrix34 trackedTransform = adjustedControllerTransform * inverseWeaponGripTransform;
 	weaponPosition = trackedTransform.GetTranslation();
 	weaponAngles = Ang3(trackedTransform);
 
@@ -495,6 +439,13 @@ Matrix34 VRManager::GetControllerTransform(int side)
 	return adjustedControllerTransform;
 }
 
+Matrix34 VRManager::GetWorldControllerTransform(int side)
+{
+	Matrix34 controllerTransform = GetControllerTransform(side);
+	Matrix34 baseTransform = GetBaseVRTransform();
+	return baseTransform * controllerTransform;
+}
+
 Matrix34 VRManager::GetControllerWeaponTransform(int side)
 {
 	Matrix34 controllerTransform = gXR->GetInput()->GetControllerWeaponTransform(side);
@@ -509,8 +460,8 @@ Matrix34 VRManager::GetTwoHandWeaponTransform()
 	int weaponHand = g_pGameCVars->vr_weapon_hand;
 	int offHand = 1 - weaponHand;
 
-	Matrix34 mainHandTransform = GetControllerTransform(weaponHand);
-	Matrix34 offHandTransform = GetControllerTransform(offHand);
+	Matrix34 mainHandTransform = GetWorldControllerTransform(weaponHand);
+	Matrix34 offHandTransform = GetWorldControllerTransform(offHand);
 
 	// build rotation from main hand towards off hand
 	Vec3 fwd = offHandTransform.GetTranslation() - mainHandTransform.GetTranslation();
@@ -529,10 +480,7 @@ Matrix34 VRManager::GetTwoHandWeaponTransform()
 Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)
 {
 	Matrix34 controllerTransform = GetControllerWeaponTransform(side);
-	Matrix34 view = gVRRenderer->GetCurrentViewCamera().GetMatrix();
-	Ang3 viewAngles (view);
-	viewAngles.x = viewAngles.y = 0;
-	view.SetRotationXYZ(viewAngles, view.GetTranslation());
+	Matrix34 view = GetBaseVRTransform();
 	return view * controllerTransform;
 }
 
@@ -604,6 +552,71 @@ float VRManager::GetHmdYawOffset() const
 {
 	Ang3 angles(gXR->GetHmdTransform());
 	return angles.z - m_referenceYaw;
+}
+
+Matrix34 VRManager::GetBaseVRTransform() const
+{
+	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
+	bool isCutscene = system && system->IsPlayingCutScene();
+	CPlayer *pPlayer = GetLocalPlayer();
+	bool inVehicle = pPlayer && pPlayer->GetLinkedVehicle();
+
+	if (isCutscene || inVehicle || !pPlayer || pPlayer->GetActorStats()->mountedWeaponID)
+	{
+		CCamera cam = gVRRenderer->GetCurrentViewCamera();
+		Ang3 angles = cam.GetAngles();
+		Vec3 position = cam.GetPosition();
+		position.z -= m_hmdReferenceHeight;
+
+		// eliminate pitch and roll
+		// switch around, because these functions do not agree on which angle is what...
+		angles.z = angles.x;
+		angles.y = 0;
+		angles.x = 0;
+
+		// in cutscenes, do not follow the camera rotation; only snap to new yaw angle if the difference is too big
+		m_updatedViewYaw = m_prevViewYaw;
+
+		float yawDiff = angles.z - m_updatedViewYaw;
+		if (yawDiff < -gf_PI)
+			yawDiff += 2 * gf_PI;
+		else if (yawDiff > gf_PI)
+			yawDiff -= 2 * gf_PI;
+
+		float maxDiff = g_pGameCVars->vr_cutscenes_angle_snap * gf_PI / 180.f;
+		if (g_pGameCVars->vr_cutscenes_2d)
+			maxDiff = 0;
+		if (yawDiff > maxDiff || yawDiff < -maxDiff)
+			m_updatedViewYaw = angles.z;
+
+		if (inVehicle)
+		{
+			// don't use this while in a vehicle, it feels off
+			m_updatedViewYaw = angles.z;
+		}
+
+		angles.z = m_updatedViewYaw;
+
+		Matrix34 viewMat;
+		viewMat.SetRotationXYZ(angles, position);
+		return viewMat;
+	}
+
+	// use player position and orientation for our base
+	Vec3 pos = pPlayer->GetEntity()->GetWorldPos();
+	Ang3 ang = pPlayer->GetEntity()->GetWorldAngles();
+	ang.x = ang.y = 0;
+
+	// offset by stance as needed
+	const SStanceInfo* curStance = pPlayer->GetStanceInfo(pPlayer->GetStance());
+	const SStanceInfo* refStance = pPlayer->GetStanceInfo(STANCE_STAND);
+	if (curStance != refStance)
+	{
+		pos.z -= (m_hmdReferenceHeight - curStance->viewOffset.z);
+	}
+
+	Matrix34 baseMat = Matrix34::CreateRotationXYZ(ang, pos);
+	return baseMat;
 }
 
 void VRManager::UpdateReferenceOffset(const Vec3& offset)

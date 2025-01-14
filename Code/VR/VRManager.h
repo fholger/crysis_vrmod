@@ -46,6 +46,7 @@ public:
 	void ModifyCameraFor2D(CCamera& cam);
 	void ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave = false);
 	Matrix34 GetControllerTransform(int side);
+	Matrix34 GetWorldControllerTransform(int side);
 	Matrix34 GetControllerWeaponTransform(int side);
 	Matrix34 GetTwoHandWeaponTransform();
 	Matrix34 GetWorldControllerWeaponTransform(int side);
@@ -57,6 +58,8 @@ public:
 	Matrix33 GetReferenceTransform() const;
 	Vec3 GetHmdOffset() const;
 	float GetHmdYawOffset() const;
+
+	Matrix34 GetBaseVRTransform() const;
 
 	void UpdateReferenceOffset(const Vec3& offset);
 	void UpdateReferenceYaw(float yaw);
@@ -99,6 +102,7 @@ private:
 	bool m_acquiredRenderSyncs = false;
 
 	float m_prevViewYaw = 0;
+	mutable float m_updatedViewYaw = 0;
 
 	void InitDevice(IDXGISwapChain* swapchain);
 	void CreateEyeTexture(int eye);
