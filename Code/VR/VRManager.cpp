@@ -560,8 +560,9 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	bool isCutscene = system && system->IsPlayingCutScene();
 	CPlayer *pPlayer = GetLocalPlayer();
 	bool inVehicle = pPlayer && pPlayer->GetLinkedVehicle();
+	bool mountedWeapon = pPlayer && pPlayer->GetActorStats()->mountedWeaponID;
 
-	if (isCutscene || inVehicle || !pPlayer || pPlayer->GetActorStats()->mountedWeaponID)
+	if (isCutscene || inVehicle || !pPlayer || mountedWeapon)
 	{
 		CCamera cam = gVRRenderer->GetCurrentViewCamera();
 		Ang3 angles = cam.GetAngles();
@@ -589,7 +590,7 @@ Matrix34 VRManager::GetBaseVRTransform() const
 		if (yawDiff > maxDiff || yawDiff < -maxDiff)
 			m_updatedViewYaw = angles.z;
 
-		if (inVehicle)
+		if (inVehicle || mountedWeapon)
 		{
 			// don't use this while in a vehicle, it feels off
 			m_updatedViewYaw = angles.z;
