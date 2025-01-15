@@ -379,14 +379,14 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers
 		|| g_pGame->GetMenu()->IsMenuActive()
-		|| g_pGame->GetHUD()->GetModalHUD()
+		//|| g_pGame->GetHUD()->GetModalHUD()
 		)
 	{
 		return;
 	}
 
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
-	if (!weapon || (!gVRRenderer->ShouldRenderVR() && ! weapon->IsZoomed() && !weapon->IsZooming()))
+	if (!weapon || weapon->IsModifying() || (!gVRRenderer->ShouldRenderVR() && ! weapon->IsZoomed() && !weapon->IsZooming()))
 		return;
 
 	if (slave)
