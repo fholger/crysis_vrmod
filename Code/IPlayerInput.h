@@ -77,6 +77,9 @@ struct IPlayerInput
 
 	virtual uint32 GetMoveButtonsState() const = 0;
 	virtual uint32 GetActions() const = 0;
+
+	virtual void OnSnapTurnLeft() {}
+	virtual void OnSnapTurnRight() {}
 };
 
 #endif

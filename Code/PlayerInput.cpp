@@ -129,6 +129,7 @@ void CPlayerInput::Reset()
 	m_moveButtonState = 0;
 	m_lastSerializeFrameID = 0;
 	m_binocularsTime = 0.0f;
+	m_snapTurn = 0.0f;
 }
 
 void CPlayerInput::DisableXI(bool disabled)
@@ -729,6 +730,7 @@ void CPlayerInput::PreUpdate()
 			xiDeltaRot.x*=-1;
 
 		deltaRotation+=xiDeltaRot;
+		deltaRotation.z += m_snapTurn;
 
 		IVehicle *pVehicle = m_pPlayer->GetLinkedVehicle();
 		if (pVehicle)
@@ -836,6 +838,7 @@ void CPlayerInput::PreUpdate()
 
 	// reset things for next frame that need to be
 	m_deltaRotation = Ang3(0,0,0);
+	m_snapTurn = 0.0f;
 
 	//static float color[] = {1,1,1,1};    
   //gEnv->pRenderer->Draw2dLabel(100,50,1.5,color,false,"deltaMovement:%f,%f", m_deltaMovement.x,m_deltaMovement.y);
@@ -948,6 +951,16 @@ void CPlayerInput::SerializeSaveGame( TSerialize ser )
 
 		//ser.Value("Actions", m_actions); //don't serialize the actions - this will only lead to repeating movement (no key-release)
 	}
+}
+
+void CPlayerInput::OnSnapTurnLeft()
+{
+	m_snapTurn += g_pGameCVars->vr_turn_mode * 15.f * gf_PI / 180.f;
+}
+
+void CPlayerInput::OnSnapTurnRight()
+{
+	m_snapTurn -= g_pGameCVars->vr_turn_mode * 15.f * gf_PI / 180.f;
 }
 
 bool CPlayerInput::OnActionMoveForward(EntityId entityId, const ActionId& actionId, int activationMode, float value)

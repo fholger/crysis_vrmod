@@ -164,6 +164,9 @@ void VRGui::DrawSettingsMenu()
 		ImGui::SameLine();
 		ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
 
+		const char* turnOptions[] = { "Smooth turn", "Snap Turn 15", "Snap Turn 30", "Snap Turn 45", "Snap Turn 60", "Snap Turn 75", "Snap Turn 90" };
+		ImGui::Combo("Turn mode", &g_pGameCVars->vr_turn_mode, turnOptions, IM_ARRAYSIZE(turnOptions));
+
 		ImGui::SliderFloat("Smooth turn speed", &g_pGameCVars->vr_controller_yaw_speed, 15, 180, "%.1f");
 	}
 

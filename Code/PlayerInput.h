@@ -66,6 +66,9 @@ public:
 
 	void SerializeSaveGame( TSerialize ser );
 
+	void OnSnapTurnLeft();
+	void OnSnapTurnRight();
+
 private:
 
 	EStance FigureOutStance();
@@ -150,6 +153,8 @@ private:
 	int	m_iSuitModeActionPressed;
 	int m_iCarryingObject;
 	int m_lastSerializeFrameID;
+
+	float m_snapTurn;
 
 	bool m_doubleJumped;
 

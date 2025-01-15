@@ -83,6 +83,7 @@ private:
 
 	bool m_wasJumpActive = false;
 	bool m_wasCrouchActive = false;
+	int m_snapTurnState = 0;
 
 	static const int MOUSE_SAMPLE_COUNT = 10;
 	Vec2 m_hudMousePosSamples[MOUSE_SAMPLE_COUNT];
