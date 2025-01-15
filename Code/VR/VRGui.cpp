@@ -147,7 +147,7 @@ void VRGui::DrawSettingsMenu()
 	ImGui::SetWindowSize(ImVec2(0.7f * windowSize.x, 0.7f * windowSize.y));
 	ImGui::Text("Configure your VR experience here");
 
-	if (ImGui::CollapsingHeader("Hand configuration"))
+	if (ImGui::CollapsingHeader("Controls"))
 	{
 		ImGui::Text("Weapon hand");
 		ImGui::SetItemTooltip("Choose which hand will hold and fire weapons");
@@ -155,12 +155,15 @@ void VRGui::DrawSettingsMenu()
 		ImGui::RadioButton("Left##weapon", &g_pGameCVars->vr_weapon_hand, 0);
 		ImGui::SameLine();
 		ImGui::RadioButton("Right##weapon", &g_pGameCVars->vr_weapon_hand, 1);
+
 		ImGui::Text("Movement hand");
 		ImGui::SetItemTooltip("This hand's thumbstick is used for moving, other hand for turning");
 		ImGui::SameLine(0.2f * windowSize.x);
 		ImGui::RadioButton("Left##movement", &g_pGameCVars->vr_movement_hand, 0);
 		ImGui::SameLine();
 		ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
+
+		ImGui::SliderFloat("Smooth turn speed", &g_pGameCVars->vr_controller_yaw_speed, 15, 180, "%.1f");
 	}
 
 	if (ImGui::CollapsingHeader("Weapons"))

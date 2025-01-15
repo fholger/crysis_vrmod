@@ -455,6 +455,7 @@ struct SCVars
 	float vr_controller_yaw_deadzone;
 	float vr_controller_stick_action_threshold;
 	float vr_controller_stick_zone_cutoff;
+	float vr_controller_yaw_speed;
 
 	SCVars()
 	{

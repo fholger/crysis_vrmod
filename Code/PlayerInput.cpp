@@ -622,7 +622,7 @@ void CPlayerInput::PreUpdate()
 	
 	// get rotation into a manageable form
 	float mouseSensitivity;
-	float controllerSensitivity = 0.00333f*MAX(0.01f, g_pGameCVars->cl_controllersensitivity);
+	float controllerSensitivity = 0.00333f*MAX(0.01f, g_pGameCVars->vr_controller_yaw_speed);
 	if (m_pPlayer->InZeroG())
 	{
 		mouseSensitivity = 0.00333f*MAX(0.01f, g_pGameCVars->cl_sensitivityZeroG);
