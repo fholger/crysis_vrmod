@@ -103,18 +103,8 @@ void VRGui::Draw()
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	ImGui::Begin("VR", 0, ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoTitleBar);
 	ImGui::SetWindowPos(ImVec2(0.02f * windowSize.x, 0.85f * windowSize.y));
-	ImGui::SetWindowSize(ImVec2(0.25f * windowSize.x, 0.2f * windowSize.y));
+	ImGui::SetWindowSize(ImVec2(0.96f * windowSize.x, 0.2f * windowSize.y));
 	m_settingsMenuOpen = ImGui::Button("VR Settings") || m_settingsMenuOpen;
-
-	if (SAFE_MENU_FUNC_RET(IsIngameMenuActive()))
-	{
-		ImGui::SameLine();
-		if (ImGui::Button("Quick Save"))
-		{
-			gEnv->pConsole->ExecuteString("save");
-			SAFE_MENU_FUNC(ShowInGameMenu(false));
-		}
-	}
 
 	m_manualWindowOpen = ImGui::Button("VR Manual") || m_manualWindowOpen;
 	ImGui::SameLine();
@@ -123,6 +113,17 @@ void VRGui::Draw()
 	{
 		OpenLinkInBrowser("https://ko-fi.com/fholger");
 	}
+
+	if (SAFE_MENU_FUNC_RET(IsIngameMenuActive()))
+	{
+		ImGui::SameLine(0.8f * windowSize.x);
+		if (ImGui::Button("Quick Save"))
+		{
+			SAFE_MENU_FUNC(ShowInGameMenu(false));
+			gEnv->pConsole->ExecuteString("save");
+		}
+	}
+
 	ImGui::End();
 
 	if (m_settingsMenuOpen)
