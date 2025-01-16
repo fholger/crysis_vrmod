@@ -846,6 +846,15 @@ void CPlayerInput::PreUpdate()
 
 EStance CPlayerInput::FigureOutStance()
 {
+	EStance physicalStance = gVR->GetPhysicalStance();
+	if (physicalStance != STANCE_STAND)
+	{
+		if ((m_actions & ACTION_PRONE) || physicalStance == STANCE_PRONE)
+			return STANCE_PRONE;
+		if ((m_actions & ACTION_CROUCH) || physicalStance == STANCE_CROUCH)
+			return STANCE_CROUCH;
+	}
+
 	if (m_actions & ACTION_CROUCH)
 		return STANCE_CROUCH;
 	else if (m_actions & ACTION_PRONE)

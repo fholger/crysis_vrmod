@@ -866,11 +866,16 @@ public:
 	void SignalUsedEntity() { m_wasEntityUsed = true; }
 	bool WasEntityUsed() const { return m_wasEntityUsed; }
 	void ClearUsedEntityFlag() { m_wasEntityUsed = false; }
-	
+
+	bool UpdateStance() override;
+	EStance GetPhysicalStance() const { return m_physicalStance; }
+
 private:
 	int m_roomscaleMovementPause = 0;
 
 	bool m_wasEntityUsed = false;
+
+	EStance m_physicalStance;
 };
 
 

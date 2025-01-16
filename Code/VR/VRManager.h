@@ -66,6 +66,8 @@ public:
 
 	Matrix34 GetEyeTransform(int eye) const;
 
+	EStance GetPhysicalStance() const;
+
 	void Update();
 	bool RecalibrateView();
 

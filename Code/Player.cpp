@@ -6008,6 +6008,12 @@ void CPlayer::DebugGraph_AddValue(const char* id, float value) const
 		pDH->AddValue(value);
 }
 
+bool CPlayer::UpdateStance()
+{
+	m_physicalStance = gVR->GetPhysicalStance();
+	return CActor::UpdateStance();
+}
+
 //Try to predict if the player needs to go to crouch stance to pick up a weapon/item
 bool CPlayer::NeedToCrouch(const Vec3& pos)
 {

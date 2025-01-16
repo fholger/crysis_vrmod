@@ -6,6 +6,7 @@
 #include "GameCVars.h"
 #include "HandPoses.h"
 #include "Hooks.h"
+#include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
 #include "VRRenderer.h"
 #include "VRRenderUtils.h"
@@ -610,16 +611,32 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	ang.x = ang.y = 0;
 
 	// offset by stance as needed
+	EStance physicalStance = pPlayer->GetPhysicalStance();
 	const SStanceInfo* curStance = pPlayer->GetStanceInfo(pPlayer->GetStance());
 	const SStanceInfo* refStance = pPlayer->GetStanceInfo(STANCE_STAND);
-	if (curStance != refStance && !g_pGameCVars->vr_seated_mode)
-	{
-		pos.z -= (m_hmdReferenceHeight - curStance->viewOffset.z);
-	}
-	else if (g_pGameCVars->vr_seated_mode)
+	float origZ = pos.z;
+	if (g_pGameCVars->vr_seated_mode)
 	{
 		pos.z += curStance->viewOffset.z - m_hmdReferenceHeight;
 	}
+	else if (physicalStance == STANCE_PRONE)
+	{
+		// nothing to offset here, we'll take the camera height as is
+	}
+	else if (physicalStance == STANCE_CROUCH)
+	{
+		if (pPlayer->GetStance() == STANCE_PRONE)
+		{
+			pos.z -= (pPlayer->GetStanceInfo(STANCE_CROUCH)->viewOffset.z - pPlayer->GetStanceInfo(STANCE_PRONE)->viewOffset.z);
+		}
+	}
+	else if (curStance != refStance)
+	{
+		pos.z -= (m_hmdReferenceHeight - curStance->viewOffset.z);
+	}
+
+	float offset = origZ - pos.z;
+	CryLogAlways("Offset: %.2f  - phys stance %d  -  player stance %d", offset, physicalStance, pPlayer->GetStance());
 
 	Matrix34 baseMat = Matrix34::CreateRotationXYZ(ang, pos);
 	return baseMat;
@@ -645,6 +662,20 @@ Matrix34 VRManager::GetEyeTransform(int eye) const
 	Ang3 angles(rawEye);
 	angles.z -= m_referenceYaw;
 	return Matrix34::CreateRotationXYZ(angles, position);
+}
+
+EStance VRManager::GetPhysicalStance() const
+{
+	CPlayer *pPlayer = GetLocalPlayer();
+	if (!pPlayer || g_pGameCVars->vr_seated_mode)
+		return STANCE_STAND;
+
+	float physicalHeight = gXR->GetHmdTransform().GetTranslation().z;
+	if (physicalHeight <= pPlayer->GetStanceInfo(STANCE_PRONE)->viewOffset.z + 0.15f)
+		return STANCE_PRONE;
+	if (physicalHeight <= pPlayer->GetStanceInfo(STANCE_CROUCH)->viewOffset.z + 0.2f)
+		return STANCE_CROUCH;
+	return STANCE_STAND;
 }
 
 void VRManager::Update()
