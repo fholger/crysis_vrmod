@@ -612,9 +612,13 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	// offset by stance as needed
 	const SStanceInfo* curStance = pPlayer->GetStanceInfo(pPlayer->GetStance());
 	const SStanceInfo* refStance = pPlayer->GetStanceInfo(STANCE_STAND);
-	if (curStance != refStance)
+	if (curStance != refStance && !g_pGameCVars->vr_seated_mode)
 	{
 		pos.z -= (m_hmdReferenceHeight - curStance->viewOffset.z);
+	}
+	else if (g_pGameCVars->vr_seated_mode)
+	{
+		pos.z += curStance->viewOffset.z - m_hmdReferenceHeight;
 	}
 
 	Matrix34 baseMat = Matrix34::CreateRotationXYZ(ang, pos);

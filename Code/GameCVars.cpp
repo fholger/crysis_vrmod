@@ -893,6 +893,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_gui_scale", &vr_gui_scale, 1.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "General size scaling for the VR ImGui settings menu");
 	pConsole->Register("vr_disable_camerashakes", &vr_disable_camerashakes, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Disable any screen shake effects");
 	pConsole->Register("vr_turn_mode", &vr_turn_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Choose snap turn mode (0 = smooth turn)");
+	pConsole->Register("vr_seated_mode", &vr_seated_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Enable seated mode");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

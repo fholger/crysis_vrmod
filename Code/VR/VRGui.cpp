@@ -53,7 +53,7 @@ void VRGui::SetScale(float scale)
 
 void VRGui::ClickedNoFocus()
 {
-	m_settingsMenuOpen = false;
+	CloseSettingsMenu();
 	m_manualWindowOpen = false;
 }
 
@@ -116,7 +116,7 @@ void VRGui::Draw()
 
 	if (SAFE_MENU_FUNC_RET(IsIngameMenuActive()))
 	{
-		ImGui::SameLine(0.8f * windowSize.x);
+		ImGui::SameLine(0.85f * windowSize.x);
 		if (ImGui::Button("Quick Save"))
 		{
 			SAFE_MENU_FUNC(ShowInGameMenu(false));
@@ -195,6 +195,10 @@ void VRGui::DrawSettingsMenu()
 
 	if (ImGui::CollapsingHeader("Miscellaneous"))
 	{
+		bool seatedMode = g_pGameCVars->vr_seated_mode;
+		ImGui::Checkbox("Seated Mode", &seatedMode);
+		g_pGameCVars->vr_seated_mode = seatedMode;
+
 		ImGui::Text("Mirrored eye");
 		ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
 		ImGui::SameLine(0.2f * windowSize.x);
@@ -215,16 +219,10 @@ void VRGui::DrawSettingsMenu()
 
 	if (ImGui::Button("Close"))
 	{
-		m_settingsMenuOpen = false;
+		CloseSettingsMenu();
 	}
 
 	ImGui::End();
-
-	if (!m_settingsMenuOpen)
-	{
-		// make sure any changes we made get saved to the game.cfg file
-		g_pGame->GetOptions()->WriteGameCfg();
-	}
 
 	if (origWeaponHand != g_pGameCVars->vr_weapon_hand || origMovementHand != g_pGameCVars->vr_movement_hand)
 	{
@@ -293,6 +291,16 @@ void VRGui::LoadManualSections()
 		}
 		while (gEnv->pCryPak->FindNext(handle, &fd) >= 0);
 		gEnv->pCryPak->FindClose(handle);
+	}
+}
+
+void VRGui::CloseSettingsMenu()
+{
+	if (m_settingsMenuOpen)
+	{
+		// make sure any changes we made get saved to the game.cfg file
+		g_pGame->GetOptions()->WriteGameCfg();
+		m_settingsMenuOpen = false;
 	}
 }
 

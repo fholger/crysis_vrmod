@@ -24,6 +24,8 @@ private:
 
     void LoadManualSections();
 
+    void CloseSettingsMenu();
+
     ImFont* LoadFont(const char* filename, float x);
 
     float m_currentScale = 0.0f;
