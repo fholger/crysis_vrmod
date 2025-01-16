@@ -621,6 +621,10 @@ void OpenXRInput::UpdatePlayerMovement()
 			const float MaxMove = 0.02f;
 			yaw = clamp(movementDiff.Dot(hmdRight) / MaxMove, -1.f, 1.f);
 			pitch = clamp(movementDiff.Dot(up) / MaxMove, -1.f, 1.f);
+
+			SAFE_HUD_FUNC(OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch));
+			SAFE_HUD_FUNC(OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw));
+			return;
 		}
 
 		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
