@@ -308,6 +308,7 @@ void OpenXRInput::CreateInputActions()
 
 	CreateBooleanAction(m_menuSet, m_menuClick, "click", "Menu Click", &g_pGameActions->hud_mouseclick);
 	CreateBooleanAction(m_menuSet, m_menuBack, "back", "Menu Back", nullptr);
+	CreateBooleanAction(m_menuSet, m_dropWeapon, "drop_weapon", "Drop Weapon", &g_pGameActions->drop);
 
 	CreateBooleanAction(m_vehicleSet, m_vecBoost, "vec_boost", "Vehicle Boost", &g_pGameActions->v_boost);
 	CreateBooleanAction(m_vehicleSet, m_vecAfterburner, "vec_afterburner", "Vehicle Afterburner", &g_pGameActions->v_afterburner);
@@ -397,6 +398,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	knuckles.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
+	knuckles.AddBinding(m_dropWeapon.handle, "/user/hand/<!weapon>/input/a");
 	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
 	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
@@ -434,6 +436,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
+	touch.AddBinding(m_dropWeapon.handle, "/user/hand/movement/input/a");
 	touch.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
 	touch.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
@@ -544,6 +547,10 @@ void OpenXRInput::UpdateHUDActions()
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_suitMenu);
 	UpdateBooleanAction(m_menuClick);
+	if (m_quickMenuActive)
+	{
+		UpdateBooleanAction(m_dropWeapon);
+	}
 }
 
 void OpenXRInput::UpdatePlayerMovement()

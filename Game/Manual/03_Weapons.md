@@ -10,8 +10,8 @@ If you picked up two pistols, each hand will hold one pistol, and you can contro
 ## Switching weapons
 To switch to your next weapon, bring your weapon hand over your shoulder and squeeze grip. Press grip multiple times while over your shoulder to cycle through your available weapons.
 
-## Throwing weapons away
-*Note*: there is currently no motion controller binding for this action. If you need to throw away a weapon (e.g. if you want to get rid of your second pistol), use the keyboard bind. The default binding is 'J'.
+## Dropping weapons
+To drop the weapon you are holding, hold down the right thumbstick/trackpad to bring up the suit menu. Then, while the menu is still open, press your left A/X button to drop the weapon.
 
 ## Weapon accessories
 You can manage your weapons' attachments through the suit functions menu. Refer to the suit abilities to find out how.

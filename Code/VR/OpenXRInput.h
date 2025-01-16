@@ -68,6 +68,7 @@ private:
 	XrActionSet m_menuSet = nullptr;
 	BooleanAction m_menuClick;
 	BooleanAction m_menuBack;
+	BooleanAction m_dropWeapon;
 
 	XrActionSet m_vehicleSet = nullptr;
 	BooleanAction m_vecBoost;
