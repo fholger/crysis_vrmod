@@ -3786,11 +3786,7 @@ void CWeapon::CacheRaisePose()
 
 Matrix34 CWeapon::GetInverseGripTransform()
 {
-	const char* slot = IsDualWieldSlave() ? "hand_L_term" : "hand_R_term";
-	
-	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, slot, false);
-	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, slot, false));
-	transform = transform * m_gripCorrection;
+	Matrix34 transform = Matrix34(m_gripLocation) * m_gripCorrection;
 	transform.InvertFast();
 	return transform;
 }
@@ -3813,12 +3809,8 @@ void CWeapon::PostProcessArms()
 	}
 	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(localOffHandGrabPos);
 
-	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this) && !IsDualWield())
-	{
-		// this whole setup does not work for left handed mode, so we unfortunately have to hide the arms
-		HideArms(true);
-		return;
-	}
+	const char* slot = IsDualWieldSlave() ? "hand_L_term" : "hand_R_term";
+	m_gripLocation = skeleton->GetAbsJointByID(skeleton->GetJointIDByName(slot));
 
 	// arm IK
 	if (!IsDualWieldMaster())
@@ -3835,6 +3827,14 @@ void CWeapon::PostProcessArms()
 	if (IsDualWieldMaster())
 	{
 		HideArm(0);
+	}
+
+	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this) && !IsDualWield())
+	{
+		// unfortunately we have to hide the arms when attached to the weapon, since we can't seem to mirror the models
+		HideArm(0);
+		if (gVR->IsOffHandGrabbingWeapon())
+			HideArm(1);
 	}
 }
 

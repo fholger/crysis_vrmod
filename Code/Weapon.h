@@ -751,6 +751,7 @@ public:
 
 	float GetTwoHandYawOffset() const { return m_twoHandYawOffset; }
 private:
+	QuatT m_gripLocation;
 	Vec3 m_offHandGrabLocation;
 	bool m_fireOffHand = false;
 protected:
