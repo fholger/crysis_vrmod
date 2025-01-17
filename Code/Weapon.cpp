@@ -3787,6 +3787,11 @@ void CWeapon::CacheRaisePose()
 Matrix34 CWeapon::GetInverseGripTransform()
 {
 	Matrix34 transform = Matrix34(m_gripLocation) * m_gripCorrection;
+	if (g_pGameCVars->vr_weapon_hand == 0)
+	{
+		// need to rotate the pose a bit to better fit for left hand aim
+		transform = transform * Matrix33::CreateRotationY(10.f / 180.f * gf_PI);
+	}
 	transform.InvertFast();
 	return transform;
 }
@@ -3833,7 +3838,7 @@ void CWeapon::PostProcessArms()
 	{
 		// unfortunately we have to hide the arms when attached to the weapon, since we can't seem to mirror the models
 		HideArm(0);
-		if (gVR->IsOffHandGrabbingWeapon())
+		if (gVR->IsOffHandGrabbingWeapon() || IsReloading())
 			HideArm(1);
 	}
 }
