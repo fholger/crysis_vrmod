@@ -411,9 +411,10 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (IsOffHandGrabbingWeapon() && weapon->GetEntity()->GetClass() != CItem::sSOCOMClass)
 	{
 		adjustedControllerTransform = GetTwoHandWeaponTransform();
-		if (weapon->GetTwoHandYawOffset())
+		if (weapon->GetTwoHandYawOffset() != 0)
 		{
-			adjustedControllerTransform = adjustedControllerTransform * Matrix34::CreateRotationY(weapon->GetTwoHandYawOffset() * gf_PI / 180.f);
+			float dir = g_pGameCVars->vr_weapon_hand == 1 ? 1 : -1;
+			adjustedControllerTransform = adjustedControllerTransform * Matrix34::CreateRotationY(dir * weapon->GetTwoHandYawOffset() * gf_PI / 180.f);
 		}
 	}
 

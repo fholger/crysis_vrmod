@@ -3805,7 +3805,13 @@ void CWeapon::PostProcessArms()
 	if (!skeleton)
 		return;
 
-	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L_term")).t);
+	Vec3 localOffHandGrabPos = skeleton->GetAbsJointByID(skeleton->GetJointIDByName("hand_L_term")).t;
+	if (g_pGameCVars->vr_weapon_hand == 0)
+	{
+		// mirror location for left-handed players
+		localOffHandGrabPos.x = -localOffHandGrabPos.x;
+	}
+	m_offHandGrabLocation = GetEntity()->GetWorldTM().TransformPoint(localOffHandGrabPos);
 
 	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this) && !IsDualWield())
 	{
