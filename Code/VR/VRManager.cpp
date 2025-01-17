@@ -4,6 +4,7 @@
 #include "Cry_Camera.h"
 #include "Fists.h"
 #include "GameCVars.h"
+#include "GameUtils.h"
 #include "HandPoses.h"
 #include "Hooks.h"
 #include "IPlayerInput.h"
@@ -211,6 +212,8 @@ void VRManager::FinishFrame(bool didRenderThisFrame)
 	ReleaseTextureSync(m_eyeTextures11[1].Get(), 0);
 
 	gXR->FinishFrame();
+
+	UpdateSmoothedPlayerHeight();
 }
 
 Vec2i VRManager::GetRenderSize() const
@@ -286,7 +289,7 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 		return;
 	}
 
-	Matrix34 viewMat = GetBaseVRTransform();
+	Matrix34 viewMat = GetBaseVRTransform(true);
 
 	Matrix34 eyeMat = GetEyeTransform(eye);
 	Vec3 eyePos = eyeMat.GetTranslation();
@@ -387,7 +390,7 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	}
 
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
-	if (!weapon || weapon->IsModifying() || (!gVRRenderer->ShouldRenderVR() && ! weapon->IsZoomed() && !weapon->IsZooming()))
+	if (!weapon || weapon->IsModifying() || (!gVRRenderer->ShouldRenderVR() && !weapon->IsZoomed() && !weapon->IsZooming()))
 		return;
 
 	if (slave)
@@ -429,6 +432,7 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	}
 
 	m_smoothedWeaponAngles = weaponAngles;
+	CryLogAlways("Weapon height: %.3f", weaponPosition.z);
 }
 
 Matrix34 VRManager::GetControllerTransform(int side)
@@ -443,7 +447,7 @@ Matrix34 VRManager::GetControllerTransform(int side)
 Matrix34 VRManager::GetWorldControllerTransform(int side)
 {
 	Matrix34 controllerTransform = GetControllerTransform(side);
-	Matrix34 baseTransform = GetBaseVRTransform();
+	Matrix34 baseTransform = GetBaseVRTransform(true);
 	return baseTransform * controllerTransform;
 }
 
@@ -481,7 +485,7 @@ Matrix34 VRManager::GetTwoHandWeaponTransform()
 Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)
 {
 	Matrix34 controllerTransform = GetControllerWeaponTransform(side);
-	Matrix34 view = GetBaseVRTransform();
+	Matrix34 view = GetBaseVRTransform(true);
 	return view * controllerTransform;
 }
 
@@ -555,7 +559,7 @@ float VRManager::GetHmdYawOffset() const
 	return angles.z - m_referenceYaw;
 }
 
-Matrix34 VRManager::GetBaseVRTransform() const
+Matrix34 VRManager::GetBaseVRTransform(bool smooth) const
 {
 	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
 	bool isCutscene = system && system->IsPlayingCutScene();
@@ -607,6 +611,8 @@ Matrix34 VRManager::GetBaseVRTransform() const
 
 	// use player position and orientation for our base
 	Vec3 pos = pPlayer->GetEntity()->GetWorldPos();
+	if (smooth)
+		pos.z = m_smoothedHeight;
 	Ang3 ang = pPlayer->GetEntity()->GetWorldAngles();
 	ang.x = ang.y = 0;
 
@@ -614,7 +620,6 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	EStance physicalStance = pPlayer->GetPhysicalStance();
 	const SStanceInfo* curStance = pPlayer->GetStanceInfo(pPlayer->GetStance());
 	const SStanceInfo* refStance = pPlayer->GetStanceInfo(STANCE_STAND);
-	float origZ = pos.z;
 	if (g_pGameCVars->vr_seated_mode)
 	{
 		pos.z += curStance->viewOffset.z - m_hmdReferenceHeight;
@@ -634,9 +639,6 @@ Matrix34 VRManager::GetBaseVRTransform() const
 	{
 		pos.z -= (m_hmdReferenceHeight - curStance->viewOffset.z);
 	}
-
-	float offset = origZ - pos.z;
-	CryLogAlways("Offset: %.2f  - phys stance %d  -  player stance %d", offset, physicalStance, pPlayer->GetStance());
 
 	Matrix34 baseMat = Matrix34::CreateRotationXYZ(ang, pos);
 	return baseMat;
@@ -680,9 +682,6 @@ EStance VRManager::GetPhysicalStance() const
 
 void VRManager::Update()
 {
-	if (!g_pGameCVars->vr_enable_motion_controllers)
-		return;
-
 	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()) || g_pGame->GetMenu()->IsLoadingScreenActive())
 	{
 		if (!m_wasInMenu)
@@ -1013,6 +1012,39 @@ bool VRManager::IsHandNearShoulder(EVRHand hand)
 		return right < 0;
 	else
 		return right > 0;
+}
+
+void VRManager::UpdateSmoothedPlayerHeight()
+{
+	//smooth out the view elevation
+	CPlayer* player = GetLocalPlayer();
+	if (!player)
+		return;
+
+	float playerHeight = player->GetEntity()->GetWorldPos().z;
+
+	const SPlayerStats& stats = *static_cast<SPlayerStats*>(player->GetActorStats());
+	if (stats.inAir < 0.1f && !stats.flyMode && !stats.spectatorMode)
+	{
+		if (m_smoothHeightType != 1)
+		{
+			m_smoothedHeight = playerHeight;
+			m_smoothHeightType = 1;
+		}
+
+		Interpolate(m_smoothedHeight, playerHeight,15.0f,gEnv->pSystem->GetITimer()->GetFrameTime());
+	}
+	else
+	{
+		if (m_smoothHeightType == 1)
+		{
+			m_smoothedHeightOffset = m_smoothedHeight - playerHeight;
+			m_smoothHeightType = 2;
+		}
+
+		Interpolate(m_smoothedHeightOffset,0.0f,15.0f,gEnv->pSystem->GetITimer()->GetFrameTime());
+		m_smoothedHeight = playerHeight + m_smoothedHeightOffset;
+	}
 }
 
 void VRManager::InitDevice(IDXGISwapChain* swapchain)

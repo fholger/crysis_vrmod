@@ -59,7 +59,7 @@ public:
 	Vec3 GetHmdOffset() const;
 	float GetHmdYawOffset() const;
 
-	Matrix34 GetBaseVRTransform() const;
+	Matrix34 GetBaseVRTransform(bool smooth) const;
 
 	void UpdateReferenceOffset(const Vec3& offset);
 	void UpdateReferenceYaw(float yaw);
@@ -103,6 +103,8 @@ private:
 	ComPtr<ID3D11Texture2D> m_hudTexture11;
 	bool m_acquiredRenderSyncs = false;
 
+	void UpdateSmoothedPlayerHeight();
+
 	float m_prevViewYaw = 0;
 	mutable float m_updatedViewYaw = 0;
 
@@ -128,6 +130,10 @@ private:
 	bool m_wasInMenu = false;
 
 	bool m_offHandFollowsWeapon = false;
+
+	int m_smoothHeightType = 0;
+	float m_smoothedHeight = 0;
+	float m_smoothedHeightOffset = 0;
 };
 
 extern VRManager* gVR;
