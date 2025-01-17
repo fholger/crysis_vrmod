@@ -154,6 +154,28 @@ bool CWeapon::ReadItemParams(const IItemParamsNode *root)
 
 	CacheRaisePose();
 
+	m_gripCorrection.SetIdentity();
+	// hardcode some weapon grip offsets to make the weapon grips a bit closer to each other
+	if (strcmp(GetEntity()->GetClass()->GetName(), "Shotgun") == 0)
+	{
+		m_gripCorrection = Matrix33::CreateRotationZ(-8.f/180.f * gf_PI) * Matrix33::CreateRotationY(-8.f/180.f * gf_PI);
+	}
+	else if (strcmp(GetEntity()->GetClass()->GetName(), "AlienMount") == 0)
+	{
+		m_gripCorrection = Matrix33::CreateRotationY(-8.f/180.f * gf_PI);
+		m_twoHandYawOffset = 20.f;
+	}
+	else if (strcmp(GetEntity()->GetClass()->GetName(), "LAW") == 0)
+	{
+		m_gripCorrection = Matrix33::CreateRotationY(-3.f/180.f * gf_PI);
+		m_twoHandYawOffset = 30.f;
+	}
+	else if (strcmp(GetEntity()->GetClass()->GetName(), "Hurricane") == 0)
+	{
+		m_gripCorrection = Matrix33::CreateRotationY(-5.f/180.f * gf_PI);
+		m_twoHandYawOffset = 20.f;
+	}
+
 	return true;
 }
 
@@ -3768,6 +3790,7 @@ Matrix34 CWeapon::GetInverseGripTransform()
 	
 	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, slot, false);
 	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, slot, false));
+	transform = transform * m_gripCorrection;
 	transform.InvertFast();
 	return transform;
 }

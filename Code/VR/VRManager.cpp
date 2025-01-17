@@ -411,6 +411,10 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	if (IsOffHandGrabbingWeapon() && weapon->GetEntity()->GetClass() != CItem::sSOCOMClass)
 	{
 		adjustedControllerTransform = GetTwoHandWeaponTransform();
+		if (weapon->GetTwoHandYawOffset())
+		{
+			adjustedControllerTransform = adjustedControllerTransform * Matrix34::CreateRotationY(weapon->GetTwoHandYawOffset() * gf_PI / 180.f);
+		}
 	}
 
 	Matrix34 inverseWeaponGripTransform = weapon->GetInverseGripTransform();
@@ -432,7 +436,6 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 	}
 
 	m_smoothedWeaponAngles = weaponAngles;
-	CryLogAlways("Weapon height: %.3f", weaponPosition.z);
 }
 
 Matrix34 VRManager::GetControllerTransform(int side)

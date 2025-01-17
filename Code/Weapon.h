@@ -749,9 +749,13 @@ public:
 
 	void GetFiringOriginAndDirection(Vec3& origin, Vec3& direction);
 
+	float GetTwoHandYawOffset() const { return m_twoHandYawOffset; }
 private:
 	Vec3 m_offHandGrabLocation;
 	bool m_fireOffHand = false;
+protected:
+	Matrix33 m_gripCorrection;
+	float m_twoHandYawOffset = 0;
 };
 
 

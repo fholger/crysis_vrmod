@@ -612,6 +612,7 @@ Matrix34 CRocketLauncher::GetInverseGripTransform()
 	// the rocket launcher does not have a proper handle position for the right hand, so we need to use another reference point
 	Matrix34 transform = GetSlotHelperRotation(eIGS_FirstPerson, "weapon", false);
 	transform.SetTranslation(GetSlotHelperPos(eIGS_FirstPerson, "weapon", false));
+	transform = transform * m_gripCorrection;
 	transform.InvertFast();
 	return transform;
 }
