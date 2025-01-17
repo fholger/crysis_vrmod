@@ -87,6 +87,9 @@ public:
 	int GetHandSide(EVRHand hand) const;
 	bool IsHandNearHead(EVRHand hand, float maxDist = .25f);
 	bool IsHandNearShoulder(EVRHand hand);
+	bool IsHandNearHip(EVRHand hand);
+	bool IsHandBehindBack(EVRHand hand);
+	bool IsHandNearChest(EVRHand hand);
 
 private:
 	bool m_initialized = false;

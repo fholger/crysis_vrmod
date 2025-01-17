@@ -8,7 +8,7 @@ If you picked up two pistols, each hand will hold one pistol, and you can contro
 *Note*: if the left hand is set as the weapon hand, the player arms will be hidden while holding the weapons. The models and animations are unfortunately not compatible with left-handed mode.
 
 ## Switching weapons
-To switch to your next weapon, bring your weapon hand over your shoulder and squeeze grip. Press grip multiple times while over your shoulder to cycle through your available weapons.
+You have three different weapon slots on your body. Pistols and fists are stored in your hip slot, your standard weapons are stored over your shoulders, and explosives can be accessed on your chest or behind your back. To switch weapons, bring your weapon hand to the relevant slot location and squeeze grip to cycle through the weapons of that category.
 
 ## Dropping weapons
 To drop the weapon you are holding, hold down the right thumbstick/trackpad to bring up the suit menu. Then, while the menu is still open, press your left A/X button to drop the weapon.

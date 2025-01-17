@@ -4067,8 +4067,19 @@ void CPlayer::SelectNextItem(int direction, bool keepHistory, const char *catego
 	if (m_health && m_stats.animationControlled || ShouldSwim() || /*m_bSprinting || */m_stats.inFreefall)
 		return;
 
-	if (!gVR->IsHandNearShoulder(WEAPON_HAND) || gVR->IsOffHandGrabbingWeapon())
+	if (gVR->IsOffHandGrabbingWeapon())
 		return;
+
+	if (category == nullptr)
+	{
+		if (gVR->IsHandNearShoulder(WEAPON_HAND))
+			SelectNextItem(direction, keepHistory, "medium");
+		else if (gVR->IsHandNearHip(WEAPON_HAND))
+			SelectNextItem(direction, keepHistory, "small");
+		else if (gVR->IsHandBehindBack(WEAPON_HAND) || gVR->IsHandNearChest(WEAPON_HAND))
+			SelectNextItem(direction, keepHistory, "explosive");
+		return;
+	}
 
 	COffHand* pOffHand = static_cast<COffHand*>(GetWeaponByClass(CItem::sOffHandClass));
 	if(pOffHand && pOffHand->IsSelected())

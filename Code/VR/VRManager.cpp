@@ -1018,6 +1018,52 @@ bool VRManager::IsHandNearShoulder(EVRHand hand)
 		return right > 0;
 }
 
+bool VRManager::IsHandNearHip(EVRHand hand)
+{
+	int handSide = GetHandSide(hand);
+	Matrix44 headTransform = gXR->GetHmdTransform();
+	Matrix34 handTransform = gXR->GetInput()->GetControllerTransform(handSide);
+
+	// check for hip: at least some way down from head position and forward pointing mostly down
+	float headHeight = headTransform.GetTranslation().z;
+	float handHeight = handTransform.GetTranslation().z;
+	return handHeight <= .7f * headHeight && Vec3(0, 0, -1).Dot(handTransform.GetColumn1()) > .7f;
+}
+
+bool VRManager::IsHandNearChest(EVRHand hand)
+{
+	int handSide = GetHandSide(hand);
+	Matrix44 headTransform = gXR->GetHmdTransform();
+	Matrix34 handTransform = gXR->GetInput()->GetControllerTransform(handSide);
+
+	Ang3 headAngles = Ang3::GetAnglesXYZ((Matrix33)headTransform);
+	headAngles.x = headAngles.y = 0;
+	Matrix33 headRot(headAngles);
+
+	// for chest, check that we are near the camera height, in front of the head and generally not too far away in 2D
+	Vec3 handToHead = headTransform.GetTranslation() - handTransform.GetTranslation();
+	handToHead.z = 0;
+	float headHeight = headTransform.GetTranslation().z;
+	float handHeight = handTransform.GetTranslation().z;
+	return handHeight >= .75f * headHeight && handToHead.Dot(headRot.GetColumn(1)) < 0.f && fabsf(handTransform.GetColumn1().Dot(headRot.GetColumn0())) >= 0.7f && handToHead.GetLength2D() <= .2f;
+}
+
+bool VRManager::IsHandBehindBack(EVRHand hand)
+{
+	int handSide = GetHandSide(hand);
+	Matrix44 headTransform = gXR->GetHmdTransform();
+	Matrix34 handTransform = gXR->GetInput()->GetControllerTransform(handSide);
+
+	Ang3 headAngles = Ang3::GetAnglesXYZ((Matrix33)headTransform);
+	headAngles.x = headAngles.y = 0;
+	Matrix33 headRot(headAngles);
+
+	// for backwards, check that we are at least behind camera and that hand fwd is not pointing downwards
+	Vec3 handToHead = headTransform.GetTranslation() - handTransform.GetTranslation();
+	handToHead.z = 0;
+	return handToHead.Dot(headRot.GetColumn(1)) > 0.f && handTransform.GetColumn1().Dot(Vec3(0, 0, -1)) <= 0.5f;
+}
+
 void VRManager::UpdateSmoothedPlayerHeight()
 {
 	//smooth out the view elevation

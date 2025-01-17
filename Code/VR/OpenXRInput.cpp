@@ -133,6 +133,7 @@ void OpenXRInput::Shutdown()
 	DestroyAction(m_grenades.handle);
 	DestroyAction(m_menuClick.handle);
 	DestroyAction(m_menuBack.handle);
+	DestroyAction(m_dropWeapon.handle);
 	DestroyAction(m_vecBoost.handle);
 	DestroyAction(m_vecAfterburner.handle);
 	DestroyAction(m_vecBrake.handle);
