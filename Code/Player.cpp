@@ -1020,9 +1020,12 @@ void CPlayer::ProcessRoomscaleMovement()
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
 	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
-	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID)
+	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
 		return;
 	if (g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
+		return;
+	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
+	if (system && system->GetActiveView() && system->GetActiveView()->GetLinkedId() != GetEntityId())
 		return;
 
 	if (m_stats.inRest <= 0 || m_stats.jumped || m_stats.onGround <= 0) // don't do this while we are otherwise moving, or it will interfere
@@ -1082,13 +1085,17 @@ void CPlayer::ProcessRoomscaleRotation()
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
 	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
 		return;
-	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID)
+	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
 		return;
 	if (g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return;
+	IViewSystem* system = g_pGame->GetIGameFramework()->GetIViewSystem();
+	if (system && system->GetActiveView() && system->GetActiveView()->GetLinkedId() != GetEntityId())
+		return;
 
-
-	if (m_stats.onGround <= 0) // fixme: roomscale rotation feels off during the initial parachute jump
+	if (m_stats.onGround <= 0) // don't do this while we are otherwise moving, or it will interfere
+		return;
+	if (m_params.vLimitRangeH > 0.001f && m_params.vLimitDir.len() > 0.01f)
 		return;
 
 	float hmdYaw = gVR->GetHmdYawOffset();
