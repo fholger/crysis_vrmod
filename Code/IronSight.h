@@ -8,7 +8,7 @@ Description: Iron Sight
 
 -------------------------------------------------------------------------
 History:
-- 28:10:2005   16:00 : Created by Márcio Martins
+- 28:10:2005   16:00 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #ifndef __IRONSIGHT_H__
@@ -399,6 +399,7 @@ protected:
 
 	float         m_lastRecoil;
 
+	int m_origFog = 0;
 };
 
 

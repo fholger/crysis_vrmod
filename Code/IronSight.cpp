@@ -677,6 +677,15 @@ void CIronSight::OnEnterZoom()
 		}
 	}
 	m_swayTime = 0.0f;
+
+	// workaround: disable fog as it seems to sometimes completely obscure our zoomed view in VR (no clue why)
+	ICVar* fog = gEnv->pConsole->GetCVar("e_fog");
+	if (fog)
+	{
+		m_origFog = fog->GetIVal();
+		fog->SetFlags((fog->GetFlags() & (~VF_CHEAT)) | VF_RESTRICTEDMODE);
+		fog->Set(0);
+	}
 }
 
 //------------------------------------------------------------------------
@@ -713,6 +722,11 @@ void CIronSight::OnLeaveZoom()
 	m_pWeapon->SetFPWeapon(0.1f,true);
 	ClearBlur();
 	ClearDoF();
+
+	// workaround: undo disabling fog
+	ICVar* fog = gEnv->pConsole->GetCVar("e_fog");
+	if (fog)
+		fog->Set(m_origFog);
 }
 
 //------------------------------------------------------------------------
