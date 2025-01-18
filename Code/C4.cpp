@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 2:3:2005   16:06 : Created by Márcio Martins
+- 2:3:2005   16:06 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -31,6 +31,7 @@ CC4::CC4()
 
 		ADD_HANDLER(zoom,OnActionSelectDetonator);
 		ADD_HANDLER(xi_zoom,OnActionSelectDetonator);
+		ADD_HANDLER(reload,OnActionSelectDetonator);
 #undef ADD_HANDLER
 	}
 }

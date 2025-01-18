@@ -5979,7 +5979,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.C4</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Press [ Right Trigger ] to place C4, and [ Right Trigger ] to detonate</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">Press [ Right Trigger ] to place C4, and [ Right A ] to detonate</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>

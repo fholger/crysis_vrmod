@@ -27,6 +27,7 @@ CC4Detonator::CC4Detonator()
 
 		ADD_HANDLER(zoom,OnActionSelectC4);
 		ADD_HANDLER(xi_zoom,OnActionSelectC4);
+		ADD_HANDLER(reload,OnActionSelectC4);
 #undef ADD_HANDLER
 	}
 }
