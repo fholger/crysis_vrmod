@@ -1525,12 +1525,6 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 		IMovementController *pVehicleMovementController = pVehicle->GetPassengerMovementController(m_pPlayer->GetEntityId());
 		if (pVehicleMovementController)
 			pVehicleMovementController->GetMovementState(state);
-
-		if (m_pPlayer->IsClient() && !m_pPlayer->IsThirdPerson() && pVehicle->GetDriver() == m_pPlayer)
-		{
-		    // wip: use head aiming for vehicles; this only works in first person while driving, not 3rd person or in the weapon seat
-			state.aimDirection = state.fireDirection = m_pPlayer->GetEntity()->GetWorldTM().TransformVector(gVR->GetHMDQuat().GetColumn1());
-		}
 	}
 
 	const IAnimatedCharacter* pAC = m_pPlayer->GetAnimatedCharacter();
