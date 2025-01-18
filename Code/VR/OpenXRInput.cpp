@@ -377,44 +377,6 @@ void OpenXRInput::CreateInputActions()
 
 void OpenXRInput::SuggestBindings()
 {
-	SuggestedProfileBinding knuckles(m_instance, false);
-	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
-	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
-	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
-	knuckles.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
-	knuckles.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
-	knuckles.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
-	knuckles.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
-	knuckles.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
-	knuckles.AddBinding(m_sprint.handle, "/user/hand/<movement>/input/thumbstick/click");
-	knuckles.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
-	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
-	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
-	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
-	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
-	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
-	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
-	//knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
-	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
-	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
-	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
-	knuckles.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
-	knuckles.AddBinding(m_dropWeapon.handle, "/user/hand/<!weapon>/input/a");
-	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
-	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
-	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
-	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
-	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
-	knuckles.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
-	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
-	knuckles.AddBinding(m_grip[0], "/user/hand/left/input/squeeze/value");
-	knuckles.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
-	knuckles.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
-	knuckles.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
-	knuckles.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
-	knuckles.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
-	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
-
 	SuggestedProfileBinding touch(m_instance, true);
 	touch.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
@@ -452,6 +414,44 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
 	touch.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
+
+	SuggestedProfileBinding knuckles(m_instance, false);
+	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");
+	knuckles.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
+	knuckles.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
+	knuckles.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
+	knuckles.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
+	knuckles.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
+	knuckles.AddBinding(m_sprint.handle, "/user/hand/<movement>/input/thumbstick/click");
+	knuckles.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b");
+	knuckles.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a");
+	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
+	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
+	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
+	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
+	//knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
+	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
+	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
+	knuckles.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
+	knuckles.AddBinding(m_dropWeapon.handle, "/user/hand/<!weapon>/input/a");
+	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
+	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
+	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
+	knuckles.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
+	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
+	knuckles.AddBinding(m_grip[0], "/user/hand/left/input/squeeze/value");
+	knuckles.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
+	knuckles.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
+	knuckles.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
+	knuckles.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
+	knuckles.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
+	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
 }
 
 void OpenXRInput::AttachActionSets()
