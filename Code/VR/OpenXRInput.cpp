@@ -399,7 +399,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
-	touch.AddBinding(m_dropWeapon.handle, "/user/hand/movement/input/a");
+	touch.AddBinding(m_dropWeapon.handle, "/user/hand/<movement>/input/a");
 	touch.AddBinding(m_vecBoost.handle, "/user/hand/<movement>/input/squeeze");
 	touch.AddBinding(m_vecAscend.handle, "/user/hand/<!movement>/input/a");
 	touch.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
