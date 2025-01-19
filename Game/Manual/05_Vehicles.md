@@ -2,7 +2,7 @@
 
 Crysis features a variety of vehicles that you can control.
 
-*Note*: the vehicle controls are still fairly rudimentary at this point, and there is little in the way of comfort options for the rides. But a lot of the time, riding the vehicles is optional, so if you find them too uncomfortable or awkward, just proceed on foot.
+*Note*: the vehicle controls are not the most amazing in the world, and there is little in the way of comfort options for the rides. But a lot of the time, riding the vehicles is optional, so if you find them too uncomfortable or awkward, just proceed on foot. For the parts that you do need to be in a vehicle, you can enable the option to experience them in a 2D cinema view instead of full VR in the VR Settings.
 
 ## Entering and exiting vehicles
 Approach the vehicle and, while looking at it, press the off hand trigger to enter the vehicle. To leave again, press your left hand's A/X button.

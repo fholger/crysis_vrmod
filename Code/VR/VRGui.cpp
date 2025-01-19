@@ -198,10 +198,6 @@ void VRGui::DrawSettingsMenu()
 		ImGui::Checkbox("Crosshair helper for player weapons", &weaponCrosshair);
 		ImGui::SetItemTooltip("Draws a small sphere to help you aim");
 		g_pGameCVars->vr_weapon_crosshair = weaponCrosshair;
-		bool vehicleCrosshair = g_pGameCVars->vr_vehicle_crosshair;
-		ImGui::Checkbox("Crosshair helper for mounted/vehicle weapons", &vehicleCrosshair);
-		ImGui::SetItemTooltip("Draws a small sphere to help you aim");
-		g_pGameCVars->vr_vehicle_crosshair = vehicleCrosshair;
 
 		ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
 		ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
@@ -215,18 +211,11 @@ void VRGui::DrawSettingsMenu()
 		ImGui::SliderFloat("Haptics strength", &g_pGameCVars->vr_haptics_strength, 0.f, 2.f);
 	}
 
-	if (ImGui::CollapsingHeader("Miscellaneous"))
+	if (ImGui::CollapsingHeader("Comfort"))
 	{
 		bool seatedMode = g_pGameCVars->vr_seated_mode;
 		ImGui::Checkbox("Seated Mode", &seatedMode);
 		g_pGameCVars->vr_seated_mode = seatedMode;
-
-		ImGui::Text("Mirrored eye");
-		ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
-		ImGui::SameLine(0.2f * windowSize.x);
-		ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
-		ImGui::SameLine();
-		ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
 
 		const char* CutsceneOptions[] = {"VR", "2D Cinema", "3D Cinema"};
 		int cutsceneMode = g_pGameCVars->vr_cutscenes_2d ? (g_pGameCVars->vr_cinema_3d ? 2 : 1) : 0;
@@ -234,9 +223,23 @@ void VRGui::DrawSettingsMenu()
 		g_pGameCVars->vr_cutscenes_2d = cutsceneMode > 0;
 		g_pGameCVars->vr_cinema_3d = cutsceneMode == 2;
 
+		bool vehicle2D = g_pGameCVars->vr_vehicle_2d;
+		ImGui::Checkbox("Switch to 2D mode when driving vehicles", &vehicle2D);
+		g_pGameCVars->vr_vehicle_2d = vehicle2D;
+
 		bool disableScreenShake = g_pGameCVars->vr_disable_camerashakes;
 		ImGui::Checkbox("Disable screen shakes", &disableScreenShake);
 		g_pGameCVars->vr_disable_camerashakes = disableScreenShake;
+	}
+
+	if (ImGui::CollapsingHeader("Miscellaneous"))
+	{
+		ImGui::Text("Mirrored eye");
+		ImGui::SetItemTooltip("Choose which eye will be shown in the game's desktop window");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
 	}
 
 	if (ImGui::Button("Close"))

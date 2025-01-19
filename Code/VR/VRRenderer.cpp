@@ -251,6 +251,11 @@ bool VRRenderer::ShouldRenderVR() const
 			if (weapon->IsZoomed() || weapon->IsZooming())
 				return false;
 		}
+
+		if (pPlayer->GetLinkedVehicle() && g_pGameCVars->vr_vehicle_2d)
+		{
+			return false;
+		}
 	}
 
 	return !m_binocularsActive;

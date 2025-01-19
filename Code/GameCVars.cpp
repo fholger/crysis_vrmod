@@ -894,6 +894,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_disable_camerashakes", &vr_disable_camerashakes, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Disable any screen shake effects");
 	pConsole->Register("vr_turn_mode", &vr_turn_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Choose snap turn mode (0 = smooth turn)");
 	pConsole->Register("vr_seated_mode", &vr_seated_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Enable seated mode");
+	pConsole->Register("vr_vehicle_2d", &vr_vehicle_2d, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, switches to 2D view when driving vehicles");
 	pConsole->Register("vr_vehicle_invert_y", &vr_vehicle_invert_y, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Invert look Y-axis for vehicles and mounted guns");
 	pConsole->Register("vr_welcome_message", &vr_welcome_message, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Show the VR mod welcome message");
 }

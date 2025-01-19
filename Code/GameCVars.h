@@ -458,6 +458,7 @@ struct SCVars
 	float vr_controller_yaw_speed;
 	int vr_turn_mode;
 	int vr_seated_mode;
+	int vr_vehicle_2d;
 	int vr_vehicle_invert_y;
 	int vr_welcome_message;
 

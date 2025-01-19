@@ -349,7 +349,7 @@ void VRManager::ModifyCameraFor2D(CCamera& cam)
 
 	CPlayer* player = GetLocalPlayer();
 	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
-	if (!weapon || !(weapon->IsZoomed() || weapon->IsZooming()))
+	if (!weapon || !(weapon->IsZoomed() || weapon->IsZooming()) || player->GetLinkedVehicle())
 		return;
 
 	Vec3 scopePos;
