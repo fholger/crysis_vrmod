@@ -1845,7 +1845,7 @@ Vec3 CSingle::GetFiringPos(const Vec3 &probableHit) const
 {
   static Vec3 pos;
 
-	if (m_pWeapon->GetOwnerActor() == gVR->GetLocalPlayer() && g_pGameCVars->vr_enable_motion_controllers)
+	if (m_pWeapon->GetOwnerActor() == gVR->GetLocalPlayer() && !m_pWeapon->IsMounted())
 	{
 		Vec3 origin, direction;
 		m_pWeapon->GetFiringOriginAndDirection(origin, direction);
@@ -1912,7 +1912,7 @@ Vec3 CSingle::GetFiringDir(const Vec3 &probableHit, const Vec3& firingPos) const
 {
   static Vec3 dir;
 
-	if (m_pWeapon->GetOwnerActor() == gVR->GetLocalPlayer() && g_pGameCVars->vr_enable_motion_controllers)
+	if (m_pWeapon->GetOwnerActor() == gVR->GetLocalPlayer() && !m_pWeapon->IsMounted())
 	{
 		Vec3 origin, direction;
 		m_pWeapon->GetFiringOriginAndDirection(origin, direction);
