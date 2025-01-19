@@ -606,7 +606,7 @@ void OpenXRInput::UpdatePlayerMovement()
 
 	if (inVehicle)
 	{
-		input->OnAction(g_pGameActions->xi_v_rotatepitch, eAAM_Always, pitch);
+		input->OnAction(g_pGameActions->xi_v_rotatepitch, eAAM_Always, pitch * (g_pGameCVars->vr_vehicle_invert_y ? -1 : 1));
 		input->OnAction(g_pGameActions->xi_v_rotateyaw, eAAM_Always, yaw);
 		return;
 	}
@@ -630,7 +630,7 @@ void OpenXRInput::UpdatePlayerMovement()
 			return;
 		}
 
-		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch);
+		input->OnAction(g_pGameActions->xi_rotatepitch, eAAM_Always, pitch * (g_pGameCVars->vr_vehicle_invert_y ? -1 : 1));
 		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
 		return;
 	}

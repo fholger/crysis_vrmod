@@ -168,6 +168,10 @@ void VRGui::DrawSettingsMenu()
 		ImGui::Combo("Turn mode", &g_pGameCVars->vr_turn_mode, turnOptions, IM_ARRAYSIZE(turnOptions));
 
 		ImGui::SliderFloat("Smooth turn speed", &g_pGameCVars->vr_controller_yaw_speed, 15, 180, "%.1f");
+
+		bool invertVehicleY = g_pGameCVars->vr_vehicle_invert_y;
+		ImGui::Checkbox("Invert look Y-axis for vehicles and mounted guns", &invertVehicleY);
+		g_pGameCVars->vr_vehicle_invert_y = invertVehicleY;
 	}
 
 	if (ImGui::CollapsingHeader("Weapons"))
