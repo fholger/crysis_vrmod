@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "VRRenderUtils.h"
 
+#include "OpenXRRuntime.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "Shaders/generated/ShaderDrawTexturePS.h"
@@ -105,6 +106,9 @@ void VRRenderUtils::Init(ID3D10Device* device)
 	bd.DestBlendAlpha = D3D10_BLEND_ONE;
 	bd.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_RED|D3D10_COLOR_WRITE_ENABLE_GREEN|D3D10_COLOR_WRITE_ENABLE_BLUE;
 	CHECK_D3D10(m_device->CreateBlendState(&bd, m_srcAlphaBlend.ReleaseAndGetAddressOf()));
+	bd.SrcBlend = D3D10_BLEND_ONE;
+	bd.DestBlend = D3D10_BLEND_ZERO;
+	CHECK_D3D10(m_device->CreateBlendState(&bd, m_NoBlend.ReleaseAndGetAddressOf()));
 
 	D3D10_DEPTH_STENCIL_DESC dsd {};
 	dsd.DepthEnable = FALSE;
@@ -116,6 +120,7 @@ void VRRenderUtils::Shutdown()
 {
 	m_disableDepth.Reset();
 	m_srcAlphaBlend.Reset();
+	m_NoBlend.Reset();
 	m_rasterizerState.Reset();
 	m_sampler.Reset();
 	m_drawTexturePixelShader.Reset();
@@ -165,7 +170,7 @@ void VRRenderUtils::CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture)
 	scissor.bottom = renderSize.y;
 	m_device->RSSetScissorRects(1, &scissor);
 
-	m_device->OMSetBlendState(m_srcAlphaBlend.Get(), nullptr, 0xffffffff);
+	m_device->OMSetBlendState(gXR->IsHudVisible() ? m_srcAlphaBlend.Get() : m_NoBlend.Get(), nullptr, 0xffffffff);
 	m_device->OMSetDepthStencilState(m_disableDepth.Get(), 0);
 	m_device->VSSetShader(m_fullScreenTriVertexShader.Get());
 	m_device->PSSetShader(m_drawTexturePixelShader.Get());

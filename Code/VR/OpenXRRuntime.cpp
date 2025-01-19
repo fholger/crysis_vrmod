@@ -384,7 +384,8 @@ void OpenXRRuntime::FinishFrame()
 		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&cinema3DLayerLeft));
 		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&cinema3DLayerRight));
 	}
-	layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&hudLayer));
+	if (m_hudVisible)
+		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&hudLayer));
 
 	XrFrameEndInfo endInfo{ XR_TYPE_FRAME_END_INFO };
 	endInfo.displayTime = m_predictedDisplayTime;

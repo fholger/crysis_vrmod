@@ -52,6 +52,7 @@ private:
     ComPtr<ID3D10SamplerState> m_sampler;
     ComPtr<ID3D10RasterizerState> m_rasterizerState;
     ComPtr<ID3D10BlendState> m_srcAlphaBlend;
+    ComPtr<ID3D10BlendState> m_NoBlend;
     ComPtr<ID3D10DepthStencilState> m_disableDepth;
 };
 

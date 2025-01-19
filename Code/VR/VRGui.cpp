@@ -240,6 +240,10 @@ void VRGui::DrawSettingsMenu()
 		ImGui::RadioButton("Left##eye", &g_pGameCVars->vr_mirror_eye, 0);
 		ImGui::SameLine();
 		ImGui::RadioButton("Right##eye", &g_pGameCVars->vr_mirror_eye, 1);
+
+		bool hideHud = g_pGameCVars->vr_hide_hud;
+		ImGui::Checkbox("Hide ingame HUD", &hideHud);
+		g_pGameCVars->vr_hide_hud = hideHud;
 	}
 
 	if (ImGui::Button("Close"))

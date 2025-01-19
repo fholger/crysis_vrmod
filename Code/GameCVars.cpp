@@ -897,6 +897,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_vehicle_2d", &vr_vehicle_2d, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, switches to 2D view when driving vehicles");
 	pConsole->Register("vr_vehicle_invert_y", &vr_vehicle_invert_y, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Invert look Y-axis for vehicles and mounted guns");
 	pConsole->Register("vr_welcome_message", &vr_welcome_message, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Show the VR mod welcome message");
+	pConsole->Register("vr_hide_hud", &vr_hide_hud, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Hide the ingame HUD");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

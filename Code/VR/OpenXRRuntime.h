@@ -36,6 +36,8 @@ public:
 	void SetHudSize(float width, float height);
 	float GetHudWidth() const { return m_hudDisplayWidth; }
 	float GetHudHeight() const { return m_hudDisplayHeight; }
+	void SetHudVisibility(bool visible) { m_hudVisible = visible;}
+	bool IsHudVisible() const { return m_hudVisible; }
 
 	bool ArePosesValid() const { return m_posesValid; }
 
@@ -59,6 +61,7 @@ private:
 	XrSwapchain m_hudSwapchain = nullptr;
 	int m_hudWidth = 0;
 	int m_hudHeight = 0;
+	bool m_hudVisible = true;
 	std::vector<ID3D11Texture2D*> m_hudImages;
 	XrSessionState m_lastSessionState = XR_SESSION_STATE_UNKNOWN;
 

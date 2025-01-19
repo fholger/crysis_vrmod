@@ -699,6 +699,8 @@ EStance VRManager::GetPhysicalStance() const
 
 void VRManager::Update()
 {
+	gXR->SetHudVisibility(true);
+
 	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()) || g_pGame->GetMenu()->IsLoadingScreenActive())
 	{
 		if (!m_wasInMenu)
@@ -726,6 +728,7 @@ void VRManager::Update()
 		SetHudInFrontOfPlayer();
 	else if (gVRRenderer->ShouldRenderVR() && !showHudFixed)
 	{
+		gXR->SetHudVisibility(g_pGameCVars->vr_hide_hud == 0);
 		if (player && (player->GetLinkedVehicle() || player->GetActorStats()->mountedWeaponID))
 			SetVehicleHud();
 		else

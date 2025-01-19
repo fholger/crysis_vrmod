@@ -461,6 +461,7 @@ struct SCVars
 	int vr_vehicle_2d;
 	int vr_vehicle_invert_y;
 	int vr_welcome_message;
+	int vr_hide_hud;
 
 	SCVars()
 	{
