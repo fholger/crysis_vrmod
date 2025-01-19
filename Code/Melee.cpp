@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 23:3:2006   13:05 : Created by Márcio Martins
+- 23:3:2006   13:05 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -236,11 +236,11 @@ void CMelee::StartFire()
 		pPlayer->PlaySound(CPlayer::ESound_Melee);
 	}
 
-	m_pWeapon->PlayAction(m_meleeactions.attack.c_str(), 0, false, CItem::eIPAF_Default|CItem::eIPAF_CleanBlending, speedOverride);
+	//m_pWeapon->PlayAction(m_meleeactions.attack.c_str(), 0, false, CItem::eIPAF_Default|CItem::eIPAF_CleanBlending, speedOverride);
 	m_pWeapon->SetBusy(true);
 	
 	m_beginPos = m_pWeapon->GetSlotHelperPos(CItem::eIGS_FirstPerson, m_meleeparams.helper.c_str(), true);
-	m_pWeapon->GetScheduler()->TimerAction(m_pWeapon->GetCurrentAnimationTime(CItem::eIGS_FirstPerson), CSchedulerAction<StopAttackingAction>::Create(this), true);
+	m_pWeapon->GetScheduler()->TimerAction(500, CSchedulerAction<StopAttackingAction>::Create(this), true);
 
 	m_delayTimer = m_meleeparams.delay;
 	

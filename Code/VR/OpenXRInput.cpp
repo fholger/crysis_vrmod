@@ -15,6 +15,7 @@
 
 extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
 extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
+extern Vec3 OpenXRToCrysis(const XrVector3f& position);
 
 namespace
 {
@@ -235,6 +236,18 @@ Matrix34 OpenXRInput::GetControllerWeaponTransform(int hand)
 	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2) * Matrix33::CreateRotationY(-gf_PI/2);
 	Matrix33 gripAngleAdjust = Matrix33::CreateRotationX(DEG2RAD(g_pGameCVars->vr_weapon_angle_offset));
 	return GetControllerTransform(hand) * gripAngleAdjust * correction;
+}
+
+Vec3 OpenXRInput::GetControllerVelocity(int hand)
+{
+	hand = clamp_tpl(hand, 0, 1);
+
+	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
+	XrSpaceVelocity velocity { XR_TYPE_SPACE_VELOCITY };
+	location.next = &velocity;
+	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip velocity", m_instance);
+
+	return OpenXRToCrysis(velocity.linearVelocity);
 }
 
 void OpenXRInput::EnableHandMovementForQuickMenu()
@@ -490,11 +503,33 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 	action.longPressActive = false;
 }
 
+void OpenXRInput::UpdateMeleeAttacks()
+{
+	CPlayer* player = gVR->GetLocalPlayer();
+	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
+	if (!weapon || !weapon->CanMeleeAttack())
+		return;
+
+	Vec3 hmdForward = gXR->GetHmdTransform().GetColumn(1);
+
+	for (int i = 0; i < 2; ++i)
+	{
+		Vec3 controllerVelocity = GetControllerVelocity(i);
+		if (controllerVelocity.GetLength() > 2.f && controllerVelocity.Dot(hmdForward) > 0.f)
+		{
+			CryLogAlways("Potential melee attack triggered");
+			weapon->MeleeAttack();
+			break;
+		}
+	}
+}
+
 void OpenXRInput::UpdateIngameActions()
 {
 	UpdatePlayerMovement();
 	UpdateGripAmount();
 	UpdateWeaponScopes();
+	UpdateMeleeAttacks();
 	UpdateBooleanAction(m_sprint);
 	UpdateBooleanAction(m_menu);
 	UpdateBooleanAction(m_suitMenu);

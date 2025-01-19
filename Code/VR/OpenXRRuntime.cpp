@@ -56,6 +56,12 @@ Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& posi
 	return m;
 }
 
+Vec3 OpenXRToCrysis(const XrVector3f& position)
+{
+	Vec3 pos(position.x, -position.z, position.y);
+	return pos;
+}
+
 XrPosef CrysisToOpenXR(const Matrix34& transform)
 {
 	Matrix34 m;

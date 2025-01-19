@@ -493,6 +493,19 @@ Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)
 	return view * controllerTransform;
 }
 
+Vec3 VRManager::GetControllerVelocity(int side)
+{
+	Vec3 controllerVelocity = gXR->GetInput()->GetControllerVelocity(side);
+	Matrix33 refTransform = GetReferenceTransform();
+	return refTransform.TransformVector(controllerVelocity);
+}
+
+Vec3 VRManager::GetControllerWorldVelocity(int side)
+{
+	Matrix34 view = GetBaseVRTransform(true);
+	return view.TransformVector(GetControllerVelocity(side));
+}
+
 void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
 {
 	if (!g_pGameCVars->vr_enable_motion_controllers

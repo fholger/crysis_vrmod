@@ -14,6 +14,7 @@ public:
 
 	Matrix34 GetControllerTransform(int hand);
 	Matrix34 GetControllerWeaponTransform(int hand);
+	Vec3 GetControllerVelocity(int hand);
 
 	void EnableHandMovementForQuickMenu();
 	void DisableHandMovementForQuickMenu();
@@ -98,6 +99,7 @@ private:
 	void SuggestBindings();
 	void AttachActionSets();
 	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true, bool sendLongRelease = true, bool pressOnRelease = false);
+	void UpdateMeleeAttacks();
 	void UpdateIngameActions();
 	void UpdateVehicleActions();
 	void UpdateMenuActions();
