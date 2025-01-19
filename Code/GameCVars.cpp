@@ -895,6 +895,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_turn_mode", &vr_turn_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Choose snap turn mode (0 = smooth turn)");
 	pConsole->Register("vr_seated_mode", &vr_seated_mode, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Enable seated mode");
 	pConsole->Register("vr_vehicle_invert_y", &vr_vehicle_invert_y, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Invert look Y-axis for vehicles and mounted guns");
+	pConsole->Register("vr_welcome_message", &vr_welcome_message, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Show the VR mod welcome message");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

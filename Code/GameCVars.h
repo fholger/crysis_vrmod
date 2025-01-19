@@ -459,6 +459,7 @@ struct SCVars
 	int vr_turn_mode;
 	int vr_seated_mode;
 	int vr_vehicle_invert_y;
+	int vr_welcome_message;
 
 	SCVars()
 	{

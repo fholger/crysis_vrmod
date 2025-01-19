@@ -135,6 +135,24 @@ void VRGui::Draw()
 	{
 		DrawManualWindow();
 	}
+
+	bool welcomeMessageOpen = g_pGameCVars->vr_welcome_message;
+	if (welcomeMessageOpen)
+	{
+		ImGui::Begin("Welcome to Crysis VR", &welcomeMessageOpen);
+		ImGui::SetWindowPos(ImVec2(0.25f * windowSize.x, 0.3f * windowSize.y));
+		ImGui::SetWindowSize(ImVec2(0.5f * windowSize.x, 0.4f * windowSize.y));
+		ImGui::TextWrapped("Please take a moment to look through the VR Settings menu to adjust the experience to your liking. Also have a look at the VR Manual which should answer any question you have about how the game is controlled in VR with motion controllers.");
+		ImGui::TextWrapped("IMPORTANT: TURN OFF ANTI-ALIASING in the game's system settings graphics menu! It causes instabilities and crashes in VR.");
+		if (ImGui::Button("Got it"))
+			welcomeMessageOpen = false;
+		ImGui::End();
+	}
+	if (!welcomeMessageOpen && g_pGameCVars->vr_welcome_message)
+	{
+		g_pGameCVars->vr_welcome_message = 0;
+		g_pGame->GetOptions()->WriteGameCfg();
+	}
 }
 
 void VRGui::DrawSettingsMenu()
