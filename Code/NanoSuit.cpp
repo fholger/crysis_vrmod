@@ -1102,9 +1102,9 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 	case STRENGTH_MELEE_SOUND:
 		soundName = "Sounds/interface:suit:suit_strength_punch";
 		eSemantic = eSoundSemantic_NanoSuit;
-		if(m_pOwner->IsClient())
+		//if(m_pOwner->IsClient())
 			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 1.0f*param, 0.5f*param) );
-			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 1.0f * param);
+			//if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 1.0f * param);
 		setParam = true;
 		break;
 	case ARMOR_SOUND:

@@ -24,7 +24,9 @@ History:
 
 
 #include "IRenderer.h"
-#include "IRenderAuxGeom.h"	
+#include "IRenderAuxGeom.h"
+#include "VR/OpenXRRuntime.h"
+#include "VR/VRManager.h"
 
 
 //std::vector<Vec3> g_points;
@@ -106,16 +108,37 @@ void CMelee::Update(float frameTime, uint frameId)
 					}
 				}
 
-				SMovementState info;
-				pMC->GetMovementState(info);
-				pos = info.eyePosition;
-				dir = info.eyeDirection;
-				if (!PerformRayTest(pos, dir, strength, false))
-					if(!PerformCylinderTest(pos, dir, strength, false))
-						ApplyCameraShake(false);
+				if (pActor->IsClient())
+				{
+					for (int i = 0; i < 2; ++i)
+					{
+						Vec3 velocity = gVR->GetControllerWorldVelocity(i);
+						if (velocity.GetLength() < 1.5f)
+							continue;
 
-				m_ignoredEntity = 0;
-				m_meleeScale = 1.0f;
+						pos = gVR->GetWorldControllerTransform(i).GetTranslation();
+						dir = velocity.GetNormalized();
+						pos -= dir * 0.15f; // bit more wiggle room for hits
+						if (PerformRayTest(pos, dir, strength, false) || PerformCylinderTest(pos, dir, strength, false))
+						{
+							gXR->GetInput()->SendHapticEvent(i == 0 ? LEFT_HAND : RIGHT_HAND, 0.15f, 0.6f);
+							break;
+						}
+					}
+				}
+				else
+				{
+					SMovementState info;
+					pMC->GetMovementState(info);
+					pos = info.eyePosition;
+					dir = info.eyeDirection;
+					if (!PerformRayTest(pos, dir, strength, false))
+						if(!PerformCylinderTest(pos, dir, strength, false))
+							ApplyCameraShake(false);
+
+					m_ignoredEntity = 0;
+					m_meleeScale = 1.0f;
+				}
 				
 				m_pWeapon->RequestMeleeAttack(m_pWeapon->GetMeleeFireMode()==this, pos, dir, m_pWeapon->GetShootSeqN());
 			}

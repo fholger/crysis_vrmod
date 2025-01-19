@@ -515,9 +515,8 @@ void OpenXRInput::UpdateMeleeAttacks()
 	for (int i = 0; i < 2; ++i)
 	{
 		Vec3 controllerVelocity = GetControllerVelocity(i);
-		if (controllerVelocity.GetLength() > 2.f && controllerVelocity.Dot(hmdForward) > 0.f)
+		if (controllerVelocity.GetLength() > 1.5f && controllerVelocity.Dot(hmdForward) > 0.f)
 		{
-			CryLogAlways("Potential melee attack triggered");
 			weapon->MeleeAttack();
 			break;
 		}

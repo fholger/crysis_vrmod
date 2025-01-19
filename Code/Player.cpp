@@ -5421,7 +5421,7 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 		soundName = "Sounds/physics:player_foley:melee_feedback";
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
 		//if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.6f, 0.2f) );
-		if (play) gXR->GetInput()->SendHapticEvent(0.15f, 0.6f);
+		//if (play) gXR->GetInput()->SendHapticEvent(0.15f, 0.6f);
 		break;
 	case ESound_Fear:
 		soundName = "Sounds/physics:player_foley:alien_feedback";
