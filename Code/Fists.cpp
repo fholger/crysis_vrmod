@@ -405,6 +405,8 @@ void CFists::CollisionFeeback(Vec3 &pos, int eFAS)
 //---------------------------------------------------------------
 bool CFists::OnActionAttack(EntityId actorId, const ActionId& actionId, int activationMode, float value)
 {
+	return false; // in VR, fist attacks are triggered by VR motion, not button
+
 	//SetCurrentFireMode(0);
 	CWeapon::OnAction(actorId, actionId, activationMode, value);
 	if(m_fm && m_fm->IsFiring())
@@ -414,6 +416,8 @@ bool CFists::OnActionAttack(EntityId actorId, const ActionId& actionId, int acti
 
 bool CFists::OnActionSpecial(EntityId actorId, const ActionId& actionId, int activationMode, float value)
 {
+	return false; // in VR, fist attacks are triggered by VR motion, not button
+
 	CWeapon::OnAction(actorId, actionId, activationMode, value);
 	if(m_melee && m_melee->IsFiring())
 		RequestAnimState(eFAS_FIGHT);
