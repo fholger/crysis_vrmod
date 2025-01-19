@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 12:04:2006   17:22 : Created by Márcio Martins
+- 12:04:2006   17:22 : Created by Mï¿½rcio Martins
 - 18:02:2007	 13:30 : Refactored Offhand by Benito G.R.
 
 *************************************************************************/
@@ -185,6 +185,8 @@ public:
 	void AttachGrenadeToHand(int grenade, bool fp = true, bool attach = true);
 
 	virtual void ForcePendingActions() {}
+
+	CWeapon* GetMainHandWeapon() const { return m_mainHandWeapon; }
 
 private:
 

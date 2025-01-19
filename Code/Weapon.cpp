@@ -3841,6 +3841,25 @@ void CWeapon::PostProcessArms()
 		if (gVR->IsOffHandGrabbingWeapon() || IsReloading())
 			HideArm(1);
 	}
+
+	if (COffHand *offHand = dynamic_cast<COffHand*>(this))
+	{
+		CWeapon* mainWeapon = offHand->GetMainHandWeapon();
+		if (mainWeapon)
+		{
+			// hide unneeded arm
+			offHand->HideArm(1);
+		}
+	}
+	else
+	{
+		CWeapon* off = GetOwnerActor()->GetWeaponByClass(CItem::sOffHandClass);
+		if (off && off->IsSelected())
+		{
+			// hide unneeded arm
+			HideArm(0);
+		}
+	}
 }
 
 QuatT CWeapon::CalcHandFromControllerInWeapon(int side)

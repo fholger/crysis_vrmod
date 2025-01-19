@@ -919,9 +919,11 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsReloading() && !weapon->IsDualWield() && !weapon->IsMounted())
+	bool offHandFollowsGun = m_offHandFollowsWeapon || weapon->IsReloading() || weapon->IsDualWield() || weapon->IsMounted();
+	bool isOffHandClass = weapon->GetEntity()->GetClass() == CItem::sOffHandClass;
+	if ((side != g_pGameCVars->vr_weapon_hand && !offHandFollowsGun) || isOffHandClass)
 	{
-		// off hand is detached from weapon, so position it towards the controller, instead
+		// hand is detached from weapon, so position it towards the controller, instead
 		Quat origHandRot = target.q;
 		target = weapon->CalcHandFromControllerInWeapon(side);
 		Quat rotDiff = target.q * origHandRot.GetInverted();
@@ -952,11 +954,11 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	skeleton->SetPostProcessQuat(elbowJointId, elbowJoint);
 	skeleton->SetPostProcessQuat(handJointId, handJoint);
 
-	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsDualWield() && !weapon->IsMounted())
+	if (side != g_pGameCVars->vr_weapon_hand && !m_offHandFollowsWeapon && !weapon->IsDualWield() && !weapon->IsMounted() && (side != 0 || !isOffHandClass))
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
-	if (side == g_pGameCVars->vr_weapon_hand && dynamic_cast<CFists*>(weapon) != nullptr && !weapon->IsDualWield())
+	if (side == g_pGameCVars->vr_weapon_hand && (dynamic_cast<CFists*>(weapon) != nullptr || isOffHandClass) && !weapon->IsDualWield() && (side != 0 || !isOffHandClass))
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
