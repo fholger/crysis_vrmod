@@ -75,6 +75,7 @@ public:
 	void SetHudAttachedToHead();
 	void SetHudAttachedToOffHand();
 	void SetHudAttachedToWeaponHand();
+	void SetVehicleHud();
 
 	void CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weapon);
 

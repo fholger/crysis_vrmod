@@ -273,7 +273,7 @@ void CHUDCrosshair::SetCrosshair(int iCrosshair)
 	if(g_pGameCVars->g_difficultyLevel>3 && !gEnv->bMultiplayer)
 		iCrosshair = 0;
 
-	iCrosshair = 0; // not desired in VR
+	//iCrosshair = 0; // not desired in VR
 
 	iCrosshair = MAX(0,iCrosshair);
 	iCrosshair = MIN(13,iCrosshair);

@@ -503,7 +503,7 @@ void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDi
 		return;
 	}
 
-	if (pPlayer->GetActorStats()->mountedWeaponID && !pPlayer->GetLinkedVehicle())
+	if (pPlayer->GetActorStats()->mountedWeaponID || pPlayer->GetLinkedVehicle())
 		return;
 
 	CCamera left = gVRRenderer->GetCurrentViewCamera();
@@ -712,7 +712,12 @@ void VRManager::Update()
 	else if (isWeaponZoom)
 		SetHudInFrontOfPlayer();
 	else if (gVRRenderer->ShouldRenderVR() && !showHudFixed)
-		SetHudAttachedToHead();
+	{
+		if (player && (player->GetLinkedVehicle() || player->GetActorStats()->mountedWeaponID))
+			SetVehicleHud();
+		else
+			SetHudAttachedToHead();
+	}
 	else
 		SetHudInFrontOfPlayer();
 }
@@ -826,6 +831,42 @@ void VRManager::SetHudAttachedToWeaponHand()
 
 	Vec2i renderSize = GetRenderSize();
 	gXR->SetHudSize(vr_scope_size, vr_scope_size * renderSize.y / renderSize.x);
+}
+
+void VRManager::SetVehicleHud()
+{
+	m_fixedPositionInitialized = false;
+
+	CPlayer* player = GetLocalPlayer();
+	if (!player)
+	{
+		SetHudAttachedToHead();
+		return;
+	}
+
+	float hudSize = 12.f;
+
+	SMovementState state;
+	player->GetMovementController()->GetMovementState(state);
+	Vec3 crosshairPos = state.weaponPosition;
+	Vec3 dir = state.aimDirection;
+	crosshairPos += 20.f * dir;
+	if (player->IsThirdPerson())
+	{
+		crosshairPos += 15.f * dir;
+		hudSize = 20.f;
+	}
+
+	Matrix34 hudTransform = Matrix33::CreateRotationVDir(dir);
+	hudTransform.SetTranslation(crosshairPos);
+	hudTransform = GetBaseVRTransform(true).GetInvertedFast() * hudTransform;
+
+	Matrix34 refTransform = GetReferenceTransform().GetInverted();
+	refTransform.SetTranslation(GetHmdOffset());
+
+	gXR->SetHudPose(CrysisToOpenXR(refTransform * hudTransform));
+	Vec2i renderSize = GetRenderSize();
+	gXR->SetHudSize(hudSize, hudSize * renderSize.y / renderSize.x);
 }
 
 void TwoBoneIKSolve(QuatT& a, QuatT& b, QuatT& c, const Vec3& t)

@@ -26,6 +26,7 @@
 #include "HUDCrosshair.h"
 #include "OffHand.h"
 #include "GameActions.h"
+#include "VR/VRManager.h"
 
 void CHUD::QuickMenuSnapToMode(ENanoMode mode)
 {
@@ -1125,7 +1126,14 @@ void CHUD::UpdateVoiceChat()
 
 void CHUD::UpdateCrosshairVisibility()
 {
-	m_pHUDCrosshair->SetOpacity(m_pHUDCrosshair->GetUsability() ? 1.0f : 0.0f);
+	bool showCrosshair = false;
+	if (CPlayer* player = gVR->GetLocalPlayer())
+	{
+		if (player->GetLinkedVehicle() || player->GetActorStats()->mountedWeaponID)
+			showCrosshair = true;
+	}
+	m_pHUDCrosshair->SetOpacity(m_pHUDCrosshair->GetUsability() || showCrosshair ? 1.0f : 0.0f);
+	m_pHUDCrosshair->SetCrosshair(showCrosshair ? 2 : 0);
 
 	// marcok: don't touch this, please
 	if (g_pGameCVars->goc_enable)

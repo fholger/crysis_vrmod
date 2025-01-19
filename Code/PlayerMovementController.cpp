@@ -1381,7 +1381,7 @@ void CPlayerMovementController::UpdateMovementState( SMovementState& state )
 		state.fireTarget = m_fireTarget;
 
 		// VR adjustments
-		if (m_pPlayer->IsClient())
+		if (m_pPlayer->IsClient() && !m_pPlayer->GetLinkedVehicle() && !m_pPlayer->GetActorStats()->mountedWeaponID)
 		{
 			CWeapon* weapon = m_pPlayer->GetWeapon(m_pPlayer->GetCurrentItemId());
 			if (weapon)

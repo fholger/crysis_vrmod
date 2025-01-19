@@ -329,6 +329,9 @@ void VRRenderer::DrawCrosshair()
 	CPlayer *pPlayer = static_cast<CPlayer *>(gEnv->pGame->GetIGameFramework()->GetClientActor());
 	if (!pPlayer)
 		return;
+	if (pPlayer->GetLinkedVehicle() || pPlayer->GetActorStats()->mountedWeaponID)
+		return;
+
 	if (CWeapon *weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(true)))
 	{
 		// don't draw a crosshair if the weapon laser is active
