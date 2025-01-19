@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '0.5.0'
+!define VERSION '1.0.0'
 
 Name "Crysis VR Mod"
 ; should not need admin privileges as the install folder should be user writable, anyway
@@ -14,9 +14,8 @@ OutFile ".\crysis-vrmod-${VERSION}.exe"
 !define MUI_WELCOMEFINISHPAGE_BITMAP ".\welcome.bmp"
 !define MUI_WELCOMEPAGE_TITLE 'Crysis VR Mod v${VERSION}'
 !define MUI_WELCOMEPAGE_TEXT 'This will install the Crysis VR Mod on your computer. \
-Please be aware that this is an early development version, and bugs are to be expected. \
-It is a seated-only experience for now with limited motion controller support. \
-Also, it is Crysis - expect performance to not be great :)'
+It will turn the game into a full 6DOF tracked VR experience with motion controls. \
+But remember, it is Crysis - expect performance to not be great :)'
 
 !define MUI_DIRECTORYPAGE_TEXT 'Please enter the location of your Crysis installation.'
 

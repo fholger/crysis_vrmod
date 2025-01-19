@@ -220,7 +220,8 @@ void CFlashMenuObject::UpdateSaveGames()
 		const char *tempModVersion = desc.metaData.xmlMetaDataNode->getAttr("ModVersion");
 		if(tempModName && tempModVersion )
 		{
-			if(strcmp(modName.c_str(),tempModName) || strcmp(modVersion.c_str(),tempModVersion))
+			// only verify current or old mod name; no version check as we don't want to invalidate old saves
+			if(strcmp(modName.c_str(),tempModName) && strcmp(tempModName, "VRMod"))
 				continue;
 		}
 
