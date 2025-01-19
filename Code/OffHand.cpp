@@ -3155,6 +3155,14 @@ IItem* COffHand::GetExchangeItem(CPlayer *pPlayer)
 	return NULL;
 }
 
+void COffHand::GetFiringOriginAndDirection(Vec3& origin, Vec3& direction)
+{
+	// we want to aim the throw with the off hand controller
+	Matrix34 controllerTransform = gVR->GetWorldControllerTransform(gVR->GetHandSide(OFF_HAND));
+	origin = controllerTransform.GetTranslation();
+	direction = controllerTransform.GetColumn1();
+}
+
 //========================================================
 EntityId COffHand::SpawnRockProjectile(IRenderNode* pRenderNode)
 {

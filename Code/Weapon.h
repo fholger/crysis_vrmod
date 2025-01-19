@@ -747,7 +747,7 @@ public:
 
 	Vec3 GetOffHandGrabLocation() const { return m_offHandGrabLocation; }
 
-	void GetFiringOriginAndDirection(Vec3& origin, Vec3& direction);
+	virtual void GetFiringOriginAndDirection(Vec3& origin, Vec3& direction);
 
 	float GetTwoHandYawOffset() const { return m_twoHandYawOffset; }
 private:

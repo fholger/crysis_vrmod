@@ -188,6 +188,8 @@ public:
 
 	CWeapon* GetMainHandWeapon() const { return m_mainHandWeapon; }
 
+	void GetFiringOriginAndDirection(Vec3& origin, Vec3& direction) override;
+
 private:
 
 	EntityId SpawnRockProjectile(IRenderNode *pRenderNode);
