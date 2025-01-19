@@ -73,7 +73,8 @@ private:
 	XrActionSet m_vehicleSet = nullptr;
 	BooleanAction m_vecBoost;
 	BooleanAction m_vecAfterburner;
-	BooleanAction m_vecBrake;
+	BooleanAction m_vecSecondaryFire;
+	BooleanAction m_vecAscend;
 	BooleanAction m_vecHorn;
 	BooleanAction m_vecLights;
 	BooleanAction m_vecExit;

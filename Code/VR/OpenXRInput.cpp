@@ -136,7 +136,8 @@ void OpenXRInput::Shutdown()
 	DestroyAction(m_dropWeapon.handle);
 	DestroyAction(m_vecBoost.handle);
 	DestroyAction(m_vecAfterburner.handle);
-	DestroyAction(m_vecBrake.handle);
+	DestroyAction(m_vecAscend.handle);
+	DestroyAction(m_vecSecondaryFire.handle);
 	DestroyAction(m_vecHorn.handle);
 	DestroyAction(m_vecLights.handle);
 	DestroyAction(m_vecExit.handle);
@@ -313,7 +314,8 @@ void OpenXRInput::CreateInputActions()
 
 	CreateBooleanAction(m_vehicleSet, m_vecBoost, "vec_boost", "Vehicle Boost", &g_pGameActions->v_boost);
 	CreateBooleanAction(m_vehicleSet, m_vecAfterburner, "vec_afterburner", "Vehicle Afterburner", &g_pGameActions->v_afterburner);
-	CreateBooleanAction(m_vehicleSet, m_vecBrake, "vec_brake", "Vehicle Brake", &g_pGameActions->v_brake);
+	CreateBooleanAction(m_vehicleSet, m_vecAscend, "vec_ascend", "Vehicle (VTOL) Ascend", &g_pGameActions->v_moveup);
+	CreateBooleanAction(m_vehicleSet, m_vecSecondaryFire, "vec_secondary_fire", "Vehicle Secondary Fire", &g_pGameActions->zoom);
 	CreateBooleanAction(m_vehicleSet, m_vecExit, "vec_exit", "Exit vehicle", &g_pGameActions->use, nullptr, false, false, true);
 	CreateBooleanAction(m_vehicleSet, m_vecHorn, "vec_horn", "Vehicle horn", &g_pGameActions->v_horn);
 	CreateBooleanAction(m_vehicleSet, m_vecLights, "vec_lights", "Vehicle lights", &g_pGameActions->v_lights);
@@ -394,16 +396,15 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	touch.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
-	//touch.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
-	//touch.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	touch.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
 	touch.AddBinding(m_dropWeapon.handle, "/user/hand/movement/input/a");
-	touch.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
-	touch.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
+	touch.AddBinding(m_vecBoost.handle, "/user/hand/<movement>/input/squeeze");
+	touch.AddBinding(m_vecAscend.handle, "/user/hand/<!movement>/input/a");
 	touch.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
-	touch.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_vecAfterburner.handle, "/user/hand/<movement>/input/squeeze");
+	touch.AddBinding(m_vecSecondaryFire.handle, "/user/hand/<!weapon>/input/trigger");
 	touch.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
 	touch.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
@@ -432,16 +433,16 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
-	//knuckles.AddBinding(m_nightvision.handle, "/user/hand/<!weapon>/input/b");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
 	knuckles.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a");
 	knuckles.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b");
 	knuckles.AddBinding(m_dropWeapon.handle, "/user/hand/<!weapon>/input/a");
-	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<!weapon>/input/trigger");
-	knuckles.AddBinding(m_vecBrake.handle, "/user/hand/<!movement>/input/a");
+	knuckles.AddBinding(m_vecBoost.handle, "/user/hand/<movement>/input/squeeze/force");
+	knuckles.AddBinding(m_vecAscend.handle, "/user/hand/<!movement>/input/a");
 	knuckles.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b");
-	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_vecAfterburner.handle, "/user/hand/<movement>/input/squeeze/force");
+	knuckles.AddBinding(m_vecSecondaryFire.handle, "/user/hand/<!weapon>/input/trigger");
 	knuckles.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	knuckles.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
 	knuckles.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a");
@@ -517,11 +518,12 @@ void OpenXRInput::UpdateVehicleActions()
 	UpdateBooleanAction(m_menuClick);
 	UpdateBooleanAction(m_vecBoost);
 	UpdateBooleanAction(m_vecAfterburner);
+	UpdateBooleanAction(m_vecSecondaryFire);
 	UpdateBooleanAction(m_vecExit);
 	UpdateBooleanAction(m_vecSwitchSeatView);
 	UpdateBooleanAction(m_vecHorn);
 	UpdateBooleanAction(m_vecLights);
-	UpdateBooleanAction(m_vecBrake);
+	UpdateBooleanAction(m_vecAscend);
 }
 
 void OpenXRInput::UpdateMenuActions()

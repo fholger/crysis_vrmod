@@ -5444,7 +5444,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.WeaponSlots</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s135"><Data ss:Type="String">You can carry a pistol, two main weapons, and various pieces of equipment </Data></Cell>
+    <Cell ss:StyleID="s135"><Data ss:Type="String">You can carry a pistol [ grab near hip ], two main weapons [ grab over shoulder ], and various pieces of equipment [ grab near chest or behind back ]</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5452,7 +5452,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.WeaponDrop</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Press [ %[player:drop] ] to drop your current weapon</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">Open the suit menu [ Hold Right Thumbstick/Trackpad ] and press [ Left A/X ] to drop your current weapon</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5540,7 +5540,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.Melee</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ %[player:special] ] - Melee</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Swing Weapon ] - Melee</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5548,7 +5548,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.MeleeStrength</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ %[player:special] ] in strength mode - Strength Melee</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Swing Weapon ] in strength mode - Strength Melee</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5891,7 +5891,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.AssaultScope</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">The assault scope attachment allows medium range zoom</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">The assault scope attachment allows medium range zoom. Grab weapon with both hands and bring main hand close to your head to activate scope view</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5899,7 +5899,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.SniperScope</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">The sniper scope attachment allows long range zoom</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">The sniper scope attachment allows long range zoom. Grab weapon with both hands and bring main hand close to your head to activate scope view</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -6019,7 +6019,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.TankFireMinigun</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s135"><Data ss:Type="String">[ %[default:zoom] ] - Fire minigun turret</Data></Cell>
+    <Cell ss:StyleID="s135"><Data ss:Type="String">[ Left Trigger ] - Fire minigun turret</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -6087,19 +6087,19 @@
    <Row>
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Ascension.Ascend</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Right Stick Up ] - Move higher</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Right A ] - Move higher</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
    <Row>
     <Cell ss:Index="2" ss:StyleID="s68"><Data ss:Type="String">Ascension.Descend</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Right Stick Down ] - Move lower</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String"></Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
    <Row>
     <Cell ss:Index="2" ss:StyleID="s68"><Data ss:Type="String">Ascension.Rotate</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Left Stick ] - Turn</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Right Stick ] - Turn</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -6117,13 +6117,13 @@
    </Row>
    <Row>
     <Cell ss:Index="2" ss:StyleID="s68"><Data ss:Type="String">Ascension.Boost</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Left Trigger ] - Activate afterburner</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Left Grip ] - Activate afterburner</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
    <Row>
     <Cell ss:Index="2" ss:StyleID="s68"><Data ss:Type="String">Ascension.Missiles</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ %[default:zoom] ] - Fire missiles</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ Left Trigger ] - Fire missiles</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -6135,7 +6135,7 @@
    </Row>
    <Row>
     <Cell ss:Index="2" ss:StyleID="s68"><Data ss:Type="String">Ascension.Roll</Data></Cell>
-    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String">[ %[vtol:v_rollleft] ], [ %[vtol:v_rollright] ] - Roll</Data></Cell>
+    <Cell ss:Index="4" ss:StyleID="s137"><Data ss:Type="String"></Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>

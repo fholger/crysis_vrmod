@@ -8,12 +8,16 @@ Crysis features a variety of vehicles that you can control.
 Approach the vehicle and, while looking at it, press the off hand trigger to enter the vehicle. To leave again, press your left hand's A/X button.
 
 ## Driving the vehicle
-Use the left thumbstick to drive the vehicle. Forward/back controls your engine, while left/right steers.
+Use the left thumbstick to drive the vehicle. Forward/back controls your engine, while left/right steers. Left Grip can be used for a speed boost.
 
 ## Changing seats and camera mode
 Press the right B/Y button to cycle through the available seats on the vehicle. Hold that button to switch between first person and third person camera.
 
 ## Firing guns
-When in the driver seat and in first person, the gun follows your head direction, so you can aim with your head. Press your weapon hand's trigger to fire the gun.
+Use the right stick to aim, then press right trigger to fire your primary weapon. If the vehicle has a secondary weapon, it can be fired with the left trigger.
 
-When in the gunner seat or in third person camera mode, you have to aim the gun with the right thumbstick, similar to aiming with a gamepad. Head or controller aim is unfortunately not straight-forward to implement in these situations.
+## VTOL controls
+The left stick controls strafe movement in forward, backward, left and right direction, while the right stick controls pitch and yaw. Additionally, the right A button can be used to ascend vertically. Left Grip can be used for a speed boost.
+
+## Recalibrate view
+If you need to recalibrate your view position and height (e.g. because you want to sit down when driving vehicles), quickly hop into the menu and back into the game. This will trigger a view recalibration.
