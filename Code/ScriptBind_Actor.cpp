@@ -28,6 +28,8 @@
 #include <Cry_GeoDistance.h>
 #include <IEntitySystem.h>
 
+#include "VR/VRHaptics.h"
+
 //------------------------------------------------------------------------
 CScriptBind_Actor::CScriptBind_Actor(ISystem *pSystem)
 : m_pSystem(pSystem),
@@ -628,6 +630,7 @@ int CScriptBind_Actor::SetViewShake(IFunctionHandler *pH, Ang3 shakeAngle, Vec3 
 	if (pView)
 	{
 		const int SCRIPT_SHAKE_ID = 42;
+		gHaptics->TriggerBHapticsEffect("shake_vest", 0.25f * duration);
 		pView->SetViewShake(ZERO, shakeShift, duration, frequency, randomness, SCRIPT_SHAKE_ID);
 	}
 

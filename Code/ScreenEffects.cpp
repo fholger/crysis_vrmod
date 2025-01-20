@@ -11,6 +11,8 @@
 #include "IViewSystem.h"
 #include "ScreenEffects.h"
 
+#include "VR/VRHaptics.h"
+
 //---------------------------------
 CScreenEffects::CScreenEffects(IActor *owner) : m_ownerActor(owner), m_curUniqueID(0), m_enableBlends(true), m_updatecoords(false)
 {
@@ -109,6 +111,7 @@ float CScreenEffects::GetCurrentFOV()
 //---------------------------------
 void CScreenEffects::CamShake(Vec3 shiftShake, Vec3 rotateShake, float freq, float shakeTime, float randomness, int shakeID)
 {
+	gHaptics->TriggerBHapticsEffect("shake_vest", shakeTime * 0.25f);
 	return; // no shake in VR
 
 	if (m_ownerActor->IsClient())

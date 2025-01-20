@@ -3607,6 +3607,7 @@ void CPlayer::CameraShake(float angle,float shift,float duration,float frequency
 	float angleAmount(max(-90.0f,min(90.0f,angle)) * gf_PI/180.0f);
 	float shiftAmount(shift);
 
+	gHaptics->TriggerBHapticsEffect("shake_vest", duration * 0.25f);
 	// VR: don't want shake
 	return;
 

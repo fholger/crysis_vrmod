@@ -7,6 +7,8 @@
 #include "../Game.h"
 #include <IViewSystem.h>
 
+#include "VR/VRHaptics.h"
+
 CShake::CShake()
 {
 }
@@ -56,8 +58,6 @@ void CShake::FullSerialize(TSerialize ser)
 //------------------------------------------------------------------------
 void CShake::Update(SEntityUpdateContext &ctx, int updateSlot)
 {
-	return; // no shaking in VR
-
 	IActor *pClient = g_pGame->GetIGameFramework()->GetClientActor();
 	if (pClient)
 	{
@@ -70,6 +70,7 @@ void CShake::Update(SEntityUpdateContext &ctx, int updateSlot)
 			if (pView)
 			{
 				float strength = (1.0f - (dist2ToClient/maxRange)) * 0.5;
+				gHaptics->TriggerBHapticsEffect("shake_vest", m_shake * strength);
 				pView->SetViewShake(ZERO,Vec3(m_shake*strength,0,m_shake*strength),0.1f,0.0225f,1.5f,1);
 			}
 		}
