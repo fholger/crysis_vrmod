@@ -10,6 +10,7 @@ if not exist %VRMOD_INSTALL_DIR%\Bin64 (mkdir %VRMOD_INSTALL_DIR%\Bin64)
 xcopy /i /y %SOURCE_DIR%\*.xml %VRMOD_INSTALL_DIR%
 xcopy /y %SOURCE_DIR%\Bin64\VRMod.dll %VRMOD_INSTALL_DIR%\Bin64
 xcopy /y %SOURCE_DIR%\Bin64\CrysisVR.exe %CRYSIS_INSTALL_DIR%\Bin64
+xcopy /y %SOURCE_DIR%\Code\ThirdParty\bhaptics\bin\win64\haptic_library.dll %CRYSIS_INSTALL_DIR%\Bin64
 xcopy /i /s /y %SOURCE_DIR%\Game %VRMOD_INSTALL_DIR%\Game
 xcopy /y %SOURCE_DIR%\README.md %VRMOD_INSTALL_DIR%
 xcopy /y %SOURCE_DIR%\LICENSE.txt %VRMOD_INSTALL_DIR%

@@ -57,6 +57,7 @@ Section "Uninstall"
 	SetOutPath $INSTDIR
 	RMDir /r "$INSTDIR\Mods\VRMod"
 	Delete "$INSTDIR\Bin64\CrysisVR.exe"
+	Delete "$INSTDIR\Bin64\haptic_library.dll"
 	Delete "$SMPrograms\$(^Name).lnk"
 	Delete "$Desktop\$(^Name).lnk"
 	Delete "Uninstall_CrysisVR.exe"
