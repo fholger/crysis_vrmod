@@ -5,6 +5,7 @@
 #include "GameCVars.h"
 #include "imgui.h"
 #include "IPlayerInput.h"
+#include "Melee.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
 #include "VRManager.h"
@@ -519,7 +520,14 @@ void OpenXRInput::UpdateMeleeAttacks()
 		// also, only consider movements that are somewhat in the direction of where you look at
 		if (GetGripAmount(i) >= .95f && controllerVelocity.GetLength() > g_pGameCVars->vr_melee_trigger_velocity && controllerVelocity.Dot(hmdForward) > 0.7f)
 		{
-			weapon->MeleeAttack();
+			// check if the attack would actually hit something, otherwise don't perform one
+			SMovementState info;
+			player->GetMovementController()->GetMovementState(info);
+			Vec3 pos = info.eyePosition;
+			Vec3 dir = info.eyeDirection;
+			CMelee* melee = static_cast<CMelee*>(weapon->GetMeleeFireMode());
+			if (melee->PerformRayTest(pos, dir, 1.f, false, false) || melee->PerformCylinderTest(pos, dir, 1.f, false, false))
+				weapon->MeleeAttack();
 			break;
 		}
 	}

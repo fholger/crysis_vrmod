@@ -8,7 +8,7 @@ Description: Beam Fire Mode Implementation
 
 -------------------------------------------------------------------------
 History:
-- 23:3:2006   13:02 : Created by Márcio Martins
+- 23:3:2006   13:02 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #ifndef __MELEE_H__
@@ -187,8 +187,8 @@ public:
 	virtual void Unlock() {};
 	//~IFireMode
 
-	virtual bool PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote);
-	virtual bool PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote);
+	virtual bool PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote, bool execute = true);
+	virtual bool PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote, bool execute = true);
 	virtual void Hit(ray_hit *hit, const Vec3 &dir, float damageScale, bool remote);
 	virtual void Hit(geom_contact *contact, const Vec3 &dir, float damageScale, bool remote);
 	virtual void Hit(const Vec3 &pt, const Vec3 &dir, const Vec3 &normal, IPhysicalEntity *pCollider, int partId, int ipart, int surfaceIdx, float damageScale, bool remote);

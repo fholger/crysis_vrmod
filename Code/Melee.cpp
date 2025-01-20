@@ -338,7 +338,7 @@ const char *CMelee::GetDamageType() const
 
 
 //------------------------------------------------------------------------
-bool CMelee::PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote)
+bool CMelee::PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote, bool execute)
 {
 	IEntity *pOwner = m_pWeapon->GetOwner();
 	IPhysicalEntity *pIgnore = pOwner?pOwner->GetPhysics():0;
@@ -359,7 +359,7 @@ bool CMelee::PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bo
 	}
 	//=================================================================================
 
-	if (n>0)
+	if (n>0 && execute)
 	{
 		Hit(&hit, dir, strength, remote);
 		Impulse(hit.pt, dir, hit.n, hit.pCollider, hit.partid, hit.ipart, hit.surface_idx, strength);
@@ -369,7 +369,7 @@ bool CMelee::PerformRayTest(const Vec3 &pos, const Vec3 &dir, float strength, bo
 }
 
 //------------------------------------------------------------------------
-bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote)
+bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strength, bool remote, bool execute)
 {
 	IEntity *pOwner = m_pWeapon->GetOwner();
 	IPhysicalEntity *pIgnore = pOwner?pOwner->GetPhysics():0;
@@ -436,7 +436,7 @@ bool CMelee::PerformCylinderTest(const Vec3 &pos, const Vec3 &dir, float strengt
 	}
 
   
-	if (closestc)
+	if (closestc && execute)
 	{
 		IPhysicalEntity *pCollider = gEnv->pPhysicalWorld->GetPhysicalEntityById(closestc->iPrim[0]);
 
