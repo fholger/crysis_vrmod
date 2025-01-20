@@ -507,7 +507,7 @@ void OpenXRInput::UpdateMeleeAttacks()
 {
 	CPlayer* player = gVR->GetLocalPlayer();
 	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
-	if (!weapon || !weapon->CanMeleeAttack())
+	if (!weapon || !weapon->CanMeleeAttack() || gVR->IsOffHandGrabbingWeapon())
 		return;
 
 	Vec3 hmdForward = gXR->GetHmdTransform().GetColumn(1);
@@ -515,7 +515,9 @@ void OpenXRInput::UpdateMeleeAttacks()
 	for (int i = 0; i < 2; ++i)
 	{
 		Vec3 controllerVelocity = GetControllerVelocity(i);
-		if (controllerVelocity.GetLength() > 1.5f && controllerVelocity.Dot(hmdForward) > 0.f)
+		// need to be holding grip and pass a certain velocity threshold to trigger melee attacks
+		// also, only consider movements that are somewhat in the direction of where you look at
+		if (GetGripAmount(i) >= .95f && controllerVelocity.GetLength() > g_pGameCVars->vr_melee_trigger_velocity && controllerVelocity.Dot(hmdForward) > 0.7f)
 		{
 			weapon->MeleeAttack();
 			break;

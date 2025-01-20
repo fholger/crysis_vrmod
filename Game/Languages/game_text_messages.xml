@@ -5540,7 +5540,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.Melee</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Swing Weapon ] - Melee</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Hold Grip ] and punch with controller - Melee Attack</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5548,7 +5548,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.MeleeStrength</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Swing Weapon ] in strength mode - Strength Melee</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Hold Grip ]  and punch with controller in strength mode - Strength Melee</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>

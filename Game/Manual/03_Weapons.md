@@ -34,5 +34,9 @@ If the scope has multiple zoom levels, you can choose between them by moving the
 Once you have picked up some grenades, you can throw them with your weapon hand's B/Y button. Hold the button to prime the throw, then let go to throw the grenade in the direction of your weapon aim.
 If you have more than one type of grenades, a short press of the B/Y button will cycle through the available grenade types.
 
-# Handling C4
+## Handling C4
 Switch to the C4 by grabbing in front of your chest or behind your back. Use your weapon hand's trigger to place C4. Press your weapon hand's A/X button to switch between the detonator and C4. With the detonator equipped, press trigger to detonate any placed C4.
+
+## Melee attacks
+To perform a melee attack, hold Grip and punch with either controller. There is a certain velocity threshold you need to cross to trigger the melee attack, which can be tweaked in the VR Settings.
+Melee attacks cannot be performed while holding a weapon with both hands.

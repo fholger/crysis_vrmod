@@ -201,6 +201,9 @@ void VRGui::DrawSettingsMenu()
 
 		ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
 		ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
+
+		ImGui::SliderFloat("Melee trigger velocity", &g_pGameCVars->vr_melee_trigger_velocity, 0.1f, 5.f);
+		ImGui::SetItemTooltip("Adjust this if you find triggering melee attacks too easy or too hard");
 	}
 
 	if (ImGui::CollapsingHeader("Haptics"))

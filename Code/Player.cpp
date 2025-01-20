@@ -1030,6 +1030,8 @@ void CPlayer::ProcessRoomscaleMovement()
 
 	if (m_stats.inRest <= 0 || m_stats.jumped || m_stats.onGround <= 0) // don't do this while we are otherwise moving, or it will interfere
 		return;
+	if (m_params.vLimitDir.len() > 0.01f)
+		return;
 
 	if (m_roomscaleMovementPause > 0)
 	{
@@ -1095,7 +1097,7 @@ void CPlayer::ProcessRoomscaleRotation()
 
 	if (m_stats.onGround <= 0) // don't do this while we are otherwise moving, or it will interfere
 		return;
-	if (m_params.vLimitRangeH > 0.001f && m_params.vLimitDir.len() > 0.01f)
+	if (m_params.vLimitDir.len() > 0.01f)
 		return;
 
 	float hmdYaw = gVR->GetHmdYawOffset();
