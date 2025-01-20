@@ -369,7 +369,7 @@ void CRocketLauncher::UpdateDotEffect(float frameTime)
 
 	CActor *pActor = GetOwnerActor();
 	IMovementController * pMC = pActor ? pActor->GetMovementController() : NULL;
-	if (pMC && !g_pGameCVars->vr_enable_motion_controllers)
+	if (pMC && false)
 	{ 
 		SMovementState info;
 		pMC->GetMovementState(info);

@@ -348,13 +348,10 @@ void VRRenderer::DrawCrosshair()
 	Vec3 crosshairPos = cam.GetPosition();
 	Vec3 dir = cam.GetViewdir();
 
-	if (g_pGameCVars->vr_enable_motion_controllers)
-	{
-		SMovementState moveState;
-		pPlayer->GetMovementController()->GetMovementState(moveState);
-		crosshairPos = moveState.weaponPosition;
-		dir = moveState.fireDirection;
-	}
+	SMovementState moveState;
+	pPlayer->GetMovementController()->GetMovementState(moveState);
+	crosshairPos = moveState.weaponPosition;
+	dir = moveState.fireDirection;
 
 	dir.Normalize();
 	float maxDistance = 10.f;

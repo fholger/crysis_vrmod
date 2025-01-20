@@ -157,7 +157,7 @@ void OpenXRInput::Shutdown()
 
 void OpenXRInput::Update()
 {
-	if (!m_session || !g_pGameCVars->vr_enable_motion_controllers)
+	if (!m_session)
 		return;
 
 	std::vector<XrActiveActionSet> activeSets;

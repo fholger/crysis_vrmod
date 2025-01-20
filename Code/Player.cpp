@@ -1018,7 +1018,7 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 void CPlayer::ProcessRoomscaleMovement()
 {
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
-	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
+	if (modalHudActive || !m_linkStats.CanRotate())
 		return;
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
 		return;
@@ -1085,7 +1085,7 @@ void CPlayer::ProcessRoomscaleMovement()
 void CPlayer::ProcessRoomscaleRotation()
 {
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
-	if (modalHudActive || !m_linkStats.CanRotate() || !g_pGameCVars->vr_enable_motion_controllers)
+	if (modalHudActive || !m_linkStats.CanRotate())
 		return;
 	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
 		return;

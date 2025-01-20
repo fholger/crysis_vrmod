@@ -381,13 +381,8 @@ inline float GetAngleDifference360( float a1, float a2 )
 
 void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& weaponPosition, bool slave)
 {
-	if (!g_pGameCVars->vr_enable_motion_controllers
-		|| g_pGame->GetMenu()->IsMenuActive()
-		//|| g_pGame->GetHUD()->GetModalHUD()
-		)
-	{
+	if (g_pGame->GetMenu()->IsMenuActive())
 		return;
-	}
 
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
 	if (!weapon || weapon->IsModifying() || (!gVRRenderer->ShouldRenderVR() && !weapon->IsZoomed() && !weapon->IsZooming()))
@@ -508,8 +503,7 @@ Vec3 VRManager::GetControllerWorldVelocity(int side)
 
 void VRManager::ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection)
 {
-	if (!g_pGameCVars->vr_enable_motion_controllers
-		|| g_pGame->GetMenu()->IsMenuActive()
+	if (g_pGame->GetMenu()->IsMenuActive()
 		|| g_pGame->GetHUD()->GetModalHUD()
 		|| !gVRRenderer->ShouldRenderVR())
 	{
