@@ -58,7 +58,6 @@ void VRHaptics::RegisterBHapticsEffect(const char* key, const char* file)
 
 void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, float offsetAngleX, float offsetY)
 {
-	CryLogAlways("Triggered bHaptics effect %s with amplitude %.3f", key, intensity);
 	SubmitRegisteredWithOption(key, key, intensity * g_pGameCVars->vr_bhaptics_strength, 1.0f, offsetAngleX, offsetY);
 }
 

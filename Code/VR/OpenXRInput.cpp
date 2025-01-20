@@ -8,6 +8,7 @@
 #include "Melee.h"
 #include "OpenXRRuntime.h"
 #include "Player.h"
+#include "VRHaptics.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "Weapon.h"
@@ -527,7 +528,11 @@ void OpenXRInput::UpdateMeleeAttacks()
 			Vec3 dir = info.eyeDirection;
 			CMelee* melee = static_cast<CMelee*>(weapon->GetMeleeFireMode());
 			if (melee->PerformRayTest(pos, dir, 1.f, false, false) || melee->PerformCylinderTest(pos, dir, 1.f, false, false))
+			{
 				weapon->MeleeAttack();
+				SendHapticEvent(i == 0 ? LEFT_HAND : RIGHT_HAND, 0.15f, 0.6f);
+				gHaptics->TriggerBHapticsEffect(i == 0 ? "punch_l_vest" : "punch_r_vest", 0.6f);
+			}
 			break;
 		}
 	}

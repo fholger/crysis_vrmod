@@ -117,18 +117,6 @@ void CMelee::Update(float frameTime, uint frameId)
 					if(!PerformCylinderTest(pos, dir, strength, false))
 						ApplyCameraShake(false);
 
-				if (pActor->IsClient())
-				{
-					for (int i = 0; i < 2; ++i)
-					{
-						Vec3 velocity = gVR->GetControllerWorldVelocity(i);
-						if (velocity.GetLength() < g_pGameCVars->vr_melee_trigger_velocity)
-							continue;
-						gXR->GetInput()->SendHapticEvent(i == 0 ? LEFT_HAND : RIGHT_HAND, 0.15f, 0.6f);
-						gHaptics->TriggerBHapticsEffect(i == 0 ? "punch_l_vest" : "punch_r_vest");
-					}
-				}
-
 				m_ignoredEntity = 0;
 				m_meleeScale = 1.0f;
 
