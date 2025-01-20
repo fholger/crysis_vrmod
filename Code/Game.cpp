@@ -58,6 +58,7 @@
 #include "ILoadGame.h"
 #include "VR/Hooks.h"
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRRenderer.h"
 #include "VR/VRManager.h"
 
@@ -377,6 +378,7 @@ bool CGame::Init(IGameFramework *pFramework)
 	CryLogAlways("VR: Initializing engine hooks...");
 	hooks::Init();
 
+	gHaptics->Init();
 	if (!gVR->Init())
 		return false;
 	if (!gXR->Init())
@@ -565,6 +567,7 @@ void CGame::Shutdown()
 {
 	gVR->Shutdown();
 	gXR->Shutdown();
+	gHaptics->Shutdown();
 
 	if (m_pPlayerProfileManager)
 	{

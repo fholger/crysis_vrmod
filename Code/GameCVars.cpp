@@ -898,6 +898,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_welcome_message", &vr_welcome_message, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Show the VR mod welcome message");
 	pConsole->Register("vr_hide_hud", &vr_hide_hud, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Hide the ingame HUD");
 	pConsole->Register("vr_melee_trigger_velocity", &vr_melee_trigger_velocity, 2.5f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "The controller velocity threshold to trigger a melee attack");
+	pConsole->Register("vr_bhaptics_strength", &vr_bhaptics_strength, 1.0f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "The strength of bHaptics effect vibrations");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)

@@ -125,7 +125,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -151,8 +151,8 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;ThirdParty\bhaptics\bin\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
@@ -206,7 +206,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -233,8 +233,8 @@
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\openvr\lib;ThirdParty\openxr\lib;ThirdParty\bhaptics\bin\win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>..\install.bat</Command>
@@ -475,6 +475,7 @@
     <ClCompile Include="VR\OpenXRInput.cpp" />
     <ClCompile Include="VR\OpenXRRuntime.cpp" />
     <ClCompile Include="VR\VRGui.cpp" />
+    <ClCompile Include="VR\VRHaptics.cpp" />
     <ClCompile Include="VR\VRRenderer.cpp" />
     <ClCompile Include="VR\VRManager.cpp" />
     <ClCompile Include="VR\VRRenderUtils.cpp" />
@@ -892,6 +893,7 @@
     <ClInclude Include="VR\OpenXRInput.h" />
     <ClInclude Include="VR\OpenXRRuntime.h" />
     <ClInclude Include="VR\VRGui.h" />
+    <ClInclude Include="VR\VRHaptics.h" />
     <ClInclude Include="VR\VRRenderer.h" />
     <ClInclude Include="VR\VRManager.h" />
     <ClInclude Include="VR\VRRenderUtils.h" />

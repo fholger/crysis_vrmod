@@ -702,7 +702,6 @@
       <Filter>VR Mod</Filter>
     </ClCompile>
     <ClCompile Include="VR\HandPoses.cpp" />
-    <ClCompile Include="VR\VRRenderUtils.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui.cpp">
       <Filter>ThirdParty\Imgui</Filter>
     </ClCompile>
@@ -720,6 +719,15 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\imgui\imgui_demo.cpp">
       <Filter>ThirdParty\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="VR\VRGui.cpp">
+      <Filter>VR Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="VR\VRRenderUtils.cpp">
+      <Filter>VR Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="VR\VRHaptics.cpp">
+      <Filter>VR Mod</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1923,7 +1931,6 @@
     </ClInclude>
     <ClInclude Include="VR\EVRHand.h" />
     <ClInclude Include="VR\HandPoses.h" />
-    <ClInclude Include="VR\VRRenderUtils.h" />
     <ClInclude Include="ThirdParty\imgui\imconfig.h">
       <Filter>ThirdParty\Imgui</Filter>
     </ClInclude>
@@ -1944,6 +1951,15 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\imgui\backends\imgui_impl_dx10.h">
       <Filter>ThirdParty\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\VRGui.h">
+      <Filter>VR Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\VRRenderUtils.h">
+      <Filter>VR Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="VR\VRHaptics.h">
+      <Filter>VR Mod</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

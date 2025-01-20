@@ -462,6 +462,7 @@ struct SCVars
 	int vr_welcome_message;
 	int vr_hide_hud;
 	float vr_melee_trigger_velocity;
+	float vr_bhaptics_strength;
 
 	SCVars()
 	{
