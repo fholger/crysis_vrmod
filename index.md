@@ -3,7 +3,7 @@ layout: splash
 author_profile: false
 
 header:
-  overlay_image: /assets/images/crysisvr_logo.png
+  overlay_image: /assets/images/title.jpg
   overlay_filter: 0.5
   actions:
     - label: "Download"
@@ -22,6 +22,8 @@ Crysis VR is a third-party mod for the 2007 PC gaming classic by CryTek. It allo
 
 - full 6DoF roomscale VR experience: play seated or standing with VR motion controllers
 - aim your guns naturally with your hands; use two hands to stabilize the guns further
+- visible player arms with basic IK
+- physical melee attacks
 - left-handed support
 
 The mod is completely free. Simply download [the latest release](https://github.com/fholger/crysis_vrmod/releases/latest)
@@ -30,6 +32,8 @@ and install it to your local Crysis folder. If you do not own Crysis, you can ge
 [gog.com](https://www.gog.com/en/game/crysis).
 
 The mod includes a manual that you can access from the menu if you are ever confused how to do something in VR.
+
+If you enjoyed the mod and would like to say thanks, you can leave me a tip on [Ko-Fi](https://ko-fi.com/fholger).
 
 
 ### Installation instructions
