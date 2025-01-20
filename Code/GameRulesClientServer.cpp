@@ -621,6 +621,7 @@ void CGameRules::ProcessClientExplosionScreenFX(const ExplosionInfo &explosionIn
 					float distAmp = 1.0f - (dist / maxBlurDistance);
 					//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f, distAmp*3.0f, 0.0f));
 					gXR->GetInput()->SendHapticEvent(0.5f, distAmp*3.0f);
+					gHaptics->TriggerBHapticsEffect("explosion_vest", distAmp*2.0f, explosionInfo.pos, -(explosionInfo.pos - pClientActor->GetEntity()->GetWorldPos()).GetNormalizedSafe());
 				}
 			}
 		}
