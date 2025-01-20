@@ -26,6 +26,7 @@ History:
 #include "IRenderer.h"
 #include "IRenderAuxGeom.h"
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRManager.h"
 
 
@@ -124,6 +125,7 @@ void CMelee::Update(float frameTime, uint frameId)
 						if (velocity.GetLength() < g_pGameCVars->vr_melee_trigger_velocity)
 							continue;
 						gXR->GetInput()->SendHapticEvent(i == 0 ? LEFT_HAND : RIGHT_HAND, 0.15f, 0.6f);
+						gHaptics->TriggerBHapticsEffect(i == 0 ? "punch_l_vest" : "punch_r_vest");
 					}
 				}
 

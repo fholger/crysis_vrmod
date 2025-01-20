@@ -105,4 +105,6 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("jump_vest", "bhaptics/vest/Jumping.tact");
 	RegisterBHapticsEffect("land_vest", "bhaptics/vest/Landing.tact");
 	RegisterBHapticsEffect("hit_vest", "bhaptics/vest/HitByBullet.tact");
+	RegisterBHapticsEffect("punch_l_vest", "bhaptics/vest/Punch_L.tact");
+	RegisterBHapticsEffect("punch_r_vest", "bhaptics/vest/Punch_R.tact");
 }
