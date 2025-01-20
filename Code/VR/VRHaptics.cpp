@@ -121,4 +121,5 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("shotgun_r_vest", "bhaptics/vest/ShootShotgun_R.tact");
 	RegisterBHapticsEffect("rpg_l_vest", "bhaptics/vest/ShootRPG_L.tact");
 	RegisterBHapticsEffect("rpg_r_vest", "bhaptics/vest/ShootRPG_R.tact");
+	RegisterBHapticsEffect("shake_vest", "bhaptics/vest/Shake.tact");
 }

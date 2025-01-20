@@ -43,6 +43,7 @@ History:
 #include <IGameTokens.h>
 
 #include "HUD/HUD.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRRenderer.h"
 
 
@@ -1237,6 +1238,7 @@ void CPlayerView::ViewShakePostProcess(CPlayer &rPlayer,SViewParams &viewParams)
 			//gEnv->pRenderer->Draw2dLabel( 100, 50, 2, white, false, "dot:%f vel:%f", dot, rPlayer.m_stats.velocity.len() );
 			
 			pView->SetViewShake(ZERO,Vec3(0.003f,0.0f,0.003f)*dot,0.3f,0.015f,1.0f,2);
+			gHaptics->TriggerBHapticsEffect("shake_vest", 0.1f * dot);
 		}
 	}
 
