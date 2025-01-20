@@ -90,6 +90,12 @@ void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, const Ve
 	TriggerBHapticsEffect(key, intensity, delta, offsetY);
 }
 
+void VRHaptics::TriggerBHapticsEffectForSide(EVRHand hand, const char* keyLeft, const char* keyRight, float intensity)
+{
+	bool isLeftHand = gVR->GetHandSide(hand) == 0;
+	TriggerBHapticsEffect(isLeftHand ? keyLeft : keyRight, intensity);
+}
+
 bool VRHaptics::IsBHapticsEffectPlaying(const char* key) const
 {
 	return IsPlayingKey(key);
@@ -107,4 +113,8 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("hit_vest", "bhaptics/vest/HitByBullet.tact");
 	RegisterBHapticsEffect("punch_l_vest", "bhaptics/vest/Punch_L.tact");
 	RegisterBHapticsEffect("punch_r_vest", "bhaptics/vest/Punch_R.tact");
+	RegisterBHapticsEffect("shoot_l_vest", "bhaptics/vest/ShootSMG_L.tact");
+	RegisterBHapticsEffect("shoot_r_vest", "bhaptics/vest/ShootSMG_R.tact");
+	RegisterBHapticsEffect("shotgun_l_vest", "bhaptics/vest/ShootShotgun_L.tact");
+	RegisterBHapticsEffect("shotgun_r_vest", "bhaptics/vest/ShootShotgun_R.tact");
 }

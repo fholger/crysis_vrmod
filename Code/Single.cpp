@@ -34,6 +34,7 @@ History:
 #include "IRenderer.h"
 #include "IRenderAuxGeom.h"
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
@@ -2970,10 +2971,12 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 			if (m_pWeapon->IsDualWield())
 			{
 				gXR->GetInput()->SendHapticEvent(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_vest", "shoot_r_vest", max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 			}
 			else
 			{
 				gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 				if (gVR->IsOffHandGrabbingWeapon())
 					gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 			}
