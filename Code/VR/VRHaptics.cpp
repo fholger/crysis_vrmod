@@ -58,6 +58,7 @@ void VRHaptics::RegisterBHapticsEffect(const char* key, const char* file)
 
 void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, float offsetAngleX, float offsetY)
 {
+	CryLogAlways("Triggered bHaptics effect %s with amplitude %.3f", key, intensity);
 	SubmitRegisteredWithOption(key, key, intensity * g_pGameCVars->vr_bhaptics_strength, 1.0f, offsetAngleX, offsetY);
 }
 
@@ -117,4 +118,6 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("shoot_r_vest", "bhaptics/vest/ShootSMG_R.tact");
 	RegisterBHapticsEffect("shotgun_l_vest", "bhaptics/vest/ShootShotgun_L.tact");
 	RegisterBHapticsEffect("shotgun_r_vest", "bhaptics/vest/ShootShotgun_R.tact");
+	RegisterBHapticsEffect("rpg_l_vest", "bhaptics/vest/ShootRPG_L.tact");
+	RegisterBHapticsEffect("rpg_r_vest", "bhaptics/vest/ShootRPG_R.tact");
 }

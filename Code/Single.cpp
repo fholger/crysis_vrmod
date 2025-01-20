@@ -2971,14 +2971,35 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 			if (m_pWeapon->IsDualWield())
 			{
 				gXR->GetInput()->SendHapticEvent(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
-				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_vest", "shoot_r_vest", max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_vest", "shoot_r_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 			}
 			else
 			{
 				gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
-				gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 				if (gVR->IsOffHandGrabbingWeapon())
 					gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+
+				const char* weaponClass = m_pWeapon->GetEntity()->GetClass()->GetName();
+				if (strcmp(weaponClass, "GaussRifle") == 0)
+				{
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.3f);
+				}
+				else if (strcmp(weaponClass, "DSG1") == 0)
+				{
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.4f);
+				}
+				else if (strcmp(weaponClass, "LAW") == 0)
+				{
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.7f);
+				}
+				else if (strcmp(weaponClass, "TACGun") == 0 || strcmp(weaponClass, "TACGun_Fleet") == 0)
+				{
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.7f);
+				}
+				else
+				{
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				}
 			}
 		}
   }

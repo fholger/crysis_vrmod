@@ -378,7 +378,7 @@ bool CShotgun::Shoot(bool resetAnimation, bool autoreload/* =true */, bool noSou
 			//if (gEnv->pInput)
 			//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.0f, fabsf(m_recoilparams.back_impulse)*3.0f) );
 			gXR->GetInput()->SendHapticEvent(WEAPON_HAND, 0.15f, fabsf(m_recoilparams.back_impulse)*3.0f);
-			gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", fabsf(m_recoilparams.back_impulse) * 3.0f);
+			gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.6f);
 			if (gVR->IsOffHandGrabbingWeapon())
 				gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.15f, fabsf(m_recoilparams.back_impulse)*3.0f);
 		}
