@@ -36,6 +36,7 @@ History:
 #include <StlUtils.h>
 
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 
 
 //------------------------------------------------------------------------
@@ -76,8 +77,11 @@ void CGameRules::ClientHit(const HitInfo &hitInfo)
 	}
 
 	if(pActor == pClientActor)
+	{
 		//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.5f * hitInfo.damage * 0.01f, hitInfo.damage * 0.02f, 0.0f));
 		gXR->GetInput()->SendHapticEvent(0.5f * hitInfo.damage * 0.01f, hitInfo.damage * 0.02f);
+		gHaptics->TriggerBHapticsEffect("hit_vest", hitInfo.damage * 0.02f, hitInfo.pos, hitInfo.dir);
+	}
 
 /*	if (gEnv->pAISystem && !gEnv->bMultiplayer)
 	{

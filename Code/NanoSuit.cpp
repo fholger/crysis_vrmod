@@ -30,6 +30,7 @@
 #include <IMaterialEffects.h>
 
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 
 CNanoSuit::SNanoMaterial g_USNanoMats[NANOMODE_LAST];
 CNanoSuit::SNanoMaterial g_AsianNanoMats[NANOMODE_LAST];
@@ -1095,8 +1096,11 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 		soundName = "Sounds/interface:suit:suit_strength_jump";
 		eSemantic = eSoundSemantic_NanoSuit;
 		if(m_pOwner->IsClient())
+		{
 			//if (gEnv->pInput && !stopSound)  gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.10f, 0.2f*param, 0.1f*param) );
 			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.1f, 0.2f * param);
+			if (!stopSound) gHaptics->TriggerBHapticsEffect("jump_vest", 0.6f + 0.2f * param);
+		}
 		setParam = true;
 		break;
 	case STRENGTH_MELEE_SOUND:

@@ -5,6 +5,7 @@
 #include <HapticLibrary.h>
 
 #include "GameCVars.h"
+#include "OpenXRRuntime.h"
 
 namespace
 {
@@ -51,11 +52,42 @@ void VRHaptics::RegisterBHapticsEffect(const char* key, const char* file)
 
 	RegisterFeedbackFromTactFile(key, buffer);
 	delete[] buffer;
+
+	CryLogAlways("bHaptics effect %s loaded from %s", key, file);
 }
 
 void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, float offsetAngleX, float offsetY)
 {
 	SubmitRegisteredWithOption(key, key, intensity * g_pGameCVars->vr_bhaptics_strength, 1.0f, offsetAngleX, offsetY);
+}
+
+void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, const Vec3& pos, const Vec3& dir)
+{
+	CPlayer* player = gVR->GetLocalPlayer();
+	if (!player)
+		return;
+
+	// figure out effect height in bHaptics units
+	float effectHeight = pos.z - player->GetEntity()->GetWorldPos().z;
+	float eyeHeight = gXR->GetHmdTransform().GetTranslation().z;
+	// rough estimate: subtract a little for the head, then the vest effect area is approx. 50cm in length
+	float vestMax = eyeHeight - 0.25f;
+	float vestMin = vestMax - 0.5f;
+	float vestMid = .5f * (vestMax + vestMin);
+	float offsetY = clamp((effectHeight - vestMid) / (vestMax - vestMin), -0.5f, 0.5f);
+
+	// determine yaw angle from direction
+	Matrix33 transform = Matrix33::CreateRotationVDir(-dir);
+	Ang3 angles (transform);
+	// get offset to player angle
+	Ang3 playerAng = player->GetEntity()->GetWorldAngles();
+	float delta = fmodf(angles.z - playerAng.z, gf_PI2) * 180.f / gf_PI;
+	if (angles.z > playerAng.z && delta >= 180.f)
+		delta -= 360.f;
+	else if (angles.z <= playerAng.z && delta <= -180.f)
+		delta += 360.f;
+
+	TriggerBHapticsEffect(key, intensity, delta, offsetY);
 }
 
 bool VRHaptics::IsBHapticsEffectPlaying(const char* key) const
@@ -72,4 +104,5 @@ void VRHaptics::InitEffects()
 {
 	RegisterBHapticsEffect("jump_vest", "bhaptics/vest/Jumping.tact");
 	RegisterBHapticsEffect("land_vest", "bhaptics/vest/Landing.tact");
+	RegisterBHapticsEffect("hit_vest", "bhaptics/vest/HitByBullet.tact");
 }

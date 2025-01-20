@@ -69,6 +69,7 @@ History:
 #include "Binocular.h"
 #include "SoundMoods.h"
 #include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
@@ -4928,8 +4929,11 @@ void CPlayer::Landed(float fallSpeed)
 	{
 		m_pNanoSuit->PlaySound(ESound_GBootsLanded, min(fabsf((m_stats.velocity.z/10.0f)), 1.0f));
 		if(IsClient())
+		{
 			//if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.1f, 0.2f, 1.0f*clamp_tpl(fallSpeed*0.1f, 0.0f, 1.0f) ) );
 			gXR->GetInput()->SendHapticEvent(0.1f, fallSpeed);
+			gHaptics->TriggerBHapticsEffect("land_vest", fallSpeed + 0.6f);
+		}
 	}
 	else if(IsClient())
 	{
@@ -4938,6 +4942,7 @@ void CPlayer::Landed(float fallSpeed)
 		//if (gEnv->pInput)
 		//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.09f + (fallSpeed * 0.01f), 0.5f, 0.9f*clamp_tpl(fallSpeed*0.2f, 0.1f, 1.0f) ) );
 		gXR->GetInput()->SendHapticEvent(0.09f + (fallSpeed * 0.01f), 0.2f*fallSpeed);
+		gHaptics->TriggerBHapticsEffect("land_vest", 0.2f * fallSpeed + 1.2f);
 	}
 }
 
@@ -5412,6 +5417,7 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
 		//if (gEnv->pInput && play) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.05f, 0.1f) );
 		if (play) gXR->GetInput()->SendHapticEvent(0.05f, 0.1f);
+		if (play) gHaptics->TriggerBHapticsEffect("jump_vest", 0.6f);
 		break;
 	case ESound_Fall_Drop:
 		soundName = "Sounds/physics:player_foley:bodyfall_feedback";
