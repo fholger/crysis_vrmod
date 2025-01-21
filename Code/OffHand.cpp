@@ -2486,7 +2486,8 @@ void COffHand::StartPickUpItem()
 	m_currentState = eOHS_PICKING_ITEM;
 	m_pickingTimer = 0.3f;
 	m_mainHandIsDualWield = false;
-	pPlayer->NeedToCrouch(pPreHeldEntity->GetWorldPos());
+	// VR: don't want auto crouch for pickup...
+	//pPlayer->NeedToCrouch(pPreHeldEntity->GetWorldPos());
 
 	if (m_mainHand && (m_mainHand->TwoHandMode() == 1 || drop_success))
 	{
