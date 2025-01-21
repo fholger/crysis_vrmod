@@ -56,6 +56,7 @@ private:
 	float m_waveTimer, m_waveRandomMult;
 	float m_stickySurfaceTimer;
 	bool m_swimJumping;
+	float m_swimHapticsTimer;
 };
 
 

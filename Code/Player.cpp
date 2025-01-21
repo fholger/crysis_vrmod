@@ -2442,6 +2442,7 @@ void CPlayer::UpdateUWBreathing(float frameTime, Vec3 worldBreathPos)
 				m_drownEffectDelay = drownEffectDelay; // delay until effect is retriggered (sound and screen flashing).
 
 				PlaySound(ESound_Drowning, true);
+				gHaptics->TriggerBHapticsEffect("drowning_vest", 0.1f);
 
 				IMaterialEffects* pMaterialEffects = gEnv->pGame->GetIGameFramework()->GetIMaterialEffects();
 				SMFXRunTimeEffectParams params;

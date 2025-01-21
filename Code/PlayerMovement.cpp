@@ -10,6 +10,7 @@
 #include "PlayerInput.h"
 #include "GameActions.h"
 #include "NetInputChainDebug.h"
+#include "VR/VRHaptics.h"
 #include "VR/VRManager.h"
 
 #undef CALL_PLAYER_EVENT_LISTENERS
@@ -80,7 +81,10 @@ void CPlayerMovement::Process(CPlayer& player)
 	else if (player.ShouldSwim())
 		ProcessSwimming();
 	else
+	{
+		m_swimHapticsTimer = 0.f;
 		ProcessOnGroundOrJumping(player);
+	}
 
 	// if (!m_player.GetLinkedEntity() && !m_player.GetEntity()->GetParent()) // Leipzig hotfix, these can get out of sync
 	if (player.m_linkStats.CanRotate())
@@ -898,6 +902,16 @@ void CPlayerMovement::ProcessSwimming()
 	// Set request type and velocity
 	m_request.type = eCMT_Fly;
 	m_request.velocity = m_velocity;
+
+	if (m_velocity.len() > 0.2f && !m_swimJumping)
+	{
+		m_swimHapticsTimer += m_frameTime;
+		if (m_swimHapticsTimer >= 3.f)
+		{
+			m_swimHapticsTimer = 0.0f;
+			gHaptics->TriggerBHapticsEffect("swimming_vest", 0.1f);
+		}
+	}
 	
 	// DEBUG VELOCITY
 	if (debug)
