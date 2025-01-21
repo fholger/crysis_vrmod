@@ -3158,6 +3158,13 @@ IItem* COffHand::GetExchangeItem(CPlayer *pPlayer)
 
 void COffHand::GetFiringOriginAndDirection(Vec3& origin, Vec3& direction)
 {
+	if ((m_currentState == eOHS_HOLDING_GRENADE || m_currentState == eOHS_THROWING_GRENADE) && m_mainHandWeapon)
+	{
+		// for grenades, fall back to default aim with weapon logic
+		m_mainHandWeapon->GetFiringOriginAndDirection(origin, direction);
+		return;
+	}
+
 	// we want to aim the throw with the off hand controller
 	Matrix34 controllerTransform = gVR->GetWorldControllerTransform(gVR->GetHandSide(OFF_HAND));
 	origin = controllerTransform.GetTranslation();
