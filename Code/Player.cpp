@@ -841,7 +841,10 @@ void CPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 				if(m_health < healthThrLow)
 				{
 					if(!m_merciTimeStarted)
+					{
 						m_merciTimeLastHit = gEnv->pTimer->GetFrameStartTime().GetSeconds();
+						gHaptics->TriggerBHapticsEffect("heartbeat_vest");
+					}
 					m_merciTimeStarted = true;
 					lastHealth = m_health;
 				}

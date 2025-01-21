@@ -128,4 +128,5 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("suitspeed_vest", "bhaptics/vest/SuitSpeed.tact");
 	RegisterBHapticsEffect("suitstealth_vest", "bhaptics/vest/SuitStealth.tact");
 	RegisterBHapticsEffect("suitstrength_vest", "bhaptics/vest/SuitStrength.tact");
+	RegisterBHapticsEffect("heartbeat_vest", "bhaptics/vest/Heartbeat.tact");
 }
