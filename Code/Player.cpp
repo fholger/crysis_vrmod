@@ -5450,6 +5450,8 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 		soundName = "sounds/physics:player_foley:underwater_feedback";
 		soundSemantic = eSoundSemantic_Player_Foley_Voice;
 		repeating = true; // fake that it's looping only here in game code, so that we keep a handle to stop it early when drowning.
+		if (IsClient() && play)
+			gHaptics->TriggerBHapticsEffect("swimming_vest", 0.1f);
 		break;
 	case ESound_Underwater:
 		soundName = "sounds/environment:amb_natural:ambience_underwater";
