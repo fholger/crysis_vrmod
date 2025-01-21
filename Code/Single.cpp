@@ -2980,7 +2980,11 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 					gXR->GetInput()->SendHapticEvent(OFF_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 
 				const char* weaponClass = m_pWeapon->GetEntity()->GetClass()->GetName();
-				if (strcmp(weaponClass, "GaussRifle") == 0)
+				if (m_pWeapon->IsMounted())
+				{
+					gHaptics->TriggerBHapticsEffect("shake_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				}
+				else if (strcmp(weaponClass, "GaussRifle") == 0)
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.3f);
 				}
