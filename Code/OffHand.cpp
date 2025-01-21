@@ -1819,7 +1819,7 @@ void COffHand::PerformThrow(int activationMode, EntityId throwableId, int oldFMI
 //--------------
 int COffHand::CanPerformPickUp(CActor *pActor, IPhysicalEntity *pPhysicalEntity /*=NULL*/, bool getEntityInfo /*= false*/)
 {
-	if (!pActor || !pActor->IsClient())
+	if (!pActor || !pActor->IsClient() || gVR->IsOffHandGrabbingWeapon())
 		return OH_NO_GRAB;
 
 	IMovementController * pMC = pActor->GetMovementController();

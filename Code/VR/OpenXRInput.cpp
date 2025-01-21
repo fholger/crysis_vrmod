@@ -409,6 +409,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze");
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
+	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	touch.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
@@ -446,6 +447,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
 	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
+	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
