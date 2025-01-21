@@ -684,17 +684,14 @@ void OpenXRInput::UpdatePlayerMovement()
 		return;
 	}
 
-	if (fabsf(jumpCrouch) < g_pGameCVars->vr_controller_stick_zone_cutoff && g_pGameCVars->vr_turn_mode == 0)
+	if (g_pGameCVars->vr_turn_mode == 0)
 	{
-		float deadzone = FClamp(g_pGameCVars->vr_controller_yaw_deadzone, 0, 0.99f);
-		float value = 0;
-		if (yaw < -deadzone)
-			value = (yaw + deadzone) / (1.f - deadzone);
-		else if (yaw > deadzone)
-			value = (yaw - deadzone) / (1.f - deadzone);
-		input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, value);
+		if (fabsf(yaw) >= g_pGameCVars->vr_controller_stick_zone_cutoff)
+			input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, yaw);
+		else
+			input->OnAction(g_pGameActions->xi_rotateyaw, eAAM_Always, 0);
 	}
-	if (g_pGameCVars->vr_turn_mode > 0)
+	else
 	{
 		int snapTurnState = m_snapTurnState;
 		if (yaw <= -0.75f)
@@ -720,7 +717,7 @@ void OpenXRInput::UpdatePlayerMovement()
 			input->OnAction(g_pGameActions->jump, eAAM_OnRelease, 0);
 		m_wasJumpActive = false;
 	}
-	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
+	else
 	{
 		if (!m_wasJumpActive)
 			input->OnAction(isZoomed ? g_pGameActions->zoom_in : g_pGameActions->jump, eAAM_OnPress, 1);
@@ -730,7 +727,7 @@ void OpenXRInput::UpdatePlayerMovement()
 	{
 		m_wasCrouchActive = false;
 	}
-	else if (fabsf(yaw) < g_pGameCVars->vr_controller_stick_zone_cutoff)
+	else
 	{
 		if (!m_wasCrouchActive)
 		{
