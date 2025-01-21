@@ -1021,7 +1021,7 @@ void CPlayer::ProcessRoomscaleMovement()
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
 	if (modalHudActive || !m_linkStats.CanRotate())
 		return;
-	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
+	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value() || m_stats.animationControlled)
 		return;
 	if (g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return;
@@ -1088,7 +1088,7 @@ void CPlayer::ProcessRoomscaleRotation()
 	bool modalHudActive = g_pGame->GetHUD() && g_pGame->GetHUD()->GetModalHUD();
 	if (modalHudActive || !m_linkStats.CanRotate())
 		return;
-	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value())
+	if (GetLinkedVehicle() || m_stats.isOnLadder || !GetEntity()->GetPhysics() || m_stats.mountedWeaponID || m_stats.isGrabbed || m_stats.isFrozen.Value() || m_stats.animationControlled)
 		return;
 	if (g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
 		return;
