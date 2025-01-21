@@ -750,6 +750,8 @@ bool CNanoSuit::SetMode(ENanoMode mode, bool forceUpdate, bool keepInvul)
 					g_pGame->GetBulletTime()->Activate(true);
 				}
 			}
+			if (m_pOwner->IsClient())
+				gHaptics->TriggerBHapticsEffect("suitspeed_vest", 0.5f);
 			break;
 		case NANOMODE_STRENGTH:
 			SetAllSlots(50.0f, 100.0f, 25.0f);
@@ -757,6 +759,8 @@ bool CNanoSuit::SetMode(ENanoMode mode, bool forceUpdate, bool keepInvul)
 				PlaySound(ESound_SuitStrengthActivate);
 			SetCloak(false);
 			effectName = "suit_strengthmode";
+			if (m_pOwner->IsClient())
+				gHaptics->TriggerBHapticsEffect("suitstrength_vest", 0.5f);
 			break;
 		case NANOMODE_DEFENSE:
 			SetAllSlots(75.0f, 25.0f, 25.0f);
@@ -764,11 +768,15 @@ bool CNanoSuit::SetMode(ENanoMode mode, bool forceUpdate, bool keepInvul)
 				PlaySound(ESound_SuitArmorActivate);
 			SetCloak(false);
 			effectName = "suit_armormode";
+			if (m_pOwner->IsClient())
+				gHaptics->TriggerBHapticsEffect("suitarmor_vest", 0.5f);
 			break;
 		case NANOMODE_CLOAK:
 			SetAllSlots(50.0f, 50.0f, 50.0f);
 			SetCloak(true, forceUpdate);
 			effectName = "suit_cloakmode";
+			if (m_pOwner->IsClient())
+				gHaptics->TriggerBHapticsEffect("suitstealth_vest", 0.5f);
 			break;
 		default:
 			assert(0);
