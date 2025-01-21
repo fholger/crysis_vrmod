@@ -2986,19 +2986,19 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 				}
 				else if (strcmp(weaponClass, "DSG1") == 0)
 				{
-					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.4f);
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.3f);
 				}
 				else if (strcmp(weaponClass, "LAW") == 0)
 				{
-					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.7f);
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.5f);
 				}
 				else if (strcmp(weaponClass, "TACGun") == 0 || strcmp(weaponClass, "TACGun_Fleet") == 0)
 				{
-					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.7f);
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.5f);
 				}
 				else
 				{
-					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", 0.15f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 				}
 			}
 		}
