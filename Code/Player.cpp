@@ -4947,7 +4947,7 @@ void CPlayer::Landed(float fallSpeed)
 		//if (gEnv->pInput)
 		//	gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.09f + (fallSpeed * 0.01f), 0.5f, 0.9f*clamp_tpl(fallSpeed*0.2f, 0.1f, 1.0f) ) );
 		gXR->GetInput()->SendHapticEvent(0.09f + (fallSpeed * 0.01f), 0.2f*fallSpeed);
-		gHaptics->TriggerBHapticsEffect("jump_vest", 0.2f * fallSpeed);
+		gHaptics->TriggerBHapticsEffect("land_vest", 0.1f * fallSpeed);
 	}
 }
 

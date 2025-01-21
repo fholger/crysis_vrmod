@@ -35,7 +35,7 @@ void VRHaptics::RegisterBHapticsEffect(const char* key, const char* file)
 	}
 
 	ICryPak* pak = gEnv->pCryPak;
-	FILE* f = pak->FOpen(file, "rb");
+	FILE* f = pak->FOpen(file, "r");
 	if (!f)
 	{
 		CryLogAlways("BHaptics effect file not found: %s", file);
@@ -129,4 +129,6 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("suitstealth_vest", "bhaptics/vest/SuitStealth.tact");
 	RegisterBHapticsEffect("suitstrength_vest", "bhaptics/vest/SuitStrength.tact");
 	RegisterBHapticsEffect("heartbeat_vest", "bhaptics/vest/Heartbeat.tact");
+	RegisterBHapticsEffect("speedsprint_vest", "bhaptics/vest/SpeedSprint.tact");
+	RegisterBHapticsEffect("speedsprintwater_vest", "bhaptics/vest/SpeedSprintWater.tact");
 }

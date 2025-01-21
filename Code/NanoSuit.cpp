@@ -1060,16 +1060,16 @@ void CNanoSuit::PlaySound(ENanoSound sound, float param, bool stopSound)
 	case SPEED_SOUND:
 		soundName = "Sounds/interface:suit:suit_speed_use";
 		eSemantic = eSoundSemantic_NanoSuit;
-		if(m_pOwner->IsClient())
+		//if(m_pOwner->IsClient())
 			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.6f) );
-			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.6f);
+			//if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.6f);
 		break;
 	case SPEED_IN_WATER_SOUND:
 		soundName = "Sounds/interface:suit:suit_speed_use_underwater";
 		eSemantic = eSoundSemantic_NanoSuit;
-		if(m_pOwner->IsClient())
+		//if(m_pOwner->IsClient())
 			//if (gEnv->pInput && !stopSound) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.05f, 0.0f, 0.9f) );
-			if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.9f);
+			//if (!stopSound) gXR->GetInput()->SendHapticEvent(0.05f, 0.9f);
 		break;
 	case SPEED_SOUND_STOP:
 		soundName = "Sounds/interface:suit:suit_speed_stop";
@@ -1585,12 +1585,16 @@ void CNanoSuit::UpdateSprinting(float &recharge, const SPlayerStats &stats, floa
 					{
 						if(m_pOwner->GetStance() != STANCE_PRONE)
 							PlaySound(SPEED_SOUND);
+						if (m_pOwner->IsClient())
+							gHaptics->TriggerBHapticsEffect("speedsprint_vest", 0.5f);
 
 						m_bSprintUnderwater = false;
 					}
 					else
 					{
 						PlaySound(SPEED_IN_WATER_SOUND);
+						if (m_pOwner->IsClient())
+							gHaptics->TriggerBHapticsEffect("speedsprintwater_vest", 0.5f);
 						m_bSprintUnderwater = true;
 					}
 				}
