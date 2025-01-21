@@ -94,6 +94,9 @@ public:
 	bool IsHandBehindBack(EVRHand hand);
 	bool IsHandNearChest(EVRHand hand);
 
+	const ray_hit* GetPointAtPoint(float maxDist = 0) const;
+	EntityId GetPointAtEntityId() const { return m_pointAtEntityId; }
+
 private:
 	bool m_initialized = false;
 	ComPtr<ID3D10Device1> m_device;
@@ -140,6 +143,11 @@ private:
 	int m_smoothHeightType = 0;
 	float m_smoothedHeight = 0;
 	float m_smoothedHeightOffset = 0;
+
+	void UpdateOffHandRayQuery();
+	ray_hit m_offHandRayHit;
+	bool m_offHandRayHitAny = false;
+	EntityId m_pointAtEntityId;
 };
 
 extern VRManager* gVR;

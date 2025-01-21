@@ -693,6 +693,8 @@ EStance VRManager::GetPhysicalStance() const
 
 void VRManager::Update()
 {
+	UpdateOffHandRayQuery();
+
 	gXR->SetHudVisibility(true);
 
 	if ((g_pGame->GetMenu()->IsMenuActive() || gEnv->pConsole->IsOpened()) || g_pGame->GetMenu()->IsLoadingScreenActive())
@@ -1101,6 +1103,17 @@ bool VRManager::IsHandNearChest(EVRHand hand)
 	return handHeight >= .75f * headHeight && handToHead.Dot(headRot.GetColumn(1)) < 0.f && fabsf(handTransform.GetColumn1().Dot(headRot.GetColumn0())) >= 0.7f && handToHead.GetLength2D() <= .2f;
 }
 
+const ray_hit* VRManager::GetPointAtPoint(float maxDist) const
+{
+	if (m_offHandRayHitAny)
+	{
+		if (maxDist > 0 && m_offHandRayHit.dist <= maxDist)
+			return &m_offHandRayHit;
+	}
+
+	return nullptr;
+}
+
 bool VRManager::IsHandBehindBack(EVRHand hand)
 {
 	int handSide = GetHandSide(hand);
@@ -1328,4 +1341,29 @@ void VRManager::ReleaseTextureSync(ID3D11Texture2D* target, int key)
 	ComPtr<IDXGIKeyedMutex> mutex;
 	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
 	CHECK_D3D10(mutex->ReleaseSync(key));
+}
+
+void VRManager::UpdateOffHandRayQuery()
+{
+	CPlayer* player = GetLocalPlayer();
+	if (!player)
+		return;
+	IPhysicalEntity* physEnt = player->GetEntity()->GetPhysics();
+
+	static const int obj_types = ent_all;
+	static const unsigned int flags = rwi_stop_at_pierceable|rwi_colltype_any;
+
+	Matrix34 handTransform = gVR->GetWorldControllerTransform(GetHandSide(OFF_HAND));
+	Vec3 worldPos = handTransform.GetTranslation();
+	Vec3 dir = handTransform.GetColumn1();
+	m_offHandRayHitAny = gEnv->pPhysicalWorld->RayWorldIntersection(worldPos, 300.f * dir, obj_types, flags, &m_offHandRayHit, 1, physEnt) != 0;
+	if (m_offHandRayHitAny)
+	{
+		IEntity* pointAt = gEnv->pEntitySystem->GetEntityFromPhysics(m_offHandRayHit.pCollider);
+		m_pointAtEntityId = pointAt ? pointAt->GetId() : 0;
+	}
+	else
+	{
+		m_pointAtEntityId = 0;
+	}
 }

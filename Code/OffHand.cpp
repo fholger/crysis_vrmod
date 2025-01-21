@@ -1846,13 +1846,14 @@ int COffHand::CanPerformPickUp(CActor *pActor, IPhysicalEntity *pPhysicalEntity 
 		}
 	}
 
+	Matrix34 handTransform = gVR->GetWorldControllerTransform(gVR->GetHandSide(OFF_HAND));
 	if (!pPhysicalEntity)
 	{
-		const ray_hit *pRay = pActor->GetGameObject()->GetWorldQuery()->GetLookAtPoint(m_range);
+		const ray_hit* pRay = gVR->GetPointAtPoint(m_range);
 		if (pRay)
 			pPhysicalEntity = pRay->pCollider;
 		else
-			return CheckItemsInProximity(info.eyePosition,info.eyeDirection,getEntityInfo);
+			return CheckItemsInProximity(handTransform.GetTranslation(), handTransform.GetColumn1(), getEntityInfo);
 	}
 
 	IEntity *pEntity = m_pEntitySystem->GetEntityFromPhysics(pPhysicalEntity);
@@ -1860,7 +1861,7 @@ int COffHand::CanPerformPickUp(CActor *pActor, IPhysicalEntity *pPhysicalEntity 
 	//if (pMC)
 	{
 		m_crosshairId = 0;
-		Vec3 pos = info.eyePosition;
+		Vec3 pos = handTransform.GetTranslation();
 		float lenSqr = 0.0f;
 		bool  breakable = false;
 		pe_params_part pPart;
@@ -1960,7 +1961,7 @@ int COffHand::CanPerformPickUp(CActor *pActor, IPhysicalEntity *pPhysicalEntity 
 				}
 
 				//Items have priority over the rest of pickables
-				if(CheckItemsInProximity(info.eyePosition,info.eyeDirection,getEntityInfo)==OH_GRAB_ITEM)
+				if(CheckItemsInProximity(handTransform.GetTranslation(),handTransform.GetColumn1(),getEntityInfo)==OH_GRAB_ITEM)
 					return OH_GRAB_ITEM;
 				
 				if(pActor->IsSwimming() || playerStance==STANCE_PRONE)
@@ -2047,7 +2048,7 @@ int COffHand::CanPerformPickUp(CActor *pActor, IPhysicalEntity *pPhysicalEntity 
 			}
 		}
 	}
-	return CheckItemsInProximity(info.eyePosition,info.eyeDirection,getEntityInfo);
+	return CheckItemsInProximity(handTransform.GetTranslation(),handTransform.GetColumn1(),getEntityInfo);
 }
 
 //========================================================================================
