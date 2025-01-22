@@ -393,6 +393,13 @@ bool CGame::Init(IGameFramework *pFramework)
 	gEnv->pConsole->GetCVar("cl_bob")->Set(0);
 	gEnv->pConsole->GetCVar("cl_fpBody")->Set(0);
 
+	if (g_pGameCVars->vr_increase_view_dist)
+	{
+		gEnv->pConsole->GetCVar("e_view_dist_ratio")->Set(100.f);
+		gEnv->pConsole->GetCVar("e_view_dist_ratio_detail")->Set(100.f);
+		gEnv->pConsole->GetCVar("e_view_dist_ratio_vegetation")->Set(100.f);
+	}
+
 	// if FSAA is enable, re-enable the intro message warning about its usage
 	ICVar* fsaa = gEnv->pConsole->GetCVar("r_FSAA");
 	if (fsaa && fsaa->GetIVal() != 0)

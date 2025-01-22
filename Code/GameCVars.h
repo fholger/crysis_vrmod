@@ -464,6 +464,8 @@ struct SCVars
 	float vr_melee_trigger_velocity;
 	float vr_bhaptics_strength;
 
+	int vr_increase_view_dist;
+
 	SCVars()
 	{
 		memset(this,0,sizeof(SCVars));

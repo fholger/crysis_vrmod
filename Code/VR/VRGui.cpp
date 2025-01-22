@@ -212,6 +212,8 @@ void VRGui::DrawSettingsMenu()
 		ImGui::Checkbox("Enable controller haptics", &hapticsEnabled);
 		g_pGameCVars->vr_haptics_enabled = hapticsEnabled;
 		ImGui::SliderFloat("Haptics strength", &g_pGameCVars->vr_haptics_strength, 0.f, 2.f);
+
+		ImGui::SliderFloat("bHaptics vest strength", &g_pGameCVars->vr_bhaptics_strength, 0.f, 2.f);
 	}
 
 	if (ImGui::CollapsingHeader("Comfort"))
@@ -247,6 +249,11 @@ void VRGui::DrawSettingsMenu()
 		bool hideHud = g_pGameCVars->vr_hide_hud;
 		ImGui::Checkbox("Hide ingame HUD", &hideHud);
 		g_pGameCVars->vr_hide_hud = hideHud;
+
+		bool increaseViewDist = g_pGameCVars->vr_increase_view_dist;
+		ImGui::Checkbox("Increase view distance", &increaseViewDist);
+		ImGui::SetItemTooltip("Reduces pop-in of objects, but may decrease performance. Requires restart to take effect");
+		g_pGameCVars->vr_increase_view_dist = increaseViewDist;
 	}
 
 	if (ImGui::Button("Close"))
