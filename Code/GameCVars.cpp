@@ -374,7 +374,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	pConsole->Register("hud_radarBackground", &hud_radarBackground, 1, 0, "Switches the miniMap-background for the radar.");
 	pConsole->Register("hud_radarJammingEffectScale", &hud_radarJammingEffectScale, 0.75f, 0, "Scales the intensity of the radar jamming effect.");
 	pConsole->Register("hud_radarJammingThreshold", &hud_radarJammingThreshold, 0.99f, 0, "Threshold to disable the radar (independent from effect).");
-	pConsole->Register("hud_startPaused", &hud_startPaused, 1, 0, "The game starts paused, waiting for user input.");
+	pConsole->Register("hud_startPaused", &hud_startPaused, 0, 0, "The game starts paused, waiting for user input.");
 	pConsole->Register("hud_faderDebug", &hud_faderDebug, 0, 0, "Show Debug Information for FullScreen Faders.");
 	pConsole->Register("hud_nightVisionConsumption", &hud_nightVisionConsumption, 0.5f, VF_CHEAT, "Scales the energy consumption of the night vision.");
 	pConsole->Register("hud_nightVisionRecharge", &hud_nightVisionRecharge, 2.0f, VF_CHEAT, "Scales the energy recharge of the night vision.");
