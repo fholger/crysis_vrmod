@@ -551,4 +551,12 @@ namespace hooks {
 		CryLogAlways("Found vtable index %i for hook %s", vtableIndex, name.c_str());
 		InstallVirtualFunctionHook(name, (void*)instance, vtableIndex, (void*)detour);
 	}
+
+	template <typename T, typename R, typename... Args>
+	void InstallVirtualFunctionHook(const std::string &name, T* instance, R (T::*func)(Args...) const, R (*detour)(T*, Args...))
+	{
+		int vtableIndex = getVTableIndex(reinterpret_cast<R (T::*)(Args...)>(func));
+		CryLogAlways("Found vtable index %i for hook %s", vtableIndex, name.c_str());
+		InstallVirtualFunctionHook(name, (void*)instance, vtableIndex, (void*)detour);
+	}
 }

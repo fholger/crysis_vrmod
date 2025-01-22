@@ -9,6 +9,7 @@
 #include "Hooks.h"
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
+#include "VRHaptics.h"
 #include "VRRenderer.h"
 #include "VRRenderUtils.h"
 #include "Weapon.h"
@@ -28,6 +29,15 @@ int AI_SmartObjectEvent_Hook(IAISystem* self, const char* event, IEntity*& user,
 		}
 	}
 	return hooks::CallOriginal(AI_SmartObjectEvent_Hook)(self, event, user, object, pExtraPoint, bHighPriority);
+}
+
+void I3DEngine_SetPostEffectParam_Hook(I3DEngine* self, const char *pParam, float fValue)
+{
+	if (strcmp("AlienInterference_Amount", pParam) == 0)
+	{
+		gHaptics->TriggerBHapticsEffect("shake_vest", 0.5f * fValue);
+	}
+	hooks::CallOriginal(I3DEngine_SetPostEffectParam_Hook)(self, pParam, fValue);
 }
 
 VRManager::~VRManager()
@@ -54,6 +64,7 @@ bool VRManager::Init()
 		return true;
 
 	hooks::InstallVirtualFunctionHook("SmartObjectEvent", gEnv->pAISystem, &IAISystem::SmartObjectEvent, &AI_SmartObjectEvent_Hook);
+	hooks::InstallVirtualFunctionHook("SetPostEffectParamFloat", gEnv->p3DEngine, &I3DEngine::SetPostEffectParam, &I3DEngine_SetPostEffectParam_Hook);
 
 	m_initialized = true;
 	return true;
