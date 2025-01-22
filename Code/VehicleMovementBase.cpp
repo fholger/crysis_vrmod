@@ -20,6 +20,8 @@ History:
 #include <IGameTokens.h>
 #include <IEffectSystem.h>
 #include "GameUtils.h"
+#include "VR/OpenXRRuntime.h"
+#include "VR/VRHaptics.h"
 
 
 #define RUNSOUND_FADEIN_TIME 0.5f
@@ -443,7 +445,10 @@ void CVehicleMovementBase::Update(const float deltaTime)
 			SetSoundParam(eSID_Ambience, "rpm_scale", m_rpmScale);		
 
 			if(m_pVehicle->IsPlayerPassenger())
+			{
 				if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.2f, 0.8f, 0.4f) );
+				gHaptics->TriggerBHapticsEffect("vehicle_vest", 0.4f);
+			}
 		}
 
 		if (m_engineStartup >= m_engineIgnitionTime)		
@@ -496,7 +501,10 @@ void CVehicleMovementBase::Update(const float deltaTime)
 			UpdateRunSound(deltaTime);
 
 			if(m_pVehicle->IsPlayerPassenger())
+			{
 				if (gEnv->pInput) gEnv->pInput->ForceFeedbackEvent( SFFOutputEvent(eDI_XI, eFF_Rumble_Basic, 0.15f, 0.01f, clamp_tpl(m_rpmScale, 0.0f, 0.5f)));
+				gHaptics->TriggerBHapticsEffect("vehicle_vest", clamp_tpl(m_rpmScale, 0.0f, 0.5f));
+			}
 		}
 	}
 
@@ -2204,4 +2212,3 @@ void SPID::Serialize(TSerialize ser)
   ser.Value("m_kI", m_kI);
   ser.Value("m_prevErr", m_prevErr);
 }
-

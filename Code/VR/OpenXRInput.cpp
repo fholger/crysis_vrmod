@@ -268,7 +268,7 @@ float OpenXRInput::GetGripAmount(int side) const
 	return max(m_gripAmount[side], m_triggerAmount[side]);
 }
 
-void OpenXRInput::SendHapticEvent(EVRHand hand, float duration, float amplitude)
+void OpenXRInput::SendHapticEvent(EVRHand hand, float duration, float amplitude, float frequency)
 {
 	if (!g_pGameCVars->vr_haptics_enabled)
 		return;
@@ -281,15 +281,15 @@ void OpenXRInput::SendHapticEvent(EVRHand hand, float duration, float amplitude)
 	XrHapticVibration hapticEvent{ XR_TYPE_HAPTIC_VIBRATION };
 	hapticEvent.duration = 1000000000.f * duration;
 	hapticEvent.amplitude = clamp(amplitude * g_pGameCVars->vr_haptics_strength, 0.f, 1.f);
-	hapticEvent.frequency = XR_FREQUENCY_UNSPECIFIED;
+	hapticEvent.frequency = frequency;
 
 	xrApplyHapticFeedback(m_session, &hapticInfo, reinterpret_cast<XrHapticBaseHeader*>(&hapticEvent));
 }
 
-void OpenXRInput::SendHapticEvent(float duration, float amplitude)
+void OpenXRInput::SendHapticEvent(float duration, float amplitude, float frequency)
 {
-	SendHapticEvent(LEFT_HAND, duration, amplitude);
-	SendHapticEvent(RIGHT_HAND, duration, amplitude);
+	SendHapticEvent(LEFT_HAND, duration, amplitude, frequency);
+	SendHapticEvent(RIGHT_HAND, duration, amplitude, frequency);
 }
 
 void OpenXRInput::StopHaptics(EVRHand hand)

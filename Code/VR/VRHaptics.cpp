@@ -131,4 +131,5 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("heartbeat_vest", "bhaptics/vest/Heartbeat.tact");
 	RegisterBHapticsEffect("speedsprint_vest", "bhaptics/vest/SpeedSprint.tact");
 	RegisterBHapticsEffect("speedsprintwater_vest", "bhaptics/vest/SpeedSprintWater.tact");
+	RegisterBHapticsEffect("vehicle_vest", "bhaptics/vest/VehicleRumble.tact");
 }

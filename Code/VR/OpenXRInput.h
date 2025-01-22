@@ -21,8 +21,8 @@ public:
 
 	float GetGripAmount(int side) const;
 
-	void SendHapticEvent(EVRHand hand, float duration, float amplitude);
-	void SendHapticEvent(float duration, float amplitude);
+	void SendHapticEvent(EVRHand hand, float duration, float amplitude, float frequency = XR_FREQUENCY_UNSPECIFIED);
+	void SendHapticEvent(float duration, float amplitude, float frequency = XR_FREQUENCY_UNSPECIFIED);
 	void StopHaptics(EVRHand hand);
 	void StopHaptics();
 
