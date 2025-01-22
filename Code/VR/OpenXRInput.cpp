@@ -727,6 +727,8 @@ void OpenXRInput::UpdatePlayerMovement()
 	}
 	if (jumpCrouch > -g_pGameCVars->vr_controller_stick_action_threshold)
 	{
+		if (pPlayer->InZeroG() && m_wasCrouchActive)
+			input->OnAction(g_pGameActions->crouch, eAAM_OnRelease, 0);
 		m_wasCrouchActive = false;
 	}
 	else
@@ -736,6 +738,10 @@ void OpenXRInput::UpdatePlayerMovement()
 			if (isZoomed)
 			{
 				input->OnAction(g_pGameActions->zoom_out, eAAM_OnPress, 1);
+			}
+			else if (pPlayer->InZeroG())
+			{
+				input->OnAction(g_pGameActions->crouch, eAAM_OnPress, 1);
 			}
 			else if (pPlayer->GetStance() == STANCE_CROUCH)
 			{
