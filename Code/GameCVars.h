@@ -465,6 +465,7 @@ struct SCVars
 	float vr_bhaptics_strength;
 
 	int vr_increase_view_dist;
+	int vr_enable_frustum_tweaks;
 
 	SCVars()
 	{

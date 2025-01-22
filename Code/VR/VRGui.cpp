@@ -254,6 +254,11 @@ void VRGui::DrawSettingsMenu()
 		ImGui::Checkbox("Increase view distance", &increaseViewDist);
 		ImGui::SetItemTooltip("Reduces pop-in of objects, but may decrease performance. Requires restart to take effect");
 		g_pGameCVars->vr_increase_view_dist = increaseViewDist;
+
+		bool frustumTweaks = g_pGameCVars->vr_enable_frustum_tweaks;
+		ImGui::Checkbox("Optimized frustum culling", &frustumTweaks);
+		ImGui::SetItemTooltip("Avoids drawing objects not visible in the HMD.\nYou may want to disable this if you intend to record the game window");
+		g_pGameCVars->vr_enable_frustum_tweaks = frustumTweaks;
 	}
 
 	if (ImGui::Button("Close"))

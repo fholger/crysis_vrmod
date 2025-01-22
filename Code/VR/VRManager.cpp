@@ -173,7 +173,10 @@ void VRManager::CaptureHUD()
 
 	// mirror the current eye texture to the backbuffer
 	int mirrorEye = g_pGameCVars->vr_mirror_eye == 1 ? 1 : 0;
-	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get(), GetEffectiveRenderLimits(mirrorEye));
+	RectF bounds = GetEffectiveRenderLimits(mirrorEye);
+	if (!g_pGameCVars->vr_enable_frustum_tweaks)
+		bounds = RectF();
+	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get(), bounds);
 }
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
@@ -318,8 +321,11 @@ void VRManager::ModifyViewCamera(int eye, CCamera& cam)
 	Vec2i renderSize = GetRenderSize();
 	cam.SetFrustum(renderSize.x, renderSize.y, vertFov, cam.GetNearPlane(), cam.GetFarPlane());
 
-	// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
-	cam.UpdateFrustumFromVRRaw(tanl, tanr, tanb, tant);
+	if (g_pGameCVars->vr_enable_frustum_tweaks)
+	{
+		// but we can set up frustum planes for our asymmetric projection, which should help culling accuracy.
+		cam.UpdateFrustumFromVRRaw(tanl, tanr, tanb, tant);
+	}
 }
 
 void VRManager::ModifyViewCameraFor3DCinema(int eye, CCamera& cam)
