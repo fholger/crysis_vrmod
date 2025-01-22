@@ -128,7 +128,7 @@ void VRRenderUtils::Shutdown()
 	m_device.Reset();
 }
 
-void VRRenderUtils::CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture)
+void VRRenderUtils::CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture, const RectF& bounds)
 {
 	if (eyeTexture == nullptr)
 		return;
@@ -139,7 +139,8 @@ void VRRenderUtils::CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture)
 	Vec2i windowSize = gVRRenderer->GetWindowSize();
 	float windowAspect = (float)windowSize.x / windowSize.y;
 	Vec2i renderSize = gVR->GetRenderSize();
-	float vrAspect = (float)renderSize.x / renderSize.y;
+	Vec2 eyeContentSize (renderSize.x * bounds.w, renderSize.y * bounds.h);
+	float vrAspect = eyeContentSize.x / eyeContentSize.y;
 	float scale = vrAspect / windowAspect;
 	Vec2 size;
 	if (scale < 1.f)
@@ -156,10 +157,10 @@ void VRRenderUtils::CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture)
 	}
 
 	D3D10_VIEWPORT vp;
-	vp.TopLeftX = (1.f - size.x) * .5f * renderSize.x;
-	vp.TopLeftY = (1.f - size.y) * .5f * renderSize.y;
-	vp.Width = size.x * renderSize.x;
-	vp.Height = size.y * renderSize.y;
+	vp.TopLeftX = (1.f - size.x / bounds.w - bounds.x) * .5f * renderSize.x;
+	vp.TopLeftY = (1.f - size.y / bounds.h - bounds.y) * .5f * renderSize.y;
+	vp.Width = size.x / bounds.w * renderSize.x;
+	vp.Height = size.y / bounds.h * renderSize.y;
 	vp.MinDepth = 0;
 	vp.MaxDepth = 1;
 	m_device->RSSetViewports(1, &vp);

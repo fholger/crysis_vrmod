@@ -43,7 +43,7 @@ public:
 
     void Init(ID3D10Device* device);
     void Shutdown();
-    void CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture);
+    void CopyEyeToScreenMirror(ID3D10ShaderResourceView* eyeTexture, const RectF& bounds);
 
 private:
     ComPtr<ID3D10Device> m_device;

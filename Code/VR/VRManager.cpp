@@ -173,7 +173,7 @@ void VRManager::CaptureHUD()
 
 	// mirror the current eye texture to the backbuffer
 	int mirrorEye = g_pGameCVars->vr_mirror_eye == 1 ? 1 : 0;
-	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get());
+	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get(), GetEffectiveRenderLimits(mirrorEye));
 }
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
