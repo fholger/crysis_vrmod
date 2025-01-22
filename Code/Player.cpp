@@ -5479,6 +5479,8 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 		if (!IsThirdPerson())
 			nFlags |= FLAG_SOUND_RELATIVE;
 		repeating = true;
+		if (IsClient() && play)
+			gHaptics->TriggerBHapticsEffect("jump_vest", 0.7f);
 		break;
 	case ESound_ThrustersDash:
 		//soundName = "sounds/interface:suit:suit_deep_freeze";
@@ -5486,6 +5488,8 @@ void CPlayer::PlaySound(EPlayerSounds sound, bool play, bool param /*= false*/, 
 		if (!IsThirdPerson())
 			nFlags |= FLAG_SOUND_RELATIVE;
 		repeating = true;
+		if (IsClient() && play)
+			gHaptics->TriggerBHapticsEffect("speedsprint_vest", 0.7f);
 		break;
 	case ESound_ThrustersDash02:
 		soundName = "sounds/interface:suit:suit_speed_activate";
