@@ -2066,7 +2066,8 @@ int COffHand::CheckItemsInProximity(Vec3 pos, Vec3 dir, bool getEntityInfo)
 		Vec3(pos.x+sizeX,pos.y+sizeY,pos.z+sizeZup));
 	query.nEntityFlags = ~0; // Filter by entity flag.
 
-	float minDstSqr = 0.2f;
+	float minDstSqr = 0.25f;
+	bool isItem = false;
 	EntityId nearItemId = 0;
 	int count=gEnv->pEntitySystem->QueryProximity(query);
 	for(int i=0; i<query.nCount; i++)
@@ -2084,7 +2085,7 @@ int COffHand::CheckItemsInProximity(Vec3 pos, Vec3 dir, bool getEntityInfo)
 				if (dir.Dot(itemPos-pos)>0.0f)
 				{
 					float dstSqr = LinePointDistanceSqr(line,itemPos);
-					if(dstSqr<0.2f)
+					if(dstSqr<0.25f)
 					{
 						if((dstSqr<minDstSqr) && pItem->CanPickUp(GetOwnerId()))
 						{
@@ -2120,7 +2121,37 @@ int COffHand::CheckItemsInProximity(Vec3 pos, Vec3 dir, bool getEntityInfo)
 			return OH_GRAB_ITEM;
 		}
 	}
-	
+
+	// retry for static physics entities
+	IPhysicalEntity** pPhysEnts = nullptr;
+	Vec3 bmin (pos.x - 0.5f, pos.y - 0.5f, pos.z - 0.8f);
+	Vec3 bmax (pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.3f);
+	int physcount = gEnv->pPhysicalWorld->GetEntitiesInBox(bmin, bmax, pPhysEnts, ent_static);
+	for(int i=0; i<physcount; i++)
+	{
+		IPhysicalEntity* pPhysicalEntity = pPhysEnts[i];
+
+		if (pPhysicalEntity->GetType()==PE_STATIC)
+		{
+			//Rocks and small static vegetation marked as pickable
+			IRenderNode *pRenderNode=0;
+			pe_params_foreign_data pfd;
+			if (pPhysicalEntity->GetParams(&pfd) && pfd.iForeignData==PHYS_FOREIGN_ID_STATIC)
+				pRenderNode=static_cast<IRenderNode *>(pfd.pForeignData);
+
+			if (pRenderNode && pRenderNode->GetRndFlags()&ERF_PICKABLE)
+			{
+				if(getEntityInfo)
+				{
+					m_grabType = GRAB_TYPE_ONE_HANDED;
+					m_pRockRN = pRenderNode;
+					m_preHeldEntityId = 0;
+				}
+				return OH_GRAB_OBJECT;
+			}
+		}
+	}
+
 	return OH_NO_GRAB;
 }
 //==========================================================================================
