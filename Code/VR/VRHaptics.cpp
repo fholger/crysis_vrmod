@@ -52,13 +52,10 @@ void VRHaptics::RegisterBHapticsEffect(const char* key, const char* file)
 
 	RegisterFeedbackFromTactFile(key, buffer);
 	delete[] buffer;
-
-	CryLogAlways("bHaptics effect %s loaded from %s", key, file);
 }
 
 void VRHaptics::TriggerBHapticsEffect(const char* key, float intensity, float offsetAngleX, float offsetY)
 {
-	CryLogAlways("bHaptics effect %s triggered with amplitude %.3f", key, intensity);
 	SubmitRegisteredWithOption(key, key, intensity * g_pGameCVars->vr_bhaptics_strength, 1.0f, offsetAngleX, offsetY);
 }
 
