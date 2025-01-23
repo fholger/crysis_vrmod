@@ -144,6 +144,7 @@ void VRGui::Draw()
 		ImGui::SetWindowSize(ImVec2(0.5f * windowSize.x, 0.4f * windowSize.y));
 		ImGui::TextWrapped("Please take a moment to look through the VR Settings menu to adjust the experience to your liking. Also have a look at the VR Manual which should answer any question you have about how the game is controlled in VR with motion controllers.");
 		ImGui::TextWrapped("IMPORTANT: TURN OFF ANTI-ALIASING in the game's system settings graphics menu! It causes instabilities and crashes in VR.");
+		ImGui::TextWrapped("Save before and restart the game after changing any graphical ingame settings. Crashes may occur.");
 		if (ImGui::Button("Got it"))
 			welcomeMessageOpen = false;
 		ImGui::End();
