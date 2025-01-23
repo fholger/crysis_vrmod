@@ -3,7 +3,7 @@
 Weapons move with your weapon hand. This is the right hand by default, but you can change it to the left hand in the VR settings menu.
 Press the trigger of your weapon hand to shoot. A short press of the A/X button triggers reload while a long press of the same button will cycle through the available firing modes. You can use this to switch between single and auto fire for rifles, for instance.
 
-If you picked up two pistols, each hand will hold one pistol, and you can control and fire them individually.
+If you picked up two pistols, each hand will hold one pistol, and you can control and fire them individually. To switch back to a single pistol, you have to drop one pistol (see below).
 
 *Note*: if the left hand is set as the weapon hand, the player arms will be hidden while holding the weapons. The models and animations are unfortunately not compatible with left-handed mode.
 

@@ -5402,7 +5402,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.Pick_up</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Left Trigger ] - Pick up object you are looking at</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Left Trigger ] - Pick up object with your off hand</Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
    </Row>
    <Row>
@@ -5787,7 +5787,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.MouseMapZoom</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">[ Right Stick Up ] , [ Right Stick Down ] - Zoom map</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String"></Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>
@@ -5795,7 +5795,7 @@
     <Cell ss:StyleID="s21"/>
     <Cell ss:StyleID="s68"><Data ss:Type="String">Tutorial.MouseMapDrag</Data></Cell>
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Hold [ Right Trigger ] - Move map</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String"></Data></Cell>
     <Cell ss:Index="6" ss:StyleID="s28"/>
     <Cell ss:Index="19" ss:StyleID="s137"/>
    </Row>

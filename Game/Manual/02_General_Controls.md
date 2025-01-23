@@ -12,7 +12,7 @@ You can swap the functions of the left and right thumbstick by changing the move
 
 ## Interacting with the world
 When you look at something you can interact with, the center of your HUD should indicate what action you can perform. Press your off hand trigger to perform the interaction.
-This way, you can also pick up weapons and ammo dropped by your enemies. But keep in mind that you have to be looking at what you want to interact with, so if you are having issues, you may have to look further down or even crouch to reach those weapons.
+You can also pick up weapons and ammo dropped by your enemies with your off hand by pressing Trigger or Grip.
 
 ## Activating nightvision
 Bring your off hand close to your head, then press trigger to toggle nightvision.
