@@ -14,12 +14,6 @@ header:
 gallery:
   - url: /assets/images/screenshots/gallery/screen1.jpg
     image_path: /assets/images/screenshots/gallery/screen1_th.jpg
-  - url: /assets/images/screenshots/gallery/screen2.jpg
-    image_path: /assets/images/screenshots/gallery/screen2_th.jpg
-  - url: /assets/images/screenshots/gallery/screen3.jpg
-    image_path: /assets/images/screenshots/gallery/screen3_th.jpg
-  - url: /assets/images/screenshots/gallery/screen4.jpg
-    image_path: /assets/images/screenshots/gallery/screen4_th.jpg
   - url: /assets/images/screenshots/gallery/screen5.jpg
     image_path: /assets/images/screenshots/gallery/screen5_th.jpg
   - url: /assets/images/screenshots/gallery/screen6.jpg
