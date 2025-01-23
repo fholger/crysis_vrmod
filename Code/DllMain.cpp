@@ -14,6 +14,11 @@ History:
 
 void* g_hInst = 0;
 
+extern "C" __declspec(dllexport) const char* GetUserDirName()
+{
+	return "Crysis VR";
+}
+
 BOOL APIENTRY DllMain ( HINSTANCE hInst, DWORD reason, LPVOID reserved )
 {
 	if ( reason == DLL_PROCESS_ATTACH )

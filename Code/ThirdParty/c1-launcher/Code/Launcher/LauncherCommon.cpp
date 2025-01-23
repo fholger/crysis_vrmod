@@ -254,6 +254,7 @@ static bool HandleUserDirNameArg()
 static bool HandleModUserDirName()
 {
 	const char* mod = OS::CmdLine::GetArgValue("-mod", NULL);
+	mod = "VRMod";
 	if (!mod)
 	{
 		return false;
