@@ -25,6 +25,17 @@ launch the `CrysisVR.exe` file inside the `Bin64` folder to start playing Crysis
 *Note*: the installer is not digitally signed, so Windows will warn you and stop you from executing it. You'll have to tell
 it to run the installer, anyway.
 
+### Updates
+
+To update to a newer version, you can just download the new version's
+installer and run it. It will overwrite the previous version.
+
+*Note*: if you are upgrading from an older version before 1.0, then be aware
+that the save location has changed, and saves from the old version will not
+show up. You will have to migrate them manually - go to
+`<My Documents>\My Games\Crysis` and copy the `SaveGames` folder over to
+`<My Documents>\My Games\Crysis VR`.
+
 ### Development snapshots
 
 If you are the brave sort, you can also opt to download the [latest development build](https://github.com/fholger/crysis_vrmod/releases/tag/latest).
