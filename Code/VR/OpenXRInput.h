@@ -61,6 +61,7 @@ private:
 	BooleanAction m_binoculars;
 	BooleanAction m_nextWeapon;
 	BooleanAction m_use;
+	BooleanAction m_gripUse;
 	BooleanAction m_nightvision;
 	BooleanAction m_melee;
 	BooleanAction m_grenades;

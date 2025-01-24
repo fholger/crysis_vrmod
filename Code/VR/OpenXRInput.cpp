@@ -131,6 +131,7 @@ void OpenXRInput::Shutdown()
 	DestroyAction(m_binoculars.handle);
 	DestroyAction(m_nextWeapon.handle);
 	DestroyAction(m_use.handle);
+	DestroyAction(m_gripUse.handle);
 	DestroyAction(m_nightvision.handle);
 	DestroyAction(m_melee.handle);
 	DestroyAction(m_grenades.handle);
@@ -318,6 +319,7 @@ void OpenXRInput::CreateInputActions()
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
 	CreateBooleanAction(m_ingameSet, m_nextWeapon, "next_weapon", "Next Weapon", &g_pGameActions->nextitem, nullptr, false);
 	CreateBooleanAction(m_ingameSet, m_use, "use", "Use", &g_pGameActions->xi_use);
+	CreateBooleanAction(m_ingameSet, m_gripUse, "grip_use", "Grip/Use", &g_pGameActions->use);
 	CreateBooleanAction(m_ingameSet, m_binoculars, "binoculars", "Binoculars", &g_pGameActions->xi_binoculars);
 	CreateBooleanAction(m_ingameSet, m_nightvision, "nightvision", "Nightvision", &g_pGameActions->hud_night_vision);
 	CreateBooleanAction(m_ingameSet, m_melee, "melee", "Melee Attack", &g_pGameActions->special);
@@ -409,7 +411,7 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_suitMenu.handle, "/user/hand/<!movement>/input/thumbstick/click");
 	touch.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze");
 	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
-	touch.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze");
+	touch.AddBinding(m_gripUse.handle, "/user/hand/<!weapon>/input/squeeze");
 	touch.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	touch.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	touch.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger");
@@ -447,7 +449,7 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
 	knuckles.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger");
-	knuckles.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/squeeze/force");
+	knuckles.AddBinding(m_gripUse.handle, "/user/hand/<!weapon>/input/squeeze/force");
 	knuckles.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a");
 	knuckles.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b");
 	knuckles.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
@@ -553,6 +555,7 @@ void OpenXRInput::UpdateIngameActions()
 	UpdateBooleanAction(m_nextWeapon);
 	UpdateBooleanAction(m_reload);
 	UpdateBooleanAction(m_use);
+	UpdateBooleanAction(m_gripUse);
 	UpdateBooleanAction(m_binoculars);
 	UpdateBooleanAction(m_nightvision);
 	UpdateBooleanAction(m_melee);
