@@ -442,7 +442,8 @@ struct SCVars
 	float vr_resolution_scale;
 	int vr_weapon_hand;
 	int vr_movement_hand;
-	float vr_weapon_angle_offset;
+	float vr_weapon_pitch_offset;
+	float vr_weapon_yaw_offset;
 	int vr_weapon_crosshair;
 	int vr_vehicle_crosshair;
 	int vr_haptics_enabled;

@@ -236,7 +236,7 @@ Matrix34 OpenXRInput::GetControllerWeaponTransform(int hand)
 {
 	// Weapon bones are offset to what our grip pose is, so we need to rotate the pose a bit
 	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2) * Matrix33::CreateRotationY(-gf_PI/2);
-	Matrix33 gripAngleAdjust = Matrix33::CreateRotationX(DEG2RAD(g_pGameCVars->vr_weapon_angle_offset));
+	Matrix33 gripAngleAdjust = Matrix33::CreateRotationX(DEG2RAD(g_pGameCVars->vr_weapon_pitch_offset)) * Matrix33::CreateRotationZ(DEG2RAD(g_pGameCVars->vr_weapon_yaw_offset));
 	return GetControllerTransform(hand) * gripAngleAdjust * correction;
 }
 

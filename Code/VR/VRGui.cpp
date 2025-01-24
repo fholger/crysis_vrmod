@@ -200,8 +200,10 @@ void VRGui::DrawSettingsMenu()
 		ImGui::SetItemTooltip("Draws a small sphere to help you aim");
 		g_pGameCVars->vr_weapon_crosshair = weaponCrosshair;
 
-		ImGui::SliderAngle("Weapon angle offset", &g_pGameCVars->vr_weapon_angle_offset, -45.f, 45.f);
+		ImGui::SliderFloat("Vert. weapon angle offset", &g_pGameCVars->vr_weapon_pitch_offset, -45.f, 45.f);
 		ImGui::SetItemTooltip("Change the gun pitch relative to your controller");
+		ImGui::SliderFloat("Horz. weapon angle offset", &g_pGameCVars->vr_weapon_yaw_offset, -45.f, 45.f);
+		ImGui::SetItemTooltip("Change the gun yaw relative to your controller");
 
 		ImGui::SliderFloat("Melee trigger velocity", &g_pGameCVars->vr_melee_trigger_velocity, 0.1f, 5.f);
 		ImGui::SetItemTooltip("Adjust this if you find triggering melee attacks too easy or too hard");

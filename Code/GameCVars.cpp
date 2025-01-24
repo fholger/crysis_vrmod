@@ -879,7 +879,8 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_controller_yaw_speed", &vr_controller_yaw_speed, 45.f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust smooth turn speed");
 	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
 	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand controls player movement: 0 (left) or 1 (right)");
-	pConsole->Register("vr_weapon_angle_offset", &vr_weapon_angle_offset, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust weapon holding angle");
+	pConsole->Register("vr_weapon_pitch_offset", &vr_weapon_pitch_offset, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust weapon vertical holding angle");
+	pConsole->Register("vr_weapon_yaw_offset", &vr_weapon_yaw_offset, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust weapon horizontal holding angle");
 	pConsole->Register("vr_weapon_crosshair", &vr_weapon_crosshair, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for player weapons to assist with aiming in VR");
 	pConsole->Register("vr_vehicle_crosshair", &vr_vehicle_crosshair, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, displays a simple crosshair for vehicle weapons to assist with aiming in VR");
 	pConsole->Register("vr_cutscenes_angle_snap", &vr_cutscenes_angle_snap, 45, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Ignores camera rotation in cutscenes until the angle difference reaches this value, then snaps the angle to the new value");
