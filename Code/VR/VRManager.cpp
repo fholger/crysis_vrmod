@@ -1028,8 +1028,12 @@ void VRManager::DetachOffHandFromWeapon()
 		return;
 
 	//weapon->SetCurrentZoomMode(0);
-	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetRecoilMod();
-	weapon->GetFireMode(weapon->GetCurrentFireMode())->ResetSpreadMod();
+	IFireMode* fm = weapon->GetFireMode(weapon->GetCurrentFireMode());
+	if (fm)
+	{
+		fm->ResetRecoilMod();
+		fm->ResetSpreadMod();
+	}
 }
 
 CPlayer* VRManager::GetLocalPlayer() const
