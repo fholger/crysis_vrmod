@@ -161,6 +161,8 @@ void VRGui::DrawSettingsMenu()
 	ImVec2 windowSize = ImGui::GetIO().DisplaySize;
 	int origWeaponHand = g_pGameCVars->vr_weapon_hand;
 	int origMovementHand = g_pGameCVars->vr_movement_hand;
+	if (m_vrResolutionScale == 0)
+		m_vrResolutionScale = g_pGameCVars->vr_resolution_scale;
 
 	ImGui::Begin("VR Settings", &m_settingsMenuOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 	ImGui::SetWindowPos(ImVec2(0.25f * windowSize.x, 0.25f * windowSize.y));
@@ -262,6 +264,8 @@ void VRGui::DrawSettingsMenu()
 		ImGui::Checkbox("Optimized frustum culling", &frustumTweaks);
 		ImGui::SetItemTooltip("Avoids drawing objects not visible in the HMD.\nYou may want to disable this if you intend to record the game window");
 		g_pGameCVars->vr_enable_frustum_tweaks = frustumTweaks;
+
+		ImGui::SliderFloat("Render resolution scale", &m_vrResolutionScale, 0.5f, 2.f);
 	}
 
 	if (ImGui::Button("Close"))
@@ -346,6 +350,8 @@ void VRGui::CloseSettingsMenu()
 	if (m_settingsMenuOpen)
 	{
 		// make sure any changes we made get saved to the game.cfg file
+		if (m_vrResolutionScale != 0.f)
+            g_pGameCVars->vr_resolution_scale = m_vrResolutionScale;
 		g_pGame->GetOptions()->WriteGameCfg();
 		m_settingsMenuOpen = false;
 	}

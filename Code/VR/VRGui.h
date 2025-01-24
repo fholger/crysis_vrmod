@@ -31,6 +31,7 @@ private:
     float m_currentScale = 0.0f;
     bool m_settingsMenuOpen = false;
     bool m_manualWindowOpen = false;
+    float m_vrResolutionScale = 0;
 
     ImFont* m_fontText = nullptr;
     ImFont* m_fontH1 = nullptr;
