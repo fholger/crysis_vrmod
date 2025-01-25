@@ -18,6 +18,8 @@
 #include <imgui.h>
 #include <backends/imgui_impl_dx10.h>
 
+#include "BitFiddling.h"
+
 namespace
 {
 	VRRenderer g_vrRendererImpl;
@@ -289,6 +291,15 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 
 	m_currentEye = eye;
 
+	ICVar* particlesDebug = gEnv->pConsole->GetCVar("e_particles_debug");
+	int origParticlesDebug = particlesDebug ? particlesDebug->GetIVal() : 0;
+	if (particlesDebug && eye == 1)
+	{
+		// this disables updating of the particles system, to avoid doing extra work for the second eye
+		particlesDebug->SetFlags(particlesDebug->GetFlags() & (~VF_CHEAT));
+		particlesDebug->Set((int)(origParticlesDebug | AlphaBit('z')));
+	}
+
 	CCamera eyeCam = m_originalViewCamera;
 	if (renderMode == RM_VR)
 	{
@@ -321,6 +332,11 @@ void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* 
 	DrawHUDFaders();
 
 	gVR->CaptureEye(eye);
+
+	if (particlesDebug && eye == 1)
+	{
+		particlesDebug->Set(origParticlesDebug);
+	}
 
 	m_currentEye = -1;
 }
