@@ -433,6 +433,8 @@ void OpenXRInput::SuggestBindings()
 	touch.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
 	touch.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
 	touch.SuggestBindings("/interaction_profiles/oculus/touch_controller");
+	if (gXR->HasReverbG2BindingsExtension())
+		touch.SuggestBindings("/interaction_profiles/hp/mixed_reality_controller");
 
 	SuggestedProfileBinding knuckles(m_instance, false);
 	knuckles.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger");

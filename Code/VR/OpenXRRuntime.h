@@ -41,6 +41,8 @@ public:
 
 	bool ArePosesValid() const { return m_posesValid; }
 
+	bool HasReverbG2BindingsExtension() const;
+
 private:
 	OpenXRInput m_input;
 	XrInstance m_instance = nullptr;

@@ -534,6 +534,11 @@ void OpenXRRuntime::SetHudSize(float width, float height)
 	m_hudDisplayHeight = height;
 }
 
+bool OpenXRRuntime::HasReverbG2BindingsExtension() const
+{
+	return XR_EXT_hp_mixed_reality_controller_available;
+}
+
 bool OpenXRRuntime::CreateInstance()
 {
 	CryLogAlways("Creating OpenXR instance...");
