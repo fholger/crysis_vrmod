@@ -730,7 +730,12 @@ void VRManager::Update()
 	CWeapon* weapon = player ? player->GetWeapon(player->GetCurrentItemId()) : nullptr;
 	bool isWeaponZoom = weapon && (weapon->IsZoomed() || weapon->IsZooming());
 	if (gVRRenderer->AreBinocularsActive())
-		SetHudAttachedToOffHand();
+	{
+		if (g_pGame->GetIGameFramework()->GetIViewSystem()->IsPlayingCutScene())
+			SetHudInFrontOfPlayer();
+		else
+			SetHudAttachedToOffHand();
+	}
 	else if (isWeaponZoom)
 		SetHudInFrontOfPlayer();
 	else if (gVRRenderer->ShouldRenderVR() && !showHudFixed)
