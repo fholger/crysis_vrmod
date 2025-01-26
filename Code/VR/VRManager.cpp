@@ -176,7 +176,9 @@ void VRManager::CaptureHUD()
 	RectF bounds = GetEffectiveRenderLimits(mirrorEye);
 	if (!g_pGameCVars->vr_enable_frustum_tweaks)
 		bounds = RectF();
-	gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get(), bounds);
+
+	if (gVRRenderer->GetRenderMode() != RM_2D)
+		gVRRenderUtils->CopyEyeToScreenMirror(m_eyeViews[mirrorEye].Get(), bounds);
 }
 
 void VRManager::SetSwapChain(IDXGISwapChain *swapchain)
