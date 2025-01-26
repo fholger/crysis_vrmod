@@ -342,21 +342,13 @@ void VRManager::ModifyViewForBinoculars(SViewParams& view)
 	float vr_binocular_size = 0.8f;
 	bool leftHanded = g_pGameCVars->vr_weapon_hand == 0;
 
-	Matrix34 controllerTransform = gXR->GetInput()->GetControllerTransform(leftHanded ? 1 : 0);
+	Matrix34 controllerTransform = GetWorldControllerTransform(GetHandSide(OFF_HAND));
 	Vec3 forward = controllerTransform.GetColumn1();
 	controllerTransform.SetTranslation(controllerTransform.GetTranslation() + 0.5f * forward);
 	controllerTransform = controllerTransform * Matrix34::CreateTranslationMat(Vec3((leftHanded ? 1 : -1) * vr_binocular_size / 2, 0, vr_binocular_size / 2));
 
-	Matrix33 refTransform = GetReferenceTransform();
-	Matrix34 adjustedControllerTransform = refTransform * (Matrix33)controllerTransform;
-	adjustedControllerTransform.SetTranslation(refTransform * (controllerTransform.GetTranslation() - m_referencePosition));
-
-	Ang3 viewAngles = Ang3(view.rotation);
-	viewAngles.x = viewAngles.y = 0;
-
-	Matrix34 viewMatrix = Matrix34::CreateRotationXYZ(viewAngles, view.position) * adjustedControllerTransform;
-	view.rotation = GetQuatFromMat33((Matrix33)viewMatrix);
-	view.position = viewMatrix.GetTranslation();
+	view.rotation = GetQuatFromMat33((Matrix33)controllerTransform);
+	view.position = controllerTransform.GetTranslation();
 }
 
 void VRManager::ModifyCameraFor2D(CCamera& cam)
