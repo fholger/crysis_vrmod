@@ -34,7 +34,7 @@ Crysis VR is a third-party mod for the 2007 PC gaming classic by CryTek. It allo
 - aim your guns naturally with your hands; use two hands to stabilize the guns further
 - visible player arms with basic IK
 - physical melee attacks
-- left-handed support
+- left-handed support (but hands will be hidden on weapons due to incompatible models and animations)
 - bHaptics vest support
 
 The mod is completely free. Simply download [the latest release](https://github.com/fholger/crysis_vrmod/releases/latest)
@@ -78,6 +78,14 @@ If you want to record the game's desktop window, you may want to disable the fru
 
 I also strongly recommend to check out some of the later chapters of the game. You can download a set of save games at the start of each mission
 [here](/assets/CrysisVR_SaveGames.7z). Simply extract them to `<My Documents>\My Games\Crysis VR`.
+
+### Troubleshooting
+
+- Game renders very slowly (~1 frame per second)
+  - Make sure the game window has focus
+  - If you are using MSI Afterburner / Rivatuner or similar overlays, disable them as they are known to cause this issue with the VR Mod
+- Game fails with assertion messages mentioning ImGui
+  - Most likely cause is your headset not being detected. This can happen either because your headset was not turned on, not connected to your PC, or you are using the wrong OpenXR runtime. If you are using Quest Link, make sure you set it as active in the Link app. For Steam Link or SteamVR headsets, SteamVR must be set as the active OpenXR runtime.
 
 ### Support
 
