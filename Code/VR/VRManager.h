@@ -149,6 +149,9 @@ private:
 	ray_hit m_offHandRayHit;
 	bool m_offHandRayHitAny = false;
 	EntityId m_pointAtEntityId;
+
+	int m_numFailedSyncs = 0;
+	bool m_shownSyncFailureMessage = false;
 };
 
 extern VRManager* gVR;

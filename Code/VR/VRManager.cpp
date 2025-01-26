@@ -1337,7 +1337,17 @@ void VRManager::AcquireTextureSync(ID3D10Texture2D* target, int key)
 	if (target == nullptr) return;
 	ComPtr<IDXGIKeyedMutex> mutex;
 	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	CHECK_D3D10(mutex->AcquireSync(key, 100));
+	HRESULT hr = mutex->AcquireSync(key, 100);
+	if (FAILED(hr))
+	{
+		CryLogAlways("Failed to sync D3D10 textures: %i", hr);
+		++m_numFailedSyncs;
+		if (m_numFailedSyncs > 200 && !m_shownSyncFailureMessage)
+		{
+			MessageBoxA(nullptr, "Cannot sync textures between the game and the VR runtime. If you are using MSI Afterburner / Rivatuner or similar overlays, disable them and restart the game.", "Render error", MB_OK);
+			m_shownSyncFailureMessage = true;
+		}
+	}
 }
 
 void VRManager::AcquireTextureSync(ID3D11Texture2D* target, int key)
@@ -1345,7 +1355,17 @@ void VRManager::AcquireTextureSync(ID3D11Texture2D* target, int key)
 	if (target == nullptr) return;
 	ComPtr<IDXGIKeyedMutex> mutex;
 	target->QueryInterface(__uuidof(IDXGIKeyedMutex), (void**)mutex.GetAddressOf());
-	CHECK_D3D10(mutex->AcquireSync(key, 100));
+	HRESULT hr = mutex->AcquireSync(key, 100);
+	if (FAILED(hr))
+	{
+		CryLogAlways("Failed to sync D3D11 textures: %i", hr);
+		++m_numFailedSyncs;
+		if (m_numFailedSyncs > 200 && !m_shownSyncFailureMessage)
+		{
+			MessageBoxA(nullptr, "Cannot sync textures between the game and the VR runtime. If you are using MSI Afterburner / Rivatuner or similar overlays, disable them and restart the game.", "Render error", MB_OK);
+			m_shownSyncFailureMessage = true;
+		}
+	}
 }
 
 void VRManager::ReleaseTextureSync(ID3D10Texture2D* target, int key)
