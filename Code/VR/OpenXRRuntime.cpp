@@ -547,7 +547,7 @@ bool OpenXRRuntime::CreateInstance()
 
 	if (!XR_KHR_D3D11_enable_available)
 	{
-		CryLogAlways("Error: XR runtime does not support D3D11");
+		CryError("Error: XR runtime does not support D3D11");
 		return false;
 	}
 
@@ -585,7 +585,16 @@ bool OpenXRRuntime::CreateInstance()
 	systemInfo.type = XR_TYPE_SYSTEM_GET_INFO;
 	systemInfo.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
 	result = xrGetSystem(m_instance, &systemInfo, &m_system);
-	return XR_CheckResult(result, "getting system", m_instance);
+	if (!XR_CheckResult(result, "getting system", m_instance))
+	{
+		char message[1024];
+		snprintf(message, sizeof(message), "Could not find your headset. Make sure it is running and connected and that your active OpenXR runtime is set correctly. Your current runtime is %s", instanceProperties.runtimeName);
+		MessageBoxA(nullptr, message, "No VR headset found", MB_OK);
+		CryError(message);
+		return false;
+	}
+
+	return true;
 }
 
 void OpenXRRuntime::HandleSessionStateChange(XrEventDataSessionStateChanged* event)

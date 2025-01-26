@@ -23,6 +23,7 @@ public:
 	~VRManager();
 
 	bool Init();
+	bool IsInitialized() const { return m_initialized; }
 	void Shutdown();
 
 	void ReinitializeXR();

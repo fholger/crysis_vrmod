@@ -44,6 +44,7 @@ History:
 #include "GameNetworkProfile.h"
 #include "imgui.h"
 #include "SPAnalyst.h"
+#include "VR/VRManager.h"
 #include "VR/VRRenderer.h"
 
 //both are defined again in FlashMenuObjectOptions
@@ -532,7 +533,7 @@ SFlashKeyEvent CFlashMenuObject::MapToFlashKeyEvent(const SInputEvent &inputEven
 
 bool CFlashMenuObject::OnInputEvent(const SInputEvent &rInputEvent)
 {
-	if(rInputEvent.deviceId==eDI_Mouse && rInputEvent.keyId==eKI_Mouse1)
+	if(rInputEvent.deviceId==eDI_Mouse && rInputEvent.keyId==eKI_Mouse1 && gVR->IsInitialized())
 	{
 		if (rInputEvent.state & eIS_Pressed)
 		{
@@ -543,7 +544,7 @@ bool CFlashMenuObject::OnInputEvent(const SInputEvent &rInputEvent)
 		else if (rInputEvent.state & eIS_Released)
 			ImGui::GetIO().AddMouseButtonEvent(0, false);
 	}
-	if (ImGui::GetIO().WantCaptureMouse)
+	if (gVR->IsInitialized() && ImGui::GetIO().WantCaptureMouse)
 		return false;
 
 	if(gEnv->pSystem->IsEditor() || gEnv->pSystem->IsDedicated() || rInputEvent.keyId == eKI_SYS_Commit)
@@ -1641,7 +1642,7 @@ bool CFlashMenuObject::IsOnScreen(EMENUSCREEN screen)
 
 void CFlashMenuObject::OnHardwareMouseEvent(int iX,int iY,EHARDWAREMOUSEEVENT eHardwareMouseEvent)
 {
-	if (ImGui::GetIO().WantCaptureMouse)
+	if (gVR->IsInitialized() && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	Vec2i windowSize = gVRRenderer->GetWindowSize();
@@ -3403,7 +3404,7 @@ void CFlashMenuObject::OnPostUpdate(float fDeltaTime)
 			gEnv->pRenderer->Draw2dLabel( 10, 750, 1, white, false, "Connection State: %s", status );
 	}*/
 
-	if (ImGui::GetIO().WantCaptureMouse)
+	if (gVR->IsInitialized() && ImGui::GetIO().WantCaptureMouse)
 		return;
 
 	// display a simple mouse cursor since the Windows cursor is not visible in VR

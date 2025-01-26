@@ -59,6 +59,9 @@ void VRGui::ClickedNoFocus()
 
 void VRGui::Render()
 {
+	if (!gVR->IsInitialized())
+		return;
+
 	Vec2i windowSize = gVRRenderer->GetWindowSize();
 	Vec2i renderSize = gVR->GetRenderSize();
 	SetScale(g_pGameCVars->vr_gui_scale * windowSize.y / 1080.f * max(renderSize.y / windowSize.y, renderSize.x / windowSize.x));

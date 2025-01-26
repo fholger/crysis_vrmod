@@ -379,9 +379,9 @@ bool CGame::Init(IGameFramework *pFramework)
 	hooks::Init();
 
 	gHaptics->Init();
-	if (!gVR->Init())
-		return false;
 	if (!gXR->Init())
+		return false;
+	if (!gVR->Init())
 		return false;
 
 	gVRRenderer->Init();
