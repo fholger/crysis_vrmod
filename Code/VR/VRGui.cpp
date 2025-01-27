@@ -188,6 +188,13 @@ void VRGui::DrawSettingsMenu()
 		ImGui::SameLine();
 		ImGui::RadioButton("Right##movement", &g_pGameCVars->vr_movement_hand, 1);
 
+		ImGui::Text("Suit menu hand");
+		ImGui::SetItemTooltip("Choose which hand will control the suit menu selection");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Left##suit", &g_pGameCVars->vr_suit_hand, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Right##suit", &g_pGameCVars->vr_suit_hand, 1);
+
 		const char* turnOptions[] = { "Smooth turn", "Snap Turn 15", "Snap Turn 30", "Snap Turn 45", "Snap Turn 60", "Snap Turn 75", "Snap Turn 90" };
 		ImGui::Combo("Turn mode", &g_pGameCVars->vr_turn_mode, turnOptions, IM_ARRAYSIZE(turnOptions));
 

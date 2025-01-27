@@ -256,7 +256,7 @@ Vec3 OpenXRInput::GetControllerVelocity(int hand)
 void OpenXRInput::EnableHandMovementForQuickMenu()
 {
 	m_quickMenuActive = true;
-	m_quickMenuInitialHandPosition = gVR->GetControllerTransform(g_pGameCVars->vr_weapon_hand).GetTranslation();
+	m_quickMenuInitialHandPosition = gVR->GetControllerTransform(g_pGameCVars->vr_suit_hand).GetTranslation();
 }
 
 void OpenXRInput::DisableHandMovementForQuickMenu()
@@ -672,7 +672,7 @@ void OpenXRInput::UpdatePlayerMovement()
 		if (m_quickMenuActive)
 		{
 			// we are using movement of the main controller for the menu input, instead
-			Vec3 movementDiff = gVR->GetControllerTransform(g_pGameCVars->vr_weapon_hand).GetTranslation() - m_quickMenuInitialHandPosition;
+			Vec3 movementDiff = gVR->GetControllerTransform(g_pGameCVars->vr_suit_hand).GetTranslation() - m_quickMenuInitialHandPosition;
 			Ang3 hmdAngles = Ang3(gVR->GetHMDQuat());
 			Vec3 hmdRight = Matrix33::CreateRotationZ(hmdAngles.z).GetColumn0();
 			Vec3 up = Vec3(0, 0, 1);
