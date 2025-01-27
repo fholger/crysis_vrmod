@@ -105,7 +105,11 @@ add_executable(CrysisVR WIN32
 
 target_link_libraries(CrysisVR GameLauncher)
 
-add_custom_command(TARGET CrysisVR POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:CrysisVR> "${PROJECT_SOURCE_DIR}/../../../Bin64")
+if(BUILD_BITS EQUAL 64)
+  add_custom_command(TARGET CrysisVR POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:CrysisVR> "${PROJECT_SOURCE_DIR}/../../../Bin64")
+else()
+  add_custom_command(TARGET CrysisVR POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:CrysisVR> "${PROJECT_SOURCE_DIR}/../../../Bin32")
+endif()
 
 set(CURSORS
 	${PROJECT_SOURCE_DIR}/Resources/CursorAmber.cur

@@ -5,6 +5,14 @@
 
 #define IMPL_ORIG(hModule, fnName) static auto orig_##fnName = vrperfkit::hooks::LoadFunction(hModule, #fnName, fnName)
 
+#ifdef _WIN64
+#define STDCALL
+#define FASTCALL
+#else
+#define STDCALL __stdcall
+#define FASTCALL __fastcall
+#endif
+
 namespace hooks {
 
 	bool Init();
@@ -559,4 +567,14 @@ namespace hooks {
 		CryLogAlways("Found vtable index %i for hook %s", vtableIndex, name.c_str());
 		InstallVirtualFunctionHook(name, (void*)instance, vtableIndex, (void*)detour);
 	}
+
+#ifndef _WIN64
+	template <typename T, typename R, typename... Args>
+	void InstallVirtualFunctionHook(const std::string &name, T* instance, R (__stdcall T::*func)(Args...), R (__stdcall *detour)(T*, Args...))
+	{
+		int vtableIndex = getVTableIndex(reinterpret_cast<R (T::*)(Args...)>(func));
+		CryLogAlways("Found vtable index %i for hook %s", vtableIndex, name.c_str());
+		InstallVirtualFunctionHook(name, (void*)instance, vtableIndex, (void*)detour);
+	}
+#endif
 }

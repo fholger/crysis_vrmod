@@ -11,7 +11,7 @@ ID3D10Device1 *g_latestCreatedDevice = nullptr;
 IDXGISwapChain *g_latestCreatedSwapChain = nullptr;
 
 
-HRESULT IDXGIFactory_CreateSwapChain_wrapper(IDXGIFactory *pSelf, IUnknown *pDevice, DXGI_SWAP_CHAIN_DESC *pDesc, IDXGISwapChain **ppSwapChain)
+HRESULT STDMETHODCALLTYPE IDXGIFactory_CreateSwapChain_wrapper(IDXGIFactory *pSelf, IUnknown *pDevice, DXGI_SWAP_CHAIN_DESC *pDesc, IDXGISwapChain **ppSwapChain)
 {
 	CryLogAlways("DXGI swapchain created");
 	HRESULT hr = hooks::CallOriginal(IDXGIFactory_CreateSwapChain_wrapper)(pSelf, pDevice, pDesc, ppSwapChain);

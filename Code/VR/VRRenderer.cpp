@@ -30,7 +30,7 @@ VRRenderer* gVRRenderer = &g_vrRendererImpl;
 extern ID3D10Device1 *g_latestCreatedDevice;
 extern IDXGISwapChain *g_latestCreatedSwapChain;
 
-HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
+HRESULT STDMETHODCALLTYPE IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Flags)
 {
 	HRESULT hr = 0;
 
@@ -43,7 +43,7 @@ HRESULT IDXGISwapChain_Present(IDXGISwapChain *pSelf, UINT SyncInterval, UINT Fl
 	return hr;
 }
 
-HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
+HRESULT STDMETHODCALLTYPE IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC *pNewTargetParameters)
 {
 	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
 	{
@@ -54,12 +54,12 @@ HRESULT IDXGISwapChain_ResizeTarget(IDXGISwapChain *pSelf, const DXGI_MODE_DESC 
 	return 0;
 }
 
-HRESULT IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
+HRESULT STDMETHODCALLTYPE IDXGISwapChain_ResizeBuffers(IDXGISwapChain *pSelf, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
 	return hooks::CallOriginal(IDXGISwapChain_ResizeBuffers)(pSelf, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
-BOOL Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
+BOOL WINAPI Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, int  cx, int  cy, UINT uFlags)
 {
 	if (!gVRRenderer->ShouldIgnoreWindowSizeChanges())
 	{
