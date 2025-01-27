@@ -3,6 +3,7 @@
 #include "VRGui.h"
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
+#include "Hooks.h"
 
 struct IDXGISwapChain;
 
@@ -15,7 +16,7 @@ enum VRRenderMode
 
 class VRRenderer : public CHUD::IHUDListener
 {
-	typedef void (*SystemRenderFunc)(ISystem* system);
+	typedef void (FASTCALL *SystemRenderFunc)(ISystem* system);
 
 public:
 	void Init();

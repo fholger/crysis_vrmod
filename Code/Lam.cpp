@@ -896,9 +896,9 @@ void CLam::UpdateFPLaser(float frameTime, CItem* parent)
 //------------------------------------------------------------------
 void CLam::AdjustLaserFPDirection(CItem* parent, Vec3 &dir, Vec3 &pos)
 {
-	if (dynamic_cast<CPlayer*>(parent->GetOwnerActor()))
+	if (parent->GetOwnerActor()->IsPlayer())
 	{
-		if (CWeapon* weapon = dynamic_cast<CWeapon*>(parent))
+		if (CWeapon* weapon = static_cast<CWeapon*>(parent->GetIWeapon()))
 		{
 			weapon->GetFiringOriginAndDirection(pos, dir);
 			return;

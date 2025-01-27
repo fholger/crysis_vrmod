@@ -3725,7 +3725,7 @@ bool CWeapon::HasScope() const
 	if (m_useViewMode)
 		return false;
 
-	if (CIronSight* sight = dynamic_cast<CIronSight*>(m_zm))
+	if (CIronSight* sight = static_cast<CIronSight*>(m_zm))
 	{
 		return sight->IsScope() || sight->GetMaxZoomSteps() > 1 || sight->GetZoomFoVScale(1) <= 0.5f;
 	}
@@ -3834,7 +3834,7 @@ void CWeapon::PostProcessArms()
 		HideArm(0);
 	}
 
-	if (g_pGameCVars->vr_weapon_hand == 0 && !dynamic_cast<CFists*>(this) && ! dynamic_cast<COffHand*>(this) && !IsDualWield())
+	if (g_pGameCVars->vr_weapon_hand == 0 && GetEntity()->GetClass() != CItem::sFistsClass && GetEntity()->GetClass() != CItem::sOffHandClass && !IsDualWield())
 	{
 		// unfortunately we have to hide the arms when attached to the weapon, since we can't seem to mirror the models
 		HideArm(0);
@@ -3842,8 +3842,9 @@ void CWeapon::PostProcessArms()
 			HideArm(1);
 	}
 
-	if (COffHand *offHand = dynamic_cast<COffHand*>(this))
+	if (GetEntity()->GetClass() == CItem::sOffHandClass)
 	{
+		COffHand* offHand = static_cast<COffHand*>(this);
 		CWeapon* mainWeapon = offHand->GetMainHandWeapon();
 		if (mainWeapon)
 		{

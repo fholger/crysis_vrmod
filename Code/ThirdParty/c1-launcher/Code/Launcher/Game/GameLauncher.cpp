@@ -158,7 +158,11 @@ void GameLauncher::LoadVRMod()
 	std::string vrModPath = LauncherCommon::GetMainFolderPath();
 	if (vrModPath.empty())
 		vrModPath = ".";
+#ifndef _WIN64
+	vrModPath += "\\Mods\\VRMod\\Bin32\\VRMod.dll";
+#else
 	vrModPath += "\\Mods\\VRMod\\Bin64\\VRMod.dll";
+#endif
 	m_dlls.pVRMod = LauncherCommon::LoadDLL(vrModPath.c_str());
 
 	InitVRModD3DHooks();

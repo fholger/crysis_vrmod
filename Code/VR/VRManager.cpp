@@ -18,7 +18,11 @@
 VRManager s_VRManager;
 VRManager* gVR = &s_VRManager;
 
+#ifndef _WIN64
+int FASTCALL AI_SmartObjectEvent_Hook(IAISystem* self, void* notUsed, const char* event, IEntity*& user, IEntity*& object, const Vec3* pExtraPoint, bool bHighPriority)
+#else
 int AI_SmartObjectEvent_Hook(IAISystem* self, const char* event, IEntity*& user, IEntity*& object, const Vec3* pExtraPoint, bool bHighPriority)
+#endif
 {
 	CPlayer* player = gVR->GetLocalPlayer();
 	if (player && (player->GetEntity() == user || player->GetEntity() == object))
@@ -28,16 +32,28 @@ int AI_SmartObjectEvent_Hook(IAISystem* self, const char* event, IEntity*& user,
 			player->SignalUsedEntity();
 		}
 	}
+#ifndef _WIN64
+	return hooks::CallOriginal(AI_SmartObjectEvent_Hook)(self, notUsed, event, user, object, pExtraPoint, bHighPriority);
+#else
 	return hooks::CallOriginal(AI_SmartObjectEvent_Hook)(self, event, user, object, pExtraPoint, bHighPriority);
+#endif
 }
 
+#ifndef _WIN64
+void FASTCALL I3DEngine_SetPostEffectParam_Hook(I3DEngine* self, void* notUsed, const char *pParam, float fValue)
+#else
 void I3DEngine_SetPostEffectParam_Hook(I3DEngine* self, const char *pParam, float fValue)
+#endif
 {
 	if (strcmp("AlienInterference_Amount", pParam) == 0)
 	{
 		gHaptics->TriggerBHapticsEffect("shake_vest", 0.5f * fValue);
 	}
+#ifndef _WIN64
+	hooks::CallOriginal(I3DEngine_SetPostEffectParam_Hook)(self, notUsed, pParam, fValue);
+#else
 	hooks::CallOriginal(I3DEngine_SetPostEffectParam_Hook)(self, pParam, fValue);
+#endif
 }
 
 VRManager::~VRManager()
@@ -401,9 +417,9 @@ void VRManager::ModifyWeaponPosition(CPlayer* player, Ang3& weaponAngles, Vec3& 
 
 	if (slave)
 	{
-		weapon = dynamic_cast<CWeapon*>(weapon->GetDualWieldSlave());
-		if (!weapon)
+		if (!weapon->GetDualWieldSlave())
 			return;
+		weapon = static_cast<CWeapon*>(weapon->GetDualWieldSlave()->GetIWeapon());
 	}
 
 	int weaponHand = g_pGameCVars->vr_weapon_hand;
@@ -986,7 +1002,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
-	if (side == g_pGameCVars->vr_weapon_hand && (dynamic_cast<CFists*>(weapon) != nullptr || isOffHandClass) && !weapon->IsDualWield() && (side != 0 || !isOffHandClass))
+	if (side == g_pGameCVars->vr_weapon_hand && (weapon->GetEntity()->GetClass() == CItem::sFistsClass || isOffHandClass) && !weapon->IsDualWield() && (side != 0 || !isOffHandClass))
 	{
 		ApplyHandPose(side, skeleton, gXR->GetInput()->GetGripAmount(side));
 	}
@@ -998,7 +1014,7 @@ void VRManager::TryGrabWeaponWithOffHand()
 	CWeapon* weapon = player->GetWeapon(player->GetCurrentItemId());
 	if (!weapon)
 		return;
-	if (weapon->IsDualWield() || dynamic_cast<CFists*>(weapon) != nullptr || dynamic_cast<COffHand*>(weapon) != nullptr)
+	if (weapon->IsDualWield() || weapon->GetEntity()->GetClass() == CItem::sFistsClass || weapon->GetEntity()->GetClass() == CItem::sOffHandClass)
 		return;
 
 	Vec3 controllerPos = GetWorldControllerWeaponTransform(1 - g_pGameCVars->vr_weapon_hand).GetTranslation();

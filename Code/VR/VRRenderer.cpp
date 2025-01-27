@@ -69,12 +69,12 @@ BOOL WINAPI Hook_SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int  X, int  Y, i
 	return TRUE;
 }
 
-void VR_ISystem_Render(ISystem *pSelf)
+void FASTCALL VR_ISystem_Render(ISystem *pSelf)
 {
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
 }
 
-void VR_ISystem_Quit(ISystem *pSelf)
+void FASTCALL VR_ISystem_Quit(ISystem *pSelf)
 {
 	gVRRenderer->Shutdown();
 	gVR->Shutdown();
@@ -82,7 +82,7 @@ void VR_ISystem_Quit(ISystem *pSelf)
 	hooks::CallOriginal(VR_ISystem_Quit)(pSelf);
 }
 
-void VR_CryRenderD3D10_Shadows(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4)
+void FASTCALL VR_CryRenderD3D10_Shadows(int64_t arg1, int64_t arg2, int64_t arg3, int64_t arg4)
 {
 	// only execute this function for the first eye, as shadow maps do not need to be regenerated for the second eye
 	// should save a small bit of performance
@@ -356,7 +356,7 @@ void VRRenderer::DrawCrosshair()
 	if (CWeapon *weapon = pPlayer->GetWeapon(pPlayer->GetCurrentItemId(true)))
 	{
 		// don't draw a crosshair if the weapon laser is active
-		if (weapon->IsLamLaserActivated() || dynamic_cast<CRocketLauncher*>(weapon) != nullptr)
+		if (weapon->IsLamLaserActivated() || weapon->GetEntity()->GetClass() == CItem::sRocketLauncherClass)
 			return;
 	}
 
