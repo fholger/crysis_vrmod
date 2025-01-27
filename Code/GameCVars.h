@@ -443,6 +443,7 @@ struct SCVars
 	int vr_weapon_hand;
 	int vr_movement_hand;
 	int vr_suit_hand;
+	int vr_movement_mode;
 	float vr_weapon_pitch_offset;
 	float vr_weapon_yaw_offset;
 	int vr_weapon_crosshair;

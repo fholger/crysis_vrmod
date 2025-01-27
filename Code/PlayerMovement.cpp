@@ -160,7 +160,7 @@ static Vec3 ProjectPointToLine(const Vec3 &point,const Vec3 &lineStart,const Vec
 //-----------------------------------------------------------------------------------------------
 void CPlayerMovement::ProcessFlyMode()
 {
-	Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+	Quat viewQuat = GetFlyQuat();
 	Vec3 move = viewQuat * m_movement.desiredVelocity;
 
 	float zMove(0.0f);
@@ -192,8 +192,9 @@ void CPlayerMovement::ProcessFlyingZeroG()
 {
 	bool debug = false;
 	Vec3 entityPos = m_player.GetEntity()->GetWorldPos();
-	Vec3 vRight(m_baseQuat.GetColumn0());
-	Vec3 vFwd(m_baseQuat.GetColumn1());
+	Quat baseQuat = GetMoveQuat();
+	Vec3 vRight(baseQuat.GetColumn0());
+	Vec3 vFwd(baseQuat.GetColumn1());
 
 	bool trail = (g_pGameCVars->pl_zeroGParticleTrail != 0);
 	if (trail)
@@ -295,7 +296,7 @@ void CPlayerMovement::ProcessFlyingZeroG()
 		desiredLocalVelocity.z = desiredLocalNormalizedVelocity.z * maxSpeed;
 
 		// The desired movement is applied in viewspace, not in entityspace, since entity does not nessecarily pitch while swimming.
-		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+		Quat viewQuat = GetFlyQuat();
 		desiredWorldVelocity += viewQuat.GetColumn0() * desiredLocalVelocity.x;
 		desiredWorldVelocity += viewQuat.GetColumn1() * desiredLocalVelocity.y;
 		desiredWorldVelocity += viewQuat.GetColumn2() * desiredLocalVelocity.z;
@@ -653,7 +654,8 @@ void CPlayerMovement::ProcessSwimming()
 {
  	bool debug = (g_pGameCVars->cl_debugSwimming != 0);
 	Vec3 entityPos = m_player.GetEntity()->GetWorldPos();
-	Vec3 vRight(m_baseQuat.GetColumn0());
+	Quat baseQuat = GetMoveQuat();
+	Vec3 vRight(baseQuat.GetColumn0());
 
 	// Don't enable sticky surface directly when entering water.
 	if (m_stats.inWaterTimer < 0.5f)
@@ -781,7 +783,7 @@ void CPlayerMovement::ProcessSwimming()
 		desiredLocalNormalizedVelocity.x = m_movement.desiredVelocity.x * g_pGameCVars->pl_swimSideSpeedMul;
 		desiredLocalNormalizedVelocity.y = m_movement.desiredVelocity.y * backwardMultiplier;
 
- 		Quat viewQuat = m_baseQuat * gVR->GetHMDQuat();
+ 		Quat viewQuat = GetFlyQuat();
  		
 		// AI can set a custom sprint value, so don't cap the movement vector
 		float sprintMultiplier = 1.0f;
@@ -938,7 +940,8 @@ void CPlayerMovement::ProcessParachute()
 	m_request.type = eCMT_Impulse;//eCMT_Fly;
 	m_request.velocity = (Vec3(0,0,desiredZ)-m_stats.velocity) * m_stats.mass/* * m_frameTime*/;//desiredVelocity;
 
-	Vec3 forwardComp(m_baseQuat.GetColumn1() * 10.0f);
+	Quat baseQuat = GetMoveQuat();
+	Vec3 forwardComp(baseQuat.GetColumn1() * 10.0f);
 	forwardComp.z = 0.0f;
 
 	m_request.velocity += forwardComp * m_stats.mass;// * m_frameTime;//desiredVelocity;
@@ -987,8 +990,9 @@ void CPlayerMovement::ProcessOnGroundOrJumping(CPlayer& player)
 		NETINPUT_TRACE(m_player.GetEntityId(), backwardMul);
 		NETINPUT_TRACE(m_player.GetEntityId(), strafeMul);
 
-		move += m_baseQuat.GetColumn0() * desiredVelocityClamped.x * strafeMul * backwardMul;
-		move += m_baseQuat.GetColumn1() * desiredVelocityClamped.y * backwardMul;
+		Quat baseQuat = GetMoveQuat();
+		move += baseQuat.GetColumn0() * desiredVelocityClamped.x * strafeMul * backwardMul;
+		move += baseQuat.GetColumn1() * desiredVelocityClamped.y * backwardMul;
 	}
 
 	float sprintMult = 1.0f;
@@ -1705,4 +1709,24 @@ void CPlayerMovement::AdjustPlayerPositionOnLadder(CPlayer &player)
 			pEntity->SetWorldTM(finalPos);
 		}
 	}
+}
+
+Quat CPlayerMovement::GetMoveQuat()
+{
+	if (g_pGameCVars->vr_movement_mode == 0)
+		return m_baseQuat;
+	else
+	{
+		Vec3 fwd = gVR->GetMovementControllerQuat().GetColumn1();
+		fwd.z = 0;
+		return Quat::CreateRotationVDir(fwd.GetNormalizedSafe());
+	}
+}
+
+Quat CPlayerMovement::GetFlyQuat()
+{
+	if (g_pGameCVars->vr_movement_mode == 0)
+		return m_baseQuat * gVR->GetHMDQuat();
+	else
+		return gVR->GetMovementControllerQuat();
 }

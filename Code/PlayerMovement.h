@@ -42,6 +42,9 @@ private:
 	void AdjustMovementForEnvironment( Vec3& movement, bool sprinting );
 	void AdjustPlayerPositionOnLadder(CPlayer &player);
 
+	Quat GetMoveQuat();
+	Quat GetFlyQuat();
+
 	SCharacterMoveRequest m_request; // our primary output... how to move!
 	bool m_detachLadder; // do we want to detach from a ladder?
 	Vec3 m_velocity; // from CPlayer... gets updated here and committed

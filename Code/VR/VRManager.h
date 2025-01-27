@@ -51,6 +51,7 @@ public:
 	Matrix34 GetControllerWeaponTransform(int side);
 	Matrix34 GetTwoHandWeaponTransform();
 	Matrix34 GetWorldControllerWeaponTransform(int side);
+	Quat GetMovementControllerQuat();
 	Vec3 GetControllerVelocity(int side);
 	Vec3 GetControllerWorldVelocity(int side);
 	void ModifyPlayerEye(CPlayer* pPlayer, Vec3& eyePosition, Vec3& eyeDirection);

@@ -203,6 +203,13 @@ void VRGui::DrawSettingsMenu()
 		bool invertVehicleY = g_pGameCVars->vr_vehicle_invert_y;
 		ImGui::Checkbox("Invert look Y-axis for vehicles and mounted guns", &invertVehicleY);
 		g_pGameCVars->vr_vehicle_invert_y = invertVehicleY;
+
+		ImGui::Text("Movement relative to");
+		ImGui::SetItemTooltip("Choose if movement direction is relative to head or controller");
+		ImGui::SameLine(0.2f * windowSize.x);
+		ImGui::RadioButton("Head", &g_pGameCVars->vr_movement_mode, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Controller", &g_pGameCVars->vr_movement_mode, 1);
 	}
 
 	if (ImGui::CollapsingHeader("Weapons"))

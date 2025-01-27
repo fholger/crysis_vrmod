@@ -515,6 +515,12 @@ Matrix34 VRManager::GetWorldControllerWeaponTransform(int side)
 	return view * controllerTransform;
 }
 
+Quat VRManager::GetMovementControllerQuat()
+{
+	Matrix34 controllerTransform = GetWorldControllerTransform(g_pGameCVars->vr_movement_hand);
+	return Quat(controllerTransform);
+}
+
 Vec3 VRManager::GetControllerVelocity(int side)
 {
 	Vec3 controllerVelocity = gXR->GetInput()->GetControllerVelocity(side);
