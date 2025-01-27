@@ -30,14 +30,31 @@ jobs:
 
       - name: Build project
         working-directory: Code
-        run: msbuild CrysisMod.sln /p:Configuration=Release -m
+        run: msbuild CrysisMod.sln /p:Configuration=Release /p:Platform=x64 -m
 
       - name: Build launcher
         working-directory: Code/ThirdParty/c1-launcher
         run: |
           mkdir build64
           cd build64
-          cmake -D CMAKE_BUILD_TYPE=Release ..
+          cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 ..
+          cmake --build . --parallel --config Release
+
+      - name: Setup MSBuild (Win32)
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          msbuild-architecture: x86
+
+      - name: Build project (Win32)
+        working-directory: Code
+        run: msbuild CrysisMod.sln /p:Configuration=Release /p:Platform=Win32 -m
+
+      - name: Build launcher (WIN32)
+        working-directory: Code/ThirdParty/c1-launcher
+        run: |
+          mkdir build32
+          cd build32
+          cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=Win32 ..
           cmake --build . --parallel --config Release
 
       - name: Create installer
@@ -47,7 +64,7 @@ jobs:
 
       - name: Zip debug symbols
         run: |
-          7z a -t7z crysisvr_pdbs.7z Bin64\*.pdb
+          7z a -t7z crysisvr_pdbs.7z Bin64\*.pdb Bin32\*.pdb
 
       - name: Update Github dev release
         if: github.ref == 'refs/heads/main'

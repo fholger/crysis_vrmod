@@ -1,7 +1,7 @@
 !include "MUI2.nsh"
-!define VERSION '1.0.2'
+!define VERSION '1.1.0'
 
-Name "Crysis VR Mod"
+Name "Crysis VR"
 ; should not need admin privileges as the install folder should be user writable, anyway
 RequestExecutionLevel user
 
@@ -12,7 +12,7 @@ OutFile ".\crysis-vrmod-${VERSION}.exe"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP ".\header.bmp"
 !define MUI_WELCOMEFINISHPAGE_BITMAP ".\welcome.bmp"
-!define MUI_WELCOMEPAGE_TITLE 'Crysis VR Mod v${VERSION}'
+!define MUI_WELCOMEPAGE_TITLE 'Crysis VR v${VERSION}'
 !define MUI_WELCOMEPAGE_TEXT 'This will install the Crysis VR Mod on your computer. \
 It will turn the game into a full 6DOF tracked VR experience with motion controls. \
 But remember, it is Crysis - expect performance to not be great :)'
@@ -42,15 +42,20 @@ Section ""
 	SetOutPath $INSTDIR\Bin64
 	File .\assembly\Bin64\*
 
+	SetOutPath $INSTDIR\Bin32
+	File .\assembly\Bin32\*
+
 	WriteUninstaller "$INSTDIR\Uninstall_CrysisVR.exe"
 SectionEnd
 
 Section "Start menu shortcut"
-	CreateShortcut "$SMPrograms\$(^Name).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	CreateShortcut "$SMPrograms\$(^Name) (64 bit).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	CreateShortcut "$SMPrograms\$(^Name) (32 bit).lnk" "$InstDir\Bin32\CrysisVR.exe"
 SectionEnd
 
 Section /o "Desktop shortcut"
-	CreateShortcut "$Desktop\$(^Name).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	CreateShortcut "$Desktop\$(^Name) (64 bit).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	CreateShortcut "$Desktop\$(^Name) (32 bit).lnk" "$InstDir\Bin32\CrysisVR.exe"
 SectionEnd
 
 Section "Uninstall"
@@ -58,8 +63,12 @@ Section "Uninstall"
 	RMDir /r "$INSTDIR\Mods\VRMod"
 	Delete "$INSTDIR\Bin64\CrysisVR.exe"
 	Delete "$INSTDIR\Bin64\haptic_library.dll"
-	Delete "$SMPrograms\$(^Name).lnk"
-	Delete "$Desktop\$(^Name).lnk"
+	Delete "$INSTDIR\Bin32\CrysisVR.exe"
+	Delete "$INSTDIR\Bin32\haptic_library.dll"
+	Delete "$SMPrograms\$(^Name) (64 bit).lnk"
+	Delete "$SMPrograms\$(^Name) (32 bit).lnk"
+	Delete "$Desktop\$(^Name) (64 bit).lnk"
+	Delete "$Desktop\$(^Name) (32 bit).lnk"
 	Delete "Uninstall_CrysisVR.exe"
 SectionEnd
 
