@@ -15,7 +15,7 @@
 #include "HUD/HUD.h"
 #include "Menus/FlashMenuObject.h"
 
-extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = nullptr);
+extern bool XR_CheckResult(XrResult result, const char* description, XrInstance instance = XR_NULL_HANDLE);
 extern Matrix34 OpenXRToCrysis(const XrQuaternionf& orientation, const XrVector3f& position);
 extern Vec3 OpenXRToCrysis(const XrVector3f& position);
 
@@ -153,8 +153,8 @@ void OpenXRInput::Shutdown()
 	xrDestroyActionSet(m_menuSet);
 	xrDestroyActionSet(m_vehicleSet);
 
-	m_session = nullptr;
-	m_instance = nullptr;
+	m_session = XR_NULL_HANDLE;
+	m_instance = XR_NULL_HANDLE;
 }
 
 void OpenXRInput::Update()
@@ -971,5 +971,5 @@ bool OpenXRInput::CalcControllerHudIntersection(int hand, float& x, float& y)
 void OpenXRInput::DestroyAction(XrAction& action)
 {
 	xrDestroyAction(action);
-	action = nullptr;
+	action = XR_NULL_HANDLE;
 }

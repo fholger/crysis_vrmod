@@ -19,7 +19,7 @@ using Microsoft::WRL::ComPtr;
 const int OpenXRInput::MOUSE_SAMPLE_COUNT;
 
 
-bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = nullptr)
+bool XR_CheckResult(XrResult result, const char *description, XrInstance instance = XR_NULL_HANDLE)
 {
 	if ( XR_SUCCEEDED( result ) ) {
 		return true;
@@ -147,7 +147,7 @@ namespace
 	{
 		uint32_t layersCount = 0;
 		XrResult result = xrEnumerateApiLayerProperties(0, &layersCount, nullptr);
-		if (!XR_CheckResult(result, "enumerating API layers", nullptr))
+		if (!XR_CheckResult(result, "enumerating API layers", XR_NULL_HANDLE))
 			return;
 
 		std::vector<XrApiLayerProperties> layerProperties (layersCount);
@@ -157,7 +157,7 @@ namespace
 			layer.next = nullptr;
 		}
 		result = xrEnumerateApiLayerProperties(layerProperties.size(), &layersCount, layerProperties.data());
-		if (!XR_CheckResult(result, "enumerating API layers", nullptr))
+		if (!XR_CheckResult(result, "enumerating API layers", XR_NULL_HANDLE))
 			return;
 
 		CryLogAlways("XR supported API layers:");
@@ -185,7 +185,7 @@ namespace
 
 	void XR_SetupDebugMessenger(XrInstance instance)
 	{
-		static XrDebugUtilsMessengerEXT debugMessenger = nullptr;
+		static XrDebugUtilsMessengerEXT debugMessenger = XR_NULL_HANDLE;
 
 		XrDebugUtilsMessengerCreateInfoEXT createInfo{ XR_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
 		createInfo.messageSeverities = 0xffffffff;
@@ -212,16 +212,16 @@ void OpenXRRuntime::Shutdown()
 	m_input.Shutdown();
 
 	xrDestroySwapchain(m_stereoSwapchain);
-	m_stereoSwapchain = nullptr;
+	m_stereoSwapchain = XR_NULL_HANDLE;
 	m_stereoImages.clear();
 	xrDestroySwapchain(m_hudSwapchain);
-	m_hudSwapchain = nullptr;
+	m_hudSwapchain = XR_NULL_HANDLE;
 	xrDestroySpace(m_space);
-	m_space = nullptr;
+	m_space = XR_NULL_HANDLE;
 	xrDestroySession(m_session);
-	m_session = nullptr;
+	m_session = XR_NULL_HANDLE;
 	xrDestroyInstance(m_instance);
-	m_instance = nullptr;
+	m_instance = XR_NULL_HANDLE;
 }
 
 void OpenXRRuntime::GetD3D11Requirements(LUID* adapterLuid, D3D_FEATURE_LEVEL* minRequiredLevel)
@@ -241,7 +241,7 @@ void OpenXRRuntime::CreateSession(ID3D11Device* device)
 	{
 		m_input.Shutdown();
 		xrDestroySession(m_session);
-		m_session = nullptr;
+		m_session = XR_NULL_HANDLE;
 	}
 	XrGraphicsBindingD3D11KHR graphicsBinding{};
 	graphicsBinding.type = XR_TYPE_GRAPHICS_BINDING_D3D11_KHR;
@@ -665,7 +665,7 @@ void OpenXRRuntime::CreateStereoSwapchain(int width, int height)
 	if (m_stereoSwapchain)
 	{
 		xrDestroySwapchain(m_stereoSwapchain);
-		m_stereoSwapchain = nullptr;
+		m_stereoSwapchain = XR_NULL_HANDLE;
 		m_stereoWidth = 0;
 		m_stereoHeight = 0;
 	}
@@ -710,7 +710,7 @@ void OpenXRRuntime::CreateHudSwapchain(int width, int height)
 	if (m_hudSwapchain)
 	{
 		xrDestroySwapchain(m_hudSwapchain);
-		m_hudSwapchain = nullptr;
+		m_hudSwapchain = XR_NULL_HANDLE;
 		m_hudWidth = 0;
 		m_hudHeight = 0;
 	}

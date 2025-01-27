@@ -729,6 +729,9 @@
     <ClCompile Include="VR\VRHaptics.cpp">
       <Filter>VR Mod</Filter>
     </ClCompile>
+    <ClCompile Include="ThirdParty\minhook\src\hde\hde32.c">
+      <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1960,6 +1963,9 @@
     </ClInclude>
     <ClInclude Include="VR\VRHaptics.h">
       <Filter>VR Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\minhook\src\hde\hde32.h">
+      <Filter>ThirdParty\MinHook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

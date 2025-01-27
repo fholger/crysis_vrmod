@@ -45,10 +45,10 @@ public:
 
 private:
 	OpenXRInput m_input;
-	XrInstance m_instance = nullptr;
+	XrInstance m_instance = XR_NULL_HANDLE;
 	XrSystemId m_system = 0;
-	XrSession m_session = nullptr;
-	XrSpace m_space = nullptr;
+	XrSession m_session = XR_NULL_HANDLE;
+	XrSpace m_space = XR_NULL_HANDLE;
 	bool m_sessionActive = false;
 	bool m_frameStarted = false;
 	bool m_shouldRender = false;
@@ -56,11 +56,11 @@ private:
 	XrTime m_predictedNextFrameDisplayTime = 0;
 	XrView m_renderViews[2] = {};
 	bool m_posesValid = false;
-	XrSwapchain m_stereoSwapchain = nullptr;
+	XrSwapchain m_stereoSwapchain = XR_NULL_HANDLE;
 	int m_stereoWidth = 0;
 	int m_stereoHeight = 0;
 	std::vector<ID3D11Texture2D*> m_stereoImages;
-	XrSwapchain m_hudSwapchain = nullptr;
+	XrSwapchain m_hudSwapchain = XR_NULL_HANDLE;
 	int m_hudWidth = 0;
 	int m_hudHeight = 0;
 	bool m_hudVisible = true;

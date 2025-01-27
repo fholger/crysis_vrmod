@@ -29,7 +29,7 @@ public:
 private:
 	struct BooleanAction
 	{
-		XrAction handle = nullptr;
+		XrAction handle = XR_NULL_HANDLE;
 		ActionId* onPress = nullptr;
 		ActionId* onLongPress = nullptr;
 		bool sendRelease = true;
@@ -39,17 +39,17 @@ private:
 		float timePressed = -1;
 	};
 
-	XrInstance m_instance = nullptr;
-	XrSession m_session = nullptr;
-	XrSpace m_trackingSpace = nullptr;
+	XrInstance m_instance = XR_NULL_HANDLE;
+	XrSession m_session = XR_NULL_HANDLE;
+	XrSpace m_trackingSpace = XR_NULL_HANDLE;
 
-	XrActionSet m_ingameSet = nullptr;
+	XrActionSet m_ingameSet = XR_NULL_HANDLE;
 	XrAction m_controller[2] = {};
-	XrAction m_moveX = nullptr;
-	XrAction m_moveY = nullptr;
-	XrAction m_rotateYaw = nullptr;
-	XrAction m_rotatePitch = nullptr;
-	XrAction m_jumpCrouch = nullptr;
+	XrAction m_moveX = XR_NULL_HANDLE;
+	XrAction m_moveY = XR_NULL_HANDLE;
+	XrAction m_rotateYaw = XR_NULL_HANDLE;
+	XrAction m_rotatePitch = XR_NULL_HANDLE;
+	XrAction m_jumpCrouch = XR_NULL_HANDLE;
 	XrAction m_grip[2] = {};
 	XrAction m_trigger[2] = {};
 	XrAction m_haptics[2] = {};
@@ -67,12 +67,12 @@ private:
 	BooleanAction m_grenades;
 	XrSpace m_gripSpace[2] = {};
 
-	XrActionSet m_menuSet = nullptr;
+	XrActionSet m_menuSet = XR_NULL_HANDLE;
 	BooleanAction m_menuClick;
 	BooleanAction m_menuBack;
 	BooleanAction m_dropWeapon;
 
-	XrActionSet m_vehicleSet = nullptr;
+	XrActionSet m_vehicleSet = XR_NULL_HANDLE;
 	BooleanAction m_vecBoost;
 	BooleanAction m_vecAfterburner;
 	BooleanAction m_vecSecondaryFire;
