@@ -283,6 +283,11 @@ void VRGui::DrawSettingsMenu()
 		g_pGameCVars->vr_enable_frustum_tweaks = frustumTweaks;
 
 		ImGui::SliderFloat("Render resolution scale", &m_vrResolutionScale, 0.5f, 2.f);
+
+		bool controllerSmoothing = g_pGameCVars->vr_controller_smoothing;
+		ImGui::Checkbox("Enable controller smoothing", &controllerSmoothing);
+		g_pGameCVars->vr_controller_smoothing = controllerSmoothing;
+		ImGui::SliderFloat("Controller smoothing speed", &g_pGameCVars->vr_controller_smoothing_speed, 20.f, 500.f);
 	}
 
 	if (ImGui::Button("Close"))

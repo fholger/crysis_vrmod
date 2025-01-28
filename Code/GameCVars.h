@@ -470,6 +470,9 @@ struct SCVars
 	int vr_increase_view_dist;
 	int vr_enable_frustum_tweaks;
 
+	int vr_controller_smoothing;
+	float vr_controller_smoothing_speed;
+
 	SCVars()
 	{
 		memset(this,0,sizeof(SCVars));

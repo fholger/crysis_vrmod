@@ -937,8 +937,31 @@ void OpenXRInput::UpdateControllerPoses()
 		Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2);
 		Matrix34 controllerTransform = OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
 
-		m_controllerPos[i] = controllerTransform.GetTranslation();
-		m_controllerRot[i] = Quat(controllerTransform);
+		Vec3 controllerPos = controllerTransform.GetTranslation();
+		Quat controllerRot = Quat(controllerTransform);
+
+		if (!g_pGameCVars->vr_controller_smoothing)
+		{
+			m_controllerPos[i] = controllerPos;
+			m_controllerRot[i] = controllerRot;
+			continue;
+		}
+
+		if (m_controllerRot[i].GetLength() < .5f)
+		{
+			// probably uniniialized, so just set it
+			m_controllerRot[i] = controllerRot;
+		}
+
+		// smooth controller poses with SLERP
+		float angleDiff = controllerRot | m_controllerRot[i];
+		if (angleDiff < 0)
+			angleDiff = -angleDiff;
+		float distance = 100.f * max(0.01f, controllerPos.GetDistance(m_controllerPos[i]));
+
+		float lerpSpeed = g_pGameCVars->vr_controller_smoothing_speed * gEnv->pTimer->GetFrameTime();
+		m_controllerPos[i] = Vec3::CreateLerp(m_controllerPos[i], controllerPos, min(1.0f, lerpSpeed * distance));
+		m_controllerRot[i] = Quat::CreateSlerp(m_controllerRot[i], controllerRot, min(1.0f, lerpSpeed * angleDiff));
 	}
 }
 

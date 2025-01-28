@@ -903,6 +903,8 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_bhaptics_strength", &vr_bhaptics_strength, 1.0f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "The strength of bHaptics effect vibrations");
 	pConsole->Register("vr_increase_view_dist", &vr_increase_view_dist, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, increase view distance");
 	pConsole->Register("vr_enable_frustum_tweaks", &vr_enable_frustum_tweaks, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "If enabled, sets up asymmetric frustum culling for VR");
+	pConsole->Register("vr_controller_smoothing", &vr_controller_smoothing, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Enable controller smoothing");
+	pConsole->Register("vr_controller_smoothing_speed", &vr_controller_smoothing_speed, 50, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Controller smoothing speed");
 }
 
 void SCVars::ReleaseVRCVars(IConsole* pConsole)
