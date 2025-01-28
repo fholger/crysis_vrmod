@@ -96,6 +96,9 @@ private:
 	bool m_quickMenuActive = false;
 	Vec3 m_quickMenuInitialHandPosition;
 
+	Vec3 m_controllerPos[2];
+	Quat m_controllerRot[2];
+
 	void CreateInputActions();
 	void SuggestBindings();
 	void AttachActionSets();
@@ -110,6 +113,7 @@ private:
 	void UpdateWeaponScopes();
 	void UpdateBooleanAction(BooleanAction& action);
 	void UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId device, EKeyId key);
+	void UpdateControllerPoses();
 
 	bool CalcControllerHudIntersection(int hand, float& x, float& y);
 

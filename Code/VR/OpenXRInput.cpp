@@ -171,6 +171,8 @@ void OpenXRInput::Update()
 	syncInfo.activeActionSets = activeSets.data();
 	XR_CheckResult(xrSyncActions(m_session, &syncInfo), "syncing actions");
 
+	UpdateControllerPoses();
+
 	float pointerX, pointerY;
 	if (CalcControllerHudIntersection(g_pGameCVars->vr_weapon_hand, pointerX, pointerY))
 	{
@@ -224,13 +226,7 @@ void OpenXRInput::Update()
 Matrix34 OpenXRInput::GetControllerTransform(int hand)
 {
 	hand = clamp_tpl(hand, 0, 1);
-
-	XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
-	XR_CheckResult(xrLocateSpace(m_gripSpace[hand], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
-
-	// the grip pose has a peculiar orientation that we need to fix
-	Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2);
-	return OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
+	return Matrix34(Vec3(1, 1, 1), m_controllerRot[hand], m_controllerPos[hand]);
 }
 
 Matrix34 OpenXRInput::GetControllerWeaponTransform(int hand)
@@ -927,6 +923,22 @@ void OpenXRInput::UpdateBooleanActionForMenu(BooleanAction& action, EDeviceId de
 		event.state = state.currentState ? eIS_Pressed : eIS_Released;
 		menu->OnInputEvent(event);
 		gVRRenderer->GuiClickedUnfocussed();
+	}
+}
+
+void OpenXRInput::UpdateControllerPoses()
+{
+	for (int i = 0; i < 2; ++i)
+	{
+		XrSpaceLocation location{ XR_TYPE_SPACE_LOCATION };
+		XR_CheckResult(xrLocateSpace(m_gripSpace[i], m_trackingSpace, gXR->GetNextFrameDisplayTime(), &location), "locating grip space", m_instance);
+
+		// the grip pose has a peculiar orientation that we need to fix
+		Matrix33 correction = Matrix33::CreateRotationX(-gf_PI/2);
+		Matrix34 controllerTransform = OpenXRToCrysis(location.pose.orientation, location.pose.position) * correction;
+
+		m_controllerPos[i] = controllerTransform.GetTranslation();
+		m_controllerRot[i] = Quat(controllerTransform);
 	}
 }
 
