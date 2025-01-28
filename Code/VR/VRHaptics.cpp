@@ -3,6 +3,7 @@
 #include "VRHaptics.h"
 #include "VRManager.h"
 #include <HapticLibrary.h>
+#include <protubevr.h>
 
 #include "GameCVars.h"
 #include "OpenXRRuntime.h"
@@ -18,6 +19,7 @@ VRHaptics* gHaptics = &haptics;
 void VRHaptics::Init()
 {
 	InitialiseSync("crysisvr", "Crysis VR");
+	InitRifle();
 	InitEffects();
 	CryLogAlways("Initialised bHaptics support");
 }
@@ -104,6 +106,28 @@ void VRHaptics::StopBHapticsEffect(const char* key)
 	TurnOffKey(key);
 }
 
+void VRHaptics::TriggerProtubeEffect(float kickPower, float rumblePower, float rumbleSeconds, bool offHand)
+{
+	if (kickPower > 0)
+	{
+		if (rumblePower > 0 && rumbleSeconds > 0)
+			ProtubeShot(kickPower, rumblePower, rumbleSeconds, offHand);
+		else
+			ProtubeKick(kickPower, offHand);
+	}
+	else if (rumblePower > 0 && rumbleSeconds > 0)
+	{
+		ProtubeRumble(rumblePower, rumbleSeconds, offHand);
+	}
+}
+
+void VRHaptics::TriggerProtubeEffectWeapon(float kickPower, float rumblePower, float rumbleSeconds)
+{
+	TriggerProtubeEffect(kickPower, rumblePower, rumbleSeconds);
+	if (gVR->IsOffHandGrabbingWeapon())
+		TriggerProtubeEffect(kickPower, rumblePower, rumbleSeconds, true);
+}
+
 void VRHaptics::InitEffects()
 {
 	RegisterBHapticsEffect("jump_vest", "bhaptics/vest/Jumping.tact");
@@ -129,4 +153,26 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("speedsprint_vest", "bhaptics/vest/SpeedSprint.tact");
 	RegisterBHapticsEffect("speedsprintwater_vest", "bhaptics/vest/SpeedSprintWater.tact");
 	RegisterBHapticsEffect("vehicle_vest", "bhaptics/vest/VehicleRumble.tact");
+}
+
+void VRHaptics::ProtubeKick(float power, bool offHand)
+{
+	uint8 pw = clamp_tpl(power, 0.f, 1.f) * 255;
+	ForceTubeVRChannel channel = offHand ? rifleBolt : rifleButt;
+	KickChannel(pw, channel);
+}
+
+void VRHaptics::ProtubeRumble(float power, float seconds, bool offHand)
+{
+	uint8 pw = clamp_tpl(power, 0.f, 1.f) * 255;
+	ForceTubeVRChannel channel = offHand ? rifleBolt : rifleButt;
+	RumbleChannel(pw, seconds, channel);
+}
+
+void VRHaptics::ProtubeShot(float kickPower, float rumblePower, float rumbleSeconds, bool offHand)
+{
+	uint8 kpw = clamp_tpl(kickPower, 0.f, 1.f) * 255;
+	uint8 rpw = clamp_tpl(rumblePower, 0.f, 1.f) * 255;
+	ForceTubeVRChannel channel = offHand ? rifleBolt : rifleButt;
+	ShotChannel(kpw, rpw, rumbleSeconds, channel);
 }

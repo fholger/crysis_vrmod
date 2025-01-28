@@ -14,9 +14,14 @@ public:
 	void TriggerBHapticsEffectForSide(EVRHand hand, const char* keyLeft, const char* keyRight, float intensity = 1.0f);
 	bool IsBHapticsEffectPlaying(const char* key) const;
 	void StopBHapticsEffect(const char* key);
+	void TriggerProtubeEffect(float kickPower, float rumblePower, float rumbleSeconds, bool offHand = false);
+	void TriggerProtubeEffectWeapon(float kickPower, float rumblePower, float rumbleSeconds);
 
 private:
 	void InitEffects();
+	void ProtubeKick(float power, bool offHand = false);
+	void ProtubeRumble(float power, float seconds, bool offHand = false);
+	void ProtubeShot(float kickPower, float rumblePower, float rumbleSeconds, bool offHand = false);
 };
 
 extern VRHaptics* gHaptics;

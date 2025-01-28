@@ -2972,6 +2972,8 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 			{
 				gXR->GetInput()->SendHapticEvent(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_vest", "shoot_r_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				bool protubeOffHand = g_pGameCVars->vr_weapon_hand == 1 ? m_pWeapon->IsDualWieldSlave() : m_pWeapon->IsDualWieldMaster();
+				gHaptics->TriggerProtubeEffect(0.3f, 0.f, 0.f, protubeOffHand);
 			}
 			else
 			{
@@ -2987,22 +2989,27 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 				else if (strcmp(weaponClass, "GaussRifle") == 0)
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.3f);
+					gHaptics->TriggerProtubeEffectWeapon(0.6f, 0.5f, 0.5f);
 				}
 				else if (strcmp(weaponClass, "DSG1") == 0)
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shotgun_l_vest", "shotgun_r_vest", 0.3f);
+					gHaptics->TriggerProtubeEffectWeapon(0.6f, 0.5f, 0.5f);
 				}
 				else if (strcmp(weaponClass, "LAW") == 0)
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.5f);
+					gHaptics->TriggerProtubeEffectWeapon(1.f, 1.f, 1.f);
 				}
 				else if (strcmp(weaponClass, "TACGun") == 0 || strcmp(weaponClass, "TACGun_Fleet") == 0)
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "rpg_l_vest", "rpg_r_vest", 0.5f);
+					gHaptics->TriggerProtubeEffectWeapon(1.f, 1.f, 1.f);
 				}
 				else
 				{
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", 0.15f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+					gHaptics->TriggerProtubeEffectWeapon(0.4f, 0.0f, 0.0f);
 				}
 			}
 		}
