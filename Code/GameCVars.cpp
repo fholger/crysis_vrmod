@@ -877,6 +877,7 @@ void SCVars::InitVRCVars(IConsole* pConsole)
 	pConsole->Register("vr_controller_stick_action_threshold", &vr_controller_stick_action_threshold, 0.75f, VF_RESTRICTEDMODE, "How far a stick needs to be extended to trigger an input action");
 	pConsole->Register("vr_controller_stick_zone_cutoff", &vr_controller_stick_zone_cutoff, 0.25f, VF_RESTRICTEDMODE, "If stick is extended this far in one axis, disable any input actions in the other axis");
 	pConsole->Register("vr_controller_yaw_speed", &vr_controller_yaw_speed, 45.f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust smooth turn speed");
+	pConsole->Register("vr_controller_vehicle_speed", &vr_controller_vehicle_speed, 0.7f, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Adjust turn speed for vehicles");
 	pConsole->Register("vr_weapon_hand", &vr_weapon_hand, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand holds and controls weapon: 0 (left) or 1 (right)");
 	pConsole->Register("vr_movement_hand", &vr_movement_hand, 0, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand controls player movement: 0 (left) or 1 (right)");
 	pConsole->Register("vr_suit_hand", &vr_suit_hand, 1, VF_RESTRICTEDMODE|VF_DUMPTODISK, "Which hand controls the suit menu: 0 (left) or 1 (right)");

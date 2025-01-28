@@ -208,6 +208,7 @@ void CVehicleClient::OnAction(IVehicle* pVehicle, EntityId actorId, const Action
 		}
   case (eVAI_XIRotateYaw):
 		{
+  			value *= g_pGameCVars->vr_controller_vehicle_speed;
 			IVehicleMovement *pMovement = pVehicle->GetMovement();
 			if(pMovement && pMovement->GetMovementType() == IVehicleMovement::eVMT_Air && pVehicle->IsPlayerDriving())
 			{
@@ -221,6 +222,7 @@ void CVehicleClient::OnAction(IVehicle* pVehicle, EntityId actorId, const Action
 		}
   case (eVAI_XIRotatePitch):
 		{
+  			value *= g_pGameCVars->vr_controller_vehicle_speed;
 			IVehicleMovement *pMovement = pVehicle->GetMovement();
 			if(pMovement && pMovement->GetMovementType() == IVehicleMovement::eVMT_Air && pVehicle->IsPlayerDriving())
 			{

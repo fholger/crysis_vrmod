@@ -458,6 +458,7 @@ struct SCVars
 	float vr_controller_stick_action_threshold;
 	float vr_controller_stick_zone_cutoff;
 	float vr_controller_yaw_speed;
+	float vr_controller_vehicle_speed;
 	int vr_turn_mode;
 	int vr_seated_mode;
 	int vr_vehicle_2d;
