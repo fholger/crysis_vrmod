@@ -952,6 +952,7 @@ void OpenXRInput::UpdateControllerPoses()
 		{
 			// probably uniniialized, so just set it
 			m_controllerRot[i] = controllerRot;
+			m_controllerPos[i] = controllerPos;
 		}
 
 		// smooth controller poses with SLERP

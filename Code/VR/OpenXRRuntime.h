@@ -59,6 +59,8 @@ private:
 	XrSwapchain m_stereoSwapchain = XR_NULL_HANDLE;
 	int m_stereoWidth = 0;
 	int m_stereoHeight = 0;
+	int m_submittedEyeWidth[2] = { 0, 0 };
+	int m_submittedEyeHeight[2] = { 0, 0 };
 	std::vector<ID3D11Texture2D*> m_stereoImages;
 	XrSwapchain m_hudSwapchain = XR_NULL_HANDLE;
 	int m_hudWidth = 0;

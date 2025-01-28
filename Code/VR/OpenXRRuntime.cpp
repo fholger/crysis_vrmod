@@ -324,16 +324,16 @@ void OpenXRRuntime::FinishFrame()
 	views[0].subImage.swapchain = m_stereoSwapchain;
 	views[0].subImage.imageRect.offset.x = 0;
 	views[0].subImage.imageRect.offset.y = 0;
-	views[0].subImage.imageRect.extent.width = m_stereoWidth;
-	views[0].subImage.imageRect.extent.height = m_stereoHeight;
+	views[0].subImage.imageRect.extent.width = m_submittedEyeWidth[0];
+	views[0].subImage.imageRect.extent.height = m_submittedEyeHeight[0];
 	views[1].type = XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW;
 	views[1].pose = m_renderViews[1].pose;
 	views[1].fov = m_renderViews[1].fov;
 	views[1].subImage.swapchain = m_stereoSwapchain;
 	views[1].subImage.imageRect.offset.x = m_stereoWidth;
 	views[1].subImage.imageRect.offset.y = 0;
-	views[1].subImage.imageRect.extent.width = m_stereoWidth;
-	views[1].subImage.imageRect.extent.height = m_stereoHeight;
+	views[1].subImage.imageRect.extent.width = m_submittedEyeWidth[1];
+	views[1].subImage.imageRect.extent.height = m_submittedEyeHeight[1];
 
 	XrCompositionLayerProjection stereoLayer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
 	stereoLayer.space = m_space;
@@ -448,8 +448,12 @@ void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	D3D11_TEXTURE2D_DESC lDesc, rDesc;
 	leftEyeTex->GetDesc(&lDesc);
 	rightEyeTex->GetDesc(&rDesc);
-	int width = max(lDesc.Width * leftArea.w, rDesc.Width * rightArea.w);
-	int height = max(lDesc.Height * leftArea.h, rDesc.Height * rightArea.h);
+	m_submittedEyeWidth[0] = lDesc.Width * leftArea.w;
+	m_submittedEyeHeight[0] = lDesc.Height * leftArea.h;
+	m_submittedEyeWidth[1] = rDesc.Width * rightArea.w;
+	m_submittedEyeHeight[1] = rDesc.Height * rightArea.h;
+	int width = max(m_submittedEyeWidth[0], m_submittedEyeWidth[1]);
+	int height = max(m_submittedEyeHeight[0], m_submittedEyeHeight[1]);
 
 	if (!m_stereoSwapchain || m_stereoWidth != width || m_stereoHeight != height)
 	{
@@ -473,15 +477,15 @@ void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 	D3D11_BOX rect;
 	rect.left = lDesc.Width * leftArea.x;
 	rect.top = lDesc.Height * leftArea.y;
-	rect.right = rect.left + width;
-	rect.bottom = rect.top + height;
+	rect.right = rect.left + m_submittedEyeWidth[0];
+	rect.bottom = rect.top + m_submittedEyeHeight[0];
 	rect.front = 0;
 	rect.back = 1;
 	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, 0, 0, 0, leftEyeTex, 0, isVR ? &rect : nullptr);
 	rect.left = rDesc.Width * rightArea.x;
 	rect.top = rDesc.Height * rightArea.y;
-	rect.right = rect.left + width;
-	rect.bottom = rect.top + height;
+	rect.right = rect.left + m_submittedEyeWidth[1];
+	rect.bottom = rect.top + m_submittedEyeHeight[1];
 	context->CopySubresourceRegion(m_stereoImages[imageIdx], 0, width, 0, 0, rightEyeTex, 0, isVR ? &rect : nullptr);
 
 	XR_CheckResult(xrReleaseSwapchainImage(m_stereoSwapchain, nullptr), "releasing swapchain image", m_instance);
