@@ -287,7 +287,7 @@ void VRGui::DrawSettingsMenu()
 		bool controllerSmoothing = g_pGameCVars->vr_controller_smoothing;
 		ImGui::Checkbox("Enable controller smoothing", &controllerSmoothing);
 		g_pGameCVars->vr_controller_smoothing = controllerSmoothing;
-		ImGui::SliderFloat("Controller smoothing speed", &g_pGameCVars->vr_controller_smoothing_speed, 20.f, 500.f);
+		ImGui::SliderFloat("Smoothing speed", &g_pGameCVars->vr_controller_smoothing_speed, 20.f, 200.f);
 	}
 
 	if (ImGui::Button("Close"))
