@@ -1752,6 +1752,15 @@ void CHUD::OnQuickMenuStrengthPreset()
 
 void CHUD::OnQuickMenuDefensePreset()
 {
+	if(m_pModalHUD == &m_animWeaponAccessories)
+	{
+		if(!m_bIgnoreMiddleClick)
+		{
+			ShowWeaponAccessories(false);
+		}
+		return;
+	}
+
 	if(m_pNanoSuit->GetMode() != NANOMODE_DEFENSE)
 	{
 		m_pNanoSuit->SetMode(NANOMODE_DEFENSE);

@@ -310,7 +310,7 @@ void OpenXRInput::StopHaptics()
 void OpenXRInput::CreateInputActions()
 {
 	CreateBooleanAction(m_ingameSet, m_primaryFire, "primary_fire", "Primary Fire", &g_pGameActions->attack1);
-	CreateBooleanAction(m_ingameSet, m_suitMenu, "suit_menu", "Suit Menu", &g_pGameActions->hud_suit_menu);
+	CreateBooleanAction(m_ingameSet, m_suitMenu, "suit_menu", "Suit Menu", &g_pGameActions->defensemode, &g_pGameActions->hud_suit_menu, false, true, false, 0.1f);
 	CreateBooleanAction(m_ingameSet, m_menu, "menu_toggle", "Open menu / show objectives", &g_pGameActions->xi_hud_back);
 	CreateBooleanAction(m_ingameSet, m_sprint, "sprint", "Sprint", &g_pGameActions->sprint);
 	CreateBooleanAction(m_ingameSet, m_reload, "reload", "Reload", &g_pGameActions->reload, &g_pGameActions->firemode);
@@ -487,7 +487,7 @@ void OpenXRInput::AttachActionSets()
 
 
 void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name,
-                                      const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool sendLongRelease, bool pressOnRelease)
+                                      const char* description, ActionId* onPress, ActionId* onLongPress, bool sendRelease, bool sendLongRelease, bool pressOnRelease, float longPressActivationTime)
 {
 	if (action.handle)
 	{
@@ -505,6 +505,7 @@ void OpenXRInput::CreateBooleanAction(XrActionSet actionSet, BooleanAction& acti
 	action.sendRelease = sendRelease;
 	action.sendLongRelease = sendLongRelease;
 	action.pressOnRelease = pressOnRelease;
+	action.longPressActivationTime = longPressActivationTime;
 	action.longPressActive = false;
 }
 
@@ -886,7 +887,7 @@ void OpenXRInput::UpdateBooleanAction(BooleanAction& action)
 	if (state.currentState == XR_TRUE && action.timePressed >= 0 && !action.longPressActive)
 	{
 		float curTime = gEnv->pTimer->GetAsyncCurTime();
-		if (curTime - action.timePressed >= 0.25f)
+		if (curTime - action.timePressed >= action.longPressActivationTime)
 		{
 			action.longPressActive = true;
 			input->OnAction(*action.onLongPress, eAAM_OnPress, 1);

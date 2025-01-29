@@ -35,6 +35,7 @@ private:
 		bool sendRelease = true;
 		bool sendLongRelease = true;
 		bool pressOnRelease = false;
+		float longPressActivationTime = 0.25f;
 		bool longPressActive = false;
 		float timePressed = -1;
 	};
@@ -102,7 +103,7 @@ private:
 	void CreateInputActions();
 	void SuggestBindings();
 	void AttachActionSets();
-	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true, bool sendLongRelease = true, bool pressOnRelease = false);
+	void CreateBooleanAction(XrActionSet actionSet, BooleanAction& action, const char* name, const char* description, ActionId* onPress, ActionId* onLongPress = nullptr, bool sendRelease = true, bool sendLongRelease = true, bool pressOnRelease = false, float longPressActivationTime = 0.25f);
 	void UpdateMeleeAttacks();
 	void UpdateIngameActions();
 	void UpdateVehicleActions();
