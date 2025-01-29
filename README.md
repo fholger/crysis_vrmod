@@ -15,12 +15,14 @@ The mod uses OpenXR and was successfully tested with the SteamVR and Oculus runt
 ## Installation
 
 Download and install Crysis. Then head over to the mod's [Releases](https://github.com/fholger/crysis_vrmod/releases) and
-find the latest release at the top of the page. Under the "Assets" section find and download the `crysis-vrmod-x.y.exe` installer.
+find the latest release at the top of the page. Under the "Assets" section find and download the `crysis-vrmod-x.y.exe` installer. Ignore all other files.
 Run it and point it to where you have installed Crysis. If you are not sure and own it on Steam, right-click on Crysis
 in your Steam library, then select "Manage" -> "Browse local files", and it will show you the game's install location.
 
-The installer will install the VR mod and all required dependencies. Once it's done, head over to your Crysis folder and
-launch the `CrysisVR.exe` file inside the `Bin64` folder to start playing Crysis in VR.
+The installer will install the VR mod and all required dependencies. Once it's done, you can start the mod from the Start Menu or Desktop shortcuts (if you chose to create them during the install process), or head over to your Crysis folder and
+launch the `CrysisVR.exe` file inside the `Bin32` or `Bin64` folder.
+
+The 32bit version of Crysis is considered more stable, so launching the 32bit version is preferable over the 64bit version. However, if you are using SteamVR (either with a SteamVR headset like Index or PSVR2, or Steam Link for Quest), you *must* use 64bit since Valve never bothered to provide a 32bit OpenXR runtime.
 
 *Note*: the installer is not digitally signed, so Windows will warn you and stop you from executing it. You'll have to tell
 it to run the installer, anyway.
