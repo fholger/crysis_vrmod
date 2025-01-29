@@ -170,7 +170,7 @@ pixout ScopePS(v2Frag IN)
 
    half fAspectRatio = PS_ScreenSize.x / PS_ScreenSize.y;
 
-   
+   ScopeScale *= 2;
    float2 tcReflSight =  (tcProj - scopeProj)*(ScopeScale + NoiseScale * ScopeScale * (fNoise*2-1))*float2(1,fAspectRatio) + 0.5;
    tcReflSight = saturate( tcReflSight );
 
