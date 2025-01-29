@@ -969,7 +969,7 @@ void VRManager::CalcWeaponArmIK(int side, ISkeletonPose* skeleton, CWeapon* weap
 	QuatT handJoint = skeleton->GetDefaultRelJointByID(handJointId);
 	QuatT target = skeleton->GetAbsJointByID(handJointId);
 
-	bool offHandFollowsGun = m_offHandFollowsWeapon || weapon->IsReloading() || weapon->IsDualWield() || weapon->IsMounted();
+	bool offHandFollowsGun = m_offHandFollowsWeapon || weapon->IsDualWield() || weapon->IsMounted();
 	bool isOffHandClass = weapon->GetEntity()->GetClass() == CItem::sOffHandClass;
 	if ((side != g_pGameCVars->vr_weapon_hand && !offHandFollowsGun) || isOffHandClass)
 	{
