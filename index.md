@@ -36,6 +36,7 @@ Crysis VR is a third-party mod for the 2007 PC gaming classic by CryTek. It allo
 - physical melee attacks
 - left-handed support (but hands will be hidden on weapons due to incompatible models and animations)
 - bHaptics vest support
+- ProtubeVR support
 
 The mod is completely free. Simply download [the latest release](https://github.com/fholger/crysis_vrmod/releases/latest)
 and install it to your local Crysis folder. If you do not own Crysis, you can get it from
@@ -81,11 +82,18 @@ I also strongly recommend to check out some of the later chapters of the game. Y
 
 ### Troubleshooting
 
+- I can't even run the flat game, it won't start
+  - This does not matter! The VR mod does not require you to start or even be able to run the game flat screen, just install the mod and run the VR exe, it will work.
+  - If you do want to play the game flat screen, you should get the [c1-launcher](https://github.com/ccomrade/c1-launcher) as it should fix most of the startup issues surrounding the game.
 - Game renders very slowly (~1 frame per second)
   - Make sure the game window has focus
   - If you are using MSI Afterburner / Rivatuner or similar overlays, disable them as they are known to cause this issue with the VR Mod
-- Game fails with assertion messages mentioning ImGui
-  - Most likely cause is your headset not being detected. This can happen either because your headset was not turned on, not connected to your PC, or you are using the wrong OpenXR runtime. If you are using Quest Link, make sure you set it as active in the Link app. For Steam Link or SteamVR headsets, SteamVR must be set as the active OpenXR runtime.
+- Game fails to start claiming the headset was not found
+  - This can happen either because your headset was not turned on, not connected to your PC, or you are using the wrong OpenXR runtime. If you are using Quest Link, make sure you set it as active in the Link app. For Steam Link or SteamVR headsets, SteamVR must be set as the active OpenXR runtime. For Virtual Desktop, choose VDXR as the OpenXR runtime in the streamer app.
+- The game is stuck at 800x600 resolution?!
+  - No, it's not. That's just what the ingame options will show as they do not understand the actual VR resolution. Ignore it.
+  - If you want to change the VR rendering resolution, there is a resolution scale slider in the VR Settings under Miscellaneous.
+  - Alternatively, you can also control VR render resolution in your OpenXR runtime.
 
 ### Support
 
