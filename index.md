@@ -39,9 +39,8 @@ Crysis VR is a third-party mod for the 2007 PC gaming classic by CryTek. It allo
 - ProtubeVR support
 
 The mod is completely free. Simply download [the latest release](https://github.com/fholger/crysis_vrmod/releases/latest)
-and install it to your local Crysis folder. If you do not own Crysis, you can get it from
-[Steam](https://store.steampowered.com/sub/987/) or
-[gog.com](https://www.gog.com/en/game/crysis).
+and install it to your local Crysis folder. If you do not own Crysis, you can get it from [gog.com](https://www.gog.com/en/game/crysis). On Steam, the original Crysis is not directly available, but you can get it as part of the [Maximum Edition bundle](https://store.steampowered.com/sub/987/).
+The mod only works with the original Crysis, not Warhead and not Crysis Remastered!
 
 The mod includes a manual that you can access from the menu if you are ever confused how to do something in VR.
 
