@@ -112,6 +112,9 @@
     <Filter Include="ThirdParty\Imgui">
       <UniqueIdentifier>{f696d6e2-d969-4003-9d6d-db2c491aa569}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\microprofile">
+      <UniqueIdentifier>{d6d1c96e-70c1-4106-a604-42bca0b52559}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -731,6 +734,9 @@
     </ClCompile>
     <ClCompile Include="ThirdParty\minhook\src\hde\hde32.c">
       <Filter>ThirdParty\MinHook</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp">
+      <Filter>ThirdParty\microprofile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

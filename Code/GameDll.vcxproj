@@ -92,7 +92,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;ThirdParty\microprofile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling />
@@ -119,7 +119,7 @@
       <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>ThirdParty\openxr\lib\win32;ThirdParty\bhaptics\bin\win32;ThirdParty\ForceTubeVR\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ForceTubeVR_API_x32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ws2_32.lib;ForceTubeVR_API_x32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Message>Copy VRMod files to Crysis installation</Message>
@@ -132,7 +132,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;ThirdParty\microprofile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -158,7 +158,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(OutDir)CrysisMod.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ForceTubeVR_API_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ws2_32.lib;ForceTubeVR_API_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>ThirdParty\openxr\lib;ThirdParty\bhaptics\bin\win64;ThirdParty\ForceTubeVR\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
@@ -176,7 +176,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;ThirdParty\microprofile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling />
@@ -204,7 +204,7 @@
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalLibraryDirectories>ThirdParty\openxr\lib\win32;ThirdParty\bhaptics\bin\win32;ThirdParty\ForceTubeVR\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ForceTubeVR_API_x32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ws2_32.lib;ForceTubeVR_API_x32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Message>Copy VRMod files to Crysis installation</Message>
@@ -220,7 +220,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;CryEngine\CryCommon;CryEngine\CryAction;ThirdParty\minhook\include;ThirdParty\openxr\include;ThirdParty\imgui;ThirdParty\bhaptics\include\shared;ThirdParty\ForceTubeVR\include;ThirdParty\microprofile;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NTDDI_VERSION=NTDDI_WIN7;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -247,7 +247,7 @@
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
       <BaseAddress>0x39000000</BaseAddress>
       <TargetMachine>MachineX64</TargetMachine>
-      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ForceTubeVR_API_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d9.lib;d3d10_1.lib;d3d11.lib;openxr_loader.lib;haptic_library.lib;ws2_32.lib;ForceTubeVR_API_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>ThirdParty\openxr\lib;ThirdParty\bhaptics\bin\win64;ThirdParty\ForceTubeVR\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -452,6 +452,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\microprofile\microprofile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ThirdParty\minhook\src\buffer.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
