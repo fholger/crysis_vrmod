@@ -33,7 +33,7 @@
 #include <IVehicleSystem.h>
 #include <IMovieSystem.h>
 #include <IPlayerProfiles.h>
-#include <microprofile.h>
+#include <optick_capi.h>
 
 #include "ScriptBind_Actor.h"
 #include "ScriptBind_Item.h"
@@ -86,36 +86,36 @@ namespace
 	struct ProfileToken
 	{
 		CFrameProfiler* profiler = nullptr;
-		MicroProfileToken token = MICROPROFILE_INVALID_TOKEN;
+		uint64_t token = 0;
 	};
 	ProfileToken profileTokens[1024];
 
-	MicroProfileToken GetToken(CFrameProfiler* profiler)
+	uint64_t GetToken(CFrameProfiler* profiler)
 	{
 		for (int i = 0; i < 1024; ++i)
 		{
 			if (profileTokens[i].profiler == nullptr)
 			{
 				profileTokens[i].profiler = profiler;
-				profileTokens[i].token = MicroProfileGetToken("Crysis", profiler->m_name, MP_BLUE, MicroProfileTokenTypeCpu, 0);
+				profileTokens[i].token = OptickAPI_CreateEventDescription(profiler->m_name, strlen(profiler->m_name), "Crysis", strlen("Crysis"), profiler->m_subsystem);
 			}
 			if (profileTokens[i].profiler == profiler)
 				return profileTokens[i].token;
 		}
-		return MICROPROFILE_INVALID_TOKEN;
+		return 0;
 	}
 }
 
 void CrysisProfilerStartSection(CFrameProfilerSection* section)
 {
-	section->m_startTime = (int64)MicroProfileEnterInternal(GetToken(section->m_pFrameProfiler));
+	OptickAPI_PushEvent(GetToken(section->m_pFrameProfiler));
 	section->m_excludeTime = -1;
 }
 
 void CrysisProfilerEndSection(CFrameProfilerSection* section)
 {
 	if (section->m_excludeTime == -1)
-		MicroProfileLeaveInternal(GetToken(section->m_pFrameProfiler), (uint64_t)section->m_startTime);
+		OptickAPI_PopEvent(GetToken(section->m_pFrameProfiler));
 }
 
 //
@@ -187,9 +187,8 @@ bool CGame::Init(IGameFramework *pFramework)
 {
   LOADING_TIME_PROFILE_SECTION(GetISystem());
 
-#if MICROPROFILE_ENABLED
-	MicroProfileOnThreadCreate("Main");
-	MicroProfileSetEnableAllGroups(true);
+#if USE_OPTICK
+	OptickAPI_RegisterThread("Main", strlen("Main"));
 #endif
 
 #ifdef GAME_DEBUG_MEM

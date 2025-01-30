@@ -16,10 +16,11 @@
 #include "Weapon.h"
 #include "Menus/FlashMenuObject.h"
 #include <imgui.h>
-#include <microprofile.h>
 #include <backends/imgui_impl_dx10.h>
 
 #include "BitFiddling.h"
+#include "optick.h"
+#include "optick_capi.h"
 
 namespace
 {
@@ -134,7 +135,7 @@ void VRRenderer::Shutdown()
 
 void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 {
-	MICROPROFILE_SCOPEI("VRRender", "Render", MP_GREEN);
+	OPTICK_EVENT();
 	UpdateShaderParamsForReflexSight();
 
 	IDXGISwapChain *currentSwapChain = g_latestCreatedSwapChain;
@@ -180,7 +181,7 @@ void VRRenderer::Render(SystemRenderFunc renderFunc, ISystem* pSystem)
 
 bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 {
-	MICROPROFILE_SCOPEI("VRRender", "OnPrePresent", MP_GREEN);
+	OPTICK_EVENT();
 	m_lastPresentCallTime = gEnv->pTimer->GetAsyncTime().GetMilliSecondsAsInt64();
 
 	if (SAFE_MENU_FUNC_RET(IsMenuActive()) && !SAFE_MENU_FUNC_RET(IsLoadingScreenActive()))
@@ -197,11 +198,11 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 void VRRenderer::OnPostPresent()
 {
 	{
-		MICROPROFILE_SCOPEI("VRRender", "OnPostPresent", MP_GREEN);
+		OPTICK_EVENT("FinishFrame");
 		gVR->FinishFrame(m_didRenderThisFrame);
 	}
 	m_didRenderThisFrame = false;
-	MicroProfileFlip(nullptr);
+	OptickAPI_NextFrame();
 }
 
 const CCamera& VRRenderer::GetCurrentViewCamera() const
@@ -294,7 +295,7 @@ extern void DrawHUDFaders();
 
 void VRRenderer::RenderSingleEye(int eye, SystemRenderFunc renderFunc, ISystem* pSystem)
 {
-	MICROPROFILE_SCOPEI("VRRender", "RenderSingleEye", MP_YELLOW);
+	OPTICK_EVENT();
 
 	VRRenderMode renderMode = GetRenderMode();
 
@@ -430,7 +431,7 @@ void VRRenderer::DrawCrosshair()
 
 void VRRenderer::UpdateShaderParamsForReflexSight()
 {
-	MICROPROFILE_SCOPEI("VRRender", "UpdateShaderParamsForReflexSight", MP_GREEN);
+	OPTICK_EVENT();
 	// hack to get the reflex sights working
 	// added a new public param to the shader that we need to feed with a world position for where the dot should be
 
