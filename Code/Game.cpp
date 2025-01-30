@@ -33,6 +33,7 @@
 #include <IVehicleSystem.h>
 #include <IMovieSystem.h>
 #include <IPlayerProfiles.h>
+#include <microprofile.h>
 
 #include "ScriptBind_Actor.h"
 #include "ScriptBind_Item.h"
@@ -78,6 +79,43 @@ int OnImpulse( const EventPhys *pEvent )
 {
 	//return 1;
 	return 0;
+}
+
+namespace
+{
+	struct ProfileToken
+	{
+		CFrameProfiler* profiler = nullptr;
+		MicroProfileToken token = MICROPROFILE_INVALID_TOKEN;
+	};
+	ProfileToken profileTokens[1024];
+
+	MicroProfileToken GetToken(CFrameProfiler* profiler)
+	{
+		for (int i = 0; i < 1024; ++i)
+		{
+			if (profileTokens[i].profiler == nullptr)
+			{
+				profileTokens[i].profiler = profiler;
+				profileTokens[i].token = MicroProfileGetToken("Crysis", profiler->m_name, MP_BLUE, MicroProfileTokenTypeCpu, 0);
+			}
+			if (profileTokens[i].profiler == profiler)
+				return profileTokens[i].token;
+		}
+		return MICROPROFILE_INVALID_TOKEN;
+	}
+}
+
+void CrysisProfilerStartSection(CFrameProfilerSection* section)
+{
+	section->m_startTime = (int64)MicroProfileEnterInternal(GetToken(section->m_pFrameProfiler));
+	section->m_excludeTime = -1;
+}
+
+void CrysisProfilerEndSection(CFrameProfilerSection* section)
+{
+	if (section->m_excludeTime == -1)
+		MicroProfileLeaveInternal(GetToken(section->m_pFrameProfiler), (uint64_t)section->m_startTime);
 }
 
 //
@@ -148,6 +186,11 @@ CGame::~CGame()
 bool CGame::Init(IGameFramework *pFramework)
 {
   LOADING_TIME_PROFILE_SECTION(GetISystem());
+
+#if MICROPROFILE_ENABLED
+	MicroProfileOnThreadCreate("Main");
+	MicroProfileSetEnableAllGroups(true);
+#endif
 
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init start");
@@ -432,6 +475,14 @@ bool CGame::CompleteInit()
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
 	++m_frameCount;
+
+#if MICROPROFILE_ENABLED
+	if (gEnv->bProfilerEnabled)
+	{
+		gEnv->callbackStartSection = &CrysisProfilerStartSection;
+		gEnv->callbackEndSection = &CrysisProfilerEndSection;
+	}
+#endif
 
 	Vec2i targetRenderSize = gVR->GetRenderSize();
 	if (targetRenderSize.x != gEnv->pRenderer->GetWidth() || targetRenderSize.y != gEnv->pRenderer->GetHeight())
