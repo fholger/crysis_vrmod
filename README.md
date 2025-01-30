@@ -14,7 +14,8 @@ The mod uses OpenXR and was successfully tested with the SteamVR and Oculus runt
 
 ## Installation
 
-Download and install Crysis. Then head over to the mod's [Releases](https://github.com/fholger/crysis_vrmod/releases) and
+Download and install Crysis. *Note*: it is *not necessary* to run the game flat screen, and in fact it may even fail to run for you at all. This does not matter! Just proceed with the installation and play in VR :)
+Head over to the mod's [Releases](https://github.com/fholger/crysis_vrmod/releases) and
 find the latest release at the top of the page. Under the "Assets" section find and download the `crysis-vrmod-x.y.exe` installer. Ignore all other files.
 Run it and point it to where you have installed Crysis. If you are not sure and own it on Steam, right-click on Crysis
 in your Steam library, then select "Manage" -> "Browse local files", and it will show you the game's install location.
@@ -26,6 +27,10 @@ The 32bit version of Crysis is considered more stable, so launching the 32bit ve
 
 *Note*: the installer is not digitally signed, so Windows will warn you and stop you from executing it. You'll have to tell
 it to run the installer, anyway.
+
+### Troubleshooting
+
+See the [mod webpage](https://crysis.vrmods.eu).
 
 ### Updates
 
@@ -88,6 +93,8 @@ with a weaker CPU). A 4090 does perfectly fine (duh), as does an RX 7900 XT.
 ## Known issues
 
 - Anti-aliasing is known to cause issues and crashes. Do not enable it with this mod!
+
+## Troubleshooting
 
 ## Legal notices
 
