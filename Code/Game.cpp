@@ -97,6 +97,11 @@ namespace
 			if (profileTokens[i].profiler == nullptr)
 			{
 				profileTokens[i].profiler = profiler;
+				if (strcmp(profiler->m_name, "CryMalloc") == 0)
+				{
+					profileTokens[i].token = 0;
+					return 0;
+				}
 				profileTokens[i].token = OptickAPI_CreateEventDescription(profiler->m_name, strlen(profiler->m_name), "Crysis", strlen("Crysis"), profiler->m_subsystem);
 			}
 			if (profileTokens[i].profiler == profiler)
@@ -108,14 +113,17 @@ namespace
 
 void CrysisProfilerStartSection(CFrameProfilerSection* section)
 {
-	OptickAPI_PushEvent(GetToken(section->m_pFrameProfiler));
+	uint64_t event = GetToken(section->m_pFrameProfiler);
+	if (event != 0)
+		section->m_startTime = OptickAPI_PushEvent(event);
 	section->m_excludeTime = -1;
 }
 
 void CrysisProfilerEndSection(CFrameProfilerSection* section)
 {
-	if (section->m_excludeTime == -1)
-		OptickAPI_PopEvent(GetToken(section->m_pFrameProfiler));
+	uint64_t event = GetToken(section->m_pFrameProfiler);
+	if (event != 0 && section->m_excludeTime == -1)
+		OptickAPI_PopEvent(section->m_startTime);
 }
 
 //
@@ -475,7 +483,7 @@ int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
 	++m_frameCount;
 
-#if MICROPROFILE_ENABLED
+#if USE_OPTICK
 	if (gEnv->bProfilerEnabled)
 	{
 		gEnv->callbackStartSection = &CrysisProfilerStartSection;

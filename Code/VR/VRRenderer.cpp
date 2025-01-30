@@ -76,6 +76,14 @@ void FASTCALL VR_ISystem_Render(ISystem *pSelf)
 	gVRRenderer->Render(hooks::CallOriginal(VR_ISystem_Render), pSelf);
 }
 
+void FASTCALL VR_ISystem_RenderEnd(ISystem *pSelf)
+{
+	hooks::CallOriginal(VR_ISystem_RenderEnd)(pSelf);
+#if USE_OPTICK
+	OptickAPI_NextFrame();
+#endif
+}
+
 void FASTCALL VR_ISystem_Quit(ISystem *pSelf)
 {
 	gVRRenderer->Shutdown();
@@ -100,6 +108,7 @@ void *ModuleAddress(void *base, std::size_t offset)
 void VRRenderer::Init()
 {
 	hooks::InstallVirtualFunctionHook("ISystem::Render", gEnv->pSystem, &ISystem::Render, &VR_ISystem_Render);
+	hooks::InstallVirtualFunctionHook("ISystem::RenderEnd", gEnv->pSystem, &ISystem::RenderEnd, &VR_ISystem_RenderEnd);
 	hooks::InstallHook("SetWindowPos", &SetWindowPos, &Hook_SetWindowPos);
 	hooks::InstallVirtualFunctionHook("ISystem::Quit", gEnv->pSystem, &ISystem::Quit, &VR_ISystem_Quit);
 
@@ -197,12 +206,9 @@ bool VRRenderer::OnPrePresent(IDXGISwapChain *swapChain)
 
 void VRRenderer::OnPostPresent()
 {
-	{
-		OPTICK_EVENT("FinishFrame");
-		gVR->FinishFrame(m_didRenderThisFrame);
-	}
+	OPTICK_EVENT();
+	gVR->FinishFrame(m_didRenderThisFrame);
 	m_didRenderThisFrame = false;
-	OptickAPI_NextFrame();
 }
 
 const CCamera& VRRenderer::GetCurrentViewCamera() const

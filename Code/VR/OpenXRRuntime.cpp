@@ -7,6 +7,7 @@
 #include "OpenXRRuntime.h"
 
 #include "GameCVars.h"
+#include "optick.h"
 #include "VRManager.h"
 #include "VRRenderer.h"
 #include "Menus/FlashMenuObject.h"
@@ -442,6 +443,7 @@ Vec2i OpenXRRuntime::GetRecommendedRenderSize() const
 
 void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftArea, ID3D11Texture2D* rightEyeTex, const RectF& rightArea)
 {
+	OPTICK_EVENT();
 	if (!m_sessionActive)
 		return;
 
@@ -493,6 +495,7 @@ void OpenXRRuntime::SubmitEyes(ID3D11Texture2D* leftEyeTex, const RectF& leftAre
 
 void OpenXRRuntime::SubmitHud(ID3D11Texture2D* hudTex)
 {
+	OPTICK_EVENT();
 	if (!m_sessionActive)
 		return;
 

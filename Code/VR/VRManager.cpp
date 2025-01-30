@@ -9,6 +9,7 @@
 #include "Hooks.h"
 #include "IPlayerInput.h"
 #include "OpenXRRuntime.h"
+#include "optick.h"
 #include "VRHaptics.h"
 #include "VRRenderer.h"
 #include "VRRenderUtils.h"
@@ -121,6 +122,7 @@ void VRManager::ReinitializeXR()
 
 void VRManager::AwaitFrame()
 {
+	OPTICK_EVENT();
 	if (!m_initialized)
 		return;
 
@@ -130,6 +132,7 @@ void VRManager::AwaitFrame()
 
 void VRManager::CaptureEye(int eye)
 {
+	OPTICK_EVENT();
 	if (!m_swapchain)
 		return;
 
@@ -160,6 +163,7 @@ void VRManager::CaptureEye(int eye)
 
 void VRManager::CaptureHUD()
 {
+	OPTICK_EVENT();
 	if (!m_swapchain)
 		return;
 
