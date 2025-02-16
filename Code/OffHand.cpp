@@ -1031,10 +1031,12 @@ void COffHand::UpdateGrabbedNPCWorldPos(IEntity *pEntity, struct SViewParams *vi
 			wQuat *= Quat::CreateSlerp(viewParams->currentShakeQuat,IDENTITY,0.5f);
 			wQuat.Normalize();
 
-			Vec3 itemAttachmentPos  = GetSlotHelperPos(0,"item_attachment",false);
-			itemAttachmentPos = stats->FPWeaponPos + wQuat * itemAttachmentPos;
+			Vec3 itemAttachmentPos  = GetSlotHelperPos(0,"item_attachment",true);
+			//itemAttachmentPos = stats->FPWeaponPos + wQuat * itemAttachmentPos;
+			Matrix33 itemAttachmentRot = GetSlotHelperRotation(0, "item_attachment", true);
 
-			neckFinal.SetRotation33(Matrix33(viewParams->rotation*Quat::CreateRotationZ(gf_PI)));
+			//neckFinal.SetRotation33(Matrix33(viewParams->rotation*Quat::CreateRotationZ(gf_PI)));
+			neckFinal.SetRotation33(itemAttachmentRot);
 			neckFinal.SetTranslation(itemAttachmentPos);
 
 			ICharacterInstance *pCharacter=pEntity->GetCharacter(0);
