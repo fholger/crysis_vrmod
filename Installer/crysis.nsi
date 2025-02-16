@@ -1,5 +1,5 @@
 !include "MUI2.nsh"
-!define VERSION '1.1.0'
+!define VERSION '1.1.1'
 
 Name "Crysis VR"
 ; should not need admin privileges as the install folder should be user writable, anyway
@@ -49,12 +49,16 @@ Section ""
 SectionEnd
 
 Section "Start menu shortcut"
+	SetOutPath $INSTDIR\Bin64
 	CreateShortcut "$SMPrograms\$(^Name) (64 bit).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	SetOutPath $INSTDIR\Bin32
 	CreateShortcut "$SMPrograms\$(^Name) (32 bit).lnk" "$InstDir\Bin32\CrysisVR.exe"
 SectionEnd
 
 Section /o "Desktop shortcut"
+	SetOutPath $INSTDIR\Bin64
 	CreateShortcut "$Desktop\$(^Name) (64 bit).lnk" "$InstDir\Bin64\CrysisVR.exe"
+	SetOutPath $INSTDIR\Bin32
 	CreateShortcut "$Desktop\$(^Name) (32 bit).lnk" "$InstDir\Bin32\CrysisVR.exe"
 SectionEnd
 
