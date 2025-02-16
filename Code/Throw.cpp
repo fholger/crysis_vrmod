@@ -7,7 +7,7 @@ $DateTime$
 
 -------------------------------------------------------------------------
 History:
-- 11:9:2005   15:00 : Created by Márcio Martins
+- 11:9:2005   15:00 : Created by Mï¿½rcio Martins
 
 *************************************************************************/
 #include "StdAfx.h"
@@ -284,7 +284,7 @@ struct CThrow::ThrowAction
 
 void CThrow::DoThrow()
 {
-	m_throw_time = m_throwparams.delay;
+	m_throw_time = 0.0f; //m_throwparams.delay;
 	m_throwing = true;
 	m_thrown = false;
 
