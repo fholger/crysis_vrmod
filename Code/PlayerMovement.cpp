@@ -1713,7 +1713,7 @@ void CPlayerMovement::AdjustPlayerPositionOnLadder(CPlayer &player)
 
 Quat CPlayerMovement::GetMoveQuat()
 {
-	if (g_pGameCVars->vr_movement_mode == 0)
+	if (g_pGameCVars->vr_movement_mode == 0 || !m_player.IsClient())
 		return m_baseQuat;
 	else
 	{
@@ -1725,6 +1725,8 @@ Quat CPlayerMovement::GetMoveQuat()
 
 Quat CPlayerMovement::GetFlyQuat()
 {
+	if (!m_player.IsClient())
+		return m_viewQuat;
 	if (g_pGameCVars->vr_movement_mode == 0)
 		return m_baseQuat * gVR->GetHMDQuat();
 	else
