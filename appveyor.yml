@@ -1,0 +1,52 @@
+# AppVeyor CI configuration for Crysis VR Automated Build
+
+image:
+  - Visual Studio 2022
+
+version: '{build}'
+
+branches:
+  only:
+    - main
+
+skip_tags: false
+
+environment:
+  CRYSIS_INSTALL_DIR: $(APPVEYOR_BUILD_FOLDER)\installer\assembly
+
+build_script:
+  # Create required directories
+  - ps: mkdir installer\assembly -Force
+  # Build x64
+
+  - cmd: cd Code
+  - cmd: msbuild CrysisMod.sln /p:Configuration=Release /p:Platform=x64 -m
+  - cmd: cd ThirdParty\c1-launcher
+  - cmd: mkdir build64
+  - cmd: cd build64
+  - cmd: cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=x64 ..
+  - cmd: cmake --build . --parallel --config Release
+  - cmd: cd ..\..\..\..\
+  # Build Win32
+  - cmd: cd Code
+  - cmd: msbuild CrysisMod.sln /p:Configuration=Release /p:Platform=Win32 -m
+  - cmd: cd ThirdParty\c1-launcher
+  - cmd: mkdir build32
+  - cmd: cd build32
+  - cmd: cmake -D CMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR_PLATFORM=Win32 ..
+  - cmd: cmake --build . --parallel --config Release
+  - cmd: cd ..\..\..\..\
+  # Create installer
+  - cmd: echo %CD%
+  - cmd: cd installer
+  - cmd: create_installer.bat
+  - cmd: cd ..
+  # Zip debug symbols
+  - ps: if (Test-Path Bin64) { 7z a -t7z crysisvr_pdbs.7z Bin64\*.pdb }
+  - ps: if (Test-Path Bin32) { 7z a -t7z crysisvr_pdbs.7z Bin32\*.pdb }
+
+artifacts:
+  - path: installer\crysis-vrmod*.exe
+    name: installer
+  - path: crysisvr_pdbs.7z
+    name: pdbs
