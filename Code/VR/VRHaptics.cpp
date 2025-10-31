@@ -153,6 +153,8 @@ void VRHaptics::InitEffects()
 	RegisterBHapticsEffect("speedsprint_vest", "bhaptics/vest/SpeedSprint.tact");
 	RegisterBHapticsEffect("speedsprintwater_vest", "bhaptics/vest/SpeedSprintWater.tact");
 	RegisterBHapticsEffect("vehicle_vest", "bhaptics/vest/VehicleRumble.tact");
+	RegisterBHapticsEffect("shoot_l_arm", "bhaptics/arms/Recoil_Arm_L.tact");
+	RegisterBHapticsEffect("shoot_r_arm", "bhaptics/arms/Recoil_Arm_R.tact");
 }
 
 void VRHaptics::ProtubeKick(float power, bool offHand)

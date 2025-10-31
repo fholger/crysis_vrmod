@@ -2972,6 +2972,7 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 			{
 				gXR->GetInput()->SendHapticEvent(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, 0.05f, max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_vest", "shoot_r_vest", 0.2f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
+				gHaptics->TriggerBHapticsEffectForSide(m_pWeapon->IsDualWieldMaster() ? RIGHT_HAND : LEFT_HAND, "shoot_l_arm", "shoot_r_arm"));
 				bool protubeOffHand = g_pGameCVars->vr_weapon_hand == 1 ? m_pWeapon->IsDualWieldSlave() : m_pWeapon->IsDualWieldMaster();
 				gHaptics->TriggerProtubeEffect(0.3f, 0.f, 0.f, protubeOffHand);
 			}
@@ -3011,6 +3012,7 @@ void CSingle::RecoilImpulse(const Vec3& firingPos, const Vec3& firingDir)
 					gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_vest", "shoot_r_vest", 0.15f * max(0.35f, fabsf(m_recoilparams.back_impulse) * 2.0f));
 					gHaptics->TriggerProtubeEffectWeapon(0.4f, 0.0f, 0.0f);
 				}
+				gHaptics->TriggerBHapticsEffectForSide(WEAPON_HAND, "shoot_l_arm", "shoot_r_arm");
 			}
 		}
   }
