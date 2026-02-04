@@ -56,7 +56,7 @@
 //
 //--------------------------------------------------------------------------
 
-template <typename K, typename V, typename T = std::less<K>, typename A = std::allocator<std::pair <const K, V> > >
+template <typename K, typename V, typename T = std::less<K>, typename A = std::allocator<std::pair <K, V> > >
 class VectorMap : private T // Empty base optimization
 {
 public:
