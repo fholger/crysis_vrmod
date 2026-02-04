@@ -565,7 +565,8 @@ RectF VRManager::GetEffectiveRenderLimits(int eye)
 	float l, r, t, b;
 	gXR->GetFov(eye, l, r, t, b);
 	float verticalFov = max(fabsf(t), fabsf(b));
-	float horizontalFov = max(fabsf(l), fabsf(r));
+	auto renderSize = GetRenderSize();
+	float horizontalFov = verticalFov * renderSize.x / renderSize.y; //max(fabsf(l), fabsf(r));
 	RectF result;
 	if (verticalFov > 0)
 	{
