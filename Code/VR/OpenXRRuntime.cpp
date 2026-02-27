@@ -97,6 +97,7 @@ namespace
 	bool XR_KHR_D3D11_enable_available = false;
 	bool XR_EXT_debug_utils_available = false;
 	bool XR_EXT_hp_mixed_reality_controller_available = false;
+	bool XR_VALVE_frame_controller_interaction_available = false;
 
 #define XR_DECLARE_FN_PTR(name) PFN_##name name = nullptr
 	XR_DECLARE_FN_PTR(xrGetD3D11GraphicsRequirementsKHR);
@@ -107,6 +108,7 @@ namespace
 		XR_KHR_D3D11_enable_available = false;
 		XR_EXT_debug_utils_available = false;
 		XR_EXT_hp_mixed_reality_controller_available = false;
+		XR_VALVE_frame_controller_interaction_available = false;
 
 		uint32_t extensionsCount = 0;
 		XrResult result = xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionsCount, nullptr);
@@ -139,6 +141,10 @@ namespace
 			if (strcmp(ext.extensionName, XR_EXT_HP_MIXED_REALITY_CONTROLLER_EXTENSION_NAME) == 0)
 			{
 				XR_EXT_hp_mixed_reality_controller_available = true;
+			}
+			if (strcmp(ext.extensionName, "XR_VALVE_frame_controller_interaction") == 0)
+			{
+				XR_VALVE_frame_controller_interaction_available = true;
 			}
 		}
 	}
@@ -541,6 +547,11 @@ void OpenXRRuntime::SetHudSize(float width, float height)
 bool OpenXRRuntime::HasReverbG2BindingsExtension() const
 {
 	return XR_EXT_hp_mixed_reality_controller_available;
+}
+
+bool OpenXRRuntime::HasSteamFrameBindingsExtension() const
+{
+	return XR_VALVE_frame_controller_interaction_available;
 }
 
 bool OpenXRRuntime::CreateInstance()
