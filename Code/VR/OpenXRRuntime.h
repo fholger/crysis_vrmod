@@ -42,6 +42,7 @@ public:
 	bool ArePosesValid() const { return m_posesValid; }
 
 	bool HasReverbG2BindingsExtension() const;
+	bool HasSteamFrameBindingsExtension() const;
 
 private:
 	OpenXRInput m_input;

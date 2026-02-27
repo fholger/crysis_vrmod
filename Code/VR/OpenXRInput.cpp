@@ -471,6 +471,48 @@ void OpenXRInput::SuggestBindings()
 	knuckles.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
 	knuckles.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
 	knuckles.SuggestBindings("/interaction_profiles/valve/index_controller");
+
+	if (gXR->HasSteamFrameBindingsExtension())
+	{
+		SuggestedProfileBinding frame(m_instance, false);
+		frame.AddBinding(m_primaryFire.handle, "/user/hand/<weapon>/input/trigger/value");
+		frame.AddBinding(m_controller[0], "/user/hand/left/input/grip/pose");
+		frame.AddBinding(m_controller[1], "/user/hand/right/input/grip/pose");
+		frame.AddBinding(m_moveX, "/user/hand/<movement>/input/thumbstick/x");
+		frame.AddBinding(m_moveY, "/user/hand/<movement>/input/thumbstick/y");
+		frame.AddBinding(m_rotateYaw, "/user/hand/<!movement>/input/thumbstick/x");
+		frame.AddBinding(m_jumpCrouch, "/user/hand/<!movement>/input/thumbstick/y");
+		frame.AddBinding(m_rotatePitch, "/user/hand/<!movement>/input/thumbstick/y");
+		frame.AddBinding(m_sprint.handle, "/user/hand/<movement>/input/thumbstick/click");
+		frame.AddBinding(m_menu.handle, "/user/hand/<!weapon>/input/b/click");
+		frame.AddBinding(m_reload.handle, "/user/hand/<weapon>/input/a/click");
+		frame.AddBinding(m_suitMenu.handle, "/user/hand/<weapon>/input/trackpad/force");
+		frame.AddBinding(m_nextWeapon.handle, "/user/hand/<weapon>/input/squeeze/force");
+		frame.AddBinding(m_use.handle, "/user/hand/<!weapon>/input/trigger/value");
+		frame.AddBinding(m_gripUse.handle, "/user/hand/<!weapon>/input/squeeze/force");
+		frame.AddBinding(m_binoculars.handle, "/user/hand/<!weapon>/input/a/click");
+		frame.AddBinding(m_grenades.handle, "/user/hand/<weapon>/input/b/click");
+		frame.AddBinding(m_melee.handle, "/user/hand/<weapon>/input/thumbstick/click");
+		frame.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/trigger/value");
+		frame.AddBinding(m_menuClick.handle, "/user/hand/<weapon>/input/a/click");
+		frame.AddBinding(m_menuBack.handle, "/user/hand/<weapon>/input/b/click");
+		frame.AddBinding(m_dropWeapon.handle, "/user/hand/<!weapon>/input/a/click");
+		frame.AddBinding(m_vecBoost.handle, "/user/hand/<movement>/input/squeeze/force");
+		frame.AddBinding(m_vecAscend.handle, "/user/hand/<!movement>/input/a/click");
+		frame.AddBinding(m_vecSwitchSeatView.handle, "/user/hand/<!movement>/input/b/click");
+		frame.AddBinding(m_vecAfterburner.handle, "/user/hand/<movement>/input/squeeze/force");
+		frame.AddBinding(m_vecSecondaryFire.handle, "/user/hand/<!weapon>/input/trigger/value");
+		frame.AddBinding(m_vecHorn.handle, "/user/hand/<!movement>/input/thumbstick/click");
+		frame.AddBinding(m_vecLights.handle, "/user/hand/<movement>/input/thumbstick/click");
+		frame.AddBinding(m_vecExit.handle, "/user/hand/<movement>/input/a/click");
+		frame.AddBinding(m_grip[0], "/user/hand/left/input/squeeze/value");
+		frame.AddBinding(m_grip[1], "/user/hand/right/input/squeeze/value");
+		frame.AddBinding(m_trigger[0], "/user/hand/left/input/trigger/value");
+		frame.AddBinding(m_trigger[1], "/user/hand/right/input/trigger/value");
+		frame.AddBinding(m_haptics[0], "/user/hand/left/output/haptic");
+		frame.AddBinding(m_haptics[1], "/user/hand/right/output/haptic");
+		frame.SuggestBindings("/interaction_profiles/valve/frame_controller_valve");
+	}
 }
 
 void OpenXRInput::AttachActionSets()
