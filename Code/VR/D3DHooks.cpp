@@ -87,9 +87,8 @@ extern "C" bool __declspec(dllexport) CryVRInitD3DHooks()
 	// load system d3d10.dll
 	wchar_t buf[MAX_PATH + 1];
 	GetSystemDirectoryW(buf, sizeof(buf));
-	std::wstring systemPath = buf;
-	std::wstring d3d10DllPath = systemPath + L"\\d3d10.dll";
-	HMODULE d3d10Dll = LoadLibraryW(d3d10DllPath.c_str());
+	wcscat(buf, L"\\d3d10.dll");
+	HMODULE d3d10Dll = LoadLibraryW(buf);
 	if (!d3d10Dll) {
 		return false;
 	}
@@ -98,8 +97,9 @@ extern "C" bool __declspec(dllexport) CryVRInitD3DHooks()
 	hooks::InstallHook("D3D10CreateDeviceAndSwapChain", GetProcAddress(d3d10Dll, "D3D10CreateDeviceAndSwapChain"), &D3D10CreateDeviceAndSwapChain_wrapper);
 
 	// load system dxgi.dll
-	std::wstring dxgiDllPath = systemPath + L"\\dxgi.dll";
-	HMODULE dxgiDll = LoadLibraryW(dxgiDllPath.c_str());
+	GetSystemDirectoryW(buf, sizeof(buf));
+	wcscat(buf, L"\\dxgi.dll");
+	HMODULE dxgiDll = LoadLibraryW(buf);
 	if (!dxgiDll) {
 		return false;
 	}

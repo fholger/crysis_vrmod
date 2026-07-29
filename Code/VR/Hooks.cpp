@@ -6,6 +6,8 @@
 
 #include <unordered_map>
 
+#include "ISystem.h"
+
 namespace {
 	struct HookInfo {
 		intptr_t target;
@@ -26,8 +28,8 @@ namespace hooks {
 		g_hooksToOriginal.clear();
 	}
 
-	void InstallVirtualFunctionHook(const std::string &name, void *instance, uint32_t methodPos, void *detour) {
-		CryLog("Installing virtual function hook for %s", name.c_str());
+	void InstallVirtualFunctionHook(const char* name, void *instance, uint32_t methodPos, void *detour) {
+		CryLog("Installing virtual function hook for %s", name);
 		LPVOID *vtable = *((LPVOID**)instance);
 		LPVOID pTarget = vtable[methodPos];
 
@@ -66,7 +68,7 @@ namespace hooks {
 		}
 	}
 
-	void InstallHook(const std::string &name, void *target, void *detour) {
+	void InstallHook(const char* name, void *target, void *detour) {
 		CryLog("Installing hook for %s from %ul to %ul", name, target, detour);
 		LPVOID pOriginal = nullptr;
 		if (MH_CreateHook(target, detour, &pOriginal) != MH_OK || MH_EnableHook(target) != MH_OK) {
@@ -81,8 +83,8 @@ namespace hooks {
 		};
 	}
 
-	void InstallHookInDll(const std::string &name, HMODULE module, void *detour) {
-		LPVOID target = GetProcAddress(module, name.c_str());
+	void InstallHookInDll(const char* name, HMODULE module, void *detour) {
+		LPVOID target = GetProcAddress(module, name);
 		if (target != nullptr) {
 			InstallHook(name, target, detour);
 		}
