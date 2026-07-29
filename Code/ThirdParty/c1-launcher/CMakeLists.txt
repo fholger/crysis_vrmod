@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 ################################################################################
 
-project(C1-Launcher VERSION 6 LANGUAGES CXX RC)
+project(C1-Launcher VERSION 8 LANGUAGES CXX RC)
 
 ################################################################################
 
@@ -40,7 +40,8 @@ add_library(LauncherBase STATIC
 	Code/CryCommon/CrySystem/IValidator.h
 	Code/Launcher/CPUInfo.cpp
 	Code/Launcher/CPUInfo.h
-	Code/Launcher/CryRender.h
+	Code/Launcher/CryMallocHook.cpp
+	Code/Launcher/CryMallocHook.h
 	Code/Launcher/LauncherCommon.cpp
 	Code/Launcher/LauncherCommon.h
 	Code/Launcher/MemoryPatch.cpp
@@ -83,7 +84,6 @@ add_library(GameLauncher STATIC
 	Code/Launcher/Game/GameLauncher.h
 	Code/Launcher/Game/LanguageHook.cpp
 	Code/Launcher/Game/LanguageHook.h
-	Code/Launcher/Game/Resources.h
 )
 
 target_link_libraries(GameLauncher LauncherBase)
@@ -93,6 +93,7 @@ set(GAME_LAUNCHER_MANIFESTS
 	${PROJECT_SOURCE_DIR}/Resources/Manifests/EnableVisualStyles.manifest
 	${PROJECT_SOURCE_DIR}/Resources/Manifests/TrustInfo.manifest
 	${PROJECT_SOURCE_DIR}/Resources/Manifests/VC80_CRT.manifest
+	${PROJECT_SOURCE_DIR}/Resources/Manifests/UTF-8.manifest
 )
 
 ################################################################################
@@ -119,8 +120,44 @@ set(CURSORS
 	${PROJECT_SOURCE_DIR}/Resources/CursorWhite.cur
 )
 
-set(CRYSIS_RESOURCES           ${CURSORS} ${PROJECT_SOURCE_DIR}/Resources/Crysis.ico)
+set(CRYSIS_RESOURCES
+	${CURSORS}
+	${PROJECT_BINARY_DIR}/Project.h
+	${PROJECT_SOURCE_DIR}/Resources/Crysis.ico
+)
+
+set(CRYSIS_WARHEAD_RESOURCES
+	${CURSORS}
+	${PROJECT_BINARY_DIR}/Project.h
+	${PROJECT_SOURCE_DIR}/Resources/CrysisWarhead.ico
+)
+
+set(CRYSIS_WARS_RESOURCES
+	${CURSORS}
+	${PROJECT_BINARY_DIR}/Project.h
+	${PROJECT_SOURCE_DIR}/Resources/CrysisWars.ico
+)
+
+set(DEDICATED_SERVER_RESOURCES
+	${PROJECT_BINARY_DIR}/Project.h
+	${PROJECT_SOURCE_DIR}/Resources/DedicatedServer.ico
+)
+
+set(EDITOR_RESOURCES
+	${PROJECT_BINARY_DIR}/Project.h
+	${PROJECT_SOURCE_DIR}/Resources/Editor.ico
+)
 
 set_source_files_properties(Resources/Crysis.rc          PROPERTIES OBJECT_DEPENDS "${CRYSIS_RESOURCES}")
+set_source_files_properties(Resources/CrysisWarhead.rc   PROPERTIES OBJECT_DEPENDS "${CRYSIS_WARHEAD_RESOURCES}")
+set_source_files_properties(Resources/CrysisWars.rc      PROPERTIES OBJECT_DEPENDS "${CRYSIS_WARS_RESOURCES}")
+set_source_files_properties(Resources/DedicatedServer.rc PROPERTIES OBJECT_DEPENDS "${DEDICATED_SERVER_RESOURCES}")
+set_source_files_properties(Resources/Editor.rc          PROPERTIES OBJECT_DEPENDS "${EDITOR_RESOURCES}")
 
 ################################################################################
+
+include(CTest)
+
+if(BUILD_TESTING)
+	add_subdirectory(Tests)
+endif()

@@ -190,7 +190,7 @@ void MemoryPatch::CryAction::AllowDX9ImmersiveMultiplayer(void* pCryAction, int 
 void MemoryPatch::CryAction::DisableGameplayStats(void* pCryAction, int gameBuild)
 {
 #ifdef BUILD_64BIT
-	const unsigned char code[] = {
+	static const unsigned char code[] = {
 		0xC3,  // ret
 		0x90,  // nop
 		0x90,  // nop
@@ -527,7 +527,7 @@ void MemoryPatch::CryGame::CanJoinDX10Servers(void* pCryGame, int gameBuild)
  */
 void MemoryPatch::CryGame::EnableDX10Menu(void* pCryGame, int gameBuild)
 {
-	const unsigned char code[] = {
+	static const unsigned char code[] = {
 		0xB0, 0x01,  // mov al, 0x1
 		0x90         // nop
 	};
@@ -661,6 +661,100 @@ void MemoryPatch::CryGame::EnableDX10Menu(void* pCryGame, int gameBuild)
 	}
 }
 
+/**
+ * Fixes loading mods via in-game Mods menu.
+ *
+ * The issue is that mod name from info.xml is used instead of mod directory name when loading a mod via Mods menu.
+ */
+void MemoryPatch::CryGame::FixModLoad(void* pCryGame, int gameBuild)
+{
+	static const unsigned char code[] = {
+#ifdef BUILD_64BIT
+		0x4C, 0x8D, 0x8C, 0x24, 0xB0, 0x00, 0x00, 0x00,  // lea r9, qword ptr ss:[rsp+0xB0]
+		0xB8, 0x06, 0x00, 0x00, 0x00,                    // mov eax, 0x6
+		0x41, 0x89, 0x01,                                // mov dword ptr ds:[r9], eax
+		0x41, 0x89, 0x41, 0x10,                          // mov dword ptr ds:[r9+0x10], eax
+		0x41, 0x89, 0x41, 0x20,                          // mov dword ptr ds:[r9+0x20], eax
+		0x4D, 0x89, 0x41, 0x18,                          // mov qword ptr ds:[r9+0x18], r8
+		0x4D, 0x89, 0x41, 0x28,                          // mov qword ptr ds:[r9+0x28], r8
+		0x4C, 0x8D, 0x84, 0x24, 0x64, 0x01, 0x00, 0x00,  // lea r8, qword ptr ss:[rsp+0x164]
+		0x4D, 0x89, 0x41, 0x08,                          // mov qword ptr ds:[r9+0x8], r8
+#else
+		0xB8, 0x70, 0x00, 0x00, 0x00,                    // mov eax, 0x70
+		0x89, 0x7C, 0x04, 0x44,                          // mov dword ptr ss:[esp+eax+0x44], edi <--+
+		0x83, 0xE8, 0x10,                                // sub eax, 0x10                           |
+		0x75, 0xF7,                                      // jne ------------------------------------+
+		0x8D, 0x84, 0x24, 0xF8, 0x00, 0x00, 0x00,        // lea eax, dword ptr ss:[esp+0xF8]
+		0x89, 0x44, 0x24, 0x5C,                          // mov dword ptr ss:[esp+0x5C], eax
+		0x90,                                            // nop
+		0x90,                                            // nop
+#endif
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+		0x90,                                            // nop
+	};
+
+	switch (gameBuild)
+	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// no Mods menu in Crysis Warhead
+			break;
+		}
+		case 5767:
+		case 5879:
+		{
+			// no Mods menu in Crysis 1.0 and 1.1
+			break;
+		}
+#ifdef BUILD_64BIT
+		case 6115:
+		{
+			FillMem(pCryGame, 0x30326A, code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryGame, 0x30385A, code, sizeof(code));
+			break;
+		}
+#else
+		case 6115:
+		{
+			FillMem(pCryGame, 0x228B8A, code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryGame, 0x228C2A, code, sizeof(code));
+			break;
+		}
+#endif
+		case 6527:
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			// already fixed in Crysis Wars
+			break;
+		}
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // CryNetwork
 ////////////////////////////////////////////////////////////////////////////////
@@ -672,7 +766,7 @@ void MemoryPatch::CryGame::EnableDX10Menu(void* pCryGame, int gameBuild)
  */
 void MemoryPatch::CryNetwork::EnablePreordered(void* pCryNetwork, int gameBuild)
 {
-	unsigned char code[] = {
+	static unsigned char code[] = {
 #ifdef BUILD_64BIT
 		0xC6, 0x83, 0x70, 0xFA, 0x00, 0x00, 0x01  // mov byte ptr ds:[rbx+0xFA70], 0x1
 #else
@@ -951,23 +1045,23 @@ void MemoryPatch::CryNetwork::FixInternetConnect(void* pCryNetwork, int gameBuil
 void MemoryPatch::CryNetwork::FixFileCheckCrash(void* pCryNetwork, int gameBuild)
 {
 #ifdef BUILD_64BIT
-	const unsigned char codeA[] = {
+	static const unsigned char codeA[] = {
 		0x48, 0x89, 0x0A,  // mov qword ptr ds:[rdx], rcx
 		0x90               // nop
 	};
 
-	const unsigned char codeB[] = {
+	static const unsigned char codeB[] = {
 		0x48, 0x89, 0x4A, 0x08  // mov qword ptr ds:[rdx+0x8], rcx
 	};
 #else
-	const unsigned char clientCode[] = {
+	static const unsigned char clientCode[] = {
 		0x8B, 0x4D, 0xC0,  // mov ecx, dword ptr ss:[ebp-0x40]
 		0xFF, 0x49, 0xF4,  // dec dword ptr ds:[ecx-0xC]
 		0x8B, 0x4D, 0xBC,  // mov ecx, dword ptr ss:[ebp-0x44]
 		0x89, 0x4D, 0xC0   // mov dword ptr ss:[ebp-0x40], ecx
 	};
 
-	const unsigned char serverCode[] = {
+	static const unsigned char serverCode[] = {
 		0x90,              // nop
 		0x90,              // nop
 		0xEB, 0x02,        // jmp -------------------------------+
@@ -1755,12 +1849,12 @@ void MemoryPatch::CrySystem::FixCPUInfoOverflow(void* pCrySystem, int gameBuild)
 void MemoryPatch::CrySystem::HookCPUDetect(void* pCrySystem, int gameBuild,
 	void (*handler)(CPUInfo* info, ISystem* pSystem))
 {
-	unsigned char code[] = {
+	static unsigned char code[] = {
 #ifdef BUILD_64BIT
 		0x48, 0x89, 0x85, 0x28, 0x06, 0x00, 0x00,                    // mov qword ptr ss:[rbp+0x628], rax
 		0x48, 0x8B, 0xC8,                                            // mov rcx, rax
 		0x48, 0x8B, 0xD5,                                            // mov rdx, rbp
-		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x102030405060708
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
 		0xFF, 0xD0,                                                  // call rax
 		0x90,                                                        // nop
 		0x90,                                                        // nop
@@ -1865,6 +1959,11 @@ void MemoryPatch::CrySystem::HookCPUDetect(void* pCrySystem, int gameBuild,
 			// TODO: 32-bit Crysis Warhead
 			break;
 		}
+		case 4804:
+		{
+			FillMem(pCrySystem, 0x56e9e, &code, sizeof(code));
+			break;
+		}
 		case 5767:
 		{
 			FillMem(pCrySystem, 0x59CD7, &code, sizeof(code));
@@ -1928,7 +2027,7 @@ void MemoryPatch::CrySystem::HookError(void* pCrySystem, int gameBuild,
 	// convert thiscall into a normal function call
 	// and call our handler
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x48, 0x89, 0x54, 0x24, 0x10,                                // mov qword ptr ss:[rsp+0x10], rdx
 		0x4C, 0x89, 0x44, 0x24, 0x18,                                // mov qword ptr ss:[rsp+0x18], r8
 		0x4C, 0x89, 0x4C, 0x24, 0x20,                                // mov qword ptr ss:[rsp+0x20], r9
@@ -1943,7 +2042,7 @@ void MemoryPatch::CrySystem::HookError(void* pCrySystem, int gameBuild,
 
 	std::memcpy(&code[29], &handler, 8);
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x8B, 0x4C, 0x24, 0x08,        // mov ecx, dword ptr ss:[esp+0x8]
 		0x8D, 0x44, 0x24, 0x0C,        // lea eax, dword ptr ss:[esp+0xC]
 		0x50,                          // push eax
@@ -2078,7 +2177,7 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 	void (*handler)(const char* defaultLanguage, ILocalizationManager* pLocalizationManager))
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		// call ISystem::GetLocalizationManager
 		0x49, 0x8B, 0x45, 0x00,                                      // mov rax, qword ptr ds:[r13]
 		0x49, 0x8B, 0xCD,                                            // mov rcx, r13
@@ -2102,7 +2201,7 @@ void MemoryPatch::CrySystem::HookLanguageInit(void* pCrySystem, int gameBuild,
 		code[9] = 0x60;
 	}
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		// call ISystem::GetLocalizationManager
 		0x8B, 0x07,                          // mov eax, dword ptr ds:[edi]
 		0x8B, 0x90, 0xA4, 0x01, 0x00, 0x00,  // mov edx, dword ptr ds:[eax+0x1A4]
@@ -2268,14 +2367,14 @@ void MemoryPatch::CrySystem::HookChangeUserPath(void* pCrySystem, int gameBuild,
 	void (*handler)(ISystem* pSystem, const char* userPath))
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
 		0xFF, 0xE0,                                                  // jmp rax
 	};
 
 	std::memcpy(&code[2], &handler, 8);
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0xB8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0x0
 		0xFF, 0x74, 0x24, 0x04,        // push dword ptr ss:[esp+0x4]
 		0x51,                          // push ecx
@@ -2407,10 +2506,10 @@ void MemoryPatch::CrySystem::HookChangeUserPath(void* pCrySystem, int gameBuild,
  * Hooks D3D9 adapter information logging.
  */
 void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameBuild,
-	void (*handler)(CryRender_D3D9_AdapterInfo* info))
+	void (*handler)(MemoryPatch::CryRenderD3D9::AdapterInfo* info))
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x48, 0x8B, 0xCE,                                            // mov rcx, rsi
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
 		0xFF, 0xD0,                                                  // call rax
@@ -2419,7 +2518,7 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 
 	std::memcpy(&code[5], &handler, 8);
 
-	unsigned char code_Warhead[] = {
+	static unsigned char code_Warhead[] = {
 		0x48, 0x8B, 0xC8,                                            // mov rcx, rax
 		0x4C, 0x8B, 0xE0,                                            // mov r12, rax
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
@@ -2430,7 +2529,7 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 #else
 	// TODO: 32-bit Crysis Warhead
 
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x55,                               // push ebp
 		0xB8, 0x00, 0x00, 0x00, 0x00,       // mov eax, 0x0
 		0xFF, 0xD0,                         // call eax
@@ -2569,7 +2668,7 @@ void MemoryPatch::CryRenderD3D9::HookAdapterInfo(void* pCryRenderD3D9, int gameB
 void MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(void* pCryRenderD3D10, int gameBuild)
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x31, 0xC0,              // xor eax, eax
 		0x90,                    // nop
 		0x90,                    // nop
@@ -2697,10 +2796,10 @@ void MemoryPatch::CryRenderD3D10::FixLowRefreshRateBug(void* pCryRenderD3D10, in
  * It also fixes crash of 64-bit DX10 renderer on nVidia driver version 545.92 and possibly others.
  */
 void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gameBuild,
-	void (*handler)(CryRender_D3D10_AdapterInfo* info))
+	void (*handler)(MemoryPatch::CryRenderD3D10::AdapterInfo* info))
 {
 #ifdef BUILD_64BIT
-	unsigned char codeA[] = {
+	static unsigned char codeA[] = {
 		0x48, 0x8B, 0xF0,                                            // mov rsi, rax
 		0x48, 0x8B, 0xC8,                                            // mov rcx, rax
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
@@ -2710,7 +2809,7 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 	};
 
 	// avoid using RSI register with value corrupted by nVidia driver
-	unsigned char codeB[] = {
+	static unsigned char codeB[] = {
 		0x4C, 0x8B, 0x9F, 0x78, 0x8A, 0x02, 0x00,  // mov r11, qword ptr ds:[rdi+0x28A78]
 		0x90,                                      // nop
 		0x90,                                      // nop
@@ -2723,7 +2822,7 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 
 	std::memcpy(&codeA[8], &handler, 8);
 
-	unsigned char codeA_Warhead[] = {
+	static unsigned char codeA_Warhead[] = {
 		0x48, 0x8D, 0x48, 0xF8,                                      // lea rcx, qword ptr ds:[rax-0x8]
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
 		0xFF, 0xD0                                                   // call rax
@@ -2731,7 +2830,7 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
 
 	std::memcpy(&codeA_Warhead[6], &handler, 8);
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x50,                          // push eax
 		0xB8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0x0
 		0xFF, 0xD0,                    // call eax
@@ -2893,10 +2992,10 @@ void MemoryPatch::CryRenderD3D10::HookAdapterInfo(void* pCryRenderD3D10, int gam
  * This patch is used to load these DLLs normally, so placing them next to CryRenderD3D10.dll works as expected.
  */
 void MemoryPatch::CryRenderD3D10::HookInitAPI(void* pCryRenderD3D10, int gameBuild,
-	bool (*handler)(CryRender_D3D10_SystemAPI* api))
+	bool (*handler)(MemoryPatch::CryRenderD3D10::SystemAPI* api))
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x48, 0x8D, 0x0D, 0xF3, 0xFF, 0xFF, 0xFF,                    // lea rcx, qword ptr ds:[rip-0xD]
 		0x03, 0x0D, 0xE8, 0xFF, 0xFF, 0xFF,                          // add ecx, dword ptr ds:[rip-0x18]
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
@@ -2909,7 +3008,7 @@ void MemoryPatch::CryRenderD3D10::HookInitAPI(void* pCryRenderD3D10, int gameBui
 
 	std::memcpy(&code[15], &handler, 8);
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0xE8, 0x12, 0x00, 0x00, 0x00,        // call get_pc -----------------------+
 		0x8B, 0x40, 0xF0,                    // mov eax, dword ptr ds:[eax-0x10]   |
 		0x50,                                // push eax                           |
@@ -3038,7 +3137,7 @@ void MemoryPatch::CryRenderD3D10::HookInitAPI(void* pCryRenderD3D10, int gameBui
  */
 void MemoryPatch::CryRenderNULL::DisableDebugRenderer(void* pCryRenderNULL, int gameBuild)
 {
-	const unsigned char code[] = {
+	static const unsigned char code[] = {
 		0xC3,  // ret
 #ifdef BUILD_64BIT
 		0x90,  // nop
@@ -3241,6 +3340,133 @@ void MemoryPatch::CryRenderNULL::DisableDebugRenderer(void* pCryRenderNULL, int 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// CrySoundSystem
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * A fix for the FMOD allocator in CrySoundSystem.
+ *
+ * The allocator implements malloc-like, realloc-like and free-like functions that are passed to FMOD_Memory_Initialize
+ * as functions pointers. FMOD uses them to allocate memory. This allocator is also based on the broken node_alloc
+ * (CryMemoryAllocator.h), so it suffers from the 64-bit pointer truncation bug too. There are two additional issues.
+ *
+ * The first issue is that instead of using CryMalloc as its upstream allocator (like essentially everything else), it
+ * uses directly malloc (msvcr80.dll). This alone isn't a big deal. As a result, FMOD is missing in the engine memory
+ * statistics, but that's about it. However, our fix for the 64-bit pointer truncation bug is built around CryMalloc,
+ * so this bypasses the fix and causes crashes (see CryMallocHook.cpp for more info). This function simply replaces
+ * malloc with CryMalloc in the allocator.
+ *
+ * The second issue is more serious. The realloc-like function first calls the malloc-like function to allocate a new
+ * chunk, which is completely fine, but then it uses _msize (msvcr80.dll) to get the size of the allocated chunk. This
+ * cannot work correctly of course. The whole point of this allocator is to split large blocks allocated via CryMalloc
+ * (or malloc) into smaller chunks. It even uses the correct approach a few instructions below to get the size of the
+ * old chunk. This allocator stores the chunk size right before each chunk. Maybe _msize (RtlSizeHeap under the hood)
+ * actually did the same in older versions of Windows, so it somehow worked there. However, it's certainly not the case
+ * in modern Windows. At least FMOD seems to call the realloc-like function only rarely. This function simply replaces
+ * the _msize call with reading the value stored before the chunk.
+ *
+ * Interestingly, only Crysis Wars is affected. In Crysis and Crysis Warhead, the only issue here is the 64-bit pointer
+ * truncation bug, which is a common problem in the engine due to node_alloc being used at various places.
+ */
+void MemoryPatch::CrySoundSystem::FixAllocForFmod(void* pCrySoundSystem, int gameBuild)
+{
+#ifdef BUILD_64BIT
+	static const unsigned char msizeCode[] = {
+		0x48, 0x8B, 0xF8,  // mov rdi, rax
+		0x8B, 0x43, 0xFC,  // mov eax, dword ptr ds:[rbx-0x4]
+		0x90,              // nop
+		0x90,              // nop
+		0x90,              // nop
+		0x90,              // nop
+		0x90,              // nop
+	};
+#else
+	static const unsigned char msizeCode[] = {
+		0x8D, 0x78, 0x04,  // lea edi, dword ptr ds:[eax+0x4]
+		0x8B, 0x46, 0xFC,  // mov eax, dword ptr ds:[esi-0x4]
+		0x90,              // nop
+		0x90,              // nop
+		0x90,              // nop
+	};
+#endif
+
+	switch (gameBuild)
+	{
+		case 687:
+		case 710:
+		case 711:
+		{
+			// no issue in Crysis Warhead
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		{
+			// no issue in Crysis
+			break;
+		}
+#ifdef BUILD_64BIT
+		case 6566:
+		{
+			static const unsigned char mallocCode[] = {
+				0xE8, 0xE9, 0x93, 0x00, 0x00,  // call <crysoundsystem.sub_3600B620>
+				0x90,                          // nop
+			};
+
+			FillMem(pCrySoundSystem, 0x2232, &mallocCode, sizeof(mallocCode));
+			FillMem(pCrySoundSystem, 0x7819, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+		case 6586:
+		{
+			static const unsigned char mallocCode[] = {
+				0xE8, 0x69, 0x88, 0x00, 0x00,  // call <crysoundsystem.sub_3600AD80>
+				0x90,                          // nop
+			};
+
+			FillMem(pCrySoundSystem, 0x2512, &mallocCode, sizeof(mallocCode));
+			FillMem(pCrySoundSystem, 0x7AC9, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			static const unsigned char mallocCode[] = {
+				0xE8, 0x39, 0x8A, 0x00, 0x00,  // call <crysoundsystem.sub_3600AF50>
+				0x90,                          // nop
+			};
+
+			FillMem(pCrySoundSystem, 0x2512, &mallocCode, sizeof(mallocCode));
+			FillMem(pCrySoundSystem, 0x7C89, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+#else
+		case 6527:
+		{
+			FillMem(pCrySoundSystem, 0x4BF7, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCrySoundSystem, 0x4D07, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCrySoundSystem, 0x4BF7, &msizeCode, sizeof(msizeCode));
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // WarheadEXE
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3287,18 +3513,18 @@ void MemoryPatch::WarheadEXE::FixHInstance(void* pEXE, int gameBuild)
 void MemoryPatch::Editor::FixBrokenPanels(void* pEditor, int editorBuild)
 {
 #ifdef BUILD_64BIT
-	const unsigned char codeA[] = {
+	static const unsigned char codeA[] = {
 		0x48, 0xC7, 0x44, 0x24, 0x58, 0x00, 0x00, 0x00, 0x00,  // mov qword ptr ss:[rsp+0x58], 0x0
 	};
 
-	const unsigned char codeB[] = {
+	static const unsigned char codeB[] = {
 		0x83, 0xC9, 0xFF,              // or ecx, 0xFFFFFFFF
 		0x48, 0x83, 0xC1, 0x02,        // add rcx, 0x2
 		0x48, 0x89, 0x4C, 0x24, 0x60,  // mov qword ptr ss:[rsp+0x60], rcx
 		0x90,                          // nop
 	};
 #else
-	const unsigned char codeA[] = {
+	static const unsigned char codeA[] = {
 		0x33, 0xFF,        // xor edi, edi
 		0x33, 0xC0,        // xor eax, eax
 		0xB0, 0x01,        // mov al, 0x1
@@ -3306,7 +3532,7 @@ void MemoryPatch::Editor::FixBrokenPanels(void* pEditor, int editorBuild)
 		0x89, 0x45, 0xEC,  // mov dword ptr ss:[ebp-0x14], eax
 	};
 
-	const unsigned char codeB[] = {
+	static const unsigned char codeB[] = {
 		0x83, 0x65, 0xE0, 0x00,  // and dword ptr ss:[ebp-0x20], 0x0
 		0x83, 0x65, 0xE4, 0x00,  // and dword ptr ss:[ebp-0x1C], 0x0
 	};
@@ -3354,7 +3580,7 @@ void MemoryPatch::Editor::HookVersionInit(void* pEditor, int editorBuild,
 	void (*handler)(MemoryPatch::Editor::Version* version))
 {
 #ifdef BUILD_64BIT
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
 		0x48, 0x81, 0xC1, 0x10, 0x01, 0x00, 0x00,                    // add rcx, 0x110
 		0xFF, 0xE0,                                                  // jmp rax
@@ -3362,7 +3588,7 @@ void MemoryPatch::Editor::HookVersionInit(void* pEditor, int editorBuild,
 
 	std::memcpy(&code[2], &handler, 8);
 #else
-	unsigned char code[] = {
+	static unsigned char code[] = {
 		0xB8, 0x00, 0x00, 0x00, 0x00,        // mov eax, 0x0
 		0x81, 0xC1, 0xE4, 0x00, 0x00, 0x00,  // add ecx, 0xE4
 		0x51,                                // push ecx
@@ -3400,4 +3626,760 @@ void MemoryPatch::Editor::HookVersionInit(void* pEditor, int editorBuild,
 		}
 #endif
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// XToolkitPro
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Fixes the oleacc.AccessibleObjectFromWindow crash in the Xtreme Toolkit Pro library.
+ *
+ * The issue was that the oleacc.AccessibleObjectFromWindow address was stored in the wrong place where the
+ * user32.NotifyWinEvent address is supposed to be stored.
+ */
+void MemoryPatch::XToolkitPro::FixAccessibleObjectFromWindow(void* pXToolkitPro)
+{
+	static const unsigned char code[] = {
+#ifdef BUILD_64BIT
+		0x48, 0x8D, 0x53, 0x20,  // lea rdx, qword ptr ds:[rbx+0x20]
+#else
+		0x8D, 0x46, 0x10,        // lea eax, dword ptr ds:[esi+0x10]
+#endif
+	};
+
+#ifdef BUILD_64BIT
+	FillMem(pXToolkitPro, 0x283FE, &code, sizeof(code));
+#else
+	FillMem(pXToolkitPro, 0x1E5A3, &code, sizeof(code));
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// GENERATED MEMORY PATCHES
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// CryAction
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Used to fix the GameWarning format string vulnerability.
+ */
+void MemoryPatch::CryAction::HookGameWarning(void* pCryAction, int gameBuild, void (*handler)(const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+		0x90,                                                        // nop
+		0x90,                                                        // nop
+		0x90,                                                        // nop
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+		0x90,                          // nop
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCryAction, 0x2180, &code, sizeof(code));
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryAction, 0x4110, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryAction, 0x3e60, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryAction, 0x3f40, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryAction, 0x4230, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryAction, 0x40c0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryAction, 0x44f0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCryAction, 0x42a0, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryAction, 0x40b0, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryAction, 0xd470, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryAction, 0xd920, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryAction, 0xdcc0, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryAction, 0xd9c0, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCryAction, 0xe0d0, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryAction, 0xdee0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryAction, 0xe0d0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCryAction, 0xe050, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryAction, 0xdf50, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+/**
+ * Used to fix the CryWarning format string vulnerability.
+ */
+void MemoryPatch::CryAction::HookCryWarning(void* pCryAction, int gameBuild,
+	void (*handler)(int, int, const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+		0x90,                          // nop
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCryAction, 0x1d60, &code, sizeof(code));
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryAction, 0x1000, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		case 6527:
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryAction, 0x3240, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CryGame
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Used to fix the GameWarning format string vulnerability.
+ */
+void MemoryPatch::CryGame::HookGameWarning(void* pCryGame, int gameBuild, void (*handler)(const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+		0x90,                                                        // nop
+		0x90,                                                        // nop
+		0x90,                                                        // nop
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+		0x90,                          // nop
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCryGame, 0x2180, &code, sizeof(code));
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryGame, 0x6b40, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryGame, 0x69e0, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryGame, 0x7620, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryGame, 0x7ef0, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryGame, 0x84e0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryGame, 0x7aa0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCryGame, 0x7a60, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pCryGame, 0x7a80, &code, sizeof(code));
+			break;
+		}
+		case 6729:
+		{
+			FillMem(pCryGame, 0x7a90, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryGame, 0x33040, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryGame, 0x330e0, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryGame, 0x33cc0, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryGame, 0x33be0, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCryGame, 0x33f40, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryGame, 0x338e0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryGame, 0x33e50, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		{
+			FillMem(pCryGame, 0x33ea0, &code, sizeof(code));
+			break;
+		}
+		case 6670:
+		{
+			FillMem(pCryGame, 0x33f70, &code, sizeof(code));
+			break;
+		}
+		case 6729:
+		{
+			FillMem(pCryGame, 0x33f60, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+/**
+ * Used to fix the CryWarning format string vulnerability.
+ */
+void MemoryPatch::CryGame::HookCryWarning(void* pCryGame, int gameBuild,
+	void (*handler)(int, int, const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+		0x90,                          // nop
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			FillMem(pCryGame, 0x1d60, &code, sizeof(code));
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		{
+			FillMem(pCryGame, 0x11f0, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryGame, 0x1200, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryGame, 0x24060, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryGame, 0x24080, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		case 6156:
+		{
+			FillMem(pCryGame, 0x247a0, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCryGame, 0x247c0, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryGame, 0x24770, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryGame, 0x24760, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryGame, 0x247a0, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CryNetwork
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Used to fix the CryWarning format string vulnerability.
+ */
+void MemoryPatch::CryNetwork::HookCryWarning(void* pCryNetwork, int gameBuild,
+	void (*handler)(int, int, const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		{
+			// Crysis Warhead has no CryWarning in its CryNetwork
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryNetwork, 0x24c00, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryNetwork, 0x24f40, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryNetwork, 0x24b40, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryNetwork, 0x24490, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryNetwork, 0x23fa0, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryNetwork, 0x24dc0, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryNetwork, 0x24f70, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		{
+			FillMem(pCryNetwork, 0xcc85, &code, sizeof(code));
+			break;
+		}
+		case 5879:
+		{
+			FillMem(pCryNetwork, 0xcb51, &code, sizeof(code));
+			break;
+		}
+		case 6115:
+		{
+			FillMem(pCryNetwork, 0xcc2b, &code, sizeof(code));
+			break;
+		}
+		case 6156:
+		{
+			FillMem(pCryNetwork, 0xcba2, &code, sizeof(code));
+			break;
+		}
+		case 6527:
+		{
+			FillMem(pCryNetwork, 0xcd3a, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCryNetwork, 0xd2bc, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		{
+			FillMem(pCryNetwork, 0xca3c, &code, sizeof(code));
+			break;
+		}
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCryNetwork, 0xce18, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CrySystem
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Used to fix the CryWarning format string vulnerability.
+ */
+void MemoryPatch::CrySystem::HookCryWarning(void* pCrySystem, int gameBuild,
+	void (*handler)(int, int, const char* format, ...))
+{
+#ifdef BUILD_64BIT
+	static unsigned char code[] = {
+		0x48, 0xb8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0
+		0xff, 0xe0,                                                  // jmp rax
+	};
+
+	std::memcpy(&code[2], &handler, 8);
+#else
+	static unsigned char code[] = {
+		0xb8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0
+		0xff, 0xe0,                    // jmp eax
+		0x90,                          // nop
+		0x90,                          // nop
+		0x90,                          // nop
+	};
+
+	std::memcpy(&code[1], &handler, 4);
+#endif
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		case 710:
+		case 711:
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		{
+			FillMem(pCrySystem, 0x16e0, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCrySystem, 0x1770, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCrySystem, 0x16e0, &code, sizeof(code));
+			break;
+		}
+#else
+		case 687:
+		case 710:
+		case 711:
+		{
+			// TODO: 32-bit Crysis Warhead
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		case 6527:
+		{
+			FillMem(pCrySystem, 0x3980, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		{
+			FillMem(pCrySystem, 0x3a20, &code, sizeof(code));
+			break;
+		}
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			FillMem(pCrySystem, 0x3980, &code, sizeof(code));
+			break;
+		}
+#endif
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// FMODEx
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Fixes truncation of 64-bit heap buffer addresses inside FMOD.
+ */
+void MemoryPatch::FMODEx::Fix64BitHeapAddressTruncation(void* pFMODEx, int gameBuild)
+{
+#ifdef BUILD_64BIT
+	static const unsigned char code[] = {
+		0x48, 0x8d, 0x40, 0x0f,              // lea rax, ds:[rax+0xf]
+		0x48, 0x83, 0xe0, 0xf0,              // and rax, 0xfffffffffffffff0
+		0x90,                                // nop
+		0x90,                                // nop
+		0x90,                                // nop
+		0x41, 0xb9, 0x3c, 0x00, 0x00, 0x00,  // mov r9d, 0x3c
+	};
+
+	switch (gameBuild)
+	{
+		case 710:
+		case 711:
+		{
+			// already fixed in newer FMOD used by Crysis Warhead
+			break;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		{
+			FillMem(pFMODEx, 0x482da, &code, sizeof(code) - 6);
+			FillMem(pFMODEx, 0x486b7, &code, sizeof(code));
+			break;
+		}
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			// already fixed in newer FMOD used by Crysis Wars
+			break;
+		}
+	}
+#endif
 }

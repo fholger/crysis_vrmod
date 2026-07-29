@@ -1,20 +1,30 @@
-#include <cstdlib>
+#include <signal.h>
+#include <stdlib.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winternl.h>
 #include <dbghelp.h>
-
-#include "Project.h"
+#include <psapi.h>
 
 #include "CrashLogger.h"
-#include "OS.h"
 
 #ifdef BUILD_64BIT
 #define ADDR_FMT "%016I64X"
 #else
 #define ADDR_FMT "%08X"
 #endif
+
+#define CRASH_LOGGER_ABORT 0xE0C1C100
+#define CRASH_LOGGER_PURE_CALL 0xE0C1C101
+#define CRASH_LOGGER_INVALID_PARAM 0xE0C1C102
+#define CRASH_LOGGER_ENGINE_ERROR 0xE0C1C103
+
+static LPTOP_LEVEL_EXCEPTION_FILTER g_userExceptionFilter = NULL;
+static CrashLogger::ExtraProvider* g_extraProvider = NULL;
+static CrashLogger::LogFileProvider g_logFileProvider = NULL;
+static const char* g_banner = NULL;
+static int g_crashed = 0;
 
 static void* ByteOffset(void* base, std::size_t offset)
 {
@@ -60,9 +70,14 @@ static const char* ExceptionCodeToName(unsigned int code)
 		case EXCEPTION_PRIV_INSTRUCTION:         return "Privileged instruction";
 		case EXCEPTION_SINGLE_STEP:              return "Single step";
 		case EXCEPTION_STACK_OVERFLOW:           return "Stack overflow";
+		case 0xE06D7363:                         return "C++ exception";
+		case CRASH_LOGGER_ABORT:                 return "Abnormal program termination";
+		case CRASH_LOGGER_PURE_CALL:             return "Pure virtual function call";
+		case CRASH_LOGGER_INVALID_PARAM:         return "Invalid parameter detected by CRT";
+		case CRASH_LOGGER_ENGINE_ERROR:          return "Engine error";
 	}
 
-	return "Unknown";
+	return "Unknown exception";
 }
 
 static void DumpExceptionInfo(std::FILE* file, const EXCEPTION_RECORD* info)
@@ -70,7 +85,7 @@ static void DumpExceptionInfo(std::FILE* file, const EXCEPTION_RECORD* info)
 	const unsigned int code = info->ExceptionCode;
 	const std::size_t address = reinterpret_cast<std::size_t>(info->ExceptionAddress);
 
-	std::fprintf(file, "%s exception (0x%08X) at 0x" ADDR_FMT "\n", ExceptionCodeToName(code), code, address);
+	std::fprintf(file, "%s (0x%08X) at 0x" ADDR_FMT, ExceptionCodeToName(code), code, address);
 
 	if (code == EXCEPTION_ACCESS_VIOLATION || code == EXCEPTION_IN_PAGE_ERROR)
 	{
@@ -78,38 +93,91 @@ static void DumpExceptionInfo(std::FILE* file, const EXCEPTION_RECORD* info)
 
 		switch (info->ExceptionInformation[0])
 		{
-			case 0: std::fprintf(file, "Read from 0x"  ADDR_FMT " failed\n", dataAddress); break;
-			case 1: std::fprintf(file, "Write to 0x"   ADDR_FMT " failed\n", dataAddress); break;
-			case 8: std::fprintf(file, "Execute at 0x" ADDR_FMT " failed\n", dataAddress); break;
+			case 0: std::fprintf(file, ": Read from 0x"  ADDR_FMT " failed", dataAddress); break;
+			case 1: std::fprintf(file, ": Write to 0x"   ADDR_FMT " failed", dataAddress); break;
+			case 8: std::fprintf(file, ": Execute at 0x" ADDR_FMT " failed", dataAddress); break;
 		}
 	}
+	else if (code == CRASH_LOGGER_ENGINE_ERROR)
+	{
+		const char* message = reinterpret_cast<const char*>(info->ExceptionInformation[0]);
+
+		std::fprintf(file, ": %s", message);
+	}
+
+	std::fprintf(file, "\n");
+	std::fflush(file);
+}
+
+static void DumpGlobalMemoryUsage(std::FILE* file)
+{
+	MEMORYSTATUSEX status = {};
+	status.dwLength = sizeof(status);
+	if (!GlobalMemoryStatusEx(&status))
+	{
+		std::fprintf(file, "GlobalMemoryStatusEx failed with error code %u\n", GetLastError());
+		std::fflush(file);
+		return;
+	}
+
+	std::fprintf(file, "Physical memory = %.1f MiB (%.1f MiB available, %.1f%% used)\n",
+		static_cast<double>(status.ullTotalPhys) / (1024 * 1024),
+		static_cast<double>(status.ullAvailPhys) / (1024 * 1024),
+		(100.0 * (status.ullTotalPhys - status.ullAvailPhys)) / status.ullTotalPhys
+	);
+
+	std::fprintf(file, "Virtual memory = %.1f MiB (%.1f MiB available, %.1f%% used)\n",
+		static_cast<double>(status.ullTotalVirtual) / (1024 * 1024),
+		static_cast<double>(status.ullAvailVirtual) / (1024 * 1024),
+		(100.0 * (status.ullTotalVirtual - status.ullAvailVirtual)) / status.ullTotalVirtual
+	);
 
 	std::fflush(file);
 }
 
-static void DumpMemoryUsage(std::FILE* file)
+static void DumpProcessMemoryUsage(std::FILE* file)
 {
-	MEMORYSTATUSEX status = {};
-	status.dwLength = sizeof(status);
-
-	if (GlobalMemoryStatusEx(&status))
+	HMODULE psapi = GetModuleHandleA("psapi.dll");
+	if (!psapi)
 	{
-		std::fprintf(file, "Physical memory = %.1f MiB (%.1f MiB available, %.1f%% used)\n",
-			static_cast<double>(status.ullTotalPhys) / (1024 * 1024),
-			static_cast<double>(status.ullAvailPhys) / (1024 * 1024),
-			(100.0 * (status.ullTotalPhys - status.ullAvailPhys)) / status.ullTotalPhys
-		);
+		psapi = LoadLibraryA("psapi.dll");
+	}
 
-		std::fprintf(file, "Virtual memory = %.1f MiB (%.1f MiB available, %.1f%% used)\n",
-			static_cast<double>(status.ullTotalVirtual) / (1024 * 1024),
-			static_cast<double>(status.ullAvailVirtual) / (1024 * 1024),
-			(100.0 * (status.ullTotalVirtual - status.ullAvailVirtual)) / status.ullTotalVirtual
-		);
-	}
-	else
+	if (!psapi)
 	{
-		std::fprintf(file, "GlobalMemoryStatusEx failed with error code %u\n", GetLastError());
+		std::fprintf(file, "Loading psapi.dll failed with error code %u\n", GetLastError());
+		std::fflush(file);
+		return;
 	}
+
+	void* getProcessMemoryInfo = GetProcAddress(psapi, "GetProcessMemoryInfo");
+	if (!getProcessMemoryInfo)
+	{
+		std::fprintf(file, "Obtaining GetProcessMemoryInfo failed with error code %u\n", GetLastError());
+		std::fflush(file);
+		return;
+	}
+
+	HANDLE process = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS info = {};
+	info.cb = sizeof(info);
+	if (!static_cast<BOOL(__stdcall *)(HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD)>
+		(getProcessMemoryInfo)(process, &info, sizeof(info)))
+	{
+		std::fprintf(file, "GetProcessMemoryInfo failed with error code %u\n", GetLastError());
+		std::fflush(file);
+		return;
+	}
+
+	std::fprintf(file, "Commit charge = %.1f MiB (%.1f MiB peak)\n",
+		static_cast<double>(info.PagefileUsage) / (1024 * 1024),
+		static_cast<double>(info.PeakPagefileUsage) / (1024 * 1024)
+	);
+
+	std::fprintf(file, "Working set = %.1f MiB (%.1f MiB peak)\n",
+		static_cast<double>(info.WorkingSetSize) / (1024 * 1024),
+		static_cast<double>(info.PeakWorkingSetSize) / (1024 * 1024)
+	);
 
 	std::fflush(file);
 }
@@ -311,14 +379,13 @@ static void DumpCommandLine(std::FILE* file)
 {
 	std::fprintf(file, "Command line:\n");
 	std::fprintf(file, "%s\n", GetCommandLineA());
-
 	std::fflush(file);
 }
 
 static void WriteDumpHeader(std::FILE* file)
 {
 	std::fprintf(file, "================================ CRASH DETECTED ================================\n");
-	std::fprintf(file, "%s\n", PROJECT_BANNER);
+	std::fprintf(file, "%s\n", g_banner);
 	std::fflush(file);
 }
 
@@ -333,147 +400,154 @@ static void WriteCrashDump(std::FILE* file, EXCEPTION_POINTERS* exception)
 	WriteDumpHeader(file);
 
 	DumpExceptionInfo(file, exception->ExceptionRecord);
-	DumpMemoryUsage(file);
+	DumpGlobalMemoryUsage(file);
+	DumpProcessMemoryUsage(file);
 	DumpRegisters(file, exception->ContextRecord);
 	DumpCallStack(file, exception->ContextRecord);
 	DumpLoadedModules(file);
 	DumpCommandLine(file);
 
-	WriteDumpFooter(file);
-}
-
-static void WriteGenericErrorDump(std::FILE* file, CONTEXT* context, const char* message)
-{
-	WriteDumpHeader(file);
-
-	std::fprintf(file, "%s\n", message);
-	std::fflush(file);
-
-	DumpMemoryUsage(file);
-	DumpRegisters(file, context);
-	DumpCallStack(file, context);
-	DumpLoadedModules(file);
-	DumpCommandLine(file);
+	CrashLogger::ExtraProvider* extra = g_extraProvider;
+	while (extra)
+	{
+		extra->OnCrash(file);
+		extra = extra->next;
+	}
 
 	WriteDumpFooter(file);
 }
-
-static void WriteEngineErrorDump(std::FILE* file, CONTEXT* context, const char* format, va_list args)
-{
-	WriteDumpHeader(file);
-
-	std::fprintf(file, "Engine error: ");
-	std::fflush(file);
-
-	std::vfprintf(file, format, args);
-	std::fputc('\n', file);
-	std::fflush(file);
-
-	DumpMemoryUsage(file);
-	DumpRegisters(file, context);
-	DumpCallStack(file, context);
-	DumpLoadedModules(file);
-	DumpCommandLine(file);
-
-	WriteDumpFooter(file);
-}
-
-static OS::Mutex g_mutex;
-static CrashLogger::Handler g_handler;
 
 static LONG __stdcall CrashHandler(EXCEPTION_POINTERS* exception)
 {
 	// avoid recursive calls
-	SetUnhandledExceptionFilter(NULL);
-
-	if (g_handler)
+	if (g_crashed)
 	{
-		OS::LockGuard<OS::Mutex> lock(g_mutex);
+		return EXCEPTION_CONTINUE_SEARCH;
+	}
 
-		std::FILE* file = g_handler();
+	g_crashed = 1;
 
+	if (g_logFileProvider)
+	{
+		std::FILE* file = g_logFileProvider();
 		if (file)
 		{
 			WriteCrashDump(file, exception);
-
 			std::fclose(file);
 		}
+	}
+
+	if (g_userExceptionFilter)
+	{
+		return g_userExceptionFilter(exception);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-static void PureCallHandler()
+static LPTOP_LEVEL_EXCEPTION_FILTER __stdcall SetUnhandledExceptionFilter_Hook(LPTOP_LEVEL_EXCEPTION_FILTER filter)
 {
-	CONTEXT context = {};
-	RtlCaptureContext(&context);
+	LPTOP_LEVEL_EXCEPTION_FILTER previous = g_userExceptionFilter;
+	g_userExceptionFilter = filter;
+	return previous;
+}
 
-	if (g_handler)
+static void HookWithJump(void* address, void* newFunc)
+{
+	if (!address)
 	{
-		OS::LockGuard<OS::Mutex> lock(g_mutex);
-
-		std::FILE* file = g_handler();
-
-		if (file)
-		{
-			WriteGenericErrorDump(file, &context, "Pure function call");
-
-			std::fclose(file);
-		}
+		return;
 	}
 
-	std::abort();
+#ifdef BUILD_64BIT
+	unsigned char code[] = {
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rax, 0x0
+		0xFF, 0xE0                                                   // jmp rax
+	};
+
+	memcpy(&code[2], &newFunc, 8);
+#else
+	unsigned char code[] = {
+		0xB8, 0x00, 0x00, 0x00, 0x00,  // mov eax, 0x0
+		0xFF, 0xE0                     // jmp eax
+	};
+
+	memcpy(&code[1], &newFunc, 4);
+#endif
+
+	DWORD oldProtection;
+	if (!VirtualProtect(address, sizeof(code), PAGE_EXECUTE_READWRITE, &oldProtection))
+	{
+		return;
+	}
+
+	memcpy(address, &code, sizeof(code));
+
+	if (!VirtualProtect(address, sizeof(code), oldProtection, &oldProtection))
+	{
+		return;
+	}
+}
+
+static void Hook_SetUnhandledExceptionFilter()
+{
+	HMODULE kernel32 = GetModuleHandleA("kernel32.dll");
+	if (!kernel32)
+	{
+		return;
+	}
+
+	void* pSetUnhandledExceptionFilter = GetProcAddress(kernel32, "SetUnhandledExceptionFilter");
+	if (!pSetUnhandledExceptionFilter)
+	{
+		return;
+	}
+
+	HookWithJump(pSetUnhandledExceptionFilter, &SetUnhandledExceptionFilter_Hook);
+}
+
+static void AbortHandler(int)
+{
+	RaiseException(CRASH_LOGGER_ABORT, EXCEPTION_NONCONTINUABLE, 0, NULL);
+	ExitProcess(1);
+}
+
+static void PureCallHandler()
+{
+	RaiseException(CRASH_LOGGER_PURE_CALL, EXCEPTION_NONCONTINUABLE, 0, NULL);
+	ExitProcess(1);
 }
 
 static void InvalidParameterHandler(const wchar_t*, const wchar_t*, const wchar_t*, unsigned int, uintptr_t)
 {
-	CONTEXT context = {};
-	RtlCaptureContext(&context);
-
-	if (g_handler)
-	{
-		OS::LockGuard<OS::Mutex> lock(g_mutex);
-
-		std::FILE* file = g_handler();
-
-		if (file)
-		{
-			WriteGenericErrorDump(file, &context, "Invalid parameter detected by CRT");
-
-			std::fclose(file);
-		}
-	}
-
-	std::abort();
+	RaiseException(CRASH_LOGGER_INVALID_PARAM, EXCEPTION_NONCONTINUABLE, 0, NULL);
+	ExitProcess(1);
 }
 
 void CrashLogger::OnEngineError(const char* format, va_list args)
 {
-	CONTEXT context = {};
-	RtlCaptureContext(&context);
+	char buffer[256];
+	// std::vsnprintf is not supported by VS2005
+	_vsnprintf(buffer, sizeof(buffer), format, args);
+	buffer[sizeof(buffer) - 1] = '\0';
 
-	if (g_handler)
-	{
-		OS::LockGuard<OS::Mutex> lock(g_mutex);
+	const ULONG_PTR params[] = { reinterpret_cast<ULONG_PTR>(buffer) };
+	const DWORD paramCount = 1;
 
-		std::FILE* file = g_handler();
-
-		if (file)
-		{
-			WriteEngineErrorDump(file, &context, format, args);
-
-			std::fclose(file);
-		}
-	}
-
-	std::abort();
+	RaiseException(CRASH_LOGGER_ENGINE_ERROR, EXCEPTION_NONCONTINUABLE, paramCount, params);
+	ExitProcess(1);
 }
 
-void CrashLogger::Enable(CrashLogger::Handler handler)
+void CrashLogger::Enable(LogFileProvider logFileProvider, const char* banner)
 {
-	g_handler = handler;
+	g_logFileProvider = logFileProvider;
+	g_banner = banner;
 
 	SetUnhandledExceptionFilter(&CrashHandler);
+	Hook_SetUnhandledExceptionFilter();  // prevent the engine and mods from disabling us
+
+	signal(SIGABRT, &AbortHandler);
+	_set_abort_behavior(0, _WRITE_ABORT_MSG);  // suppress abort message (console) and dialog (GUI)
 
 	_set_purecall_handler(&PureCallHandler);
 	_set_invalid_parameter_handler(&InvalidParameterHandler);
@@ -483,19 +557,50 @@ void CrashLogger::Enable(CrashLogger::Handler handler)
 	HMODULE msvcr80 = LoadLibraryA("msvcr80.dll");
 	if (msvcr80)
 	{
+		void* vs2005_signal = GetProcAddress(msvcr80, "signal");
+		if (vs2005_signal)
+		{
+			reinterpret_cast<void(*(*)(int, void(*)(int)))(int)>
+				(vs2005_signal)(SIGABRT, &AbortHandler);
+		}
+
+		void* vs2005_set_abort_behavior = GetProcAddress(msvcr80, "_set_abort_behavior");
+		if (vs2005_set_abort_behavior)
+		{
+			reinterpret_cast<unsigned int(*)(unsigned int, unsigned int)>
+				(vs2005_set_abort_behavior)(0, _WRITE_ABORT_MSG);
+		}
+
 		void* vs2005_set_purecall_handler = GetProcAddress(msvcr80, "_set_purecall_handler");
 		if (vs2005_set_purecall_handler)
 		{
-			static_cast<_purecall_handler(*)(_purecall_handler)>
+			reinterpret_cast<_purecall_handler(*)(_purecall_handler)>
 				(vs2005_set_purecall_handler)(&PureCallHandler);
 		}
 
 		void* vs2005_set_invalid_parameter_handler = GetProcAddress(msvcr80, "_set_invalid_parameter_handler");
 		if (vs2005_set_invalid_parameter_handler)
 		{
-			static_cast<_invalid_parameter_handler(*)(_invalid_parameter_handler)>
+			reinterpret_cast<_invalid_parameter_handler(*)(_invalid_parameter_handler)>
 				(vs2005_set_invalid_parameter_handler)(&InvalidParameterHandler);
 		}
 	}
 #endif
+}
+
+void CrashLogger::AddExtraProvider(ExtraProvider* provider)
+{
+	if (!g_extraProvider)
+	{
+		g_extraProvider = provider;
+		return;
+	}
+
+	ExtraProvider* current = g_extraProvider;
+	while (current->next)
+	{
+		current = current->next;
+	}
+
+	current->next = provider;
 }

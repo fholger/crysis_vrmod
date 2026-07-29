@@ -1,7 +1,9 @@
 #include "Library/CrashLogger.h"
 #include "Library/OS.h"
+#include "Project.h"
 
 #include "../CPUInfo.h"
+#include "../CryMallocHook.h"
 #include "../LauncherCommon.h"
 #include "../MemoryPatch.h"
 
@@ -9,11 +11,19 @@
 #include "LanguageHook.h"
 #include "Library/StringFormat.h"
 
+#define LAUNCHER_BANNER "C1-Launcher Game " PROJECT_VERSION_STRING
 #define DEFAULT_LOG_FILE_NAME "Game.log"
 
 static std::FILE* OpenLogFile()
 {
 	return LauncherCommon::OpenLogFile(DEFAULT_LOG_FILE_NAME);
+}
+
+static void OnCPUDetect(CPUInfo* info, ISystem* pSystem)
+{
+	LauncherCommon::OnEarlyEngineInit(pSystem, LAUNCHER_BANNER);
+
+	CPUInfo::Detect(info);
 }
 
 GameLauncher::GameLauncher() : m_pGameStartup(NULL), m_params(), m_dlls()
@@ -38,12 +48,13 @@ int GameLauncher::Run()
 
 	LauncherCommon::SetParamsCmdLine(m_params, cmdLine);
 
-	CrashLogger::Enable(&OpenLogFile);
+	CrashLogger::Enable(&OpenLogFile, LAUNCHER_BANNER);
 
 	this->LoadEngine();
 	this->PatchEngine();
 
-	m_pGameStartup = LauncherCommon::StartEngine(m_dlls.isWarhead ? m_dlls.pEXE : m_dlls.pCryGame, m_params);
+	void* pCryGame = m_dlls.pWarheadExe ? m_dlls.pWarheadExe : m_dlls.pCryGame;
+	m_pGameStartup = LauncherCommon::StartEngine(pCryGame, m_params);
 
 	return m_pGameStartup->Run(NULL);
 }
@@ -52,15 +63,15 @@ void GameLauncher::LoadEngine()
 {
     LoadVRMod();
 	m_dlls.pCrySystem = LauncherCommon::LoadDLL("CrySystem.dll");
-
 	m_dlls.gameBuild = LauncherCommon::GetGameBuild(m_dlls.pCrySystem);
-	m_dlls.isWarhead = LauncherCommon::IsCrysisWarhead(m_dlls.gameBuild);
-
+	const bool isCryisMPBeta4804 = m_dlls.gameBuild == 4804;
 	LauncherCommon::VerifyGameBuild(m_dlls.gameBuild);
 
-	if (m_dlls.isWarhead)
+	CryMallocHook::Init(m_dlls.pCrySystem);
+
+	if (LauncherCommon::IsCrysisWarhead(m_dlls.gameBuild))
 	{
-		m_dlls.pEXE = LauncherCommon::LoadCrysisWarheadEXE();
+		m_dlls.pWarheadExe = LauncherCommon::LoadCrysisWarheadEXE();
 	}
 	else
 	{
@@ -72,7 +83,7 @@ void GameLauncher::LoadEngine()
 
 	if (!m_params.isDedicatedServer && !OS::CmdLine::HasArg("-dedicated"))
 	{
-		if (LauncherCommon::IsDX10())
+		if (!isCryisMPBeta4804 && LauncherCommon::IsDX10())
 		{
 			m_dlls.pCryRenderD3D10 = LauncherCommon::LoadDLL("CryRenderD3D10.dll");
 		}
@@ -80,6 +91,14 @@ void GameLauncher::LoadEngine()
 		{
 			m_dlls.pCryRenderD3D9 = LauncherCommon::LoadDLL("CryRenderD3D9.dll");
 		}
+
+#ifdef BUILD_64BIT
+		m_dlls.pFMODEx = LauncherCommon::LoadDLL("fmodex64.dll");
+#else
+		m_dlls.pFMODEx = LauncherCommon::LoadDLL(isCryisMPBeta4804 ? "fmodexL.dll" : "fmodex.dll");
+#endif
+
+		m_dlls.pCrySoundSystem = LauncherCommon::LoadDLL("CrySoundSystem.dll");
 	}
 }
 
@@ -87,22 +106,31 @@ void GameLauncher::PatchEngine()
 {
 	const bool patchIntros = !OS::CmdLine::HasArg("-splash");
 
-	if (m_dlls.isWarhead && m_dlls.pEXE)
+	if (m_dlls.pWarheadExe)
 	{
+		MemoryPatch::WarheadEXE::AllowDX9ImmersiveMultiplayer(m_dlls.pWarheadExe, m_dlls.gameBuild);
+		MemoryPatch::WarheadEXE::HookCryWarning(m_dlls.pWarheadExe, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::WarheadEXE::HookGameWarning(m_dlls.pWarheadExe, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
+
 		if (patchIntros)
 		{
-			MemoryPatch::CryGame::DisableIntros(m_dlls.pEXE, m_dlls.gameBuild);
+			MemoryPatch::WarheadEXE::DisableIntros(m_dlls.pWarheadExe, m_dlls.gameBuild);
 		}
 
-		MemoryPatch::CryAction::AllowDX9ImmersiveMultiplayer(m_dlls.pEXE, m_dlls.gameBuild);
-
-		MemoryPatch::WarheadEXE::FixHInstance(m_dlls.pEXE, m_dlls.gameBuild);
+		MemoryPatch::WarheadEXE::FixHInstance(m_dlls.pWarheadExe, m_dlls.gameBuild);
 	}
 
 	if (m_dlls.pCryGame)
 	{
 		MemoryPatch::CryGame::CanJoinDX10Servers(m_dlls.pCryGame, m_dlls.gameBuild);
 		MemoryPatch::CryGame::EnableDX10Menu(m_dlls.pCryGame, m_dlls.gameBuild);
+		MemoryPatch::CryGame::FixModLoad(m_dlls.pCryGame, m_dlls.gameBuild);
+		MemoryPatch::CryGame::HookCryWarning(m_dlls.pCryGame, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::CryGame::HookGameWarning(m_dlls.pCryGame, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
 
 		if (patchIntros)
 		{
@@ -113,6 +141,10 @@ void GameLauncher::PatchEngine()
 	if (m_dlls.pCryAction)
 	{
 		MemoryPatch::CryAction::AllowDX9ImmersiveMultiplayer(m_dlls.pCryAction, m_dlls.gameBuild);
+		MemoryPatch::CryAction::HookCryWarning(m_dlls.pCryAction, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::CryAction::HookGameWarning(m_dlls.pCryAction, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
 	}
 
 	if (m_dlls.pCryNetwork)
@@ -121,6 +153,8 @@ void GameLauncher::PatchEngine()
 		MemoryPatch::CryNetwork::AllowSameCDKeys(m_dlls.pCryNetwork, m_dlls.gameBuild);
 		MemoryPatch::CryNetwork::FixInternetConnect(m_dlls.pCryNetwork, m_dlls.gameBuild);
 		MemoryPatch::CryNetwork::FixFileCheckCrash(m_dlls.pCryNetwork, m_dlls.gameBuild);
+		MemoryPatch::CryNetwork::HookCryWarning(m_dlls.pCryNetwork, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
 	}
 
 	if (m_dlls.pCrySystem)
@@ -130,11 +164,13 @@ void GameLauncher::PatchEngine()
 		MemoryPatch::CrySystem::AllowMultipleInstances(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::DisableCrashHandler(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::FixCPUInfoOverflow(m_dlls.pCrySystem, m_dlls.gameBuild);
-		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &CPUInfo::Detect);
+		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &OnCPUDetect);
 		MemoryPatch::CrySystem::HookError(m_dlls.pCrySystem, m_dlls.gameBuild, &CrashLogger::OnEngineError);
 		MemoryPatch::CrySystem::HookLanguageInit(m_dlls.pCrySystem, m_dlls.gameBuild, &LanguageHook::OnInit);
 		MemoryPatch::CrySystem::HookChangeUserPath(m_dlls.pCrySystem, m_dlls.gameBuild,
 			&LauncherCommon::OnChangeUserPath);
+		MemoryPatch::CrySystem::HookCryWarning(m_dlls.pCrySystem, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
 	}
 
 	if (m_dlls.pCryRenderD3D9)
@@ -150,6 +186,16 @@ void GameLauncher::PatchEngine()
 			&LauncherCommon::OnD3D10Info);
 		MemoryPatch::CryRenderD3D10::HookInitAPI(m_dlls.pCryRenderD3D10, m_dlls.gameBuild,
 			&LauncherCommon::OnD3D10Init);
+	}
+
+	if (m_dlls.pCrySoundSystem)
+	{
+		MemoryPatch::CrySoundSystem::FixAllocForFmod(m_dlls.pCrySoundSystem, m_dlls.gameBuild);
+	}
+
+	if (m_dlls.pFMODEx && LauncherCommon::IsFMODExVersionCorrect(m_dlls.pFMODEx, m_dlls.gameBuild))
+	{
+		MemoryPatch::FMODEx::Fix64BitHeapAddressTruncation(m_dlls.pFMODEx, m_dlls.gameBuild);
 	}
 }
 

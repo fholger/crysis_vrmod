@@ -10,17 +10,18 @@ class GameLauncher
 
 	struct DLLs
 	{
-		void* pEXE;
+		void* pWarheadExe;
 		void* pCryGame;
 		void* pCryAction;
 		void* pCryNetwork;
 		void* pCrySystem;
 		void* pCryRenderD3D9;
 		void* pCryRenderD3D10;
+		void* pCrySoundSystem;
+		void* pFMODEx;
 		void* pVRMod;
 
 		int gameBuild;
-		bool isWarhead;
 	};
 
 	DLLs m_dlls;

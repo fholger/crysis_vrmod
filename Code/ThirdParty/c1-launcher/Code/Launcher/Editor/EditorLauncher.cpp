@@ -1,13 +1,16 @@
 #include "Library/CrashLogger.h"
 #include "Library/OS.h"
 #include "Library/StringFormat.h"
+#include "Project.h"
 
 #include "../CPUInfo.h"
+#include "../CryMallocHook.h"
 #include "../LauncherCommon.h"
 #include "../MemoryPatch.h"
 
 #include "EditorLauncher.h"
 
+#define LAUNCHER_BANNER "C1-Launcher Editor " PROJECT_VERSION_STRING
 #define DEFAULT_LOG_FILE_NAME "Editor.log"
 
 static OS::DLL::Version g_version;
@@ -17,17 +20,24 @@ static std::FILE* OpenLogFile()
 	return LauncherCommon::OpenLogFile(DEFAULT_LOG_FILE_NAME);
 }
 
+static void OnCPUDetect(CPUInfo* info, ISystem* pSystem)
+{
+	LauncherCommon::OnEarlyEngineInit(pSystem, LAUNCHER_BANNER);
+
+	CPUInfo::Detect(info);
+}
+
 static void OnVersionInit(MemoryPatch::Editor::Version* version)
 {
 	version->file_major = g_version.major;
 	version->file_minor = g_version.minor;
-	version->file_tweak = g_version.tweak;
 	version->file_patch = g_version.patch;
+	version->file_tweak = g_version.tweak;
 
 	version->product_major = g_version.major;
 	version->product_minor = g_version.minor;
-	version->product_tweak = g_version.tweak;
 	version->product_patch = g_version.patch;
+	version->product_tweak = g_version.tweak;
 }
 
 static int GetEditorBuild(void* pEditor)
@@ -37,7 +47,7 @@ static int GetEditorBuild(void* pEditor)
 		throw StringFormat_SysError("Failed to get the editor version!");
 	}
 
-	return g_version.patch;
+	return g_version.tweak;
 }
 
 static void VerifyEditorBuild(int editorBuild)
@@ -98,7 +108,7 @@ EditorLauncher::~EditorLauncher()
 
 int EditorLauncher::Run(char* cmdLine)
 {
-	CrashLogger::Enable(&OpenLogFile);
+	CrashLogger::Enable(&OpenLogFile, LAUNCHER_BANNER);
 
 	this->LoadEngine();
 	this->PatchEngine();
@@ -112,9 +122,23 @@ void EditorLauncher::LoadEngine()
 	m_dlls.gameBuild = LauncherCommon::GetGameBuild(m_dlls.pCrySystem);
 	LauncherCommon::VerifyGameBuild(m_dlls.gameBuild);
 
+	CryMallocHook::Init(m_dlls.pCrySystem);
+
 	m_dlls.pEditor = LauncherCommon::LoadEXE("Editor.exe");
 	m_dlls.editorBuild = GetEditorBuild(m_dlls.pEditor);
 	VerifyEditorBuild(m_dlls.editorBuild);
+
+	if (LauncherCommon::IsCrysisWarhead(m_dlls.gameBuild))
+	{
+		m_dlls.pWarheadExe = LauncherCommon::LoadCrysisWarheadEXE();
+	}
+	else
+	{
+		m_dlls.pCryGame = LauncherCommon::LoadDLL("CryGame.dll");
+		m_dlls.pCryAction = LauncherCommon::LoadDLL("CryAction.dll");
+	}
+
+	m_dlls.pCryNetwork = LauncherCommon::LoadDLL("CryNetwork.dll");
 
 	if (LauncherCommon::IsDX10())
 	{
@@ -124,6 +148,20 @@ void EditorLauncher::LoadEngine()
 	{
 		m_dlls.pCryRenderD3D9 = LauncherCommon::LoadDLL("CryRenderD3D9.dll");
 	}
+
+#ifdef BUILD_64BIT
+	m_dlls.pFMODEx = LauncherCommon::LoadDLL("fmodex64.dll");
+#else
+	m_dlls.pFMODEx = LauncherCommon::LoadDLL("fmodex.dll");
+#endif
+
+	m_dlls.pCrySoundSystem = LauncherCommon::LoadDLL("CrySoundSystem.dll");
+
+#ifdef BUILD_64BIT
+	m_dlls.pXToolkitPro = LauncherCommon::LoadDLL("ToolkitPro1042vc80x64.dll");
+#else
+	m_dlls.pXToolkitPro = LauncherCommon::LoadDLL("ToolkitPro1042vc80.dll");
+#endif
 }
 
 void EditorLauncher::PatchEngine()
@@ -134,15 +172,47 @@ void EditorLauncher::PatchEngine()
 		MemoryPatch::Editor::HookVersionInit(m_dlls.pEditor, m_dlls.editorBuild, &OnVersionInit);
 	}
 
+	if (m_dlls.pWarheadExe)
+	{
+		MemoryPatch::WarheadEXE::HookCryWarning(m_dlls.pWarheadExe, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::WarheadEXE::HookGameWarning(m_dlls.pWarheadExe, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
+	}
+
+	if (m_dlls.pCryGame)
+	{
+		MemoryPatch::CryGame::HookCryWarning(m_dlls.pCryGame, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::CryGame::HookGameWarning(m_dlls.pCryGame, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
+	}
+
+	if (m_dlls.pCryAction)
+	{
+		MemoryPatch::CryAction::HookCryWarning(m_dlls.pCryAction, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+		MemoryPatch::CryAction::HookGameWarning(m_dlls.pCryAction, m_dlls.gameBuild,
+			&LauncherCommon::OnGameWarning);
+	}
+
+	if (m_dlls.pCryNetwork)
+	{
+		MemoryPatch::CryNetwork::HookCryWarning(m_dlls.pCryNetwork, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
+	}
+
 	if (m_dlls.pCrySystem)
 	{
 		MemoryPatch::CrySystem::AllowDX9VeryHighSpec(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::DisableCrashHandler(m_dlls.pCrySystem, m_dlls.gameBuild);
 		MemoryPatch::CrySystem::FixCPUInfoOverflow(m_dlls.pCrySystem, m_dlls.gameBuild);
-		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &CPUInfo::Detect);
+		MemoryPatch::CrySystem::HookCPUDetect(m_dlls.pCrySystem, m_dlls.gameBuild, &OnCPUDetect);
 		MemoryPatch::CrySystem::HookError(m_dlls.pCrySystem, m_dlls.gameBuild, &CrashLogger::OnEngineError);
 		MemoryPatch::CrySystem::HookChangeUserPath(m_dlls.pCrySystem, m_dlls.gameBuild,
 			&LauncherCommon::OnChangeUserPath);
+		MemoryPatch::CrySystem::HookCryWarning(m_dlls.pCrySystem, m_dlls.gameBuild,
+			&LauncherCommon::OnCryWarning);
 	}
 
 	if (m_dlls.pCryRenderD3D9)
@@ -158,5 +228,20 @@ void EditorLauncher::PatchEngine()
 			&LauncherCommon::OnD3D10Info);
 		MemoryPatch::CryRenderD3D10::HookInitAPI(m_dlls.pCryRenderD3D10, m_dlls.gameBuild,
 			&LauncherCommon::OnD3D10Init);
+	}
+
+	if (m_dlls.pCrySoundSystem)
+	{
+		MemoryPatch::CrySoundSystem::FixAllocForFmod(m_dlls.pCrySoundSystem, m_dlls.gameBuild);
+	}
+
+	if (m_dlls.pFMODEx && LauncherCommon::IsFMODExVersionCorrect(m_dlls.pFMODEx, m_dlls.gameBuild))
+	{
+		MemoryPatch::FMODEx::Fix64BitHeapAddressTruncation(m_dlls.pFMODEx, m_dlls.gameBuild);
+	}
+
+	if (m_dlls.pXToolkitPro && LauncherCommon::IsXToolkitProVersionCorrect(m_dlls.pXToolkitPro, m_dlls.gameBuild))
+	{
+		MemoryPatch::XToolkitPro::FixAccessibleObjectFromWindow(m_dlls.pXToolkitPro);
 	}
 }

@@ -9,10 +9,9 @@
 #include "Library/PathTools.h"
 #include "Library/StringFormat.h"
 #include "Library/StringView.h"
-#include "Project.h"
 
-#include "CryRender.h"
 #include "LauncherCommon.h"
+#include "MemoryPatch.h"
 
 std::string LauncherCommon::GetMainFolderPath()
 {
@@ -98,19 +97,26 @@ void* LauncherCommon::LoadCrysisWarheadEXE()
 
 int LauncherCommon::GetGameBuild(void* pCrySystem)
 {
+	static int c_GameBuild = 0;
+	if (c_GameBuild && !pCrySystem)
+	{
+		return c_GameBuild;
+	}
 	OS::DLL::Version version;
 	if (!OS::DLL::GetVersion(pCrySystem, version))
 	{
 		throw StringFormat_SysError("Failed to get the game version!");
 	}
 
-	return version.patch;
+	c_GameBuild = version.tweak;
+	return c_GameBuild;
 }
 
 void LauncherCommon::VerifyGameBuild(int gameBuild)
 {
 	switch (gameBuild)
 	{
+		case 4804: // MP Beta
 		case 5767:
 		case 5879:
 		case 6115:
@@ -161,6 +167,94 @@ bool LauncherCommon::IsCrysisWarhead(int gameBuild)
 		{
 			// Crysis Warhead
 			return true;
+		}
+	}
+
+	return false;
+}
+
+bool LauncherCommon::IsFMODExVersionCorrect(void* pFMODEx, int gameBuild)
+{
+	OS::DLL::Version ver;
+	if (!OS::DLL::GetVersion(pFMODEx, ver))
+	{
+		return false;
+	}
+
+	switch (gameBuild)
+	{
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+		{
+			// Crysis
+			return ver.major == 0 && ver.minor == 4 && ver.patch == 7 && ver.tweak == 23;
+		}
+#ifdef BUILD_64BIT
+		// 64-bit binaries are missing in the first build of Crysis Warhead
+#else
+		case 687:
+#endif
+		case 710:
+		case 711:
+#ifdef BUILD_64BIT
+		// 64-bit binaries are missing in the first build of Crysis Wars
+#else
+		case 6527:
+#endif
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			// Crysis Warhead and Crysis Wars
+			return ver.major == 0 && ver.minor == 4 && ver.patch == 14 && ver.tweak == 3;
+		}
+	}
+
+	return false;
+}
+
+bool LauncherCommon::IsXToolkitProVersionCorrect(void* pXToolkitPro, int gameBuild)
+{
+	OS::DLL::Version ver;
+	if (!OS::DLL::GetVersion(pXToolkitPro, ver))
+	{
+		return false;
+	}
+
+	switch (gameBuild)
+	{
+#ifdef BUILD_64BIT
+		// 64-bit binaries are missing in the first build of Crysis Warhead
+#else
+		case 687:
+#endif
+		case 710:
+		case 711:
+		{
+			// no editor in Crysis Warhead
+			return false;
+		}
+		case 5767:
+		case 5879:
+		case 6115:
+		case 6156:
+#ifdef BUILD_64BIT
+		// 64-bit binaries are missing in the first build of Crysis Wars
+#else
+		case 6527:
+#endif
+		case 6566:
+		case 6586:
+		case 6627:
+		case 6670:
+		case 6729:
+		{
+			// Crysis and Crysis Wars
+			return ver.major == 10 && ver.minor == 4 && ver.patch == 2 && ver.tweak == 0;
 		}
 	}
 
@@ -316,11 +410,37 @@ void LauncherCommon::OnChangeUserPath(ISystem* pSystem, const char* userPath)
 	SetUserDir(PathTools::Join(PathTools::GetDocumentsPath(), userPath).c_str());
 }
 
-void LauncherCommon::OnEarlyEngineInit(ISystem* pSystem)
+static void LogRealWindowsBuild()
+{
+	void* kernel32 = OS::DLL::Get("kernel32.dll");
+	if (!kernel32)
+	{
+		return;
+	}
+
+	OS::DLL::Version ver;
+	if (!OS::DLL::GetVersion(kernel32, ver))
+	{
+		return;
+	}
+
+	CryLogAlways("Windows build: %hu.%hu.%hu (real)", ver.major, ver.minor, ver.patch);
+}
+
+void LauncherCommon::OnEarlyEngineInit(ISystem* pSystem, const char* banner)
 {
 	gEnv = pSystem->GetGlobalEnvironment();
 
-	CryLogAlways("%s", PROJECT_BANNER);
+	CryLogAlways("%s", banner);
+
+#if !defined(BUILD_64BIT)
+	// something in `pSystem->GetRootFolder()` gives access violation, skip for now
+	if (GetGameBuild(0) == 4804)
+	{
+		LogRealWindowsBuild();
+		return;
+	}
+#endif
 
 	const std::string mainDir = PathTools::GetWorkingDirectory();
 	const std::string rootDir = PathTools::Prettify(pSystem->GetRootFolder());
@@ -329,15 +449,17 @@ void LauncherCommon::OnEarlyEngineInit(ISystem* pSystem)
 	CryLogAlways("Main directory: %s", mainDir.c_str());
 	CryLogAlways("Root directory: %s", rootDir.empty() ? mainDir.c_str() : rootDir.c_str());
 	CryLogAlways("User directory: %s", userDir.c_str());
+
+	LogRealWindowsBuild();
 }
 
-void LauncherCommon::OnD3D9Info(CryRender_D3D9_AdapterInfo* info)
+void LauncherCommon::OnD3D9Info(MemoryPatch::CryRenderD3D9::AdapterInfo* info)
 {
 	CryLogAlways("D3D9 Adapter: %s", info->description);
 	CryLogAlways("D3D9 Adapter: PCI %04x:%04x (rev %02x)", info->vendor_id, info->device_id, info->revision);
 }
 
-void LauncherCommon::OnD3D10Info(CryRender_D3D10_AdapterInfo* info)
+void LauncherCommon::OnD3D10Info(MemoryPatch::CryRenderD3D10::AdapterInfo* info)
 {
 	CryLogAlways("D3D10 Adapter: %ls", info->description);
 	CryLogAlways("D3D10 Adapter: PCI %04x:%04x (rev %02x)", info->vendor_id, info->device_id, info->revision);
@@ -347,7 +469,7 @@ void LauncherCommon::OnD3D10Info(CryRender_D3D10_AdapterInfo* info)
 	LogBytes("D3D10 Adapter: Shared system memory = ", info->shared_system_memory);
 }
 
-bool LauncherCommon::OnD3D10Init(CryRender_D3D10_SystemAPI* api)
+bool LauncherCommon::OnD3D10Init(MemoryPatch::CryRenderD3D10::SystemAPI* api)
 {
 	void* d3d10 = OS::DLL::Load("d3d10.dll");
 	if (!d3d10)
@@ -368,6 +490,32 @@ bool LauncherCommon::OnD3D10Init(CryRender_D3D10_SystemAPI* api)
 	api->pCreateDXGIFactory = OS::DLL::FindSymbol(dxgi, "CreateDXGIFactory");
 
 	return true;
+}
+
+void LauncherCommon::OnCryWarning(int, int, const char* format, ...)
+{
+	// the original buffer size
+	char buffer[4096];
+
+	va_list args;
+	va_start(args, format);
+	StringFormatToBufferV(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	CryLogWarning("%s", buffer);
+}
+
+void LauncherCommon::OnGameWarning(const char* format, ...)
+{
+	// the original buffer size
+	char buffer[4096];
+
+	va_list args;
+	va_start(args, format);
+	StringFormatToBufferV(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	CryLogWarning("%s", buffer);
 }
 
 void LauncherCommon::LogBytes(const char* message, std::size_t bytes)

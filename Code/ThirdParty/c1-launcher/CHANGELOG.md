@@ -1,7 +1,30 @@
 # Changelog
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+Notable changes in each release.
+
+## [v8] - 2026-01-19
+- Add support for Crysis MP Beta ([#77](https://github.com/ccomrade/c1-launcher/pull/77) by
+[illusion0001](https://github.com/illusion0001)).
+- Disable DPI awareness for editor ([#83](https://github.com/ccomrade/c1-launcher/pull/83)).
+- Fix 64-bit crashes due to high memory usage ([#84](https://github.com/ccomrade/c1-launcher/pull/84)).
+- Fix crash logger not working with [MWLL](https://mechlivinglegends.net/)
+([#85](https://github.com/ccomrade/c1-launcher/pull/85)).
+- Fix editor crash in `oleacc.AccessibleObjectFromWindow` ([#79](https://github.com/ccomrade/c1-launcher/pull/79)).
+- Fix loading mods via in-game Mods menu ([#69](https://github.com/ccomrade/c1-launcher/pull/69)).
+- Revert sys_crashtest improvements ([#71](https://github.com/ccomrade/c1-launcher/pull/71)).
+- Crash logger can catch aborts now ([#72](https://github.com/ccomrade/c1-launcher/pull/72)).
+
+## [v7] - 2025-05-11
+- Add support for Unicode paths ([#62](https://github.com/ccomrade/c1-launcher/pull/62)).
+This fixes inaccessible user directory due to Unicode characters in Documents path.
+- Add real Windows version to the log ([#60](https://github.com/ccomrade/c1-launcher/pull/60)).
+CrySystem cannot see beyond Windows 8 (6.2.9200).
+- Fix 64-bit memory allocator in FMOD ([#61](https://github.com/ccomrade/c1-launcher/pull/61)).
+- Fix startup crash when `profile.xml` is corrupted ([#59](https://github.com/ccomrade/c1-launcher/pull/59)).
+- Fix startup crash of Warhead launcher when Logitech Gaming Software is installed
+([#40](https://github.com/ccomrade/c1-launcher/pull/40)).
+- Improve crash logger ([#53](https://github.com/ccomrade/c1-launcher/pull/53),
+[#55](https://github.com/ccomrade/c1-launcher/pull/55)).
 
 ## [Unreleased]
 ### Fixed
